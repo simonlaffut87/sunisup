@@ -112,6 +112,7 @@ serve(async (req: Request) => {
       );
     }
 
+    // Email HTML pour l'équipe Sun Is Up
     const emailHtml = `
       <h2>Nouvelle demande de contact</h2>
       <p><strong>Email:</strong> ${email}</p>
@@ -122,6 +123,57 @@ serve(async (req: Request) => {
         <li>Photo compteur: ${meterFile ? "Oui" : "Non"}</li>
         <li>Document supplémentaire: ${additionalFile ? "Oui" : "Non"}</li>
       </ul>
+    `;
+
+    // Email de confirmation pour l'expéditeur
+    const confirmationHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #F59E0B; margin: 0;">Sun Is Up</h1>
+          <p style="color: #6B7280; margin: 5px 0;">Communauté d'énergie bruxelloise</p>
+        </div>
+        
+        <div style="background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 20px; margin-bottom: 30px;">
+          <h2 style="color: #92400E; margin-top: 0;">Merci pour votre demande de contact !</h2>
+          <p style="color: #78350F; margin-bottom: 0;">
+            Nous avons bien reçu votre message et nous vous contacterons dans les plus brefs délais.
+          </p>
+        </div>
+        
+        <div style="background-color: #F9FAFB; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+          <h3 style="color: #374151; margin-top: 0;">Récapitulatif de votre demande :</h3>
+          <p><strong>Email :</strong> ${email}</p>
+          <p><strong>Message :</strong> ${message || "Aucun message fourni"}</p>
+          <p><strong>Documents joints :</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>Facture d'électricité : ${billFile ? "✅ Fournie" : "❌ Non fournie"}</li>
+            <li>Photo du compteur : ${meterFile ? "✅ Fournie" : "❌ Non fournie"}</li>
+            <li>Document supplémentaire : ${additionalFile ? "✅ Fourni" : "❌ Non fourni"}</li>
+          </ul>
+        </div>
+        
+        <div style="background-color: #ECFDF5; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+          <h3 style="color: #065F46; margin-top: 0;">Prochaines étapes :</h3>
+          <ol style="color: #047857; margin: 0; padding-left: 20px;">
+            <li>Notre équipe va analyser votre demande</li>
+            <li>Nous vous contacterons sous 48h pour discuter de votre projet</li>
+            <li>Si votre profil correspond, nous vous proposerons un rendez-vous</li>
+            <li>Nous vous accompagnerons dans votre adhésion à la communauté</li>
+          </ol>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; border-top: 1px solid #E5E7EB;">
+          <p style="color: #6B7280; margin: 0;">
+            <strong>Sun Is Up ASBL</strong><br>
+            Communauté d'énergie bruxelloise<br>
+            📧 info@sunisup.be | 📞 +32 471 31 71 48
+          </p>
+          <p style="color: #9CA3AF; font-size: 12px; margin-top: 15px;">
+            Cet email de confirmation a été envoyé automatiquement. 
+            Si vous n'avez pas fait cette demande, vous pouvez ignorer ce message.
+          </p>
+        </div>
+      </div>
     `;
 
     const attachments: { filename: string; content: string }[] = [];
@@ -158,7 +210,8 @@ serve(async (req: Request) => {
       );
     }
 
-    const emailData = {
+    // Email pour l'équipe Sun Is Up
+    const teamEmailData = {
       from: "Sun Is Up <onboarding@resend.dev>",
       to: "info@sunisup.be",
       reply_to: email,
@@ -167,11 +220,27 @@ serve(async (req: Request) => {
       attachments,
     };
 
-    // Send email with retry logic
-    const response = await sendEmailWithRetry(emailData);
+    // Email de confirmation pour l'expéditeur
+    const confirmationEmailData = {
+      from: "Sun Is Up <onboarding@resend.dev>",
+      to: email,
+      subject: "Confirmation de votre demande - Sun Is Up",
+      html: confirmationHtml,
+    };
+
+    // Send both emails with retry logic
+    const [teamResponse, confirmationResponse] = await Promise.all([
+      sendEmailWithRetry(teamEmailData),
+      sendEmailWithRetry(confirmationEmailData)
+    ]);
 
     return new Response(
-      JSON.stringify({ success: true, id: response.id }),
+      JSON.stringify({ 
+        success: true, 
+        teamEmailId: teamResponse.id,
+        confirmationEmailId: confirmationResponse.id,
+        message: "Emails envoyés avec succès"
+      }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
