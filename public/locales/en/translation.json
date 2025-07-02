@@ -1,0 +1,317 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "quickscan": "Simulation",
+    "howToJoin": "Join us"
+  },
+  "header": {
+    "title": "Sun Is Up",
+    "contact": "Contact us",
+    "subtitle": "Brussels energy community",
+    "memberAccess": "Member access",
+    "member": "Member"
+  },
+  "contact": {
+    "title": "Get in touch",
+    "email": "Email address",
+    "emailPlaceholder": "your@email.com",
+    "message": "Message",
+    "messagePlaceholder": "Describe your situation to help us estimate your savings (building type, annual consumption, business sector, surface area, number of occupants...)",
+    "billFile": "Recent settlement bill (optional)",
+    "billFileText": "Click to select",
+    "meterPhoto": "Electric meter photo (optional)",
+    "meterPhotoText": "Click to select",
+    "additionalDoc": "Additional document (optional)",
+    "additionalDocText": "Additional document (optional)",
+    "submit": "Send my request",
+    "submitting": "Sending...",
+    "success": {
+      "title": "Request sent successfully!",
+      "message": "We will contact you soon for the next steps."
+    },
+    "errors": {
+      "required": "Please fill in all required fields",
+      "slowDown": "Please take time to fill out the form correctly",
+      "general": "An error occurred while sending your request. Please try again later."
+    }
+  },
+  "about": {
+    "whoAreWe": {
+      "title": "Who are we?",
+      "subtitle": "Two engineers passionate about the energy transition",
+      "thomas": {
+        "title": "Thomas",
+        "role": "Civil Engineer",
+        "qualifications": [
+          "MSc in Energy (ULB) - Specialized in sustainable energy systems",
+          "MSc in Business Management (ICHEC) - Expertise in energy project management",
+          "PhD candidate at ULB - Research on energy community optimization"
+        ]
+      },
+      "simon": {
+        "title": "Simon",
+        "role": "Industrial Engineer",
+        "qualifications": [
+          "MSc in Electromechanics (ECAM) - Expert in electrical and mechanical systems",
+          "Project Manager at WeSmart - 3 years of experience in local energy communities"
+        ]
+      },
+      "friendship": {
+        "title": "A friendship born at school",
+        "description": "Thomas and Simon met during their engineering studies. United by a shared passion for innovation and sustainability, they decided to tackle together a real challenge for Brussels businesses: soaring energy prices. Their complementarity - Simon's technical expertise and Thomas's systemic vision - allows them to create concrete solutions to democratize access to green energy."
+      }
+    },
+    "history": {
+      "title": "Our History",
+      "intro": "Two engineers, one vision: making energy more local, fair, and sustainable.",
+      "team": {
+        "simon": {
+          "title": "Simon",
+          "role": "Electromechanical Engineer",
+          "description": "3 years at WeSmart, expert in local energy communities."
+        },
+        "thomas": {
+          "title": "Thomas",
+          "role": "Energy Engineer",
+          "description": "Researcher at ULB, specialized in energy storage."
+        }
+      },
+      "friendship": {
+        "title": "A friendship born in school",
+        "description": "Simon and Thomas met during their studies. Together, they decided to tackle a real challenge for Brussels businesses: the surge in energy prices."
+      },
+      "solution": {
+        "title": "Our solution: the energy community",
+        "description": "Sun Is Up enables producers and consumers to exchange energy locally, directly.",
+        "benefits": {
+          "suppliers": "Less dependence on suppliers",
+          "resilience": "More resilience to price increases",
+          "sustainable": "A more sustainable and solidarity-based model",
+          "suppliersDescription": "Reduce your dependence on major energy suppliers by accessing local production directly.",
+          "resilienceDescription": "Protect yourself against energy price volatility through stable and predictable rates.",
+          "sustainableDescription": "Participate in a local circular economy that promotes mutual aid and ecological transition."
+        },
+        "cta": "Together, let's take back control of our energy."
+      }
+    },
+    "mission": {
+      "title": "Our Mission",
+      "objectives": {
+        "title": "Key Objectives",
+        "items": [
+          "Create an energy network of Brussels producers and consumers",
+          "Reduce market price variation risks",
+          "Democratize access to green energy"
+        ]
+      },
+      "stats": {
+        "availableEnergy": "MWh available",
+        "activeMembers": "Active members",
+        "averageSavings": "Average savings",
+        "localEnergy": "Local energy"
+      }
+    },
+    "partners": {
+      "title": "Our Partners",
+      "subtitle": "Our technical and institutional partners",
+      "technical": {
+        "title": "Technical Partners",
+        "list": [
+          "Brugel",
+          "Sibelga"
+        ],
+        "descriptions": {
+          "brugel": "Brussels energy regulator, guarantor of the regulatory framework for energy communities",
+          "sibelga": "Brussels electricity distribution network operator, essential technical partner"
+        }
+      }
+    },
+    "teamSection": {
+      "title": "Who are we?",
+      "subtitle": "Two engineers passionate about the energy transition"
+    },
+    "cta": {
+      "title": "Join our vision",
+      "description": "Together, let's build a more sustainable and solidarity-based energy future for Brussels",
+      "joinButton": "Join us",
+      "simulateButton": "Simulate my savings"
+    }
+  },
+  "footer": {
+    "contact": "Contact",
+    "followUs": "Follow us",
+    "copyright": "© 2025 Sun Is Up NPO. All rights reserved.",
+    "description": "Brussels energy community for a local and sustainable energy transition."
+  },
+  "home": {
+    "hero": {
+      "title": "Benefit from renewable energy sharing in Brussels",
+      "intro": "Join our energy community and reduce your electricity bills by up to 30% through local solar energy sharing.",
+      "badge": "Local energy community",
+      "features": {
+        "local": {
+          "title": "Local production",
+          "description": "Energy produced and consumed locally in Brussels"
+        },
+        "price": {
+          "title": "Competitive prices",
+          "description": "Significant reduction on your electricity bill"
+        },
+        "transition": {
+          "title": "Energy transition",
+          "description": "Actively participate in the energy transition"
+        },
+        "green": {
+          "title": "Access to green energy",
+          "description": "Benefit from renewable energy from existing installations"
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "How does it work?",
+      "description": "Discover in video how our energy community works",
+      "watchVideo": "Watch video",
+      "videoDescription": "Community operation explained by Brugel"
+    },
+    "stats": {
+      "production": {
+        "title": "Available energy",
+        "unit": "MWh/year",
+        "value": "724",
+        "subtitle": "available energy (equivalent to 240 households or 24 SMEs consumption)"
+      },
+      "participants": {
+        "title": "Participants",
+        "subtitle": "active members"
+      },
+      "savings": {
+        "title": "Average savings",
+        "subtitle": "average reduction"
+      }
+    },
+    "map": {
+      "title": "Our network in Brussels",
+      "description": "Discover the producers and consumers of our energy community",
+      "producers": "Producers",
+      "consumers": "Consumers",
+      "details": {
+        "peakPower": "Peak power",
+        "production": "Production",
+        "consumption": "Consumption",
+        "perYear": "kWh/year"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": [
+        {
+          "question": "How does the energy community work?",
+          "answer": "Our community enables solar energy producers to share their surplus with local consumers through a direct contract established by our NPO. This direct approach reduces costs for all participants."
+        },
+        {
+          "question": "What are the conditions to join?",
+          "answer": "You simply need to be located in the Brussels-Capital region and have a new generation meter (smart meter). If you don't have one yet, Sibelga can install it for free upon request."
+        },
+        {
+          "question": "What is a new generation meter?",
+          "answer": "The new generation meter (smart meter) is an intelligent electricity meter that measures your energy consumption and production in real time. It is essential for participating in an energy community as it enables precise energy sharing between members. Sibelga, the Brussels network operator, installs it for free."
+        },
+        {
+          "question": "How much can I save?",
+          "answer": "Members can save up to 30% on their electricity bill depending on their consumption profile. The more energy you consume during sunlight hours, the higher your savings will be."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to join the community?",
+      "description": "Start saving on your electricity bill today"
+    }
+  },
+  "simulation": {
+    "title": "Simulate your savings",
+    "examplesTitle": "Consumption value examples",
+    "consumer": {
+      "title": "I am a consumer",
+      "description": "Calculate your potential savings by joining our community",
+      "consumption": "Annual consumption",
+      "currentCost": "Current cost",
+      "newCost": "New cost",
+      "savings": "Annual savings",
+      "disclaimer": "This simulation is based on average market prices. Your actual savings may vary."
+    },
+    "producer": {
+      "title": "I am a producer",
+      "description": "Estimate your revenue by sharing your production",
+      "power": "Installed power (kWp)",
+      "powerUnknown": "I don't know my installed power",
+      "panelCount": "Number of panels",
+      "production": "Estimated production",
+      "revenue": "Estimated revenue",
+      "disclaimer": "This estimate is based on average production. Your actual revenue will depend on several factors."
+    },
+    "calculate": "Calculate",
+    "contact": "Discuss my project",
+    "examples": {
+      "bar": {
+        "title": "Bar",
+        "consumption": "15,000 kWh/year"
+      },
+      "bakery": {
+        "title": "Bakery",
+        "consumption": "45,000 kWh/year"
+      },
+      "office": {
+        "title": "Office",
+        "consumption": "25,000 kWh/year"
+      },
+      "workshop": {
+        "title": "Workshop",
+        "consumption": "35,000 kWh/year"
+      }
+    },
+    "badge": "Free simulation",
+    "subtitle": "Discover how much you could save or earn by joining our energy community",
+    "profileChoice": "Choose your profile",
+    "results": "Your results"
+  },
+  "howToJoin": {
+    "title": "How to join?",
+    "intro": "Joining our energy community is simple and quick. Here are the steps:",
+    "badge": "Simple and quick process",
+    "steps": {
+      "documents": {
+        "title": "Required documents",
+        "items": [
+          "Your latest annual electricity bill so we can estimate your savings"
+        ]
+      },
+      "membership": {
+        "title": "Membership",
+        "items": [
+          "Sign the participation agreement",
+          "Free installation of a new generation meter by Sibelga (if needed)"
+        ]
+      },
+      "financial": {
+        "title": "Financial aspects",
+        "items": [
+          "Annual fee of €50",
+          "No installation fees",
+          "No duration commitment"
+        ]
+      },
+      "activation": {
+        "title": "Activation",
+        "items": [
+          "Start saving the following month"
+        ]
+      }
+    },
+    "cta": {
+      "title": "Ready to join?",
+      "description": "Contact us to discuss your project and start saving on your electricity bill.",
+      "button": "Start my application"
+    }
+  }
+}
