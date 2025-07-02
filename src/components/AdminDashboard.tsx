@@ -35,6 +35,17 @@ import { MonthlyFileManager } from './MonthlyFileManager';
 type Participant = Database['public']['Tables']['participants']['Row'];
 type EnergyData = Database['public']['Tables']['energy_data']['Row'];
 
+interface ParticipantMetadata {
+  id: string;
+  participant_id: string;
+  email: string;
+  ean_code: string;
+  commodity_rate: number;
+  entry_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface ParticipantWithUser extends Participant {
   user_id?: string;
   email?: string;
@@ -45,6 +56,7 @@ interface ParticipantWithUser extends Participant {
   ean_code?: string;
   commodity_rate?: number;
   entry_date?: string;
+  metadata?: ParticipantMetadata;
 }
 
 export function AdminDashboard() {
@@ -81,6 +93,15 @@ export function AdminDashboard() {
 
       if (participantsError) throw participantsError;
 
+      // Get all participant metadata
+      const { data: metadataData, error: metadataError } = await supabase
+        .from('participant_metadata')
+        .select('*');
+
+      if (metadataError) {
+        console.warn('⚠️ Erreur chargement métadonnées:', metadataError);
+      }
+
       // Get all users to match with participants
       const { data: usersData, error: usersError } = await supabase
         .from('users')
@@ -115,16 +136,29 @@ export function AdminDashboard() {
 
       if (energyError) throw energyError;
 
-      // Charger les métadonnées depuis localStorage
-      const participantMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
+      // Charger les métadonnées depuis localStorage comme fallback
+      const localMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
 
       // Combine participants with user data and energy stats
       const participantsWithData = participantsData.map(participant => {
+        // Chercher les métadonnées dans Supabase d'abord, puis localStorage
+        const supabaseMetadata = metadataData?.find(m => m.participant_id === participant.id);
+        const localMeta = localMetadata[participant.id] || {};
+        
+        // Utiliser les métadonnées Supabase en priorité
+        const metadata = supabaseMetadata || {
+          email: localMeta.email,
+          ean_code: localMeta.ean_code,
+          commodity_rate: localMeta.commodity_rate,
+          entry_date: localMeta.entry_date
+        };
+
         // Try to find matching user by name or email
         const matchingUser = usersData.find(user => 
           user.name?.toLowerCase().includes(participant.name.toLowerCase()) ||
           participant.name.toLowerCase().includes(user.name?.toLowerCase() || '') ||
-          user.email?.toLowerCase().includes(participant.name.toLowerCase())
+          user.email?.toLowerCase().includes(participant.name.toLowerCase()) ||
+          (metadata.email && user.email === metadata.email)
         );
 
         let participantEnergyData: EnergyData[] = [];
@@ -136,9 +170,6 @@ export function AdminDashboard() {
         const totalSharedEnergy = participantEnergyData.reduce((sum, item) => sum + Number(item.shared_energy), 0);
         const totalProduction = participantEnergyData.reduce((sum, item) => sum + Number(item.production || 0), 0);
 
-        // Récupérer les métadonnées pour ce participant
-        const metadata = participantMetadata[participant.id] || {};
-
         return {
           ...participant,
           user_id: matchingUser?.id,
@@ -149,7 +180,8 @@ export function AdminDashboard() {
           is_member: !!matchingUser,
           ean_code: metadata.ean_code || null,
           commodity_rate: metadata.commodity_rate || null,
-          entry_date: metadata.entry_date || null
+          entry_date: metadata.entry_date || null,
+          metadata: supabaseMetadata
         };
       });
 
@@ -193,14 +225,17 @@ export function AdminDashboard() {
       const totalSharedEnergy = energyData.reduce((sum, item) => sum + Number(item.shared_energy), 0);
       const averageSavings = totalConsumption > 0 ? (totalSharedEnergy / totalConsumption) * 100 : 0;
 
-      // NOUVEAU CALCUL : Compter les membres actifs selon leur date d'entrée
-      const participantMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
+      // Compter les membres actifs selon leur date d'entrée
+      const { data: metadataData } = await supabase
+        .from('participant_metadata')
+        .select('*');
+
       let activeMembersCount = 0;
 
       // Parcourir tous les participants avec des comptes membres
       const { data: usersData } = await supabase.from('users').select('*');
       
-      if (usersData) {
+      if (usersData && metadataData) {
         for (const user of usersData) {
           // Trouver le participant correspondant
           const { data: participantsData } = await supabase
@@ -214,18 +249,16 @@ export function AdminDashboard() {
             );
 
             if (matchingParticipant) {
-              const metadata = participantMetadata[matchingParticipant.id] || {};
-              const entryDate = metadata.entry_date;
+              const metadata = metadataData.find(m => m.participant_id === matchingParticipant.id);
               
-              if (entryDate) {
-                const memberEntryDate = new Date(entryDate);
+              if (metadata?.entry_date) {
+                const memberEntryDate = new Date(metadata.entry_date);
                 // Vérifier si le membre était actif pendant la période sélectionnée
                 if (memberEntryDate <= endDate) {
                   activeMembersCount++;
                 }
               } else {
                 // Si pas de date d'entrée spécifiée, considérer comme actif
-                // (pour les membres existants sans métadonnées)
                 activeMembersCount++;
               }
             }
@@ -344,16 +377,6 @@ export function AdminDashboard() {
       }
 
       const result = await response.json();
-
-      // Mettre à jour les métadonnées dans localStorage si pas d'email
-      if (!participant.email) {
-        const participantMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-        participantMetadata[participant.id] = {
-          ...participantMetadata[participant.id],
-          email: email
-        };
-        localStorage.setItem('participant_metadata', JSON.stringify(participantMetadata));
-      }
 
       alert(
         `✅ Compte membre activé avec succès !\n\n` +
@@ -667,14 +690,6 @@ export function AdminDashboard() {
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     
-                    {/* Period Display */}
-                    <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg">
-                      <Calendar className="w-5 h-5 text-gray-400" />
-                      <span className="font-medium text-gray-900 min-w-[120px] text-center">
-                        {periodText}
-                      </span>
-                    </div>
-                    
                     <button
                       onClick={navigateNext}
                       className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
@@ -682,6 +697,14 @@ export function AdminDashboard() {
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
+                  </div>
+
+                  {/* Period Display */}
+                  <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg">
+                    <Calendar className="w-5 h-5 text-gray-400" />
+                    <span className="font-medium text-gray-900 min-w-[120px] text-center">
+                      {periodText}
+                    </span>
                   </div>
 
                   {/* Date Picker */}
@@ -864,13 +887,20 @@ export function AdminDashboard() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            participant.is_member 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {participant.is_member ? 'Membre actif' : 'Participant'}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              participant.is_member 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {participant.is_member ? 'Membre actif' : 'Participant'}
+                            </span>
+                            {participant.metadata && (
+                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                Données Supabase
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">

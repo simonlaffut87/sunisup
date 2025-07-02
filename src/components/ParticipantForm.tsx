@@ -21,6 +21,9 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     ean_code: '',
     entry_date: new Date().toISOString().split('T')[0],
     commodity_rate: '',
+    peak_power: '',
+    annual_production: '',
+    annual_consumption: '',
     lat: 50.8503,
     lng: 4.3517,
   });
@@ -43,6 +46,9 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         ean_code: metadata.ean_code || '',
         entry_date: metadata.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         commodity_rate: metadata.commodity_rate?.toString() || '',
+        peak_power: participant.peak_power?.toString() || '',
+        annual_production: participant.annual_production?.toString() || '',
+        annual_consumption: participant.annual_consumption?.toString() || '',
         lat: participant.lat || 50.8503,
         lng: participant.lng || 4.3517,
       });
@@ -180,17 +186,16 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     setLoading(true);
 
     try {
-      // Données pour la table participants (SANS les champs techniques)
+      // Données pour la table participants (AVEC tous les champs techniques)
       const participantData = {
         name: formData.name.trim(),
         address: formData.address.trim(),
         type: formData.type,
         lat: Number(formData.lat) || 50.8503,
         lng: Number(formData.lng) || 4.3517,
-        // Valeurs par défaut pour les champs techniques (ne pas les demander à l'utilisateur)
-        peak_power: 0,
-        annual_production: 0,
-        annual_consumption: 0,
+        peak_power: parseFloat(formData.peak_power) || 0,
+        annual_production: parseFloat(formData.annual_production) || 0,
+        annual_consumption: parseFloat(formData.annual_consumption) || 0,
       };
 
       let participantId: string;
@@ -238,20 +243,45 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         console.log('✅ Nouveau participant créé avec succès:', participantId);
       }
 
-      // Sauvegarder les métadonnées supplémentaires dans localStorage
-      const participantMetadata = {
+      // Créer une nouvelle table pour stocker les métadonnées étendues
+      const extendedData = {
+        participant_id: participantId,
         email: formData.email.trim(),
         ean_code: formData.ean_code.trim(),
         commodity_rate: parseFloat(formData.commodity_rate),
         entry_date: formData.entry_date,
-        saved_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
-      const existingMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-      existingMetadata[participantId] = participantMetadata;
-      localStorage.setItem('participant_metadata', JSON.stringify(existingMetadata));
+      // Insérer ou mettre à jour dans une table dédiée aux métadonnées
+      const { error: metadataError } = await supabase
+        .from('participant_metadata')
+        .upsert(extendedData, { 
+          onConflict: 'participant_id',
+          ignoreDuplicates: false 
+        });
 
-      console.log('💾 Métadonnées sauvegardées:', participantMetadata);
+      if (metadataError) {
+        console.warn('⚠️ Erreur sauvegarde métadonnées dans Supabase:', metadataError);
+        
+        // Fallback: sauvegarder dans localStorage comme avant
+        const participantMetadata = {
+          email: formData.email.trim(),
+          ean_code: formData.ean_code.trim(),
+          commodity_rate: parseFloat(formData.commodity_rate),
+          entry_date: formData.entry_date,
+          saved_at: new Date().toISOString()
+        };
+
+        const existingMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
+        existingMetadata[participantId] = participantMetadata;
+        localStorage.setItem('participant_metadata', JSON.stringify(existingMetadata));
+
+        console.log('💾 Métadonnées sauvegardées dans localStorage (fallback):', participantMetadata);
+      } else {
+        console.log('✅ Métadonnées sauvegardées dans Supabase:', extendedData);
+      }
 
       // Message de succès
       const successMessage = isNewParticipant 
@@ -280,6 +310,17 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     
     setLoading(true);
     try {
+      // Supprimer les métadonnées d'abord
+      const { error: metadataError } = await supabase
+        .from('participant_metadata')
+        .delete()
+        .eq('participant_id', participant.id);
+
+      if (metadataError) {
+        console.warn('⚠️ Erreur suppression métadonnées:', metadataError);
+      }
+
+      // Supprimer le participant
       const { error } = await supabase
         .from('participants')
         .delete()
@@ -287,7 +328,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
       
       if (error) throw error;
 
-      // Supprimer aussi les métadonnées du localStorage
+      // Supprimer aussi les métadonnées du localStorage (fallback)
       const existingMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
       delete existingMetadata[participant.id];
       localStorage.setItem('participant_metadata', JSON.stringify(existingMetadata));
@@ -412,6 +453,56 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               required
             />
             {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
+          </div>
+        </div>
+
+        {/* Informations techniques */}
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations techniques</h3>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Puissance crête (pour producteurs) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Puissance crête (kWp)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                value={formData.peak_power}
+                onChange={(e) => handleInputChange('peak_power', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                placeholder="Ex: 12.5"
+              />
+            </div>
+
+            {/* Production annuelle (pour producteurs) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Production annuelle (kWh)
+              </label>
+              <input
+                type="number"
+                value={formData.annual_production}
+                onChange={(e) => handleInputChange('annual_production', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                placeholder="Ex: 12000"
+              />
+            </div>
+
+            {/* Consommation annuelle */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Consommation annuelle (kWh)
+              </label>
+              <input
+                type="number"
+                value={formData.annual_consumption}
+                onChange={(e) => handleInputChange('annual_consumption', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                placeholder="Ex: 3500"
+              />
+            </div>
           </div>
         </div>
 
