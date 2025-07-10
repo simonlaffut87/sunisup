@@ -245,6 +245,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
   };
 
   const processChunk = async (startRow: number, chunkSize: number = 1000): Promise<boolean> => {
+  const processChunk = async (startRow: number, chunkSize: number = 100): Promise<boolean> => {
     const { data, participantMapping, columnIndices, mesures } = processingRef.current;
     const endRow = Math.min(startRow + chunkSize, data.length);
     
@@ -260,8 +261,8 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       }}
     }} = {};
 
-    // Limiter à 10 000 lignes par cycle d'import
-    const maxRowsPerCycle = 10000;
+    // Limiter à 100 lignes par cycle d'import pour éviter les crashes
+    const maxRowsPerCycle = 100;
     let rowsProcessedInCycle = 0;
 
     for (let i = startRow; i < endRow; i++) {
@@ -278,7 +279,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       // Vérifier si on a atteint la limite de lignes par cycle
       if (rowsProcessedInCycle >= maxRowsPerCycle) {
         console.log(`⏸️ Pause après ${rowsProcessedInCycle} lignes pour éviter un crash`);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Pause d'une seconde
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Pause de 2 secondes
         rowsProcessedInCycle = 0; // Réinitialiser le compteur
       }
 
@@ -418,7 +419,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     });
 
     // Petite pause pour permettre au UI de se mettre à jour
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     return endRow < data.length;
   };
@@ -669,8 +670,8 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         mesures: []
       };
 
-      // Calculer le nombre total de lots
-      const chunkSize = 500; // Traiter 500 lignes à la fois
+      // Calculer le nombre total de lots - RÉDUIT pour éviter les crashes
+      const chunkSize = 100; // Traiter seulement 100 lignes à la fois
       const totalBatches = Math.ceil((rawData.length - 1) / chunkSize);
 
       setState(prev => ({
@@ -689,6 +690,11 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       let currentRow = 1; // Ignorer l'en-tête
       
       while (currentRow < rawData.length && !processingRef.current.shouldStop) {
+        // Pause plus longue entre les chunks pour éviter les crashes
+        if (currentRow > 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
         const hasMore = await processChunk(currentRow, chunkSize);
         currentRow += chunkSize;
         
@@ -923,10 +929,11 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 <h3 className="font-medium text-green-900 mb-2">✨ Import Quart-Horaire Unifié</h3>
                 <div className="text-sm text-green-800 space-y-1">
                   <p>• 🔗 <strong>Correspondance automatique par EAN</strong> - Lien direct avec les participants</p>
-                  <p>• 🛡️ <strong>Traitement sécurisé</strong> - Import par chunks pour éviter les crashes</p>
+                  <p>• 🛡️ <strong>Traitement sécurisé</strong> - Import par lots de 100 lignes pour éviter les crashes</p>
                   <p>• 🔍 <strong>Filtrage intelligent</strong> - Seuls les EAN enregistrés sont importés</p>
                   <p>• ⏸️ <strong>Contrôle en temps réel</strong> - Pause/reprise disponible</p>
                   <p>• 📊 <strong>Données temporelles conservées</strong> - Mesures quart-horaires intactes</p>
+                  <p>• ⚡ <strong>Anti-crash</strong> - Pauses automatiques toutes les 100 lignes</p>
                 </div>
                 <div className="mt-3">
                   <button
@@ -1015,7 +1022,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 </p>
                 {state.batchesProcessed > 0 && state.totalBatches > 0 && (
                   <p className="text-sm text-gray-600">
-                    Lot {state.batchesProcessed}/{state.totalBatches} • Limite: 10 000 lignes par cycle
+                    Lot {state.batchesProcessed}/{state.totalBatches} • Traitement par lots de 100 lignes
                   </p>
                 )}
               </div>

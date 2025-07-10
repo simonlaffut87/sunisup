@@ -169,14 +169,14 @@ export class ExcelProcessor {
 
             // Insérer par lots de 100 avec limite de 10 000 lignes par cycle
             const batchSize = 100;
-            const maxBatchesPerCycle = 100; // 100 * 100 = 10 000 lignes maximum par cycle
+            const maxBatchesPerCycle = 10; // 10 * 100 = 1 000 lignes maximum par cycle
             let batchesProcessed = 0;
             
             for (let i = 0; i < energyDataPoints.length; i += batchSize) {
               // Si on a atteint la limite de lots par cycle, faire une pause
               if (batchesProcessed >= maxBatchesPerCycle) {
                 console.log(`⏸️ Pause après ${batchesProcessed * batchSize} lignes pour éviter un crash`);
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Pause d'une seconde
+                await new Promise(resolve => setTimeout(resolve, 3000)); // Pause de 3 secondes
                 batchesProcessed = 0; // Réinitialiser le compteur
               }
               
@@ -258,14 +258,14 @@ export class ExcelProcessor {
 
             // Insérer par lots avec limite de 10 000 lignes par cycle
             const batchSize = 100;
-            const maxBatchesPerCycle = 100; // 100 * 100 = 10 000 lignes maximum par cycle
+            const maxBatchesPerCycle = 10; // 10 * 100 = 1 000 lignes maximum par cycle
             let batchesProcessed = 0;
             
             for (let i = 0; i < energyDataPoints.length; i += batchSize) {
               // Si on a atteint la limite de lots par cycle, faire une pause
               if (batchesProcessed >= maxBatchesPerCycle) {
                 console.log(`⏸️ Pause après ${batchesProcessed * batchSize} lignes pour éviter un crash`);
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Pause d'une seconde
+                await new Promise(resolve => setTimeout(resolve, 3000)); // Pause de 3 secondes
                 batchesProcessed = 0; // Réinitialiser le compteur
               }
               
@@ -464,7 +464,7 @@ export class ExcelProcessor {
       // Traiter les lignes par lots pour éviter les crashes
       onProgress?.('Traitement des données...', 30);
       const totalRows = rawData.length - 1;
-      const batchSize = 10000; // Limiter à 10 000 lignes par lot
+      const batchSize = 100; // Limiter à 100 lignes par lot pour éviter les crashes
       
       console.log(`🚀 Début du traitement: ${rawData.length - 1} lignes en ${Math.ceil((rawData.length - 1) / batchSize)} lots`);
       console.log('📋 Colonnes identifiées:', {
@@ -622,7 +622,7 @@ export class ExcelProcessor {
         }
         
         // Pause entre les lots pour éviter les crashes
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 500)); // Pause plus longue
       }
 
       onProgress?.('Finalisation des données...', 85);
