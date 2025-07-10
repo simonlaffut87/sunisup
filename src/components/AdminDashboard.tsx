@@ -23,27 +23,8 @@ import { useAutoLogout } from '../hooks/useAutoLogout';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
-interface ParticipantMetadata {
-  id: string;
-  participant_id: string;
-  email: string;
-  ean_code: string;
-  commodity_rate: number;
-  entry_date: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface ParticipantWithMetadata extends Participant {
-  email?: string;
-  ean_code?: string;
-  commodity_rate?: number;
-  entry_date?: string;
-  metadata?: ParticipantMetadata;
-}
-
 export function AdminDashboard() {
-  const [participants, setParticipants] = useState<ParticipantWithMetadata[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
@@ -57,7 +38,7 @@ export function AdminDashboard() {
   const loadParticipants = async () => {
     setLoading(true);
     try {
-      // Get all participants
+      // Get all participants with all fields
       const { data: participantsData, error: participantsError } = await supabase
         .from('participants')
         .select('*')
@@ -65,43 +46,7 @@ export function AdminDashboard() {
 
       if (participantsError) throw participantsError;
 
-      // Get all participant metadata
-      const { data: metadataData, error: metadataError } = await supabase
-        .from('participant_metadata')
-        .select('*');
-
-      if (metadataError) {
-        console.warn('⚠️ Erreur chargement métadonnées:', metadataError);
-      }
-
-      // Charger les métadonnées depuis localStorage comme fallback
-      const localMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-
-      // Combine participants with metadata
-      const participantsWithData = participantsData.map(participant => {
-        // Chercher les métadonnées dans Supabase d'abord, puis localStorage
-        const supabaseMetadata = metadataData?.find(m => m.participant_id === participant.id);
-        const localMeta = localMetadata[participant.id] || {};
-        
-        // Utiliser les métadonnées Supabase en priorité
-        const metadata = supabaseMetadata || {
-          email: localMeta.email,
-          ean_code: localMeta.ean_code,
-          commodity_rate: localMeta.commodity_rate,
-          entry_date: localMeta.entry_date
-        };
-
-        return {
-          ...participant,
-          email: metadata.email || null,
-          ean_code: metadata.ean_code || null,
-          commodity_rate: metadata.commodity_rate || null,
-          entry_date: metadata.entry_date || null,
-          metadata: supabaseMetadata
-        };
-      });
-
-      setParticipants(participantsWithData);
+      setParticipants(participantsData || []);
     } catch (error) {
       console.error('Error loading participants:', error);
     } finally {

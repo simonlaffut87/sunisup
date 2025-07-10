@@ -34,18 +34,14 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   // Charger les données du participant lors de l'édition
   useEffect(() => {
     if (participant) {
-      // Charger les métadonnées depuis localStorage
-      const existingMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-      const metadata = existingMetadata[participant.id] || {};
-
       setFormData({
         name: participant.name || '',
         address: participant.address || '',
         type: participant.type || 'consumer',
-        email: metadata.email || '',
-        ean_code: metadata.ean_code || '',
-        entry_date: metadata.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-        commodity_rate: metadata.commodity_rate?.toString() || '',
+        email: participant.email || '',
+        ean_code: participant.ean_code || '',
+        entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+        commodity_rate: participant.commodity_rate?.toString() || '',
         peak_power: participant.peak_power?.toString() || '',
         annual_production: participant.annual_production?.toString() || '',
         annual_consumption: participant.annual_consumption?.toString() || '',
@@ -191,6 +187,10 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         name: formData.name.trim(),
         address: formData.address.trim(),
         type: formData.type,
+        email: formData.email.trim(),
+        ean_code: formData.ean_code.trim(),
+        commodity_rate: parseFloat(formData.commodity_rate),
+        entry_date: formData.entry_date,
         lat: Number(formData.lat) || 50.8503,
         lng: Number(formData.lng) || 4.3517,
         peak_power: parseFloat(formData.peak_power) || 0,
@@ -243,46 +243,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         console.log('✅ Nouveau participant créé avec succès:', participantId);
       }
 
-      // Créer une nouvelle table pour stocker les métadonnées étendues
-      const extendedData = {
-        participant_id: participantId,
-        email: formData.email.trim(),
-        ean_code: formData.ean_code.trim(),
-        commodity_rate: parseFloat(formData.commodity_rate),
-        entry_date: formData.entry_date,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      // Insérer ou mettre à jour dans une table dédiée aux métadonnées
-      const { error: metadataError } = await supabase
-        .from('participant_metadata')
-        .upsert(extendedData, { 
-          onConflict: 'participant_id',
-          ignoreDuplicates: false 
-        });
-
-      if (metadataError) {
-        console.warn('⚠️ Erreur sauvegarde métadonnées dans Supabase:', metadataError);
-        
-        // Fallback: sauvegarder dans localStorage comme avant
-        const participantMetadata = {
-          email: formData.email.trim(),
-          ean_code: formData.ean_code.trim(),
-          commodity_rate: parseFloat(formData.commodity_rate),
-          entry_date: formData.entry_date,
-          saved_at: new Date().toISOString()
-        };
-
-        const existingMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-        existingMetadata[participantId] = participantMetadata;
-        localStorage.setItem('participant_metadata', JSON.stringify(existingMetadata));
-
-        console.log('💾 Métadonnées sauvegardées dans localStorage (fallback):', participantMetadata);
-      } else {
-        console.log('✅ Métadonnées sauvegardées dans Supabase:', extendedData);
-      }
-
       // Message de succès
       const successMessage = isNewParticipant 
         ? `Participant "${formData.name}" ajouté avec succès !`
@@ -311,15 +271,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     setLoading(true);
     try {
       // Supprimer les métadonnées d'abord
-      const { error: metadataError } = await supabase
-        .from('participant_metadata')
-        .delete()
-        .eq('participant_id', participant.id);
-
-      if (metadataError) {
-        console.warn('⚠️ Erreur suppression métadonnées:', metadataError);
-      }
-
       // Supprimer le participant
       const { error } = await supabase
         .from('participants')
@@ -327,11 +278,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         .eq('id', participant.id);
       
       if (error) throw error;
-
-      // Supprimer aussi les métadonnées du localStorage (fallback)
-      const existingMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-      delete existingMetadata[participant.id];
-      localStorage.setItem('participant_metadata', JSON.stringify(existingMetadata));
 
       toast.success(`Participant "${participant.name}" supprimé avec succès`);
       onSuccess();
