@@ -31,7 +31,7 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
             {/* Thomas - Left side */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-xl p-8 border border-blue-200">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-10 h-10 text-blue-600" />
@@ -44,7 +44,16 @@ export default function AboutPage() {
                 {t('about.whoAreWe.thomas.qualifications', { returnObjects: true }).map((qualification: string, index: number) => (
                   <div key={index} className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p><strong>{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
+                    <div>
+                      {qualification.includes('\n') ? (
+                        <div>
+                          <p className="font-bold text-blue-900">{qualification.split('\n')[0]}</p>
+                          <p className="text-gray-600 mt-1">{qualification.split('\n')[1]}</p>
+                        </div>
+                      ) : (
+                        <p><strong>{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -52,20 +61,15 @@ export default function AboutPage() {
 
             {/* Photo - Center */}
             <div className="relative">
-              <div className="w-full h-[600px] rounded-2xl shadow-2xl overflow-hidden bg-gray-200 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
+              <div className="w-full h-[600px] rounded-2xl shadow-2xl overflow-hidden relative" style={{ width: '120%', marginLeft: '-10%' }}>
                 
                 <img
                   src="/images/simtom.png"
                   alt="Thomas et Simon, fondateurs de Sun Is Up"
-                  className="w-full h-full object-cover relative z-10"
+                  className="w-full h-full object-cover"
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"
-                  onLoad={(e) => {
-                    const placeholder = e.target.previousElementSibling;
-                    if (placeholder) placeholder.style.display = 'none';
-                  }}
                   style={{
                     imageRendering: 'auto',
                     aspectRatio: '4/3'
@@ -86,7 +90,7 @@ export default function AboutPage() {
             </div>
 
             {/* Simon - Right side */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+            <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl shadow-xl p-8 border border-amber-200">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-10 h-10 text-amber-600" />
@@ -99,7 +103,16 @@ export default function AboutPage() {
                 {t('about.whoAreWe.simon.qualifications', { returnObjects: true }).map((qualification: string, index: number) => (
                   <div key={index} className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p><strong>{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
+                    <div>
+                      {qualification.includes('\n') ? (
+                        <div>
+                          <p className="font-bold text-amber-900">{qualification.split('\n')[0]}</p>
+                          <p className="text-gray-600 mt-1">{qualification.split('\n')[1]}</p>
+                        </div>
+                      ) : (
+                        <p><strong>{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -44,8 +44,8 @@
         "title": "Thomas",
         "role": "Ingénieur Civil",
         "qualifications": [
-          "MSc en énergie (ULB) - Spécialisé dans les systèmes énergétiques durables",
-          "MSc en business management (ICHEC) - Expertise en gestion de projets énergétiques",
+          "Master en énergie (ULB)\nSpécialisé dans les systèmes énergétiques durables",
+          "Master en Gestion (ICHEC)\nExpertise en gestion de projets énergétiques",
           "Doctorant à l'ULB - Recherche sur l'optimisation des communautés d'énergie"
         ]
       },
@@ -53,7 +53,7 @@
         "title": "Simon",
         "role": "Ingénieur Industriel",
         "qualifications": [
-          "MSc en électromécanique (ECAM) - Expert en systèmes électriques et mécaniques",
+          "Master en électromécanique (ECAM)\nExpert en systèmes électriques et mécaniques",
           "Chef de projet chez WeSmart - 3 ans d'expérience dans les communautés d'énergie locales"
         ]
       },
