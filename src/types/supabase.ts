@@ -19,11 +19,11 @@ export interface Database {
           ean_code: string | null
           commodity_rate: number | null
           entry_date: string | null
-          peak_power: number
-          annual_production: number
-          annual_consumption: number
-          lat: number
-          lng: number
+          peak_power: number | null
+          annual_production: number | null
+          annual_consumption: number | null
+          lat: number | null
+          lng: number | null
           created_at: string
           updated_at: string
         }
@@ -36,11 +36,11 @@ export interface Database {
           ean_code?: string | null
           commodity_rate?: number | null
           entry_date?: string | null
-          peak_power?: number
-          annual_production?: number
-          annual_consumption?: number
-          lat: number
-          lng: number
+          peak_power?: number | null
+          annual_production?: number | null
+          annual_consumption?: number | null
+          lat?: number | null
+          lng?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -53,11 +53,11 @@ export interface Database {
           ean_code?: string | null
           commodity_rate?: number | null
           entry_date?: string | null
-          peak_power?: number
-          annual_production?: number
-          annual_consumption?: number
-          lat?: number
-          lng?: number
+          peak_power?: number | null
+          annual_production?: number | null
+          annual_consumption?: number | null
+          lat?: number | null
+          lng?: number | null
           created_at?: string
           updated_at?: string
         }

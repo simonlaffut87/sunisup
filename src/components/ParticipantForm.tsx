@@ -21,11 +21,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     ean_code: '',
     entry_date: new Date().toISOString().split('T')[0],
     commodity_rate: '',
-    peak_power: '',
-    annual_production: '',
-    annual_consumption: '',
-    lat: 50.8503,
-    lng: 4.3517,
   });
 
   const [loading, setLoading] = useState(false);
@@ -42,11 +37,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         ean_code: participant.ean_code || '',
         entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         commodity_rate: participant.commodity_rate?.toString() || '',
-        peak_power: participant.peak_power?.toString() || '',
-        annual_production: participant.annual_production?.toString() || '',
-        annual_consumption: participant.annual_consumption?.toString() || '',
-        lat: participant.lat || 50.8503,
-        lng: participant.lng || 4.3517,
       });
     }
   }, [participant]);
@@ -182,7 +172,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     setLoading(true);
 
     try {
-      // Données pour la table participants (AVEC tous les champs techniques)
+      // Données pour la table participants
       const participantData = {
         name: formData.name.trim(),
         address: formData.address.trim(),
@@ -191,11 +181,12 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         ean_code: formData.ean_code.trim(),
         commodity_rate: parseFloat(formData.commodity_rate),
         entry_date: formData.entry_date,
-        lat: Number(formData.lat) || 50.8503,
-        lng: Number(formData.lng) || 4.3517,
-        peak_power: parseFloat(formData.peak_power) || 0,
-        annual_production: parseFloat(formData.annual_production) || 0,
-        annual_consumption: parseFloat(formData.annual_consumption) || 0,
+        // Valeurs par défaut pour les champs techniques requis
+        lat: 50.8503, // Centre de Bruxelles par défaut
+        lng: 4.3517,
+        peak_power: 0,
+        annual_production: 0,
+        annual_consumption: 0,
       };
 
       let participantId: string;
@@ -204,7 +195,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
       if (participant?.id) {
         // Mise à jour d'un participant existant
         console.log('🔄 Mise à jour du participant:', participant.id);
-        console.log('📝 Données à mettre à jour:', participantData);
 
         const { error } = await supabase
           .from('participants')
@@ -222,7 +212,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         // Création d'un nouveau participant
         isNewParticipant = true;
         console.log('➕ Création d\'un nouveau participant');
-        console.log('📝 Données à créer:', participantData);
 
         const { data: newParticipant, error } = await supabase
           .from('participants')
@@ -270,8 +259,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     
     setLoading(true);
     try {
-      // Supprimer les métadonnées d'abord
-      // Supprimer le participant
       const { error } = await supabase
         .from('participants')
         .delete()
@@ -343,7 +330,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Informations de base */}
         <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations de base</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations du participant</h3>
           
           <div className="grid md:grid-cols-2 gap-6">
             {/* Nom */}
@@ -399,56 +386,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               required
             />
             {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
-          </div>
-        </div>
-
-        {/* Informations techniques */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations techniques</h3>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Puissance crête (pour producteurs) */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Puissance crête (kWp)
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                value={formData.peak_power}
-                onChange={(e) => handleInputChange('peak_power', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
-                placeholder="Ex: 12.5"
-              />
-            </div>
-
-            {/* Production annuelle (pour producteurs) */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Production annuelle (kWh)
-              </label>
-              <input
-                type="number"
-                value={formData.annual_production}
-                onChange={(e) => handleInputChange('annual_production', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
-                placeholder="Ex: 12000"
-              />
-            </div>
-
-            {/* Consommation annuelle */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Consommation annuelle (kWh)
-              </label>
-              <input
-                type="number"
-                value={formData.annual_consumption}
-                onChange={(e) => handleInputChange('annual_consumption', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
-                placeholder="Ex: 3500"
-              />
-            </div>
           </div>
         </div>
 
