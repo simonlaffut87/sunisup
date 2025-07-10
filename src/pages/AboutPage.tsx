@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Award, 
   Target, 
-  Building, 
+  MapPin, 
   Users, 
   Lightbulb, 
   Leaf,
@@ -231,7 +231,7 @@ export default function AboutPage() {
                   
                   <div className="text-center">
                     <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Target className="w-8 h-8 text-white" />
+                      <span className="text-2xl font-bold text-white">€</span>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">10%</h3>
                     <p className="text-gray-600">{t('about.mission.stats.averageSavings')}</p>
@@ -239,7 +239,7 @@ export default function AboutPage() {
                   
                   <div className="text-center">
                     <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Building className="w-8 h-8 text-white" />
+                      <MapPin className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">100%</h3>
                     <p className="text-gray-600">{t('about.mission.stats.localEnergy')}</p>
