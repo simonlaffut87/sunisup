@@ -265,10 +265,6 @@ export default function AboutPage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-8 lg:p-12 border border-gray-200">
-            <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-              {t('about.partners.technical.title')}
-            </h3>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="text-center">
                 <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
