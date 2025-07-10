@@ -19,12 +19,12 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Database } from '../types/supabase';
+import { Database as DB } from '../types/supabase';
 import { ParticipantForm } from './ParticipantForm';
 import { ExcelImportModal } from './ExcelImportModal';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 
-type Participant = Database['public']['Tables']['participants']['Row'];
+type Participant = DB['public']['Tables']['participants']['Row'];
 
 export function AdminDashboard() {
   const [participants, setParticipants] = useState<Participant[]>([]);
