@@ -95,17 +95,6 @@ export class ExcelProcessor {
         return;
       }
 
-      // Charger les métadonnées des participants
-      const participantMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-
-      // Afficher les codes EAN disponibles dans les métadonnées
-      console.log('🔍 Codes EAN disponibles dans les métadonnées:');
-      Object.entries(participantMetadata).forEach(([participantId, metadata]: [string, any]) => {
-        if (metadata.ean_code) {
-          console.log(`  - ${metadata.ean_code} (Participant ID: ${participantId})`);
-        }
-      });
-
       // Afficher les codes EAN dans les données importées
       console.log('🔍 Codes EAN dans les données importées:');
       Object.keys(processedData.participants).forEach(eanCode => {
@@ -121,10 +110,7 @@ export class ExcelProcessor {
           console.log(`🔍 Traitement participant EAN: ${eanCode}`);
           
           // Trouver le participant correspondant
-          const matchingParticipant = participants?.find(p => {
-            const metadata = participantMetadata[p.id] || {};
-            return metadata.ean_code === eanCode;
-          });
+          const matchingParticipant = participants?.find(p => p.ean_code === eanCode);
 
           if (!matchingParticipant) {
             console.log(`⚠️ Participant avec EAN ${eanCode} non trouvé dans la base`);
@@ -135,7 +121,7 @@ export class ExcelProcessor {
           const matchingUser = users?.find(u => 
             u.name?.toLowerCase().includes(matchingParticipant.name.toLowerCase()) ||
             matchingParticipant.name.toLowerCase().includes(u.name?.toLowerCase() || '') ||
-            u.email?.includes(matchingParticipant.name.toLowerCase())
+            (matchingParticipant.email && u.email === matchingParticipant.email)
           );
 
           if (!matchingUser) {
@@ -465,11 +451,10 @@ export class ExcelProcessor {
         };
       } } = {};
 
-      // Afficher les codes EAN disponibles dans le mapping
-      console.log('🔍 Codes EAN disponibles dans le mapping:');
-      Object.keys(participantMapping).forEach(ean => {
-        console.log(`  - ${ean} (${participantMapping[ean].name})`);
-      });
+      if (Object.keys(participantMapping).length === 0) {
+        errors.push('Aucun participant avec code EAN trouvé. Veuillez d\'abord enregistrer des participants avec leur code EAN.');
+        return { success: false, errors, warnings };
+      }
 
       const unknownEans = new Set<string>();
       let processedRows = 0;
@@ -480,6 +465,15 @@ export class ExcelProcessor {
       onProgress?.('Traitement des données...', 30);
       const totalRows = rawData.length - 1;
       const batchSize = 10000; // Limiter à 10 000 lignes par lot
+      
+      console.log(`🚀 Début du traitement: ${rawData.length - 1} lignes en ${Math.ceil((rawData.length - 1) / batchSize)} lots`);
+      console.log('📋 Colonnes identifiées:', {
+        ean: eanIndex,
+        date: dateIndex,
+        flow: flowIndex,
+        volume: volumeIndex
+      });
+      console.log(`🔗 ${Object.keys(participantMapping).length} participants avec EAN disponibles pour correspondance`);
       
       for (let startRow = 1; startRow < rawData.length; startRow += batchSize) {
         const endRow = Math.min(startRow + batchSize, rawData.length);
@@ -634,7 +628,7 @@ export class ExcelProcessor {
       onProgress?.('Finalisation des données...', 85);
 
       if (validRows === 0) {
-        errors.push('Aucune ligne de données valide trouvée pour les participants membres');
+        errors.push('Aucune ligne de données valide trouvée. Vérifiez que les codes EAN dans le fichier correspondent aux participants enregistrés.');
         return { success: false, errors, warnings };
       }
 

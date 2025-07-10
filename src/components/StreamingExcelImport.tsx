@@ -86,7 +86,6 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     try {
       console.log('🔍 Chargement des participants depuis Supabase...');
       
-      // Charger les participants depuis Supabase
       const { data: participantsData, error: participantsError } = await supabase
         .from('participants')
         .select('*');
@@ -96,22 +95,18 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         throw participantsError;
       }
 
-      // Charger les métadonnées depuis localStorage
-      const participantMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-      
       // Créer le mapping EAN -> participant
       const mapping: { [ean_code: string]: { name: string; type: 'producer' | 'consumer'; id: string } } = {};
       
-      // Ajouter les participants avec métadonnées
+      // Ajouter les participants avec code EAN
       participantsData.forEach(participant => {
-        const metadata = participantMetadata[participant.id] || {};
-        if (metadata.ean_code) {
-          mapping[metadata.ean_code] = {
+        if (participant.ean_code) {
+          mapping[participant.ean_code] = {
             name: participant.name,
             type: participant.type,
             id: participant.id
           };
-          console.log(`✅ Participant mappé: ${metadata.ean_code} -> ${participant.name} (${participant.type})`);
+          console.log(`✅ Participant mappé: ${participant.ean_code} -> ${participant.name} (${participant.type})`);
         } else {
           console.log(`⚠️ Participant sans EAN: ${participant.name}`);
         }
@@ -135,32 +130,10 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
       console.log(`🎯 Mapping final: ${Object.keys(mapping).length} participants avec codes EAN`);
       
-      // Si aucun mapping, créer des exemples pour la démonstration
-      if (Object.keys(mapping).length === 0) {
-        console.log('⚠️ Aucun participant avec EAN trouvé, création d\'exemples...');
-        mapping['541448000000000001'] = { name: 'Boulangerie Saint-Gilles', type: 'consumer', id: 'demo1' };
-        mapping['541448000000000002'] = { name: 'Installation Solaire Molenbeek', type: 'producer', id: 'demo2' };
-        mapping['541448000000000003'] = { name: 'Café Forest', type: 'consumer', id: 'demo3' };
-        mapping['541448000000000004'] = { name: 'Toiture Solaire Ixelles', type: 'producer', id: 'demo4' };
-        mapping['541448000000000005'] = { name: 'Ouzerie', type: 'consumer', id: 'demo5' };
-        mapping['541448000000000006'] = { name: 'Bureau Avenue Georges Henry', type: 'consumer', id: 'demo6' };
-        mapping['541448000000000007'] = { name: 'Énergie Verte Schaerbeek', type: 'producer', id: 'demo7' };
-        mapping['541448000000000008'] = { name: 'Commerce Herman Debroux', type: 'consumer', id: 'demo8' };
-        mapping['541448000000000009'] = { name: 'Solaire Communautaire Uccle', type: 'producer', id: 'demo9' };
-        mapping['541448000000000010'] = { name: 'Atelier Anderlecht', type: 'consumer', id: 'demo10' };
-      }
-
       return mapping;
     } catch (error) {
       console.error('❌ Erreur lors du chargement du mapping:', error);
-      // Fallback avec des données de démonstration
-      return {
-        '541448000000000001': { name: 'Boulangerie Saint-Gilles', type: 'consumer', id: 'demo1' },
-        '541448000000000002': { name: 'Installation Solaire Molenbeek', type: 'producer', id: 'demo2' },
-        '541448000000000003': { name: 'Café Forest', type: 'consumer', id: 'demo3' },
-        '541448000000000004': { name: 'Toiture Solaire Ixelles', type: 'producer', id: 'demo4' },
-        '541448000000000005': { name: 'Ouzerie', type: 'consumer', id: 'demo5' }
-      };
+      return {};
     }
   };
 
@@ -473,17 +446,6 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         return;
       }
 
-      // Charger les métadonnées des participants
-      const participantMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-
-      // Afficher les codes EAN disponibles dans les métadonnées
-      console.log('🔍 Codes EAN disponibles dans les métadonnées:');
-      Object.entries(participantMetadata).forEach(([participantId, metadata]: [string, any]) => {
-        if (metadata.ean_code) {
-          console.log(`  - ${metadata.ean_code} (Participant ID: ${participantId})`);
-        }
-      });
-
       // Afficher les codes EAN dans les données importées
       console.log('🔍 Codes EAN dans les données importées:');
       Object.keys(processedData.participants).forEach(eanCode => {
@@ -499,10 +461,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           console.log(`🔍 Traitement participant EAN: ${eanCode}`);
           
           // Trouver le participant correspondant
-          const matchingParticipant = participants?.find(p => {
-            const metadata = participantMetadata[p.id] || {};
-            return metadata.ean_code === eanCode;
-          });
+          const matchingParticipant = participants?.find(p => p.ean_code === eanCode);
 
           if (!matchingParticipant) {
             console.log(`⚠️ Participant avec EAN ${eanCode} non trouvé dans la base`);
@@ -961,13 +920,13 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
             <div className="flex items-start">
               <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="font-medium text-green-900 mb-2">✨ Import Quart-Horaire</h3>
+                <h3 className="font-medium text-green-900 mb-2">✨ Import Quart-Horaire Unifié</h3>
                 <div className="text-sm text-green-800 space-y-1">
-                  <p>• 🛡️ <strong>Traitement par chunks</strong> - Évite les crashes mémoire</p>
-                  <p>• ⏸️ <strong>Pause/Reprise</strong> - Contrôlez l'import en temps réel</p>
-                  <p>• 🔍 <strong>Filtrage intelligent</strong> - Ignore automatiquement les EAN non-membres</p>
-                  <p>• 📊 <strong>Conservation des données temporelles</strong> - Pas d'agrégation</p>
-                  <p>• 🚫 <strong>Limite de 10 000 lignes par cycle</strong> - Évite les crashes</p>
+                  <p>• 🔗 <strong>Correspondance automatique par EAN</strong> - Lien direct avec les participants</p>
+                  <p>• 🛡️ <strong>Traitement sécurisé</strong> - Import par chunks pour éviter les crashes</p>
+                  <p>• 🔍 <strong>Filtrage intelligent</strong> - Seuls les EAN enregistrés sont importés</p>
+                  <p>• ⏸️ <strong>Contrôle en temps réel</strong> - Pause/reprise disponible</p>
+                  <p>• 📊 <strong>Données temporelles conservées</strong> - Mesures quart-horaires intactes</p>
                 </div>
                 <div className="mt-3">
                   <button
@@ -1002,10 +961,13 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 <label htmlFor="streaming-excel-upload" className="cursor-pointer">
                   <FileSpreadsheet className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Sélectionner le fichier Excel
+                    Sélectionner le fichier Excel quart-horaire
                   </h3>
                   <p className="text-gray-600">
-                    Import sécurisé jusqu'à 300 000 lignes
+                    Correspondance automatique par code EAN
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Seules les données des participants avec EAN enregistré seront importées
                   </p>
                 </label>
               </div>
@@ -1023,7 +985,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                       onClick={startProcessing}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      🚀 Démarrer l'import
+                      🚀 Démarrer l'import unifié
                     </button>
                   </div>
                 </div>
@@ -1048,6 +1010,9 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                   {state.status === 'processing' && '⚡ Traitement en cours...'}
                   {state.status === 'paused' && '⏸️ Import en pause'}
                 </h3>
+                <p className="text-gray-600">
+                  Correspondance automatique par code EAN avec les participants enregistrés
+                </p>
                 {state.batchesProcessed > 0 && state.totalBatches > 0 && (
                   <p className="text-sm text-gray-600">
                     Lot {state.batchesProcessed}/{state.totalBatches} • Limite: 10 000 lignes par cycle
@@ -1170,7 +1135,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
               </div>
               <h3 className="text-lg font-semibold text-green-900 mb-2">🎉 Import terminé !</h3>
               <p className="text-green-700 mb-4">
-                Toutes les mesures quart-horaires ont été importées avec succès.
+                Les données ont été importées et associées automatiquement aux participants via leur code EAN.
               </p>
               
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md mx-auto">
