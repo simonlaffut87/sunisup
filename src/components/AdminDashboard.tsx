@@ -13,12 +13,15 @@ import {
   Hash,
   Euro,
   MapPin,
-  User
+  User,
+  Upload,
+  Database
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Database } from '../types/supabase';
 import { ParticipantForm } from './ParticipantForm';
+import { ExcelImportModal } from './ExcelImportModal';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
@@ -28,6 +31,8 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -38,7 +43,7 @@ export function AdminDashboard() {
   const loadParticipants = async () => {
     setLoading(true);
     try {
-      // Get all participants with all fields
+      // Get all participants
       const { data: participantsData, error: participantsError } = await supabase
         .from('participants')
         .select('*')
@@ -46,7 +51,32 @@ export function AdminDashboard() {
 
       if (participantsError) throw participantsError;
 
-      setParticipants(participantsData || []);
+      // Get all users to match with participants
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('*');
+
+      if (usersError) {
+        console.warn('⚠️ Erreur chargement utilisateurs:', usersError);
+      }
+
+      // Combine participants with user data
+      const participantsWithUserData = participantsData.map(participant => {
+        // Try to find matching user by name or email
+        const matchingUser = usersData?.find(user => 
+          user.name?.toLowerCase().includes(participant.name.toLowerCase()) ||
+          participant.name.toLowerCase().includes(user.name?.toLowerCase() || '') ||
+          (participant.email && user.email === participant.email)
+        );
+
+        return {
+          ...participant,
+          user_id: matchingUser?.id,
+          has_user_account: !!matchingUser
+        };
+      });
+
+      setParticipants(participantsWithUserData || []);
     } catch (error) {
       console.error('Error loading participants:', error);
     } finally {
@@ -80,6 +110,17 @@ export function AdminDashboard() {
   const handleFormSuccess = () => {
     setShowForm(false);
     setEditingParticipant(null);
+    loadParticipants();
+  };
+
+  const handleImportData = (participant: Participant) => {
+    setSelectedParticipant(participant);
+    setShowImportModal(true);
+  };
+
+  const handleImportSuccess = () => {
+    setShowImportModal(false);
+    setSelectedParticipant(null);
     loadParticipants();
   };
 
@@ -292,6 +333,9 @@ export function AdminDashboard() {
                     <tr key={participant.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{participant.name}</div>
+                        {participant.has_user_account && (
+                          <div className="text-xs text-green-600 font-medium">Compte membre actif</div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -341,6 +385,15 @@ export function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
+                          {participant.has_user_account && (
+                            <button
+                              onClick={() => handleImportData(participant)}
+                              className="text-green-600 hover:text-green-900 transition-colors"
+                              title="Importer données quart-horaires"
+                            >
+                              <Upload className="w-4 h-4" />
+                            </button>
+                          )}
                           <button
                             onClick={() => handleEdit(participant)}
                             className="text-amber-600 hover:text-amber-900 transition-colors"
@@ -358,6 +411,19 @@ export function AdminDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Modal d'import Excel */}
+      {showImportModal && selectedParticipant && (
+        <ExcelImportModal
+          isOpen={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          participantId={selectedParticipant.id}
+          participantName={selectedParticipant.name}
+          participantType={selectedParticipant.type}
+          userId={selectedParticipant.user_id}
+          onSuccess={handleImportSuccess}
+        />
+      )}
     </div>
   );
 }
