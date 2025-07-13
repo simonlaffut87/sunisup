@@ -98,14 +98,21 @@ export function AdminDashboard() {
   const handleViewMemberDashboard = async () => {
     // Créer un utilisateur de démonstration pour l'atelier
     const demoUser = {
-      id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+      id: '00000000-0000-0000-0000-000000000001', // UUID valide pour la démo
       email: 'atelier@sunisup.be',
       name: 'Atelier Anderlecht',
       member_type: 'consumer'
     };
 
     // Générer des données de démonstration
-    await generateDemoDataForAtelier(demoUser.id);
+    try {
+      await generateDemoDataForAtelier(demoUser.id);
+      console.log('✅ Données de démonstration générées pour:', demoUser.name);
+    } catch (error) {
+      console.error('❌ Erreur génération données démo:', error);
+      toast.error('Erreur lors de la génération des données de démonstration');
+      return;
+    }
     
     setViewingMemberDashboard(demoUser);
   };
@@ -151,11 +158,17 @@ export function AdminDashboard() {
   // Fonction pour générer des données de démonstration pour l'atelier
   const generateDemoDataForAtelier = async (userId: string) => {
     try {
+      console.log('🔄 Génération des données pour l\'utilisateur:', userId);
+      
       // Supprimer les données existantes pour cet utilisateur de démo
-      await supabase
+      const { error: deleteError } = await supabase
         .from('energy_data')
         .delete()
         .eq('user_id', userId);
+      
+      if (deleteError) {
+        console.warn('⚠️ Erreur suppression données existantes:', deleteError);
+      }
 
       // Générer des données pour les 30 derniers jours
       const energyData = [];
@@ -165,66 +178,88 @@ export function AdminDashboard() {
         const date = new Date(now);
         date.setDate(date.getDate() - day);
         
-        // Générer des données quart-horaires pour chaque jour
+        // Générer des données horaires pour chaque jour (plus simple et plus rapide)
         for (let hour = 0; hour < 24; hour++) {
-          for (let quarter = 0; quarter < 4; quarter++) {
-            const timestamp = new Date(date);
-            timestamp.setHours(hour, quarter * 15, 0, 0);
+          const timestamp = new Date(date);
+          timestamp.setHours(hour, 0, 0, 0);
+          
+          // Profil de consommation réaliste pour un atelier
+          let baseConsumption = 0;
+          
+          // Heures d'ouverture (8h-18h) - consommation plus élevée
+          if (hour >= 8 && hour <= 18) {
+            baseConsumption = 15 + Math.random() * 25; // 15-40 kWh
             
-            // Profil de consommation réaliste pour un atelier
-            let baseConsumption = 0;
-            
-            // Heures d'ouverture (8h-18h) - consommation plus élevée
-            if (hour >= 8 && hour <= 18) {
-              baseConsumption = 8 + Math.random() * 12; // 8-20 kWh
-              
-              // Pic de consommation en milieu de journée
-              if (hour >= 10 && hour <= 16) {
-                baseConsumption += 5 + Math.random() * 10; // +5-15 kWh
-              }
-            } else {
-              // Consommation de veille
-              baseConsumption = 1 + Math.random() * 3; // 1-4 kWh
+            // Pic de consommation en milieu de journée
+            if (hour >= 10 && hour <= 16) {
+              baseConsumption += 10 + Math.random() * 20; // +10-30 kWh
             }
-            
-            // Week-end : consommation réduite
-            const dayOfWeek = timestamp.getDay();
-            if (dayOfWeek === 0 || dayOfWeek === 6) {
-              baseConsumption *= 0.3; // 30% de la consommation normale
-            }
-            
-            // Variation saisonnière (plus de consommation en hiver)
-            const month = timestamp.getMonth();
-            if (month >= 10 || month <= 2) { // Nov-Fév
-              baseConsumption *= 1.3; // +30% en hiver
-            }
-            
-            // Énergie partagée (environ 25% de la consommation)
-            const sharedEnergy = baseConsumption * (0.2 + Math.random() * 0.1); // 20-30%
-            
-            energyData.push({
-              user_id: userId,
-              timestamp: timestamp.toISOString(),
-              consumption: Math.round(baseConsumption * 100) / 100,
-              shared_energy: Math.round(sharedEnergy * 100) / 100,
-              production: 0 // Atelier = consommateur
-            });
+          } else {
+            // Consommation de veille
+            baseConsumption = 2 + Math.random() * 8; // 2-10 kWh
           }
+          
+          // Week-end : consommation réduite
+          const dayOfWeek = timestamp.getDay();
+          if (dayOfWeek === 0 || dayOfWeek === 6) {
+            baseConsumption *= 0.4; // 40% de la consommation normale
+          }
+          
+          // Variation saisonnière (plus de consommation en hiver)
+          const month = timestamp.getMonth();
+          if (month >= 10 || month <= 2) { // Nov-Fév
+            baseConsumption *= 1.4; // +40% en hiver
+          }
+          
+          // Énergie partagée (environ 30% de la consommation)
+          const sharedEnergy = baseConsumption * (0.25 + Math.random() * 0.1); // 25-35%
+          
+          energyData.push({
+            user_id: userId,
+            timestamp: timestamp.toISOString(),
+            consumption: Math.round(baseConsumption * 100) / 100,
+            shared_energy: Math.round(sharedEnergy * 100) / 100,
+            production: 0 // Atelier = consommateur
+          });
         }
       }
       
-      // Insérer les données par lots de 100
-      const batchSize = 100;
+      console.log(`📊 ${energyData.length} points de données générés`);
+      
+      // Insérer les données par lots de 50 pour éviter les timeouts
+      const batchSize = 50;
       for (let i = 0; i < energyData.length; i += batchSize) {
         const batch = energyData.slice(i, i + batchSize);
-        await supabase
+        
+        const { error: insertError } = await supabase
           .from('energy_data')
           .insert(batch);
+          
+        if (insertError) {
+          console.error('❌ Erreur insertion lot:', insertError);
+          throw insertError;
+        }
+        
+        console.log(`✅ Lot ${Math.floor(i / batchSize) + 1}/${Math.ceil(energyData.length / batchSize)} inséré`);
       }
       
       console.log(`✅ ${energyData.length} points de données générés pour l'atelier de démonstration`);
+      
+      // Vérifier que les données ont bien été insérées
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('energy_data')
+        .select('count')
+        .eq('user_id', userId);
+        
+      if (verifyError) {
+        console.warn('⚠️ Erreur vérification données:', verifyError);
+      } else {
+        console.log(`🔍 Vérification: ${verifyData?.length || 0} enregistrements trouvés`);
+      }
+      
     } catch (error) {
       console.error('❌ Erreur génération données démo:', error);
+      throw error;
     }
   };
 
