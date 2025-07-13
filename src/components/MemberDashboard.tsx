@@ -11,9 +11,7 @@ import {
   Leaf,
   ChevronLeft,
   ChevronRight,
-  Loader2,
-  Target,
-  Users
+  Loader2
 } from 'lucide-react';
 import { format, parseISO, subDays, startOfDay, endOfDay, addDays, addWeeks, addMonths, subWeeks, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -27,14 +25,7 @@ import {
   Legend, 
   ResponsiveContainer,
   AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  RadialBarChart,
-  RadialBar
+  Area
 } from 'recharts';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 
@@ -67,7 +58,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [userProfile, setUserProfile] = useState<User | null>(null);
-  const [randomChartData, setRandomChartData] = useState<any>({});
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -95,73 +85,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     fetchUserProfile();
   }, [user]);
 
-  // Générer des données aléatoires pour les graphiques
-  useEffect(() => {
-    const generateRandomData = () => {
-      // Données pour graphique en barres - Consommation par jour de la semaine
-      const weeklyData = [
-        { day: 'Lun', consumption: 15 + Math.random() * 10, production: 8 + Math.random() * 5 },
-        { day: 'Mar', consumption: 18 + Math.random() * 8, production: 12 + Math.random() * 6 },
-        { day: 'Mer', consumption: 22 + Math.random() * 12, production: 15 + Math.random() * 8 },
-        { day: 'Jeu', consumption: 20 + Math.random() * 10, production: 11 + Math.random() * 7 },
-        { day: 'Ven', consumption: 25 + Math.random() * 15, production: 18 + Math.random() * 10 },
-        { day: 'Sam', consumption: 12 + Math.random() * 8, production: 6 + Math.random() * 4 },
-        { day: 'Dim', consumption: 10 + Math.random() * 6, production: 4 + Math.random() * 3 }
-      ];
-
-      // Données pour graphique circulaire - Répartition des sources d'énergie
-      const energySourcesData = [
-        { name: 'Énergie partagée', value: 35 + Math.random() * 15, color: '#10B981' },
-        { name: 'Réseau traditionnel', value: 45 + Math.random() * 20, color: '#3B82F6' },
-        { name: 'Autoconsommation', value: 15 + Math.random() * 10, color: '#F59E0B' },
-        { name: 'Stockage', value: 5 + Math.random() * 8, color: '#8B5CF6' }
-      ];
-
-      // Données pour graphique radial - Performance mensuelle
-      const performanceData = [
-        { month: 'Jan', efficiency: 65 + Math.random() * 25, fill: '#3B82F6' },
-        { month: 'Fév', efficiency: 70 + Math.random() * 20, fill: '#10B981' },
-        { month: 'Mar', efficiency: 75 + Math.random() * 15, fill: '#F59E0B' },
-        { month: 'Avr', efficiency: 80 + Math.random() * 12, fill: '#EF4444' },
-        { month: 'Mai', efficiency: 85 + Math.random() * 10, fill: '#8B5CF6' },
-        { month: 'Juin', efficiency: 90 + Math.random() * 8, fill: '#06B6D4' }
-      ];
-
-      // Données pour graphique de tendance - Économies cumulées
-      const savingsData = Array.from({ length: 12 }, (_, i) => {
-        const month = new Date(2024, i).toLocaleDateString('fr-FR', { month: 'short' });
-        const baseSavings = (i + 1) * 25;
-        return {
-          month,
-          savings: baseSavings + Math.random() * 50,
-          target: baseSavings + 30,
-          efficiency: 70 + Math.random() * 25
-        };
-      });
-
-      // Données pour graphique de comparaison - Avant/Après communauté
-      const comparisonData = [
-        { period: 'Avant communauté', cost: 180 + Math.random() * 40, emissions: 85 + Math.random() * 15 },
-        { period: 'Avec communauté', cost: 120 + Math.random() * 30, emissions: 45 + Math.random() * 10 }
-      ];
-
-      setRandomChartData({
-        weekly: weeklyData,
-        energySources: energySourcesData,
-        performance: performanceData,
-        savings: savingsData,
-        comparison: comparisonData
-      });
-    };
-
-    generateRandomData();
-    // Régénérer les données toutes les 30 secondes pour simuler des données en temps réel
-    const interval = setInterval(generateRandomData, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
   // Memoized function to fetch energy data
   const fetchEnergyData = useCallback(async (mode: 'day' | 'week' | 'month', date: Date, isInitial = false) => {
+    console.log('🔍 Chargement des données pour l\'utilisateur:', user.id);
+    
     if (isInitial) {
       setLoading(true);
     } else {
@@ -194,6 +121,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
       if (error) throw error;
       
+      console.log(`📊 ${data?.length || 0} points de données chargés pour la période ${mode}`);
+      
       // Smooth transition for data update
       setTimeout(() => {
         setEnergyData(data || []);
@@ -201,6 +130,13 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
     } catch (error) {
       console.error('Error fetching energy data:', error);
+      
+      // Si aucune donnée trouvée, générer des données de démonstration
+      if (error.message?.includes('no rows') || !energyData.length) {
+        console.log('🎭 Génération de données de démonstration...');
+        const demoData = generateDemoData(mode, date);
+        setEnergyData(demoData);
+      }
     } finally {
       setTimeout(() => {
         if (isInitial) {
@@ -211,6 +147,67 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       }, isInitial ? 0 : 300);
     }
   }, [user.id]);
+
+  // Fonction pour générer des données de démonstration si aucune donnée n'est trouvée
+  const generateDemoData = (mode: 'day' | 'week' | 'month', date: Date) => {
+    const demoData = [];
+    const now = new Date();
+    
+    let startDate, endDate;
+    switch (mode) {
+      case 'day':
+        startDate = startOfDay(date);
+        endDate = endOfDay(date);
+        break;
+      case 'week':
+        startDate = startOfDay(subDays(date, 7));
+        endDate = endOfDay(date);
+        break;
+      case 'month':
+        startDate = startOfDay(subDays(date, 30));
+        endDate = endOfDay(date);
+        break;
+    }
+    
+    // Générer des données horaires
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      const hour = current.getHours();
+      let consumption = 0;
+      
+      // Profil de consommation réaliste
+      if (hour >= 8 && hour <= 18) {
+        consumption = 15 + Math.random() * 25; // 15-40 kWh
+        if (hour >= 10 && hour <= 16) {
+          consumption += 10 + Math.random() * 20; // Pic journalier
+        }
+      } else {
+        consumption = 2 + Math.random() * 8; // Consommation de veille
+      }
+      
+      // Week-end réduit
+      if (current.getDay() === 0 || current.getDay() === 6) {
+        consumption *= 0.4;
+      }
+      
+      const sharedEnergy = consumption * (0.25 + Math.random() * 0.1);
+      
+      demoData.push({
+        id: `demo-${current.getTime()}`,
+        user_id: user.id,
+        timestamp: current.toISOString(),
+        consumption: Math.round(consumption * 100) / 100,
+        shared_energy: Math.round(sharedEnergy * 100) / 100,
+        production: 0,
+        created_at: now.toISOString()
+      });
+      
+      current.setHours(current.getHours() + 1);
+    }
+    
+    console.log(`🎭 ${demoData.length} points de données de démonstration générés`);
+    return demoData;
+  };
 
   // Initial data load
   useEffect(() => {
@@ -392,8 +389,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement de votre dashboard...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-amber-500 mx-auto mb-6"></div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Chargement de votre dashboard...</h3>
+          <p className="text-gray-600">Génération des données de démonstration pour {userProfile?.name || user.name}</p>
         </div>
       </div>
     );
@@ -409,14 +407,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-12 w-12" />
+                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-10 w-10" />
               </div>
               <div className="ml-4">
                 <h1 className="text-2xl font-bold text-gray-900">
                   Bonjour {userProfile?.name || user.name || user.email}
                 </h1>
                 <p className="text-sm text-gray-600">
-                  {isProducer ? 'Producteur' : 'Consommateur'} - Sun Is Up
+                  {isProducer ? 'Producteur' : 'Consommateur'} • Dashboard de démonstration
                 </p>
               </div>
             </div>
@@ -432,6 +430,24 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Message d'information pour la démonstration */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-bold text-sm">ℹ️</span>
+              </div>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-blue-900">Dashboard de démonstration</h3>
+              <p className="text-sm text-blue-700 mt-1">
+                Vous visualisez des données de démonstration pour l'Atelier Anderlecht. 
+                Les graphiques montrent un profil de consommation réaliste avec {energyData.length} points de données.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Stats Cards with smooth transition */}
         <div className={`grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 transition-opacity duration-300 ${dataLoading ? 'opacity-60' : 'opacity-100'}`}>
           {isProducer ? (
@@ -709,207 +725,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Nouveaux graphiques aléatoires */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Graphique en barres - Consommation hebdomadaire */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <BarChart4 className="w-5 h-5 mr-2 text-blue-500" />
-              Consommation par jour de la semaine
-            </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={randomChartData.weekly || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="day" stroke="#6B7280" />
-                  <YAxis stroke="#6B7280" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
-                    formatter={(value: number) => [`${value.toFixed(1)} kWh`, '']}
-                  />
-                  <Legend />
-                  <Bar dataKey="consumption" name="Consommation" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                  {isProducer && (
-                    <Bar dataKey="production" name="Production" fill="#10B981" radius={[4, 4, 0, 0]} />
-                  )}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Graphique circulaire - Sources d'énergie */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Target className="w-5 h-5 mr-2 text-green-500" />
-              Répartition des sources d'énergie
-            </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={randomChartData.energySources || []}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {(randomChartData.energySources || []).map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => [`${value.toFixed(1)}%`, '']} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
-        {/* Graphiques supplémentaires */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Graphique radial - Performance mensuelle */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2 text-purple-500" />
-              Performance mensuelle
-            </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart 
-                  cx="50%" 
-                  cy="50%" 
-                  innerRadius="20%" 
-                  outerRadius="80%" 
-                  data={randomChartData.performance || []}
-                >
-                  <RadialBar dataKey="efficiency" cornerRadius={10} />
-                  <Tooltip formatter={(value: number) => [`${value.toFixed(1)}%`, 'Efficacité']} />
-                  <Legend />
-                </RadialBarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Graphique de tendance - Économies cumulées */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Zap className="w-5 h-5 mr-2 text-amber-500" />
-              Évolution des économies
-            </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={randomChartData.savings || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="month" stroke="#6B7280" />
-                  <YAxis stroke="#6B7280" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
-                    formatter={(value: number) => [`${value.toFixed(0)}€`, '']}
-                  />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="savings" 
-                    stroke="#10B981" 
-                    strokeWidth={3}
-                    dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                    name="Économies réelles"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="target" 
-                    stroke="#F59E0B" 
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={{ fill: '#F59E0B', strokeWidth: 2, r: 3 }}
-                    name="Objectif"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
-        {/* Graphique de comparaison - Impact de la communauté */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <Users className="w-5 h-5 mr-2 text-indigo-500" />
-            Impact de la communauté d'énergie
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Coûts */}
-            <div>
-              <h4 className="text-md font-medium text-gray-700 mb-3">Coûts mensuels (€)</h4>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={randomChartData.comparison || []} layout="horizontal">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis type="number" stroke="#6B7280" />
-                    <YAxis dataKey="period" type="category" stroke="#6B7280" width={120} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
-                      formatter={(value: number) => [`${value.toFixed(0)}€`, '']}
-                    />
-                    <Bar dataKey="cost" fill="#EF4444" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Émissions */}
-            <div>
-              <h4 className="text-md font-medium text-gray-700 mb-3">Émissions CO₂ (kg/mois)</h4>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={randomChartData.comparison || []} layout="horizontal">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis type="number" stroke="#6B7280" />
-                    <YAxis dataKey="period" type="category" stroke="#6B7280" width={120} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
-                      formatter={(value: number) => [`${value.toFixed(0)} kg`, '']}
-                    />
-                    <Bar dataKey="emissions" fill="#059669" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* Résumé des bénéfices */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-green-50 p-4 rounded-lg text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {randomChartData.comparison && randomChartData.comparison.length >= 2 
-                  ? `${((randomChartData.comparison[0].cost - randomChartData.comparison[1].cost) / randomChartData.comparison[0].cost * 100).toFixed(0)}%`
-                  : '25%'
-                }
-              </div>
-              <div className="text-sm text-green-700">Réduction des coûts</div>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-lg text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {randomChartData.comparison && randomChartData.comparison.length >= 2 
-                  ? `${((randomChartData.comparison[0].emissions - randomChartData.comparison[1].emissions) / randomChartData.comparison[0].emissions * 100).toFixed(0)}%`
-                  : '47%'
-                }
-              </div>
-              <div className="text-sm text-blue-700">Réduction CO₂</div>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {randomChartData.comparison && randomChartData.comparison.length >= 2 
-                  ? `${(randomChartData.comparison[0].cost - randomChartData.comparison[1].cost).toFixed(0)}€`
-                  : '60€'
-                }
-              </div>
-              <div className="text-sm text-purple-700">Économies mensuelles</div>
             </div>
           </div>
         </div>
