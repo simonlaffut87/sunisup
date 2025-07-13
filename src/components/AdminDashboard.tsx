@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { MemberDashboard } from './MemberDashboard';
 import { 
   Users, 
   Plus,
@@ -16,7 +17,8 @@ import {
   User,
   Upload,
   Database,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Eye
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -34,6 +36,7 @@ export function AdminDashboard() {
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [viewingMemberDashboard, setViewingMemberDashboard] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -92,6 +95,25 @@ export function AdminDashboard() {
     loadParticipants();
   };
 
+  const handleViewMemberDashboard = async () => {
+    // Créer un utilisateur de démonstration pour l'atelier
+    const demoUser = {
+      id: 'demo-atelier-user',
+      email: 'atelier@sunisup.be',
+      name: 'Atelier Anderlecht',
+      member_type: 'consumer'
+    };
+
+    // Générer des données de démonstration
+    await generateDemoDataForAtelier(demoUser.id);
+    
+    setViewingMemberDashboard(demoUser);
+  };
+
+  const handleCloseMemberDashboard = () => {
+    setViewingMemberDashboard(null);
+  };
+
   const handleLogout = async () => {
     if (isLoggingOut) return;
     
@@ -125,6 +147,86 @@ export function AdminDashboard() {
     timeoutMinutes: 15,
     isLoggedIn: true
   });
+
+  // Fonction pour générer des données de démonstration pour l'atelier
+  const generateDemoDataForAtelier = async (userId: string) => {
+    try {
+      // Supprimer les données existantes pour cet utilisateur de démo
+      await supabase
+        .from('energy_data')
+        .delete()
+        .eq('user_id', userId);
+
+      // Générer des données pour les 30 derniers jours
+      const energyData = [];
+      const now = new Date();
+      
+      for (let day = 29; day >= 0; day--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - day);
+        
+        // Générer des données quart-horaires pour chaque jour
+        for (let hour = 0; hour < 24; hour++) {
+          for (let quarter = 0; quarter < 4; quarter++) {
+            const timestamp = new Date(date);
+            timestamp.setHours(hour, quarter * 15, 0, 0);
+            
+            // Profil de consommation réaliste pour un atelier
+            let baseConsumption = 0;
+            
+            // Heures d'ouverture (8h-18h) - consommation plus élevée
+            if (hour >= 8 && hour <= 18) {
+              baseConsumption = 8 + Math.random() * 12; // 8-20 kWh
+              
+              // Pic de consommation en milieu de journée
+              if (hour >= 10 && hour <= 16) {
+                baseConsumption += 5 + Math.random() * 10; // +5-15 kWh
+              }
+            } else {
+              // Consommation de veille
+              baseConsumption = 1 + Math.random() * 3; // 1-4 kWh
+            }
+            
+            // Week-end : consommation réduite
+            const dayOfWeek = timestamp.getDay();
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+              baseConsumption *= 0.3; // 30% de la consommation normale
+            }
+            
+            // Variation saisonnière (plus de consommation en hiver)
+            const month = timestamp.getMonth();
+            if (month >= 10 || month <= 2) { // Nov-Fév
+              baseConsumption *= 1.3; // +30% en hiver
+            }
+            
+            // Énergie partagée (environ 25% de la consommation)
+            const sharedEnergy = baseConsumption * (0.2 + Math.random() * 0.1); // 20-30%
+            
+            energyData.push({
+              user_id: userId,
+              timestamp: timestamp.toISOString(),
+              consumption: Math.round(baseConsumption * 100) / 100,
+              shared_energy: Math.round(sharedEnergy * 100) / 100,
+              production: 0 // Atelier = consommateur
+            });
+          }
+        }
+      }
+      
+      // Insérer les données par lots de 100
+      const batchSize = 100;
+      for (let i = 0; i < energyData.length; i += batchSize) {
+        const batch = energyData.slice(i, i + batchSize);
+        await supabase
+          .from('energy_data')
+          .insert(batch);
+      }
+      
+      console.log(`✅ ${energyData.length} points de données générés pour l'atelier de démonstration`);
+    } catch (error) {
+      console.error('❌ Erreur génération données démo:', error);
+    }
+  };
 
   if (showForm) {
     return (
@@ -168,6 +270,15 @@ export function AdminDashboard() {
     );
   }
 
+  if (viewingMemberDashboard) {
+    return (
+      <MemberDashboard 
+        user={viewingMemberDashboard} 
+        onLogout={handleCloseMemberDashboard}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -203,6 +314,14 @@ export function AdminDashboard() {
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 {refreshing ? 'Actualisation...' : 'Actualiser'}
+              </button>
+              <button
+                onClick={handleViewMemberDashboard}
+                className="inline-flex items-center px-3 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100"
+                title="Voir le dashboard membre (démo)"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Dashboard Membre
               </button>
               <button
                 onClick={handleLogout}
