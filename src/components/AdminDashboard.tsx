@@ -98,7 +98,7 @@ export function AdminDashboard() {
   const handleViewMemberDashboard = async () => {
     // Créer un utilisateur de démonstration pour l'atelier
     const demoUser = {
-      id: 'demo-atelier-user',
+      id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
       email: 'atelier@sunisup.be',
       name: 'Atelier Anderlecht',
       member_type: 'consumer'
