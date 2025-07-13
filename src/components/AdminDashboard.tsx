@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { MemberDashboard } from './MemberDashboard';
+import { toast } from 'react-hot-toast';
 import { 
   Users, 
   Plus,
@@ -159,6 +160,25 @@ export function AdminDashboard() {
   const generateDemoDataForAtelier = async (userId: string) => {
     try {
       console.log('🔄 Génération des données pour l\'utilisateur:', userId);
+      
+      // D'abord, s'assurer que l'utilisateur de démo existe dans la table users
+      const { error: upsertUserError } = await supabase
+        .from('users')
+        .upsert({
+          id: userId,
+          email: 'atelier@sunisup.be',
+          name: 'Atelier Anderlecht',
+          member_type: 'consumer'
+        }, {
+          onConflict: 'id'
+        });
+      
+      if (upsertUserError) {
+        console.error('❌ Erreur création utilisateur démo:', upsertUserError);
+        throw upsertUserError;
+      }
+      
+      console.log('✅ Utilisateur de démo créé/mis à jour');
       
       // Supprimer les données existantes pour cet utilisateur de démo
       const { error: deleteError } = await supabase
