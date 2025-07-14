@@ -1,308 +1,19 @@
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
 
 export class ExcelProcessor {
-  private static parseAmericanDate(dateStr: string): Date {
-    try {
-      if (!dateStr || typeof dateStr !== 'string') {
-        throw new Error('Date invalide');
-      }
-
-      const cleanDateStr = dateStr.trim();
-      
-      if (cleanDateStr.includes(' ')) {
-        const [datePart, timePart] = cleanDateStr.split(' ');
-        const [month, day, year] = datePart.split('/').map(Number);
-        const [hour = 0, minute = 0] = timePart.split(':').map(Number);
-        
-        if (isNaN(month) || isNaN(day) || isNaN(year)) {
-          throw new Error('Format de date invalide');
-        }
-        
-        return new Date(year, month - 1, day, hour, minute);
-      } else {
-        const [month, day, year] = cleanDateStr.split('/').map(Number);
-        
-        if (isNaN(month) || isNaN(day) || isNaN(year)) {
-          throw new Error('Format de date invalide');
-        }
-        
-        return new Date(year, month - 1, day);
-      }
-    } catch (error) {
-      throw new Error(`Format de date invalide: ${dateStr}`);
-    }
-  }
-
-  private static extractMonthFromFilename(filename: string): string {
-    try {
-      const monthMatch = filename.match(/([A-Z]{3})(\d{4})/i);
-      if (monthMatch) {
-        const [, monthAbbr, year] = monthMatch;
-        const monthMap: { [key: string]: string } = {
-          'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
-          'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
-          'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
-        };
-        const monthNum = monthMap[monthAbbr.toUpperCase()];
-        if (monthNum) {
-          return `${year}-${monthNum}`;
-        }
-      }
-      
-      return format(new Date(), 'yyyy-MM');
-    } catch (error) {
-      return format(new Date(), 'yyyy-MM');
-    }
-  }
-
-  private static parseNumericValue(value: any): number {
-    try {
-      if (value === null || value === undefined || value === '') {
-        return 0;
-      }
-      
-      const stringValue = String(value).replace(',', '.');
-      const numValue = parseFloat(stringValue);
-      return isNaN(numValue) ? 0 : Math.max(0, numValue);
-    } catch (error) {
-      return 0;
-    }
-  }
-
-  // Fonction pour générer les données d'énergie pour les dashboards
-  private static async generateEnergyDataForDashboards(processedData: any): Promise<void> {
-    try {
-      console.log('🔄 Génération des données d\'énergie pour les dashboards...');
-      
-      // Charger les participants et utilisateurs
-      const { data: participants, error: participantsError } = await supabase
-        .from('participants')
-        .select('*');
-
-      if (participantsError) {
-        console.warn('⚠️ Erreur chargement participants:', participantsError);
-        return;
-      }
-
-      const { data: users, error: usersError } = await supabase
-        .from('users')
-        .select('*');
-
-      if (usersError) {
-        console.warn('⚠️ Erreur chargement utilisateurs:', usersError);
-        return;
-      }
-
-      // Afficher les codes EAN dans les données importées
-      console.log('🔍 Codes EAN dans les données importées:');
-      Object.keys(processedData.participants).forEach(eanCode => {
-        console.log(`  - ${eanCode}`);
-      });
-
-      let totalDataPointsGenerated = 0;
-      let usersUpdated = 0;
-
-      // Pour chaque participant dans les données importées
-      for (const [eanCode, participantData] of Object.entries(processedData.participants)) {
-        try {
-          console.log(`🔍 Traitement participant EAN: ${eanCode}`);
-          
-          // Trouver le participant correspondant
-          const matchingParticipant = participants?.find(p => p.ean_code === eanCode);
-
-          if (!matchingParticipant) {
-            console.log(`⚠️ Participant avec EAN ${eanCode} non trouvé dans la base`);
-            continue;
-          }
-
-          // Trouver l'utilisateur correspondant
-          const matchingUser = users?.find(u => 
-            u.name?.toLowerCase().includes(matchingParticipant.name.toLowerCase()) ||
-            matchingParticipant.name.toLowerCase().includes(u.name?.toLowerCase() || '') ||
-            (matchingParticipant.email && u.email === matchingParticipant.email)
-          );
-
-          if (!matchingUser) {
-            console.log(`⚠️ Utilisateur pour ${matchingParticipant.name} non trouvé`);
-            continue;
-          }
-
-          console.log(`✅ Correspondance trouvée: ${eanCode} -> ${matchingParticipant.name} -> User ${matchingUser.id}`);
-
-          // Supprimer les données existantes pour ce mois
-          const monthStart = new Date(processedData.month + '-01');
-          const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
-          
-          const { error: deleteError } = await supabase
-            .from('energy_data')
-            .delete()
-            .eq('user_id', matchingUser.id)
-            .gte('timestamp', monthStart.toISOString())
-            .lte('timestamp', monthEnd.toISOString());
-
-          if (deleteError) {
-            console.warn('⚠️ Erreur suppression données existantes:', deleteError);
-          }
-
-          // Utiliser les données temporelles si disponibles
-          const timeSeriesData = (participantData as any).timeSeriesData || [];
-          
-          if (timeSeriesData.length > 0) {
-            console.log(`📊 Utilisation des données temporelles: ${timeSeriesData.length} points`);
-            
-            // Insérer les données temporelles directement
-            const energyDataPoints = timeSeriesData.map((point: any) => ({
-              user_id: matchingUser.id,
-              timestamp: point.timestamp,
-              consumption: (participantData as any).type === 'consumer' 
-                ? (point.volume_complementaire || 0) + (point.volume_partage || 0)
-                : (point.injection_complementaire || 0) * 0.15, // Autoconsommation pour producteurs
-              shared_energy: (participantData as any).type === 'consumer'
-                ? point.volume_partage || 0
-                : point.injection_partagee || 0,
-              production: (participantData as any).type === 'producer'
-                ? (point.injection_complementaire || 0) + (point.injection_partagee || 0)
-                : 0
-            }));
-
-            // Insérer par lots de 100 avec limite de 10 000 lignes par cycle
-            const batchSize = 100;
-            const maxBatchesPerCycle = 10; // 10 * 100 = 1 000 lignes maximum par cycle
-            let batchesProcessed = 0;
-            
-            for (let i = 0; i < energyDataPoints.length; i += batchSize) {
-              // Si on a atteint la limite de lots par cycle, faire une pause
-              if (batchesProcessed >= maxBatchesPerCycle) {
-                console.log(`⏸️ Pause après ${batchesProcessed * batchSize} lignes pour éviter un crash`);
-                await new Promise(resolve => setTimeout(resolve, 3000)); // Pause de 3 secondes
-                batchesProcessed = 0; // Réinitialiser le compteur
-              }
-              
-              const batch = energyDataPoints.slice(i, i + batchSize);
-              
-              const { error: insertError } = await supabase
-                .from('energy_data')
-                .insert(batch);
-
-              if (insertError) {
-                console.error('❌ Erreur insertion lot:', insertError);
-              } else {
-                totalDataPointsGenerated += batch.length;
-                batchesProcessed++;
-              }
-            }
-
-          } else {
-            console.log(`📈 Génération de données synthétiques pour ${matchingParticipant.name}`);
-            
-            // Générer des données synthétiques basées sur les totaux mensuels
-            const totalConsumption = (participantData as any).type === 'consumer' 
-              ? ((participantData as any).data.volume_complementaire + (participantData as any).data.volume_partage)
-              : ((participantData as any).data.injection_complementaire * 0.15);
-            
-            const totalSharedEnergy = (participantData as any).type === 'consumer'
-              ? (participantData as any).data.volume_partage
-              : (participantData as any).data.injection_partagee;
-            
-            const totalProduction = (participantData as any).type === 'producer'
-              ? ((participantData as any).data.injection_complementaire + (participantData as any).data.injection_partagee)
-              : 0;
-
-            // Générer des données horaires pour tout le mois
-            const daysInMonth = monthEnd.getDate();
-            const energyDataPoints = [];
-
-            for (let day = 1; day <= daysInMonth; day++) {
-              for (let hour = 0; hour < 24; hour++) {
-                const timestamp = new Date(monthStart.getFullYear(), monthStart.getMonth(), day, hour);
-                
-                // Facteurs de variation réalistes
-                let hourlyFactor = 1;
-                let randomFactor = 0.8 + Math.random() * 0.4;
-
-                if ((participantData as any).type === 'producer') {
-                  // Production solaire - pic à midi
-                  if (hour >= 6 && hour <= 18) {
-                    hourlyFactor = Math.exp(-0.5 * Math.pow((hour - 12) / 4, 2)) * 2;
-                  } else {
-                    hourlyFactor = 0;
-                  }
-                } else {
-                  // Consommation - pics matin et soir
-                  if (hour >= 6 && hour <= 9) {
-                    hourlyFactor = 1.5;
-                  } else if (hour >= 17 && hour <= 22) {
-                    hourlyFactor = 1.8;
-                  } else if (hour >= 23 || hour <= 5) {
-                    hourlyFactor = 0.3;
-                  } else {
-                    hourlyFactor = 0.8;
-                  }
-                }
-
-                const consumption = (totalConsumption / (daysInMonth * 24)) * hourlyFactor * randomFactor;
-                const sharedEnergy = (totalSharedEnergy / (daysInMonth * 24)) * hourlyFactor * randomFactor;
-                const production = (totalProduction / (daysInMonth * 24)) * hourlyFactor * randomFactor;
-
-                energyDataPoints.push({
-                  user_id: matchingUser.id,
-                  timestamp: timestamp.toISOString(),
-                  consumption: Math.max(0, consumption),
-                  shared_energy: Math.max(0, sharedEnergy),
-                  production: Math.max(0, production)
-                });
-              }
-            }
-
-            // Insérer par lots avec limite de 10 000 lignes par cycle
-            const batchSize = 100;
-            const maxBatchesPerCycle = 10; // 10 * 100 = 1 000 lignes maximum par cycle
-            let batchesProcessed = 0;
-            
-            for (let i = 0; i < energyDataPoints.length; i += batchSize) {
-              // Si on a atteint la limite de lots par cycle, faire une pause
-              if (batchesProcessed >= maxBatchesPerCycle) {
-                console.log(`⏸️ Pause après ${batchesProcessed * batchSize} lignes pour éviter un crash`);
-                await new Promise(resolve => setTimeout(resolve, 3000)); // Pause de 3 secondes
-                batchesProcessed = 0; // Réinitialiser le compteur
-              }
-              
-              const batch = energyDataPoints.slice(i, i + batchSize);
-              
-              const { error: insertError } = await supabase
-                .from('energy_data')
-                .insert(batch);
-
-              if (insertError) {
-                console.error('❌ Erreur insertion lot synthétique:', insertError);
-              } else {
-                totalDataPointsGenerated += batch.length;
-                batchesProcessed++;
-              }
-            }
-          }
-
-          usersUpdated++;
-          console.log(`✅ Données générées pour ${matchingParticipant.name}`);
-
-        } catch (error) {
-          console.error(`❌ Erreur traitement participant ${eanCode}:`, error);
-          continue;
-        }
-      }
-
-      console.log(`🎉 Génération terminée: ${totalDataPointsGenerated} points de données pour ${usersUpdated} utilisateurs`);
-
-    } catch (error) {
-      console.error('❌ Erreur génération données dashboard:', error);
-    }
-  }
-
+  /**
+   * Traite un fichier Excel contenant les données mensuelles des participants
+   * @param file Fichier Excel à traiter
+   * @param participantMapping Mapping des codes EAN vers les participants
+   * @param onProgress Callback pour suivre la progression
+   * @returns Résultat du traitement
+   */
   static async processExcelFile(
     file: File,
-    participantMapping: { [ean_code: string]: { name: string; type: 'producer' | 'consumer' } },
+    participantMapping: { [ean_code: string]: { name: string; type: 'producer' | 'consumer'; id: string } },
     onProgress?: (progress: string, percentage: number) => void
   ): Promise<{
     success: boolean;
@@ -386,7 +97,8 @@ export class ExcelProcessor {
       );
       
       const dateIndex = headers.findIndex(h => 
-        h.includes('date') || h.includes('heure') || h.includes('timestamp') || h.includes('time') || h.includes('datetime') || h.includes('fromdate')
+        h.includes('date') || h.includes('heure') || h.includes('timestamp') || h.includes('time') || 
+        h.includes('datetime') || h.includes('fromdate')
       );
       
       const flowIndex = headers.findIndex(h => 
@@ -451,10 +163,11 @@ export class ExcelProcessor {
         };
       } } = {};
 
-      if (Object.keys(participantMapping).length === 0) {
-        errors.push('Aucun participant avec code EAN trouvé. Veuillez d\'abord enregistrer des participants avec leur code EAN.');
-        return { success: false, errors, warnings };
-      }
+      // Afficher les codes EAN disponibles dans le mapping
+      console.log('🔍 Codes EAN disponibles dans le mapping:');
+      Object.keys(participantMapping).forEach(ean => {
+        console.log(`  - ${ean} (${participantMapping[ean].name})`);
+      });
 
       const unknownEans = new Set<string>();
       let processedRows = 0;
@@ -464,16 +177,7 @@ export class ExcelProcessor {
       // Traiter les lignes par lots pour éviter les crashes
       onProgress?.('Traitement des données...', 30);
       const totalRows = rawData.length - 1;
-      const batchSize = 100; // Limiter à 100 lignes par lot pour éviter les crashes
-      
-      console.log(`🚀 Début du traitement: ${rawData.length - 1} lignes en ${Math.ceil((rawData.length - 1) / batchSize)} lots`);
-      console.log('📋 Colonnes identifiées:', {
-        ean: eanIndex,
-        date: dateIndex,
-        flow: flowIndex,
-        volume: volumeIndex
-      });
-      console.log(`🔗 ${Object.keys(participantMapping).length} participants avec EAN disponibles pour correspondance`);
+      const batchSize = 100; // Limiter à 100 lignes par lot
       
       for (let startRow = 1; startRow < rawData.length; startRow += batchSize) {
         const endRow = Math.min(startRow + batchSize, rawData.length);
@@ -594,7 +298,7 @@ export class ExcelProcessor {
               };
             }
 
-            // Initialiser le timestamp pour ce participant
+            // Initialiser ce timestamp pour ce participant
             if (!participantTimeSeriesData[eanCode].timeSeriesData[timestamp.toISOString()]) {
               participantTimeSeriesData[eanCode].timeSeriesData[timestamp.toISOString()] = {
                 volume_complementaire: 0,
@@ -622,13 +326,13 @@ export class ExcelProcessor {
         }
         
         // Pause entre les lots pour éviter les crashes
-        await new Promise(resolve => setTimeout(resolve, 500)); // Pause plus longue
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       onProgress?.('Finalisation des données...', 85);
 
       if (validRows === 0) {
-        errors.push('Aucune ligne de données valide trouvée. Vérifiez que les codes EAN dans le fichier correspondent aux participants enregistrés.');
+        errors.push('Aucune ligne de données valide trouvée pour les participants membres');
         return { success: false, errors, warnings };
       }
 
@@ -715,6 +419,9 @@ export class ExcelProcessor {
     }
   }
 
+  /**
+   * Génère un template Excel pour l'import des données
+   */
   static generateTemplate(): void {
     try {
       const templateData = [
@@ -753,6 +460,244 @@ export class ExcelProcessor {
     } catch (error) {
       console.error('❌ Erreur génération template:', error);
       throw new Error('Impossible de générer le template Excel');
+    }
+  }
+
+  /**
+   * Extrait le mois à partir du nom du fichier
+   */
+  private static extractMonthFromFilename(filename: string): string {
+    try {
+      const monthMatch = filename.match(/([A-Z]{3})(\d{4})/i);
+      if (monthMatch) {
+        const [, monthAbbr, year] = monthMatch;
+        const monthMap: { [key: string]: string } = {
+          'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
+          'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
+          'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
+        };
+        const monthNum = monthMap[monthAbbr.toUpperCase()];
+        if (monthNum) return `${year}-${monthNum}`;
+      }
+      
+      return format(new Date(), 'yyyy-MM');
+    } catch (error) {
+      return format(new Date(), 'yyyy-MM');
+    }
+  }
+
+  /**
+   * Parse une date au format américain
+   */
+  private static parseAmericanDate(dateStr: string): Date {
+    try {
+      if (!dateStr || typeof dateStr !== 'string') {
+        throw new Error('Date invalide');
+      }
+
+      const cleanDateStr = dateStr.trim();
+      
+      if (cleanDateStr.includes(' ')) {
+        const [datePart, timePart] = cleanDateStr.split(' ');
+        const [month, day, year] = datePart.split('/').map(Number);
+        const [hour = 0, minute = 0] = timePart.split(':').map(Number);
+        
+        if (isNaN(month) || isNaN(day) || isNaN(year)) {
+          throw new Error('Format de date invalide');
+        }
+        
+        return new Date(year, month - 1, day, hour, minute);
+      } else {
+        const [month, day, year] = cleanDateStr.split('/').map(Number);
+        
+        if (isNaN(month) || isNaN(day) || isNaN(year)) {
+          throw new Error('Format de date invalide');
+        }
+        
+        return new Date(year, month - 1, day);
+      }
+    } catch (error) {
+      throw new Error(`Format de date invalide: ${dateStr}`);
+    }
+  }
+
+  /**
+   * Parse une valeur numérique
+   */
+  private static parseNumericValue(value: any): number {
+    try {
+      if (value === null || value === undefined || value === '') {
+        return 0;
+      }
+      
+      const stringValue = String(value).replace(',', '.');
+      const numValue = parseFloat(stringValue);
+      return isNaN(numValue) ? 0 : Math.max(0, numValue);
+    } catch (error) {
+      return 0;
+    }
+  }
+
+  /**
+   * Génère les données d'énergie pour les dashboards des membres
+   */
+  private static async generateEnergyDataForDashboards(processedData: any): Promise<void> {
+    try {
+      console.log('🔄 Génération des données d\'énergie pour les dashboards...');
+      
+      // Charger les participants et utilisateurs
+      const { data: participants, error: participantsError } = await supabase
+        .from('participants')
+        .select('*');
+
+      if (participantsError) {
+        console.warn('⚠️ Erreur chargement participants:', participantsError);
+        return;
+      }
+
+      const { data: users, error: usersError } = await supabase
+        .from('users')
+        .select('*');
+
+      if (usersError) {
+        console.warn('⚠️ Erreur chargement utilisateurs:', usersError);
+        return;
+      }
+
+      // Afficher les codes EAN dans les données importées
+      console.log('🔍 Codes EAN dans les données importées:');
+      Object.keys(processedData.participants).forEach(eanCode => {
+        console.log(`  - ${eanCode}`);
+      });
+
+      let totalDataPointsGenerated = 0;
+      let usersUpdated = 0;
+
+      // Pour chaque participant dans les données importées
+      for (const [eanCode, participantData] of Object.entries(processedData.participants)) {
+        try {
+          console.log(`🔍 Traitement participant EAN: ${eanCode}`);
+          
+          // Trouver le participant correspondant
+          const matchingParticipant = participants?.find(p => p.ean_code === eanCode);
+
+          if (!matchingParticipant) {
+            console.log(`⚠️ Participant avec EAN ${eanCode} non trouvé dans la base`);
+            continue;
+          }
+
+          // Trouver l'utilisateur correspondant
+          const matchingUser = users?.find(u => 
+            u.name?.toLowerCase().includes(matchingParticipant.name.toLowerCase()) ||
+            matchingParticipant.name.toLowerCase().includes(u.name?.toLowerCase() || '') ||
+            (matchingParticipant.email && u.email === matchingParticipant.email)
+          );
+
+          if (!matchingUser) {
+            console.log(`⚠️ Utilisateur pour ${matchingParticipant.name} non trouvé`);
+            continue;
+          }
+
+          console.log(`✅ Correspondance trouvée: ${eanCode} -> ${matchingParticipant.name} -> User ${matchingUser.id}`);
+
+          // Supprimer les données existantes pour ce mois
+          const monthStart = new Date(processedData.month + '-01');
+          const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+          
+          const { error: deleteError } = await supabase
+            .from('energy_data')
+            .delete()
+            .eq('user_id', matchingUser.id)
+            .gte('timestamp', monthStart.toISOString())
+            .lte('timestamp', monthEnd.toISOString());
+
+          if (deleteError) {
+            console.warn('⚠️ Erreur suppression données existantes:', deleteError);
+          }
+
+          // Utiliser les mesures quart-horaires pour générer les données energy_data
+          // Regrouper les mesures par timestamp pour ce participant
+          const mesuresByTimestamp = {};
+          
+          processedData.mesures
+            .filter((m: any) => m.ean === eanCode)
+            .forEach((mesure: any) => {
+              if (!mesuresByTimestamp[mesure.horodatage]) {
+                mesuresByTimestamp[mesure.horodatage] = {
+                  volume_complementaire: 0,
+                  volume_partage: 0,
+                  injection_complementaire: 0,
+                  injection_partagee: 0
+                };
+              }
+              mesuresByTimestamp[mesure.horodatage][mesure.type] = mesure.valeur;
+            });
+
+          // Convertir en points de données energy_data
+          const energyDataPoints = Object.entries(mesuresByTimestamp).map(([timestamp, values]: [string, any]) => {
+            const isProducer = participantData.type === 'producer';
+            
+            return {
+              user_id: matchingUser.id,
+              timestamp,
+              consumption: isProducer 
+                ? (values.injection_complementaire || 0) * 0.15 // Autoconsommation pour producteurs (15% de l'injection)
+                : (values.volume_complementaire || 0) + (values.volume_partage || 0),
+              shared_energy: isProducer
+                ? values.injection_partagee || 0
+                : values.volume_partage || 0,
+              production: isProducer
+                ? (values.injection_complementaire || 0) + (values.injection_partagee || 0)
+                : 0
+            };
+          });
+
+          if (energyDataPoints.length > 0) {
+            console.log(`📊 Génération de ${energyDataPoints.length} points de données pour ${matchingParticipant.name}`);
+            
+            // Insérer par lots de 100 avec limite de 1000 lignes par cycle
+            const batchSize = 100;
+            const maxBatchesPerCycle = 10; // 10 * 100 = 1000 lignes maximum par cycle
+            let batchesProcessed = 0;
+            
+            for (let i = 0; i < energyDataPoints.length; i += batchSize) {
+              // Si on a atteint la limite de lots par cycle, faire une pause
+              if (batchesProcessed >= maxBatchesPerCycle) {
+                console.log(`⏸️ Pause après ${batchesProcessed * batchSize} lignes pour éviter un crash`);
+                await new Promise(resolve => setTimeout(resolve, 3000)); // Pause de 3 secondes
+                batchesProcessed = 0; // Réinitialiser le compteur
+              }
+              
+              const batch = energyDataPoints.slice(i, i + batchSize);
+              
+              const { error: insertError } = await supabase
+                .from('energy_data')
+                .insert(batch);
+
+              if (insertError) {
+                console.error('❌ Erreur insertion lot:', insertError);
+              } else {
+                totalDataPointsGenerated += batch.length;
+                batchesProcessed++;
+              }
+            }
+            
+            usersUpdated++;
+            console.log(`✅ Données générées pour ${matchingParticipant.name}`);
+          } else {
+            console.warn(`⚠️ Aucune donnée temporelle pour ${matchingParticipant.name}`);
+          }
+
+        } catch (error) {
+          console.error(`❌ Erreur traitement participant ${eanCode}:`, error);
+          continue;
+        }
+      }
+
+      console.log(`🎉 Génération terminée: ${totalDataPointsGenerated} points de données pour ${usersUpdated} utilisateurs`);
+
+    } catch (error) {
+      console.error('❌ Erreur génération données dashboard:', error);
     }
   }
 }

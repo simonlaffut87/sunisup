@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Upload, 
   FileSpreadsheet, 
   Calendar, 
-  Edit3, 
-  Eye, 
-  Trash2, 
   Download,
   Plus,
   CheckCircle,
   AlertCircle,
-  Clock,
-  BarChart3,
-  Users,
-  X,
-  Zap,
   RefreshCw,
-  Database
+  Database,
+  Trash2,
+  Eye
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -140,7 +133,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       case 'uploaded':
         return (
           <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-            <Clock className="w-3 h-3 mr-1" />
+            <Calendar className="w-3 h-3 mr-1" />
             En attente
           </span>
         );
@@ -192,7 +185,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
             onClick={() => setShowUploadModal(true)}
             className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors shadow-sm hover:shadow-md"
           >
-            <Zap className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 mr-2" />
             Import Quart-Horaire
           </button>
         </div>
@@ -223,7 +216,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           </div>
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
             <div className="flex items-center">
-              <Users className="w-8 h-8 text-purple-600 mr-3" />
+              <Database className="w-8 h-8 text-purple-600 mr-3" />
               <div>
                 <div className="text-2xl font-bold text-gray-900">
                   {Math.max(...files.map(f => f.participant_count), 0)}
@@ -394,7 +387,9 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                   onClick={() => setViewingData(null)}
                   className="text-gray-500 hover:text-gray-700 transition-colors"
                 >
-                  <X className="w-6 h-6" />
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
 

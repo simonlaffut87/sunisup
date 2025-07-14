@@ -138,7 +138,9 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       if (error) throw error;
 
       processingRef.current.participantMapping = participants.reduce((acc, p) => {
-        acc[p.ean_code] = p;
+        if (p.ean_code) {
+          acc[p.ean_code] = p;
+        }
         return acc;
       }, {});
 

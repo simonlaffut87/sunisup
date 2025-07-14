@@ -16,11 +16,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   const [formData, setFormData] = useState({
     name: '',
     address: '',
-    type: 'consumer' as 'producer' | 'consumer',
-    email: '',
-    ean_code: '',
-    entry_date: new Date().toISOString().split('T')[0],
-    commodity_rate: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -29,23 +24,14 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   // Charger les données du participant lors de l'édition
   useEffect(() => {
     if (participant) {
-      setFormData({
-        name: participant.name || '',
-        address: participant.address || '',
-        type: participant.type || 'consumer',
         email: participant.email || '',
         ean_code: participant.ean_code || '',
         entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         commodity_rate: participant.commodity_rate?.toString() || '',
-      });
-    }
-  }, [participant]);
-
-  // Validation en temps réel
-  const validateField = (name: string, value: string) => {
-    const newErrors = { ...errors };
-
-    switch (name) {
+        email: participant.email || '',
+        ean_code: participant.ean_code || '',
+        entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+        commodity_rate: participant.commodity_rate?.toString() || '',
       case 'name':
         if (!value.trim()) {
           newErrors.name = 'Le nom du participant est requis';
@@ -187,51 +173,14 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         peak_power: 0,
         annual_production: 0,
         annual_consumption: 0,
+        lat: 50.8503, // Centre de Bruxelles par défaut
+        lng: 4.3517,
+        peak_power: 0,
+        annual_production: 0,
+        annual_consumption: 0,
       };
 
       let participantId: string;
-      let isNewParticipant = false;
-
-      if (participant?.id) {
-        // Mise à jour d'un participant existant
-        console.log('🔄 Mise à jour du participant:', participant.id);
-
-        const { error } = await supabase
-          .from('participants')
-          .update(participantData)
-          .eq('id', participant.id);
-        
-        if (error) {
-          console.error('❌ Erreur lors de la mise à jour:', error);
-          throw new Error(`Erreur de mise à jour: ${error.message}`);
-        }
-        
-        participantId = participant.id;
-        console.log('✅ Participant mis à jour avec succès:', participantId);
-      } else {
-        // Création d'un nouveau participant
-        isNewParticipant = true;
-        console.log('➕ Création d\'un nouveau participant');
-
-        const { data: newParticipant, error } = await supabase
-          .from('participants')
-          .insert([participantData])
-          .select('id')
-          .single();
-        
-        if (error) {
-          console.error('❌ Erreur lors de la création:', error);
-          throw new Error(`Erreur de création: ${error.message}`);
-        }
-        
-        if (!newParticipant?.id) {
-          throw new Error('Aucun ID retourné après la création du participant');
-        }
-        
-        participantId = newParticipant.id;
-        console.log('✅ Nouveau participant créé avec succès:', participantId);
-      }
-
       // Message de succès
       const successMessage = isNewParticipant 
         ? `Participant "${formData.name}" ajouté avec succès !`
@@ -248,24 +197,8 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
       console.error('❌ Erreur lors de la sauvegarde:', error);
       toast.error(`Erreur lors de la sauvegarde: ${error.message || 'Erreur inconnue'}`);
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!participant?.id) return;
-    
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer le participant "${participant.name}" ?`)) return;
-    
-    setLoading(true);
-    try {
       const { error } = await supabase
         .from('participants')
-        .delete()
-        .eq('id', participant.id);
-      
-      if (error) throw error;
-
       toast.success(`Participant "${participant.name}" supprimé avec succès`);
       onSuccess();
     } catch (error: any) {
@@ -339,56 +272,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 <User className="w-4 h-4 inline mr-2" />
                 Nom du participant *
               </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
-                  errors.name ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
-                }`}
-                placeholder="Ex: Boulangerie Martin, Jean Dupont..."
-                required
-              />
-              {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
-            </div>
-
-            {/* Type de participant */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Type de participant *
-              </label>
-              <select
-                value={formData.type}
-                onChange={(e) => handleInputChange('type', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
-                required
-              >
-                <option value="consumer">Consommateur</option>
-                <option value="producer">Producteur</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Adresse */}
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-900 mb-2">
-              <MapPin className="w-4 h-4 inline mr-2" />
-              Adresse *
-            </label>
-            <input
-              type="text"
-              value={formData.address}
-              onChange={(e) => handleInputChange('address', e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
-                errors.address ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
-              }`}
-              placeholder="Ex: Rue de la Paix 123, 1000 Bruxelles"
-              required
-            />
-            {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
-          </div>
-        </div>
-
         {/* Informations administratives */}
         <div className="bg-gray-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations administratives</h3>
