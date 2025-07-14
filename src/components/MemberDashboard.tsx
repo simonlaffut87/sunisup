@@ -87,9 +87,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
   // Memoized function to fetch energy data
   const fetchEnergyData = useCallback(async (mode: 'day' | 'week' | 'month', date: Date, isInitial = false) => {
-    console.log('🔍 Chargement des données pour l\'utilisateur:', user.id);
-    
-    console.log('🔍 Chargement des données pour l\'utilisateur:', user.id);
+    console.log(`🔍 Chargement des données pour l'utilisateur: ${user.id}`);
     
     if (isInitial) {
       setLoading(true);
@@ -123,9 +121,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
       if (error) throw error;
       
-      console.log(`📊 ${data?.length || 0} points de données chargés pour la période ${mode}`);
-      
-      console.log(`📊 ${data?.length || 0} points de données chargés pour la période ${mode}`);
+      console.log(`📊 ${data?.length || 0} points de données chargés`);
       
       // Smooth transition for data update
       setTimeout(() => {
@@ -134,13 +130,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
     } catch (error) {
       console.error('Error fetching energy data:', error);
-      
-      // Si aucune donnée trouvée, générer des données de démonstration
-      if (error.message?.includes('no rows') || !energyData.length) {
-        console.log('🎭 Génération de données de démonstration...');
-        const demoData = generateDemoData(mode, date);
-        setEnergyData(demoData);
-      }
       
       // Si aucune donnée trouvée, générer des données de démonstration
       if (error.message?.includes('no rows') || !energyData.length) {
@@ -160,7 +149,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   }, [user.id]);
 
   // Fonction pour générer des données de démonstration si aucune donnée n'est trouvée
-  const generateDemoData = (mode: 'day' | 'week' | 'month', date: Date) => {
+  function generateDemoData(mode: 'day' | 'week' | 'month', date: Date) {
     const demoData = [];
     const now = new Date();
     
@@ -218,8 +207,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     
     console.log(`🎭 ${demoData.length} points de données de démonstration générés`);
     return demoData;
-  };
-
+  }
 
   // Initial data load
   useEffect(() => {
@@ -402,8 +390,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-amber-500 mx-auto mb-6"></div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Chargement de votre dashboard...</h3>
-          <p className="text-gray-600">Génération des données de démonstration pour {userProfile?.name || user.name}</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Chargement du dashboard...</h3>
           <p className="text-gray-600">Génération des données de démonstration pour {userProfile?.name || user.name}</p>
         </div>
       </div>
@@ -443,24 +430,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Message d'information pour la démonstration */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-bold text-sm">ℹ️</span>
-              </div>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-900">Dashboard de démonstration</h3>
-              <p className="text-sm text-blue-700 mt-1">
-                Vous visualisez des données de démonstration pour l'Atelier Anderlecht. 
-                Les graphiques montrent un profil de consommation réaliste avec {energyData.length} points de données.
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Message d'information pour la démonstration */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-start">

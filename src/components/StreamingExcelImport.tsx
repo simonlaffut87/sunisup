@@ -3,8 +3,9 @@ import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle, Download, Info, L
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
+import { ExcelProcessor } from '../utils/excelProcessor';
+import { ImportReportModal } from './ImportReportModal';
 
 interface StreamingExcelImportProps {
   isOpen: boolean;
@@ -47,6 +48,8 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     batchesProcessed: 0,
     totalBatches: 0
   });
+  const [importReport, setImportReport] = useState<any>(null);
+  const [showReportModal, setShowReportModal] = useState<boolean>(false);
 
   const processingRef = useRef<{
     shouldStop: boolean;
@@ -81,6 +84,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     mesures: []
   });
 
+  // Référence pour l'input de fichier
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,214 +108,82 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     event.preventDefault();
   };
 
-  const processFile = async () => {
+  const processFile = async () => {  
     if (!file) return;
 
     setState(prev => ({ ...prev, status: 'reading', progress: 0 }));
-    processingRef.current.shouldStop = false;
-    processingRef.current.isPaused = false;
 
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      processingRef.current.data = data;
-      processingRef.current.headers = data[0] as string[];
-
-      // Find column indices
-      const headers = processingRef.current.headers;
-      processingRef.current.columnIndices = {
-        ean: headers.findIndex(h => h?.toLowerCase().includes('ean')),
-        date: headers.findIndex(h => h?.toLowerCase().includes('date') || h?.toLowerCase().includes('horodatage')),
-        flow: headers.findIndex(h => h?.toLowerCase().includes('flow') || h?.toLowerCase().includes('flux')),
-        volume: headers.findIndex(h => h?.toLowerCase().includes('volume') || h?.toLowerCase().includes('valeur'))
-      };
-
-      // Load participants
+      // Charger les participants
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*');
 
       if (error) throw error;
 
-      processingRef.current.participantMapping = participants.reduce((acc, p) => {
+      // Créer le mapping des participants par code EAN
+      const participantMapping = participants.reduce((acc, p) => {
         if (p.ean_code) {
-          acc[p.ean_code] = p;
+          acc[p.ean_code] = {
+            name: p.name,
+            type: p.type,
+            id: p.id
+          };
         }
         return acc;
       }, {});
 
-      setState(prev => ({
-        ...prev,
-        status: 'processing',
-        totalRows: data.length - 1,
-        canPause: true
-      }));
+      // Utiliser l'ExcelProcessor pour traiter le fichier
+      const result = await ExcelProcessor.processExcelFile(
+        file,
+        participantMapping,
+        (progressText, percentage) => {
+          setState(prev => ({
+            ...prev,
+            status: 'processing',
+            progress: percentage,
+            canPause: true
+          }));
+        }
+      );
 
-      await processData();
-    } catch (error) {
+      if (result.success) {
+        setState(prev => ({
+          ...prev,
+          status: 'completed',
+          progress: 100,
+          validRows: result.data.stats.validRowsImported,
+          errorRows: result.data.stats.errorRowsSkipped,
+          totalRows: result.data.stats.totalRowsProcessed,
+          mesuresCount: result.data.stats.mesuresCount,
+          participants: result.data.participants,
+          warnings: result.warnings,
+          errors: result.errors,
+          month: result.data.month
+        }));
+        
+        // Afficher le rapport d'import
+        setImportReport(result.data);
+        setShowReportModal(true);
+        
+        // Notifier le parent du succès
+        onSuccess(result.data);
+      } else {
+        setState(prev => ({
+          ...prev,
+          status: 'error',
+          errors: result.errors,
+          warnings: result.warnings
+        }));
+      }
+    } catch (error: any) {
       console.error('Error processing file:', error);
       setState(prev => ({
         ...prev,
         status: 'error',
-        errors: [...prev.errors, `Erreur lors du traitement du fichier: ${error.message}`]
+        errors: [...state.errors, error.message || 'Erreur inconnue lors du traitement']
       }));
     }
-  };
-
-  const processData = async () => {
-    const BATCH_SIZE = 100;
-    const data = processingRef.current.data.slice(1); // Skip header
-    const totalBatches = Math.ceil(data.length / BATCH_SIZE);
-    
-    setState(prev => ({ ...prev, totalBatches }));
-
-    for (let i = 0; i < data.length; i += BATCH_SIZE) {
-      if (processingRef.current.shouldStop) break;
-
-      while (processingRef.current.isPaused) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        if (processingRef.current.shouldStop) break;
-      }
-
-      const batch = data.slice(i, Math.min(i + BATCH_SIZE, data.length));
-      await processBatch(batch, i);
-
-      setState(prev => ({
-        ...prev,
-        batchesProcessed: Math.floor(i / BATCH_SIZE) + 1,
-        progress: Math.round(((i + batch.length) / data.length) * 100)
-      }));
-    }
-
-    if (!processingRef.current.shouldStop) {
-      await saveMesures();
-      setState(prev => ({ ...prev, status: 'completed' }));
-      toast.success('Import terminé avec succès!');
-      onSuccess(processingRef.current.mesures);
-    }
-  };
-
-  const processBatch = async (batch: any[], startIndex: number) => {
-    const { columnIndices } = processingRef.current;
-    
-    for (let i = 0; i < batch.length; i++) {
-      const row = batch[i];
-      const rowIndex = startIndex + i + 2; // +2 for header and 0-based index
-
-      setState(prev => ({ ...prev, currentRow: rowIndex }));
-
-      try {
-        const ean = row[columnIndices.ean];
-        const dateValue = row[columnIndices.date];
-        const flowValue = row[columnIndices.flow];
-        const volumeValue = row[columnIndices.volume];
-
-        if (!ean || !dateValue) {
-          setState(prev => ({
-            ...prev,
-            errorRows: prev.errorRows + 1,
-            errors: [...prev.errors, `Ligne ${rowIndex}: EAN ou date manquant`]
-          }));
-          continue;
-        }
-
-        // Convert date
-        let date: Date;
-        if (typeof dateValue === 'number') {
-          date = new Date((dateValue - 25569) * 86400 * 1000);
-        } else {
-          date = new Date(dateValue);
-        }
-
-        if (isNaN(date.getTime())) {
-          setState(prev => ({
-            ...prev,
-            errorRows: prev.errorRows + 1,
-            errors: [...prev.errors, `Ligne ${rowIndex}: Date invalide`]
-          }));
-          continue;
-        }
-
-        const horodatage = format(date, 'yyyy-MM-dd HH:mm:ss');
-
-        // Add consumption data
-        if (volumeValue !== undefined && volumeValue !== null) {
-          processingRef.current.mesures.push({
-            ean: ean.toString(),
-            horodatage,
-            type: 'consumption',
-            valeur: parseFloat(volumeValue) || 0
-          });
-        }
-
-        // Add production data if flow exists
-        if (flowValue !== undefined && flowValue !== null) {
-          processingRef.current.mesures.push({
-            ean: ean.toString(),
-            horodatage,
-            type: 'production',
-            valeur: parseFloat(flowValue) || 0
-          });
-        }
-
-        setState(prev => ({ ...prev, validRows: prev.validRows + 1 }));
-      } catch (error) {
-        setState(prev => ({
-          ...prev,
-          errorRows: prev.errorRows + 1,
-          errors: [...prev.errors, `Ligne ${rowIndex}: ${error.message}`]
-        }));
-      }
-    }
-  };
-
-  const saveMesures = async () => {
-    const mesures = processingRef.current.mesures;
-    if (mesures.length === 0) return;
-
-    // Group by participant and save
-    const groupedByEan = mesures.reduce((acc, mesure) => {
-      if (!acc[mesure.ean]) acc[mesure.ean] = [];
-      acc[mesure.ean].push(mesure);
-      return acc;
-    }, {} as { [ean: string]: typeof mesures });
-
-    for (const [ean, eanMesures] of Object.entries(groupedByEan)) {
-      const participant = processingRef.current.participantMapping[ean];
-      if (!participant) continue;
-
-      // Convert to energy_data format
-      const energyData = eanMesures.map(mesure => ({
-        user_id: null, // Will be set by trigger or admin
-        timestamp: mesure.horodatage,
-        consumption: mesure.type === 'consumption' ? mesure.valeur : 0,
-        production: mesure.type === 'production' ? mesure.valeur : 0,
-        shared_energy: 0
-      }));
-
-      // Insert in batches
-      const SAVE_BATCH_SIZE = 1000;
-      for (let i = 0; i < energyData.length; i += SAVE_BATCH_SIZE) {
-        const batch = energyData.slice(i, i + SAVE_BATCH_SIZE);
-        const { error } = await supabase
-          .from('energy_data')
-          .insert(batch);
-
-        if (error) {
-          console.error('Error saving batch:', error);
-          setState(prev => ({
-            ...prev,
-            errors: [...prev.errors, `Erreur sauvegarde EAN ${ean}: ${error.message}`]
-          }));
-        }
-      }
-    }
-
-    setState(prev => ({ ...prev, mesuresCount: mesures.length }));
   };
 
   const pauseProcessing = () => {
@@ -355,6 +227,10 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     a.download = `rapport-erreurs-${format(new Date(), 'yyyy-MM-dd-HHmm')}.txt`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleCloseReportModal = () => {
+    setShowReportModal(false);
   };
 
   if (!isOpen) return null;
@@ -601,6 +477,13 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           )}
         </div>
       </div>
+      
+      {/* Modal de rapport d'import */}
+      <ImportReportModal 
+        isOpen={showReportModal} 
+        onClose={handleCloseReportModal} 
+        report={importReport} 
+      />
     </div>
   );
 }
