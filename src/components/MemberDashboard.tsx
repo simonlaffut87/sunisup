@@ -1,19 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { 
-  BarChart4, 
-  TrendingUp, 
-  Zap, 
-  LogOut, 
-  Calendar,
-  Clock,
-  Battery,
-  Leaf,
-  ChevronLeft,
-  ChevronRight,
-  Loader2
+  BarChart4, TrendingUp, Zap, LogOut, Calendar, Clock, Battery, 
+  Leaf, ChevronLeft, ChevronRight, Loader2
 } from 'lucide-react';
-import { format, parseISO, subDays, startOfDay, endOfDay, addDays, addWeeks, addMonths, subWeeks, subMonths } from 'date-fns';
+import { format, parseISO, subDays, startOfDay, endOfDay, addDays, 
+  addWeeks, addMonths, subWeeks, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { 
   LineChart, 
@@ -56,7 +48,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false); // Separate loading for data updates
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date(2025, 3, 30)); // 30 avril 2025
   const [userProfile, setUserProfile] = useState<User | null>(null);
 
   useEffect(() => {
@@ -96,7 +88,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     try {
       let startDate;
       let endDate = endOfDay(date);
-
+      
+      // Calculer les dates de début et de fin en fonction du mode de vue
       switch (mode) {
         case 'day':
           startDate = startOfDay(date);
@@ -120,27 +113,23 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       if (error) throw error;
       
       // Smooth transition for data update
-      setTimeout(() => {
-        setEnergyData(data || []);
-      }, isInitial ? 0 : 150); // Small delay for non-initial loads to show loading state
+      setEnergyData(data || []);
 
     } catch (error) {
       console.error('Error fetching energy data:', error);
     } finally {
-      setTimeout(() => {
-        if (isInitial) {
-          setLoading(false);
-        } else {
-          setDataLoading(false);
-        }
-      }, isInitial ? 0 : 300);
+      if (isInitial) {
+        setLoading(false);
+      } else {
+        setDataLoading(false);
+      }
     }
   }, [user.id]);
 
   // Initial data load
   useEffect(() => {
     fetchEnergyData(viewMode, selectedDate, true);
-  }, [fetchEnergyData, user.id]);
+  }, [fetchEnergyData]);
 
   // Data refresh when viewMode or selectedDate changes (but not initial load)
   useEffect(() => {
@@ -148,17 +137,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       fetchEnergyData(viewMode, selectedDate, false);
     }
   }, [viewMode, selectedDate, fetchEnergyData, loading]);
-
-  const formatData = (data: EnergyData[]) => {
-    return data.map(item => ({
-      ...item,
-      time: format(parseISO(item.timestamp), 'HH:mm'),
-      date: format(parseISO(item.timestamp), 'dd/MM'),
-      consumption: Number(item.consumption),
-      shared_energy: Number(item.shared_energy),
-      production: Number(item.production || 0)
-    }));
-  };
 
   const aggregateDataByHour = (data: EnergyData[]) => {
     const hourlyData: Record<string, { consumption: number; shared_energy: number; production: number; count: number }> = {};
@@ -203,14 +181,16 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return Object.entries(dailyData).map(([day, values]) => ({
       date: day,
       consumption: values.consumption,
-      shared_energy: values.shared_energy,
-      production: values.production
+      shared_energy: values.shared_energy, 
+      production: values.production,
+      count: values.count
     }));
   };
 
   const chartData = React.useMemo(() => {
     if (!energyData.length) return [];
     
+    // Formater les données selon le mode de vue
     switch (viewMode) {
       case 'day':
         return aggregateDataByHour(energyData);
@@ -218,7 +198,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       case 'month':
         return aggregateDataByDay(energyData);
       default:
-        return formatData(energyData);
+        return aggregateDataByHour(energyData);
     }
   }, [energyData, viewMode]);
 
@@ -233,7 +213,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const totalProduction = React.useMemo(() => {
     return energyData.reduce((sum, item) => sum + Number(item.production || 0), 0);
   }, [energyData]);
-
+  
+  // Calculer le pourcentage d'énergie partagée
   const sharedPercentage = React.useMemo(() => {
     if (userProfile?.member_type === 'producer') {
       return totalProduction > 0 ? ((totalSharedEnergy / totalProduction) * 100) : 0;
@@ -316,10 +297,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement de votre dashboard...</p>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
       </div>
     );
   }
@@ -639,7 +617,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         </div>
 
         {/* Chart with smooth loading transition */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
             <Clock className="w-5 h-5 mr-2 text-amber-500" />
             {isProducer ? 'Production et partage' : 'Consommation et énergie partagée'}
@@ -736,6 +714,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           </div>
         </div>
       </main>
+      <footer className="bg-gray-100 py-4 text-center text-sm text-gray-500">
+        <p>Dernière mise à jour: {format(new Date(), 'dd/MM/yyyy HH:mm', { locale: fr })}</p>
+      </footer>
     </div>
   );
 }
