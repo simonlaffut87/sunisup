@@ -96,22 +96,22 @@ export function AdminDashboard() {
     loadParticipants();
   };
 
-  const handleViewMemberDashboard = async () => {
-    // Créer un utilisateur de démonstration pour l'atelier
+  const handleViewParticipantDashboard = async (participant: Participant) => {
+    // Créer un utilisateur de démonstration basé sur le participant sélectionné
     const demoUser = {
-      id: '00000000-0000-0000-0000-000000000001', // UUID valide pour la démo
-      email: 'atelier@sunisup.be',
-      name: 'Atelier Anderlecht',
-      member_type: 'consumer'
+      id: `demo-${participant.id}`, // ID unique basé sur le participant
+      email: participant.email || `${participant.name.toLowerCase().replace(/\s+/g, '.')}@sunisup.be`,
+      name: participant.name,
+      member_type: participant.type
     };
 
-    // Générer des données de démonstration
+    // Générer des données de démonstration pour ce participant
     try {
-      await generateDemoDataForAtelier(demoUser.id);
-      console.log('✅ Données de démonstration générées pour:', demoUser.name);
+      await generateDemoDataForParticipant(demoUser.id, participant);
+      console.log('✅ Données de démonstration générées pour:', participant.name);
     } catch (error) {
       console.error('❌ Erreur génération données démo:', error);
-      toast.error('Erreur lors de la génération des données de démonstration');
+      toast.error(`Erreur lors de la génération des données pour ${participant.name}`);
       return;
     }
     
@@ -156,8 +156,8 @@ export function AdminDashboard() {
     isLoggedIn: true
   });
 
-  // Fonction pour générer des données de démonstration pour l'atelier
-  const generateDemoDataForAtelier = async (userId: string) => {
+  // Fonction pour générer des données de démonstration pour un participant
+  const generateDemoDataForParticipant = async (userId: string, participant: Participant) => {
     try {
       console.log('🔄 Génération des données pour l\'utilisateur:', userId);
       
@@ -166,9 +166,9 @@ export function AdminDashboard() {
         .from('users')
         .upsert({
           id: userId,
-          email: 'atelier@sunisup.be',
-          name: 'Atelier Anderlecht',
-          member_type: 'consumer'
+          email: participant.email || `${participant.name.toLowerCase().replace(/\s+/g, '.')}@sunisup.be`,
+          name: participant.name,
+          member_type: participant.type
         }, {
           onConflict: 'id'
         });
@@ -198,48 +198,69 @@ export function AdminDashboard() {
         const date = new Date(now);
         date.setDate(date.getDate() - day);
         
-        // Générer des données horaires pour chaque jour (plus simple et plus rapide)
+        // Générer des données horaires pour chaque jour
         for (let hour = 0; hour < 24; hour++) {
           const timestamp = new Date(date);
           timestamp.setHours(hour, 0, 0, 0);
           
-          // Profil de consommation réaliste pour un atelier
+          // Profil de consommation/production réaliste selon le type
           let baseConsumption = 0;
+          let baseProduction = 0;
           
-          // Heures d'ouverture (8h-18h) - consommation plus élevée
-          if (hour >= 8 && hour <= 18) {
-            baseConsumption = 15 + Math.random() * 25; // 15-40 kWh
-            
-            // Pic de consommation en milieu de journée
-            if (hour >= 10 && hour <= 16) {
-              baseConsumption += 10 + Math.random() * 20; // +10-30 kWh
+          if (participant.type === 'producer') {
+            // Profil de production solaire
+            if (hour >= 6 && hour <= 18) {
+              // Production solaire avec pic à midi
+              const solarFactor = Math.exp(-0.5 * Math.pow((hour - 12) / 4, 2));
+              baseProduction = solarFactor * (20 + Math.random() * 30); // 0-50 kWh
             }
+            // Autoconsommation du producteur (plus faible)
+            baseConsumption = 5 + Math.random() * 10; // 5-15 kWh
           } else {
-            // Consommation de veille
-            baseConsumption = 2 + Math.random() * 8; // 2-10 kWh
+            // Profil de consommation pour consommateur
+            if (hour >= 8 && hour <= 18) {
+              baseConsumption = 15 + Math.random() * 25; // 15-40 kWh
+              
+              // Pic de consommation en milieu de journée
+              if (hour >= 10 && hour <= 16) {
+                baseConsumption += 10 + Math.random() * 20; // +10-30 kWh
+              }
+            } else {
+              // Consommation de veille
+              baseConsumption = 2 + Math.random() * 8; // 2-10 kWh
+            }
           }
           
           // Week-end : consommation réduite
           const dayOfWeek = timestamp.getDay();
           if (dayOfWeek === 0 || dayOfWeek === 6) {
-            baseConsumption *= 0.4; // 40% de la consommation normale
+            baseConsumption *= 0.4;
+            baseProduction *= 0.8; // Production légèrement réduite le week-end
           }
           
           // Variation saisonnière (plus de consommation en hiver)
           const month = timestamp.getMonth();
           if (month >= 10 || month <= 2) { // Nov-Fév
-            baseConsumption *= 1.4; // +40% en hiver
+            baseConsumption *= 1.4;
+            baseProduction *= 0.7; // Production réduite en hiver
           }
           
-          // Énergie partagée (environ 30% de la consommation)
-          const sharedEnergy = baseConsumption * (0.25 + Math.random() * 0.1); // 25-35%
+          // Énergie partagée
+          let sharedEnergy = 0;
+          if (participant.type === 'producer') {
+            // Pour un producteur, énergie partagée = partie de la production partagée
+            sharedEnergy = baseProduction * (0.6 + Math.random() * 0.3); // 60-90% de la production
+          } else {
+            // Pour un consommateur, énergie partagée = partie de la consommation couverte
+            sharedEnergy = baseConsumption * (0.25 + Math.random() * 0.1); // 25-35% de la consommation
+          }
           
           energyData.push({
             user_id: userId,
             timestamp: timestamp.toISOString(),
             consumption: Math.round(baseConsumption * 100) / 100,
             shared_energy: Math.round(sharedEnergy * 100) / 100,
-            production: 0 // Atelier = consommateur
+            production: Math.round(baseProduction * 100) / 100
           });
         }
       }
@@ -263,7 +284,7 @@ export function AdminDashboard() {
         console.log(`✅ Lot ${Math.floor(i / batchSize) + 1}/${Math.ceil(energyData.length / batchSize)} inséré`);
       }
       
-      console.log(`✅ ${energyData.length} points de données générés pour l'atelier de démonstration`);
+      console.log(`✅ ${energyData.length} points de données générés pour ${participant.name} (${participant.type})`);
       
       // Vérifier que les données ont bien été insérées
       const { data: verifyData, error: verifyError } = await supabase
@@ -369,14 +390,6 @@ export function AdminDashboard() {
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 {refreshing ? 'Actualisation...' : 'Actualiser'}
-              </button>
-              <button
-                onClick={handleViewMemberDashboard}
-                className="inline-flex items-center px-3 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100"
-                title="Voir le dashboard membre (démo)"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                Dashboard Membre
               </button>
               <button
                 onClick={handleLogout}
@@ -579,6 +592,13 @@ export function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleViewParticipantDashboard(participant)}
+                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                            title="Voir le dashboard"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => handleEdit(participant)}
                             className="text-amber-600 hover:text-amber-900 transition-colors"
