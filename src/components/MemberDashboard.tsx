@@ -89,6 +89,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const fetchEnergyData = useCallback(async (mode: 'day' | 'week' | 'month', date: Date, isInitial = false) => {
     console.log('🔍 Chargement des données pour l\'utilisateur:', user.id);
     
+    console.log('🔍 Chargement des données pour l\'utilisateur:', user.id);
+    
     if (isInitial) {
       setLoading(true);
     } else {
@@ -123,6 +125,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       
       console.log(`📊 ${data?.length || 0} points de données chargés pour la période ${mode}`);
       
+      console.log(`📊 ${data?.length || 0} points de données chargés pour la période ${mode}`);
+      
       // Smooth transition for data update
       setTimeout(() => {
         setEnergyData(data || []);
@@ -130,6 +134,13 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
     } catch (error) {
       console.error('Error fetching energy data:', error);
+      
+      // Si aucune donnée trouvée, générer des données de démonstration
+      if (error.message?.includes('no rows') || !energyData.length) {
+        console.log('🎭 Génération de données de démonstration...');
+        const demoData = generateDemoData(mode, date);
+        setEnergyData(demoData);
+      }
       
       // Si aucune donnée trouvée, générer des données de démonstration
       if (error.message?.includes('no rows') || !energyData.length) {
@@ -147,6 +158,67 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       }, isInitial ? 0 : 300);
     }
   }, [user.id]);
+
+  // Fonction pour générer des données de démonstration si aucune donnée n'est trouvée
+  const generateDemoData = (mode: 'day' | 'week' | 'month', date: Date) => {
+    const demoData = [];
+    const now = new Date();
+    
+    let startDate, endDate;
+    switch (mode) {
+      case 'day':
+        startDate = startOfDay(date);
+        endDate = endOfDay(date);
+        break;
+      case 'week':
+        startDate = startOfDay(subDays(date, 7));
+        endDate = endOfDay(date);
+        break;
+      case 'month':
+        startDate = startOfDay(subDays(date, 30));
+        endDate = endOfDay(date);
+        break;
+    }
+    
+    // Générer des données horaires
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      const hour = current.getHours();
+      let consumption = 0;
+      
+      // Profil de consommation réaliste
+      if (hour >= 8 && hour <= 18) {
+        consumption = 15 + Math.random() * 25; // 15-40 kWh
+        if (hour >= 10 && hour <= 16) {
+          consumption += 10 + Math.random() * 20; // Pic journalier
+        }
+      } else {
+        consumption = 2 + Math.random() * 8; // Consommation de veille
+      }
+      
+      // Week-end réduit
+      if (current.getDay() === 0 || current.getDay() === 6) {
+        consumption *= 0.4;
+      }
+      
+      const sharedEnergy = consumption * (0.25 + Math.random() * 0.1);
+      
+      demoData.push({
+        id: `demo-${current.getTime()}`,
+        user_id: user.id,
+        timestamp: current.toISOString(),
+        consumption: Math.round(consumption * 100) / 100,
+        shared_energy: Math.round(sharedEnergy * 100) / 100,
+        production: 0,
+        created_at: now.toISOString()
+      });
+      
+      current.setHours(current.getHours() + 1);
+    }
+    
+    console.log(`🎭 ${demoData.length} points de données de démonstration générés`);
+    return demoData;
+  };
 
   // Fonction pour générer des données de démonstration si aucune donnée n'est trouvée
   const generateDemoData = (mode: 'day' | 'week' | 'month', date: Date) => {
@@ -392,6 +464,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-amber-500 mx-auto mb-6"></div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Chargement de votre dashboard...</h3>
           <p className="text-gray-600">Génération des données de démonstration pour {userProfile?.name || user.name}</p>
+          <p className="text-gray-600">Génération des données de démonstration pour {userProfile?.name || user.name}</p>
         </div>
       </div>
     );
@@ -430,6 +503,24 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Message d'information pour la démonstration */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-bold text-sm">ℹ️</span>
+              </div>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-blue-900">Dashboard de démonstration</h3>
+              <p className="text-sm text-blue-700 mt-1">
+                Vous visualisez des données de démonstration pour l'Atelier Anderlecht. 
+                Les graphiques montrent un profil de consommation réaliste avec {energyData.length} points de données.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Message d'information pour la démonstration */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-start">
