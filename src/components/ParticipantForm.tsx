@@ -16,6 +16,11 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   const [formData, setFormData] = useState({
     name: '',
     address: '',
+    email: '',
+    ean_code: '',
+    entry_date: '',
+    commodity_rate: '',
+    type: 'consumer'
   });
 
   const [loading, setLoading] = useState(false);
@@ -24,14 +29,22 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   // Charger les données du participant lors de l'édition
   useEffect(() => {
     if (participant) {
+      setFormData({
+        name: participant.name || '',
+        address: participant.address || '',
         email: participant.email || '',
         ean_code: participant.ean_code || '',
         entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         commodity_rate: participant.commodity_rate?.toString() || '',
-        email: participant.email || '',
-        ean_code: participant.ean_code || '',
-        entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-        commodity_rate: participant.commodity_rate?.toString() || '',
+        type: participant.type || 'consumer'
+      });
+    }
+  }, [participant]);
+
+  const validateField = (name: string, value: string) => {
+    const newErrors = { ...errors };
+
+    switch (name) {
       case 'name':
         if (!value.trim()) {
           newErrors.name = 'Le nom du participant est requis';
@@ -149,7 +162,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation complète avant soumission
     if (!validateAllFields()) {
       toast.error('Veuillez corriger les erreurs dans le formulaire avant de continuer');
       return;
@@ -158,7 +170,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     setLoading(true);
 
     try {
-      // Données pour la table participants
       const participantData = {
         name: formData.name.trim(),
         address: formData.address.trim(),
@@ -167,28 +178,30 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         ean_code: formData.ean_code.trim(),
         commodity_rate: parseFloat(formData.commodity_rate),
         entry_date: formData.entry_date,
-        // Valeurs par défaut pour les champs techniques requis
-        lat: 50.8503, // Centre de Bruxelles par défaut
+        lat: 50.8503,
         lng: 4.3517,
         peak_power: 0,
         annual_production: 0,
-        annual_consumption: 0,
-        lat: 50.8503, // Centre de Bruxelles par défaut
-        lng: 4.3517,
-        peak_power: 0,
-        annual_production: 0,
-        annual_consumption: 0,
+        annual_consumption: 0
       };
 
-      let participantId: string;
-      // Message de succès
+      const isNewParticipant = !participant;
+
+      if (isNewParticipant) {
+        await supabase.from('participants').insert([participantData]);
+      } else {
+        await supabase
+          .from('participants')
+          .update(participantData)
+          .eq('id', participant.id);
+      }
+
       const successMessage = isNewParticipant 
         ? `Participant "${formData.name}" ajouté avec succès !`
         : `Participant "${formData.name}" mis à jour avec succès !`;
 
       toast.success(successMessage);
 
-      // Attendre un peu pour que l'utilisateur voie le message
       setTimeout(() => {
         onSuccess();
       }, 1500);
@@ -197,8 +210,25 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
       console.error('❌ Erreur lors de la sauvegarde:', error);
       toast.error(`Erreur lors de la sauvegarde: ${error.message || 'Erreur inconnue'}`);
     } finally {
-      const { error } = await supabase
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!participant?.id) return;
+    
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${participant.name} ?`)) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await supabase
         .from('participants')
+        .delete()
+        .eq('id', participant.id);
+      
       toast.success(`Participant "${participant.name}" supprimé avec succès`);
       onSuccess();
     } catch (error: any) {
@@ -210,7 +240,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   };
 
   const handleEanCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, ''); // Supprimer tout ce qui n'est pas un chiffre
+    const value = e.target.value.replace(/\D/g, '');
     if (value.length <= 18) {
       handleInputChange('ean_code', value);
     }
@@ -218,12 +248,10 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
 
   const handleCommodityRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Permettre les nombres décimaux avec point ou virgule
     const cleanValue = value.replace(/[^0-9.,]/g, '').replace(',', '.');
     handleInputChange('commodity_rate', cleanValue);
   };
 
-  // Vérifier si le formulaire est valide
   const isFormValid = () => {
     return Object.keys(errors).length === 0 &&
            formData.name.trim() &&
@@ -245,7 +273,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         </p>
       </div>
 
-      {/* Alerte si des erreurs existent */}
       {Object.keys(errors).length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center mb-2">
@@ -261,23 +288,52 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Informations de base */}
         <div className="bg-gray-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations du participant</h3>
           
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Nom */}
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 <User className="w-4 h-4 inline mr-2" />
                 Nom du participant *
               </label>
-        {/* Informations administratives */}
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
+                  errors.name ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
+                }`}
+                placeholder="Ex: Boulangerie Martin"
+                required
+              />
+              {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                <MapPin className="w-4 h-4 inline mr-2" />
+                Adresse *
+              </label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
+                  errors.address ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
+                }`}
+                placeholder="Ex: 123 Rue du Commerce, 1000 Bruxelles"
+                required
+              />
+              {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
+            </div>
+          </div>
+        </div>
+
         <div className="bg-gray-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations administratives</h3>
           
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Date d'entrée */}
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 <Calendar className="w-4 h-4 inline mr-2" />
@@ -295,7 +351,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               {errors.entry_date && <p className="text-sm text-red-600 mt-1">{errors.entry_date}</p>}
             </div>
 
-            {/* Adresse email */}
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 <Mail className="w-4 h-4 inline mr-2" />
@@ -316,7 +371,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mt-6">
-            {/* Code EAN */}
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 <Hash className="w-4 h-4 inline mr-2" />
@@ -341,7 +395,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               )}
             </div>
 
-            {/* Tarif de commodité */}
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 <Euro className="w-4 h-4 inline mr-2" />
@@ -367,7 +420,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
           </div>
         </div>
 
-        {/* Boutons d'action */}
         <div className="flex justify-between items-center pt-6 border-t border-gray-200">
           <div>
             {participant?.id && (
