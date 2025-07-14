@@ -93,20 +93,19 @@ export class ExcelProcessor {
       
       // Identifier les colonnes avec plus de flexibilité
       const eanIndex = headers.findIndex(h => 
-        h.includes('ean') || h.includes('code') || h.includes('participant') || h.includes('meter')
+        h.includes('ean') || h.includes('code') || h.includes('compteur')
       );
       
       const dateIndex = headers.findIndex(h => 
-        h.includes('date') || h.includes('heure') || h.includes('timestamp') || h.includes('time') || 
-        h.includes('datetime') || h.includes('fromdate')
+        h.includes('date') || h.includes('from')
       );
       
       const flowIndex = headers.findIndex(h => 
-        h.includes('flow') || h.includes('type') || h.includes('flux')
+        h.includes('flow') || h.includes('type') || h.includes('flux') || h.includes('partage')
       );
       
       const volumeIndex = headers.findIndex(h => 
-        h.includes('volume') || h.includes('valeur') || h.includes('value') || h.includes('kwh')
+        h.includes('volume') || h.includes('valeur') || h.includes('value') || h.includes('kwh') || h.includes('kWh')
       );
 
       // Validation des colonnes requises
@@ -248,31 +247,15 @@ export class ExcelProcessor {
             let typeIdentifier = '';
             if (flowType.includes('volume') && flowType.includes('compl')) {
               typeIdentifier = 'volume_complementaire';
-            } else if (flowType.includes('volume') && (flowType.includes('partag') || flowType.includes('shared'))) {
+            } else if (flowType.includes('volume') && flowType.includes('partag')) {
               typeIdentifier = 'volume_partage';
             } else if (flowType.includes('injection') && flowType.includes('compl')) {
               typeIdentifier = 'injection_complementaire';
-            } else if (flowType.includes('injection') && (flowType.includes('partag') || flowType.includes('shared'))) {
+            } else if (flowType.includes('injection') && flowType.includes('partag')) {
               typeIdentifier = 'injection_partagee';
             } else {
-              // Essayer de détecter par mots-clés
-              if (flowType.includes('compl') || flowType.includes('grid')) {
-                if (participantMapping[eanCode].type === 'producer') {
-                  typeIdentifier = 'injection_complementaire';
-                } else {
-                  typeIdentifier = 'volume_complementaire';
-                }
-              } else if (flowType.includes('partag') || flowType.includes('shared') || flowType.includes('community')) {
-                if (participantMapping[eanCode].type === 'producer') {
-                  typeIdentifier = 'injection_partagee';
-                } else {
-                  typeIdentifier = 'volume_partage';
-                }
-              } else {
-                // Type inconnu, ignorer
-                errorRows++;
-                continue;
-              }
+              // Type inconnu, utiliser un type par défaut basé sur le type de participant
+              typeIdentifier = participantMapping[eanCode].type === 'producer' ? 'injection_complementaire' : 'volume_complementaire';
             }
 
             // Ajouter la mesure

@@ -2,25 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { MemberDashboard } from './MemberDashboard';
 import { toast } from 'react-hot-toast';
-import { 
-  Users, 
-  Plus,
-  Edit, 
-  Trash2, 
-  ArrowLeft,
-  LogOut,
-  RefreshCw,
-  Calendar,
-  Mail,
-  Hash,
-  Euro,
-  MapPin,
-  User,
-  Upload, 
-  Database,
-  FileSpreadsheet,
-  Eye
-} from 'lucide-react';
+import { Users, Plus, Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail, 
+  Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Database as DB } from '../types/supabase';
@@ -40,6 +23,7 @@ export function AdminDashboard() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [viewingMemberDashboard, setViewingMemberDashboard] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [importStats, setImportStats] = useState<any>(null);
 
   useEffect(() => {
     loadParticipants();
@@ -94,7 +78,7 @@ export function AdminDashboard() {
 
   const handleImportSuccess = () => {
     setShowImportModal(false);
-    loadParticipants();
+    handleRefreshData();
   };
 
   const handleViewParticipantDashboard = async (participant: Participant) => {
@@ -263,6 +247,7 @@ export function AdminDashboard() {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900">Import de données quart-horaires</h2>
                   <p className="text-sm text-gray-600 mt-1">Importez les données Excel avec correspondance automatique par code EAN</p>
+                  <p className="text-xs text-gray-500 mt-1">Format attendu: colonnes EAN, FromDate, Flow, Volume (kWh)</p>
                 </div>
               </div>
               <button
@@ -282,10 +267,10 @@ export function AdminDashboard() {
                 <div className="flex-1">
                   <h3 className="font-medium text-blue-900 mb-2">Comment ça marche ?</h3>
                   <div className="text-sm text-blue-800 space-y-1">
-                    <p>• Le système utilise le <strong>code EAN</strong> pour faire automatiquement le lien entre les données et les participants</p>
-                    <p>• Seules les données des participants avec un code EAN enregistré seront importées</p>
-                    <p>• Les données sans correspondance EAN seront automatiquement ignorées</p>
-                    <p>• Format attendu : colonnes EAN, FromDate, Flow, Volume (kWh)</p>
+                    <p>• Le système utilise le <strong>code EAN</strong> (541448...) pour faire le lien avec les participants</p>
+                    <p>• Les colonnes attendues sont: EAN, FromDate, Flow/Type, Volume (kWh)</p>
+                    <p>• Les types de flux reconnus: Volume Complémentaire, Volume Partagé, Injection Complémentaire, Injection Partagée</p>
+                    <p>• Le format de date attendu est: MM/DD/YYYY HH:MM (format américain)</p>
                   </div>
                 </div>
               </div>

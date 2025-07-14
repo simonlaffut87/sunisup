@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, FileSpreadsheet, CheckCircle, AlertCircle, Download, Database, Users } from 'lucide-react';
+import { X, FileSpreadsheet, CheckCircle, AlertCircle, Download, Database, Users, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -82,6 +82,9 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
                 <p className="text-sm text-gray-600">
                   {format(new Date(report.month + '-01'), 'MMMM yyyy', { locale: fr })}
                 </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Importé le {format(new Date(), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+                </p>
               </div>
             </div>
             <button
@@ -98,12 +101,13 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
               <div className="flex items-center space-x-3 mb-2">
-                <FileSpreadsheet className="w-5 h-5 text-blue-600" />
-                <h3 className="font-medium text-blue-900">Fichier</h3>
+                <BarChart3 className="w-5 h-5 text-blue-600" />
+                <h3 className="font-medium text-blue-900">Lignes</h3>
               </div>
-              <p className="text-sm text-blue-800 truncate" title={report.filename}>
-                {report.filename}
+              <p className="text-xl font-bold text-blue-800">
+                {report.stats.validRowsImported.toLocaleString()}
               </p>
+              <p className="text-xs text-blue-600">sur {report.stats.totalRowsProcessed.toLocaleString()} lignes</p>
             </div>
             
             <div className="bg-green-50 p-4 rounded-lg border border-green-100">
@@ -112,8 +116,9 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
                 <h3 className="font-medium text-green-900">Mesures</h3>
               </div>
               <p className="text-xl font-bold text-green-800">
-                {report.stats.mesuresCount.toLocaleString()}
+                {report.stats.mesuresCount?.toLocaleString() || 0}
               </p>
+              <p className="text-xs text-green-600">points de données</p>
             </div>
             
             <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
@@ -122,8 +127,9 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
                 <h3 className="font-medium text-amber-900">Participants</h3>
               </div>
               <p className="text-xl font-bold text-amber-800">
-                {report.stats.participantsFound.toLocaleString()}
+                {report.stats.participantsFound?.toLocaleString() || 0}
               </p>
+              <p className="text-xs text-amber-600">avec code EAN reconnu</p>
             </div>
             
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
@@ -132,8 +138,9 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
                 <h3 className="font-medium text-purple-900">EANs ignorés</h3>
               </div>
               <p className="text-xl font-bold text-purple-800">
-                {report.stats.unknownEansSkipped.toLocaleString()}
+                {report.stats.unknownEansSkipped?.toLocaleString() || 0}
               </p>
+              <p className="text-xs text-purple-600">non reconnus dans le système</p>
             </div>
           </div>
 
@@ -182,8 +189,10 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code EAN</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mesures</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume Compl.</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume Partagé</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Injection Compl.</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Injection Part.</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -191,18 +200,10 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
                       <tr key={ean} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm font-mono text-gray-900">{ean}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">{data.name}</td>
-                        <td className="px-4 py-3 text-sm">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            data.type === 'producer' 
-                              ? 'bg-amber-100 text-amber-800' 
-                              : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {data.type === 'producer' ? 'Producteur' : 'Consommateur'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          {Object.values(data.data).reduce((sum: number, val: number) => sum + val, 0).toFixed(2)} kWh
-                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{data.data.volume_complementaire.toFixed(2)} kWh</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{data.data.volume_partage.toFixed(2)} kWh</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{data.data.injection_complementaire.toFixed(2)} kWh</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{data.data.injection_partagee.toFixed(2)} kWh</td>
                       </tr>
                     ))}
                   </tbody>
