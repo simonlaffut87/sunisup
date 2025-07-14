@@ -5,8 +5,8 @@ import { toast } from 'react-hot-toast';
 import { 
   Users, 
   Plus,
-  Edit,
-  Trash2,
+  Edit, 
+  Trash2, 
   ArrowLeft,
   LogOut,
   RefreshCw,
@@ -16,7 +16,7 @@ import {
   Euro,
   MapPin,
   User,
-  Upload,
+  Upload, 
   Database,
   FileSpreadsheet,
   Eye
@@ -98,25 +98,21 @@ export function AdminDashboard() {
   };
 
   const handleViewParticipantDashboard = async (participant: Participant) => {
-    // Créer un utilisateur de démonstration basé sur le participant sélectionné
-    const demoUser = {
-      id: `demo-${participant.id}`, // ID unique basé sur le participant
-      email: participant.email || `${participant.name.toLowerCase().replace(/\s+/g, '.')}@sunisup.be`,
+    // Vérifier si le participant a un email
+    if (!participant.email) {
+      toast.error(`${participant.name} n'a pas d'adresse email configurée`);
+      return;
+    }
+
+    // Créer un objet utilisateur pour afficher le dashboard
+    const userObj = {
+      id: participant.id,
+      email: participant.email,
       name: participant.name,
       member_type: participant.type
     };
-
-    // Générer des données de démonstration pour ce participant
-    try {
-      await generateDemoDataForParticipant(demoUser.id, participant);
-      console.log('✅ Données de démonstration générées pour:', participant.name);
-    } catch (error) {
-      console.error('❌ Erreur génération données démo:', error);
-      toast.error(`Erreur lors de la génération des données pour ${participant.name}`);
-      return;
-    }
     
-    setViewingMemberDashboard(demoUser);
+    setViewingMemberDashboard(userObj);
   };
 
   const handleCloseMemberDashboard = () => {
@@ -156,130 +152,6 @@ export function AdminDashboard() {
     timeoutMinutes: 15,
     isLoggedIn: true
   });
-
-  // Fonction pour générer des données de démonstration pour un participant
-  const generateDemoDataForParticipant = async (userId: string, participant: Participant) => {
-    try {
-      console.log(`🔄 Génération des données pour l'utilisateur: ${userId} (${participant.name})`);
-      
-      // D'abord, s'assurer que l'utilisateur de démo existe dans la table users
-      // Note: Pas besoin de créer un utilisateur réel pour la démo
-      console.log('✅ Utilisation d'un utilisateur de démo temporaire');
-      
-      // Supprimer les données existantes pour cet utilisateur de démo
-      const { error: deleteError } = await supabase
-        .from('energy_data')
-        .delete()
-        .eq('user_id', userId);
-      
-      if (deleteError) {
-        console.warn('⚠️ Aucune donnée existante à supprimer ou erreur:', deleteError);
-      }
-
-      // Générer des données pour les 30 derniers jours
-      const energyData = [];
-      const now = new Date();
-      
-      for (let day = 29; day >= 0; day--) {
-        const date = new Date(now);
-        date.setDate(date.getDate() - day);
-        
-        // Générer des données horaires pour chaque jour
-        for (let hour = 0; hour < 24; hour++) {
-          const timestamp = new Date(date);
-          timestamp.setHours(hour, 0, 0, 0);
-          
-          // Profil de consommation/production réaliste selon le type
-          let baseConsumption = 0;
-          let baseProduction = 0;
-          
-          if (participant.type === 'producer') {
-            // Profil de production solaire
-            if (hour >= 6 && hour <= 18) {
-              // Production solaire avec pic à midi
-              const solarFactor = Math.exp(-0.5 * Math.pow((hour - 12) / 4, 2));
-              baseProduction = solarFactor * (20 + Math.random() * 30); // 0-50 kWh
-            }
-            // Autoconsommation du producteur (plus faible)
-            baseConsumption = 5 + Math.random() * 10; // 5-15 kWh
-          } else {
-            // Profil de consommation pour consommateur
-            if (hour >= 8 && hour <= 18) {
-              baseConsumption = 15 + Math.random() * 25; // 15-40 kWh
-              
-              // Pic de consommation en milieu de journée
-              if (hour >= 10 && hour <= 16) {
-                baseConsumption += 10 + Math.random() * 20; // +10-30 kWh
-              }
-            } else {
-              // Consommation de veille
-              baseConsumption = 2 + Math.random() * 8; // 2-10 kWh
-            }
-          }
-          
-          // Week-end : consommation réduite
-          const dayOfWeek = timestamp.getDay();
-          if (dayOfWeek === 0 || dayOfWeek === 6) {
-            baseConsumption *= 0.4;
-            baseProduction *= 0.8; // Production légèrement réduite le week-end
-          }
-          
-          // Variation saisonnière (plus de consommation en hiver)
-          const month = timestamp.getMonth();
-          if (month >= 10 || month <= 2) { // Nov-Fév
-            baseConsumption *= 1.4;
-            baseProduction *= 0.7; // Production réduite en hiver
-          }
-          
-          // Énergie partagée
-          let sharedEnergy = 0;
-          if (participant.type === 'producer') {
-            // Pour un producteur, énergie partagée = partie de la production partagée
-            sharedEnergy = baseProduction * (0.6 + Math.random() * 0.3); // 60-90% de la production
-          } else {
-            // Pour un consommateur, énergie partagée = partie de la consommation couverte
-            sharedEnergy = baseConsumption * (0.25 + Math.random() * 0.1); // 25-35% de la consommation
-          }
-          
-          energyData.push({
-            user_id: userId,
-            timestamp: timestamp.toISOString(),
-            consumption: Math.round(baseConsumption * 100) / 100,
-            shared_energy: Math.round(sharedEnergy * 100) / 100,
-            production: Math.round(baseProduction * 100) / 100
-          });
-        }
-      }
-      
-      console.log(`📊 ${energyData.length} points de données générés`);
-      
-      // Insérer les données par lots de 50 pour éviter les timeouts
-      const batchSize = 50;
-      for (let i = 0; i < energyData.length; i += batchSize) {
-        const batch = energyData.slice(i, i + batchSize);
-        
-        const { error: insertError } = await supabase
-          .from('energy_data')
-          .insert(batch);
-          
-        if (insertError) {
-          console.error('❌ Erreur insertion lot (ignorée pour la démo):', insertError);
-          // Ne pas interrompre le processus pour la démo
-          continue;
-        }
-        
-        console.log(`✅ Lot ${Math.floor(i / batchSize) + 1}/${Math.ceil(energyData.length / batchSize)} inséré`);
-      }
-      
-      console.log(`✅ ${energyData.length} points de données générés pour ${participant.name} (${participant.type})`);
-      
-      return energyData;
-    } catch (error) {
-      console.error('❌ Erreur génération données démo:', error);
-      // Retourner des données vides plutôt que de lancer une erreur
-      return [];
-    }
-  };
 
   if (showForm) {
     return (
@@ -572,7 +444,8 @@ export function AdminDashboard() {
                           <button
                             onClick={() => handleViewParticipantDashboard(participant)}
                             className="text-blue-600 hover:text-blue-900 transition-colors"
-                            title="Voir le dashboard"
+                            title={participant.email ? "Voir le dashboard" : "Email manquant"}
+                            disabled={!participant.email}
                           >
                             <Eye className="w-4 h-4" />
                           </button>
