@@ -87,6 +87,39 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
   // Référence pour l'input de fichier
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const downloadTemplate = () => {
+    try {
+      const templateData = [
+        // Format 1: Colonnes comme dans la capture d'écran
+        ['FromDate (Inclu)', 'ToDate (Exclu)', 'EAN', 'Compteur', 'Partage', 'Registre', 'Volume Partagé (kWh)', 'Volume Complémentaire (kWh)', 'Injection Partagée (kWh)', 'Injection Résiduelle (kWh)'],
+        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'HI', '23,39882797', '18,59517203', '', ''],
+        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'LOW', '12,55930924', '37,28169076', '', ''],
+        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'HI', '36,92423176', '33,28376824', '', ''],
+        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'LOW', '23,67788895', '38,45611105', '', ''],
+        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'HI', '42,97592992', '31,68607008', '', ''],
+        
+        // Format 2: Format alternatif
+        [],
+        ['Format alternatif:'],
+        ['EAN', 'FromDate (GMT)', 'ToDate (GMT+)', 'Compteur', 'Partage', 'Type', 'Volume (kWh)'],
+        ['541448000000000001', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 1', 'Oui', 'Volume Complémentaire', '2,5'],
+        ['541448000000000001', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 1', 'Oui', 'Volume Partagé', '0,8'],
+        ['541448000000000002', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 2', 'Oui', 'Injection Complémentaire', '5,2'],
+        ['541448000000000002', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 2', 'Oui', 'Injection Partagée', '4,1'],
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet(templateData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Template');
+      
+      XLSX.writeFile(wb, 'template-import-excel.xlsx');
+      toast.success('Template téléchargé avec succès');
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      toast.error('Erreur lors du téléchargement du template');
+    }
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
@@ -240,8 +273,8 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center space-x-3">
-            <FileSpreadsheet className="w-6 h-6 text-green-600" />
-            <h2 className="text-xl font-semibold">Import Excel Streaming</h2>
+            <FileSpreadsheet className="w-6 h-6 text-amber-600" />
+            <h2 className="text-xl font-semibold">Import Excel Quart-Horaire</h2>
           </div>
           <button
             onClick={onClose}
@@ -263,13 +296,13 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
               >
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-lg font-medium text-gray-700 mb-2">
-                  Glissez votre fichier Excel ici
+                  Glissez votre fichier Excel APR2025 ici
                 </p>
                 <p className="text-gray-500 mb-4">
                   ou cliquez pour sélectionner un fichier
                 </p>
                 <p className="text-sm text-gray-400">
-                  Formats supportés: .xlsx, .xls
+                  Format attendu: Volumes_et_tarifs_mensuels_ESTOURETTAXIS_APR2025.xlsx
                 </p>
               </div>
 
@@ -297,7 +330,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 <div className="flex justify-end">
                   <button
                     onClick={processFile}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                    className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors flex items-center space-x-2"
                   >
                     <BarChart3 className="w-4 h-4" />
                     <span>Commencer l'import</span>
@@ -457,19 +490,19 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
           {/* Error Status */}
           {state.status === 'error' && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-              <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-red-800 mb-4">
+            <div className="bg-red-900 border border-red-700 rounded-lg p-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-100 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-red-100 mb-4">
                 Erreur lors de l'import
               </h3>
-              <div className="space-y-2 text-sm text-red-700 text-left max-h-40 overflow-y-auto">
+              <div className="space-y-2 text-sm text-red-100 text-left max-h-40 overflow-y-auto">
                 {state.errors.map((error, index) => (
                   <div key={index}>{error}</div>
                 ))}
               </div>
               <button
                 onClick={() => setState(prev => ({ ...prev, status: 'idle', errors: [], warnings: [] }))}
-                className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400 transition-colors"
               >
                 Réessayer
               </button>

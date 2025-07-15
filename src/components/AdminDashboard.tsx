@@ -263,14 +263,15 @@ export function AdminDashboard() {
           <div className="px-6 py-4">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-start">
-                <Database className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+                <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
                 <div className="flex-1">
                   <h3 className="font-medium text-blue-900 mb-2">Comment ça marche ?</h3>
                   <div className="text-sm text-blue-800 space-y-1">
                     <p>• Le système utilise le <strong>code EAN</strong> (541448...) pour faire le lien avec les participants</p>
-                    <p>• Les colonnes attendues sont: EAN, FromDate, Flow/Type, Volume (kWh)</p>
-                    <p>• Les types de flux reconnus: Volume Complémentaire, Volume Partagé, Injection Complémentaire, Injection Partagée</p>
-                    <p>• Le format de date attendu est: MM/DD/YYYY HH:MM (format américain)</p>
+                    <p>• Format attendu comme dans le fichier <strong>Volumes_et_tarifs_mensuels_ESTOURETTAXIS_APR2025.xlsx</strong></p>
+                    <p>• Les colonnes reconnues: FromDate, EAN, Registre (HI/LOW), Volume Partagé, Volume Complémentaire, etc.</p>
+                    <p>• Le format de date peut être: 1-avr-25 ou MM/DD/YYYY</p>
+                    <p>• Les valeurs HI/LOW sont automatiquement converties en types de flux appropriés</p>
                   </div>
                 </div>
               </div>
