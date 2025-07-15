@@ -93,19 +93,33 @@ export class ExcelProcessor {
       
       // Identifier les colonnes avec plus de flexibilité
       const eanIndex = headers.findIndex(h => 
-        h.includes('ean') || h.includes('code') || h.includes('compteur')
+        h.includes('ean') || h.includes('code') || h === 'c' || h === 'd'
       );
       
       const dateIndex = headers.findIndex(h => 
-        h.includes('date') || h.includes('from')
+        h.includes('date') || h.includes('from') || h === 'a' || h === 'fromdate'
       );
       
-      const flowIndex = headers.findIndex(h => 
-        h.includes('flow') || h.includes('type') || h.includes('flux') || h.includes('partage')
+      // Recherche plus flexible pour la colonne de type de flux
+      let flowIndex = headers.findIndex(h => 
+        h.includes('flow') || h.includes('type') || h.includes('flux') || 
+        h.includes('partage') || h.includes('registre') || h === 'f'
       );
+      
+      // Si le flux n'est pas trouvé, essayer de détecter par les noms de colonnes spécifiques
+      if (flowIndex === -1) {
+        if (headers.some(h => h.includes('volume') && h.includes('partag'))) {
+          flowIndex = headers.findIndex(h => h.includes('volume') && h.includes('partag'));
+        } else if (headers.some(h => h.includes('volume') && h.includes('compl'))) {
+          flowIndex = headers.findIndex(h => h.includes('volume') && h.includes('compl'));
+        } else if (headers.some(h => h.includes('injection'))) {
+          flowIndex = headers.findIndex(h => h.includes('injection'));
+        }
+      }
       
       const volumeIndex = headers.findIndex(h => 
-        h.includes('volume') || h.includes('valeur') || h.includes('value') || h.includes('kwh') || h.includes('kWh')
+        h.includes('volume') || h.includes('valeur') || h.includes('value') || 
+        h.includes('kwh') || h === 'g' || h === 'h' || h === 'i' || h === 'j'
       );
 
       // Validation des colonnes requises
@@ -132,7 +146,7 @@ export class ExcelProcessor {
       console.log('📋 Colonnes identifiées:', {
         ean: eanIndex,
         date: dateIndex,
-        flow: flowIndex,
+        flow: flowIndex, 
         volume: volumeIndex
       });
 
@@ -198,13 +212,29 @@ export class ExcelProcessor {
             // Extraire les données de base avec gestion d'erreur
             let eanCode = '';
             let dateTimeStr = '';
-            let flowType = '';
+            let flowType = 'volume_complementaire'; // Valeur par défaut
             let volumeValue = 0;
             
             try {
               eanCode = String(row[eanIndex] || '').trim();
               dateTimeStr = String(row[dateIndex] || '').trim();
-              flowType = String(row[flowIndex] || '').trim().toLowerCase();
+              
+              // Déterminer le type de flux en fonction des colonnes disponibles
+              if (flowIndex !== -1) {
+                flowType = String(row[flowIndex] || '').trim().toLowerCase();
+              } else {
+                // Si pas de colonne de flux explicite, utiliser les noms de colonnes
+                if (volumeIndex === headers.findIndex(h => h.includes('volume') && h.includes('partag'))) {
+                  flowType = 'volume_partage';
+                } else if (volumeIndex === headers.findIndex(h => h.includes('volume') && h.includes('compl'))) {
+                  flowType = 'volume_complementaire';
+                } else if (volumeIndex === headers.findIndex(h => h.includes('injection') && h.includes('partag'))) {
+                  flowType = 'injection_partagee';
+                } else if (volumeIndex === headers.findIndex(h => h.includes('injection') && h.includes('compl'))) {
+                  flowType = 'injection_complementaire';
+                }
+              }
+              
               volumeValue = this.parseNumericValue(row[volumeIndex]);
             } catch (error) {
               errorRows++;
@@ -212,12 +242,27 @@ export class ExcelProcessor {
             }
 
             if (!eanCode || !dateTimeStr || !flowType) {
+              console.warn(`Ligne ${i}: Données manquantes - EAN: ${!!eanCode}, Date: ${!!dateTimeStr}, Type: ${!!flowType}`);
               errorRows++;
               continue;
             }
 
             // FILTRAGE AUTOMATIQUE : Vérifier si le participant est membre
             if (!participantMapping[eanCode]) {
+              // Essayer avec un préfixe standard si nécessaire
+              const eanWithPrefix = eanCode.startsWith('541448') ? eanCode : `541448${eanCode}`;
+              if (participantMapping[eanWithPrefix]) {
+                eanCode = eanWithPrefix;
+              } else {
+                console.warn(`Ligne ${i}: EAN non reconnu: ${eanCode}`);
+                unknownEans.add(eanCode);
+                errorRows++;
+                continue; // IGNORER cette ligne car EAN non-membre
+              }
+            }
+            
+            if (!participantMapping[eanCode]) {
+              console.warn(`Ligne ${i}: EAN toujours non reconnu après correction: ${eanCode}`);
               unknownEans.add(eanCode);
               errorRows++;
               continue; // IGNORER cette ligne car EAN non-membre
@@ -246,13 +291,28 @@ export class ExcelProcessor {
             // Convertir le type de flux en identifiant machine-friendly
             let typeIdentifier = '';
             if (flowType.includes('volume') && flowType.includes('compl')) {
-              typeIdentifier = 'volume_complementaire';
+              typeIdentifier = 'volume_complementaire'; 
             } else if (flowType.includes('volume') && flowType.includes('partag')) {
+              typeIdentifier = 'volume_partage';
+            } else if (flowType.includes('volume compl')) {
+              typeIdentifier = 'volume_complementaire';
+            } else if (flowType.includes('volume partag')) {
               typeIdentifier = 'volume_partage';
             } else if (flowType.includes('injection') && flowType.includes('compl')) {
               typeIdentifier = 'injection_complementaire';
             } else if (flowType.includes('injection') && flowType.includes('partag')) {
               typeIdentifier = 'injection_partagee';
+            } else if (flowType === 'hi' || flowType === 'high' || flowType === 'h') {
+              // Pour le format où HI/LOW indique le type
+              typeIdentifier = participantMapping[eanCode].type === 'producer' 
+                ? 'injection_partagee' : 'volume_partage';
+            } else if (flowType === 'low' || flowType === 'l' || flowType === 'lo') {
+              typeIdentifier = participantMapping[eanCode].type === 'producer'
+                ? 'injection_complementaire' : 'volume_complementaire';
+            } else if (flowType === 'th') {
+              // Cas spécial pour TH (Total High)
+              typeIdentifier = participantMapping[eanCode].type === 'producer'
+                ? 'injection_partagee' : 'volume_partage';
             } else {
               // Type inconnu, utiliser un type par défaut basé sur le type de participant
               typeIdentifier = participantMapping[eanCode].type === 'producer' ? 'injection_complementaire' : 'volume_complementaire';
@@ -316,6 +376,7 @@ export class ExcelProcessor {
 
       if (validRows === 0) {
         errors.push('Aucune ligne de données valide trouvée pour les participants membres');
+        console.error('❌ Aucune ligne valide trouvée. Vérifiez que les codes EAN du fichier correspondent à ceux des participants.');
         return { success: false, errors, warnings };
       }
 
@@ -452,7 +513,8 @@ export class ExcelProcessor {
   private static extractMonthFromFilename(filename: string): string {
     try {
       const monthMatch = filename.match(/([A-Z]{3})(\d{4})/i);
-      if (monthMatch) {
+      // Extraction à partir du format standard APR2025
+      if (monthMatch && monthMatch.length >= 3) {
         const [, monthAbbr, year] = monthMatch;
         const monthMap: { [key: string]: string } = {
           'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
