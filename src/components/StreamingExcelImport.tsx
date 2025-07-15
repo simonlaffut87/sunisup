@@ -490,9 +490,81 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
           {/* Error Status */}
           {state.status === 'error' && (
-            <div className="bg-red-900 border border-red-700 rounded-lg p-6 text-center">
-              <AlertCircle className="w-12 h-12 text-red-100 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-red-100 mb-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <AlertCircle className="w-6 h-6 text-red-600" />
+                <h3 className="text-lg font-semibold text-red-800">
+                  Erreur lors de l'import
+                </h3>
+              </div>
+              
+              <div className="space-y-4">
+                {state.errors.map((error, index) => (
+                  <div key={index} className="bg-white border border-red-200 rounded p-4">
+                    <pre className="text-sm text-red-700 whitespace-pre-wrap font-mono overflow-x-auto">
+                      {error}
+                    </pre>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex justify-center space-x-3 mt-6">
+                <button
+                  onClick={downloadTemplate}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Télécharger le template</span>
+                </button>
+                <button
+                  onClick={() => setState(prev => ({ ...prev, status: 'idle', errors: [], warnings: [] }))}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Réessayer
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Help Section */}
+          {state.status === 'idle' && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+              <div className="flex items-start space-x-3">
+                <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-2">Format attendu :</p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-700">
+                    <li>Fichier Excel (.xlsx ou .xls)</li>
+                    <li>Colonnes : EAN, Date, Type de flux, Volume (kWh)</li>
+                    <li>Codes EAN de 18 chiffres (ex: 541448000000000001)</li>
+                    <li>Les codes EAN doivent correspondre aux participants enregistrés</li>
+                  </ul>
+                  <div className="mt-3">
+                    <button
+                      onClick={downloadTemplate}
+                      className="text-blue-600 hover:text-blue-800 underline text-sm flex items-center space-x-1"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Télécharger le template d'exemple</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Modal de rapport d'import */}
+      <ImportReportModal 
+        isOpen={showReportModal} 
+        onClose={handleCloseReportModal} 
+        report={importReport} 
+      />
+    </div>
+  );
+}
+
                 Erreur lors de l'import
               </h3>
               <div className="space-y-2 text-sm text-red-100 text-left max-h-40 overflow-y-auto">

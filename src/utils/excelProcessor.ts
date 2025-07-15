@@ -178,11 +178,18 @@ export class ExcelProcessor {
 
       // Afficher les codes EAN disponibles dans le mapping
       console.log('🔍 Codes EAN disponibles dans le mapping:');
-      Object.keys(participantMapping).forEach(ean => {
+      const availableEans = Object.keys(participantMapping);
+      if (availableEans.length === 0) {
+        errors.push('Aucun participant avec code EAN trouvé dans la base de données. Veuillez d\'abord ajouter des participants avec leurs codes EAN.');
+        return { success: false, errors, warnings };
+      }
+      
+      availableEans.forEach(ean => {
         console.log(`  - ${ean} (${participantMapping[ean].name})`);
       });
 
       const unknownEans = new Set<string>();
+      const foundEansInFile = new Set<string>();
       let processedRows = 0;
       let validRows = 0;
       let errorRows = 0;
@@ -219,6 +226,11 @@ export class ExcelProcessor {
               eanCode = String(row[eanIndex] || '').trim();
               dateTimeStr = String(row[dateIndex] || '').trim();
               
+              // Ajouter l'EAN trouvé dans le fichier pour le debug
+              if (eanCode) {
+                foundEansInFile.add(eanCode);
+              }
+              
               // Déterminer le type de flux en fonction des colonnes disponibles
               if (flowIndex !== -1) {
                 flowType = String(row[flowIndex] || '').trim().toLowerCase();
@@ -250,22 +262,30 @@ export class ExcelProcessor {
             // FILTRAGE AUTOMATIQUE : Vérifier si le participant est membre
             if (!participantMapping[eanCode]) {
               // Essayer avec un préfixe standard si nécessaire
-              const eanWithPrefix = eanCode.startsWith('541448') ? eanCode : `541448${eanCode}`;
-              if (participantMapping[eanWithPrefix]) {
-                eanCode = eanWithPrefix;
-              } else {
+              let foundMatch = false;
+              
+              // Essayer différentes variantes de l'EAN
+              const variants = [
+                eanCode,
+                eanCode.startsWith('541448') ? eanCode : `541448${eanCode}`,
+                eanCode.replace(/\s+/g, ''), // Supprimer les espaces
+                eanCode.replace(/[^0-9]/g, ''), // Garder seulement les chiffres
+              ];
+              
+              for (const variant of variants) {
+                if (participantMapping[variant]) {
+                  eanCode = variant;
+                  foundMatch = true;
+                  break;
+                }
+              }
+              
+              if (!foundMatch) {
                 console.warn(`Ligne ${i}: EAN non reconnu: ${eanCode}`);
                 unknownEans.add(eanCode);
                 errorRows++;
                 continue; // IGNORER cette ligne car EAN non-membre
               }
-            }
-            
-            if (!participantMapping[eanCode]) {
-              console.warn(`Ligne ${i}: EAN toujours non reconnu après correction: ${eanCode}`);
-              unknownEans.add(eanCode);
-              errorRows++;
-              continue; // IGNORER cette ligne car EAN non-membre
             }
 
             // Parser la date avec gestion d'erreur robuste
@@ -375,8 +395,37 @@ export class ExcelProcessor {
       onProgress?.('Finalisation des données...', 85);
 
       if (validRows === 0) {
-        errors.push('Aucune ligne de données valide trouvée pour les participants membres');
-        console.error('❌ Aucune ligne valide trouvée. Vérifiez que les codes EAN du fichier correspondent à ceux des participants.');
+        // Diagnostic détaillé
+        const diagnosticInfo = [
+          'Aucune ligne de données valide trouvée pour les participants membres.',
+          '',
+          `📊 Statistiques de traitement:`,
+          `- Lignes totales dans le fichier: ${totalRows}`,
+          `- Lignes avec erreurs: ${errorRows}`,
+          `- Participants dans la base: ${availableEans.length}`,
+          `- Codes EAN uniques dans le fichier: ${foundEansInFile.size}`,
+          `- Codes EAN non reconnus: ${unknownEans.size}`,
+          '',
+          `🔍 Codes EAN dans la base de données:`,
+          ...availableEans.map(ean => `  - ${ean} (${participantMapping[ean].name})`),
+          '',
+          `📄 Codes EAN trouvés dans le fichier:`,
+          ...Array.from(foundEansInFile).slice(0, 10).map(ean => `  - ${ean}`),
+          ...(foundEansInFile.size > 10 ? [`  ... et ${foundEansInFile.size - 10} autres`] : []),
+          '',
+          `❌ Codes EAN non reconnus:`,
+          ...Array.from(unknownEans).slice(0, 10).map(ean => `  - ${ean}`),
+          ...(unknownEans.size > 10 ? [`  ... et ${unknownEans.size - 10} autres`] : []),
+          '',
+          `💡 Solutions possibles:`,
+          `1. Vérifiez que les codes EAN dans votre fichier correspondent exactement à ceux des participants`,
+          `2. Assurez-vous que les participants ont bien des codes EAN renseignés dans la base`,
+          `3. Vérifiez le format des codes EAN (généralement 18 chiffres commençant par 541448)`,
+          `4. Utilisez le template Excel fourni comme référence`
+        ];
+        
+        errors.push(diagnosticInfo.join('\n'));
+        console.error('❌ Diagnostic détaillé:', diagnosticInfo.join('\n'));
         return { success: false, errors, warnings };
       }
 
