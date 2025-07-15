@@ -165,22 +165,18 @@ export function MonthlyFileUploadModal({
         throw participantsError;
       }
 
-      // Charger les métadonnées depuis localStorage
-      const participantMetadata = JSON.parse(localStorage.getItem('participant_metadata') || '{}');
-      
       // Créer le mapping EAN -> participant
       const mapping: { [ean_code: string]: { name: string; type: 'producer' | 'consumer'; id: string } } = {};
       
-      // Ajouter les participants avec métadonnées
+      // Ajouter les participants avec codes EAN
       participantsData.forEach(participant => {
-        const metadata = participantMetadata[participant.id] || {};
-        if (metadata.ean_code) {
-          mapping[metadata.ean_code] = {
+        if (participant.ean_code) {
+          mapping[participant.ean_code] = {
             name: participant.name,
             type: participant.type,
             id: participant.id
           };
-          console.log(`✅ Participant mappé: ${metadata.ean_code} -> ${participant.name} (${participant.type})`);
+          console.log(`✅ Participant mappé: ${participant.ean_code} -> ${participant.name} (${participant.type})`);
         } else {
           console.log(`⚠️ Participant sans EAN: ${participant.name}`);
         }
