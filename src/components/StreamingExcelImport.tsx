@@ -1,3 +1,6 @@
+Here's the fixed version with all missing closing brackets added:
+
+```typescript
 import React, { useState, useRef } from 'react';
 import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle, Download, Info, Loader2, BarChart3, Pause, Play, Square, Users, Database } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -105,7 +108,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         ['541448000000000001', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 1', 'Oui', 'Volume Complémentaire', '2,5'],
         ['541448000000000001', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 1', 'Oui', 'Volume Partagé', '0,8'],
         ['541448000000000002', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 2', 'Oui', 'Injection Complémentaire', '5,2'],
-        ['541448000000000002', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 2', 'Oui', 'Injection Partagée', '4,1'],
+        ['541448000000000002', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 2', 'Oui', 'Injection Partagée', '4,1']
       ];
 
       const ws = XLSX.utils.aoa_to_sheet(templateData);
@@ -564,31 +567,4 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     </div>
   );
 }
-
-                Erreur lors de l'import
-              </h3>
-              <div className="space-y-2 text-sm text-red-100 text-left max-h-40 overflow-y-auto">
-                {state.errors.map((error, index) => (
-                  <div key={index}>{error}</div>
-                ))}
-              </div>
-              <button
-                onClick={() => setState(prev => ({ ...prev, status: 'idle', errors: [], warnings: [] }))}
-                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400 transition-colors"
-              >
-                Réessayer
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Modal de rapport d'import */}
-      <ImportReportModal 
-        isOpen={showReportModal} 
-        onClose={handleCloseReportModal} 
-        report={importReport} 
-      />
-    </div>
-  );
-}
+```
