@@ -532,7 +532,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
               <div className="flex items-start space-x-3">
                 <Info className="w-5 h-5 text-blue-600 mt-0.5" />
                 <div className="text-sm text-blue-800">
-                  <p className="font-medium mb-2">Format attendu :</p>
+                  <p className="font-medium mb-2">Format attendu (les EAN non reconnus seront ignorés) :</p>
                   <ul className="list-disc list-inside space-y-1 text-blue-700">
                     <li>Fichier Excel (.xlsx ou .xls)</li>
                     <li>Colonnes : EAN, Date, Type de flux, Volume (kWh)</li>
