@@ -32,16 +32,18 @@ export function AdminDashboard() {
   const loadParticipants = async () => {
     setLoading(true);
     try {
-      const { data: participantsData, error: participantsError } = await supabase
+      // Charger les participants
+      const { data, error } = await supabase
         .from('participants')
         .select('*')
         .order('name');
 
-      if (participantsError) throw participantsError;
+      if (error) throw error;
 
-      setParticipants(participantsData || []);
+      setParticipants(data || []);
     } catch (error) {
       console.error('Error loading participants:', error);
+      toast.error('Erreur lors du chargement des participants');
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,7 @@ export function AdminDashboard() {
   const handleViewParticipantDashboard = async (participant: Participant) => {
     // Vérifier si le participant a un email
     if (!participant.email) {
-      toast.error(`${participant.name} n'a pas d'adresse email configurée`);
+      toast.error(`${participant.name} n'a pas d'adresse email configurée. Modifiez le participant pour ajouter une adresse email.`);
       return;
     }
 
@@ -408,11 +410,11 @@ export function AdminDashboard() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 font-mono">
                           {participant.ean_code ? (
-                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">
+                            <span className="bg-green-100 px-2 py-1 rounded text-xs font-medium">
                               {participant.ean_code}
                             </span>
                           ) : (
-                            <span className="text-red-500 italic text-xs">⚠️ Manquant</span>
+                            <span className="text-red-500 italic text-xs font-medium">⚠️ Manquant</span>
                           )}
                         </div>
                       </td>
@@ -428,7 +430,7 @@ export function AdminDashboard() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => handleViewParticipantDashboard(participant)}
+                            onClick={() => participant.email ? handleViewParticipantDashboard(participant) : null}
                             className="text-blue-600 hover:text-blue-900 transition-colors"
                             title={participant.email ? "Voir le dashboard" : "Email manquant"}
                             disabled={!participant.email}

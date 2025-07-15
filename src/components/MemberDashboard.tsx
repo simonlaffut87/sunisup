@@ -48,14 +48,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false); // Separate loading for data updates
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date(2025, 3, 30)); // 30 avril 2025
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [userProfile, setUserProfile] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const { data, error } = await supabase
-          .from('users')
+          .from('participants')
           .select('*')
           .eq('id', user.id)
           .single();
@@ -68,8 +68,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         setUserProfile({
           id: user.id,
           email: user.email,
-          name: user.name,
-          member_type: 'consumer'
+          name: user.name || data?.name || 'Membre',
+          member_type: user.member_type || data?.type || 'consumer'
         });
       }
     };
@@ -105,7 +105,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       const { data, error } = await supabase
         .from('energy_data')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user.id || '')
         .gte('timestamp', startDate.toISOString())
         .lte('timestamp', endDate.toISOString())
         .order('timestamp', { ascending: true });
@@ -129,7 +129,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   // Initial data load
   useEffect(() => {
     fetchEnergyData(viewMode, selectedDate, true);
-  }, [fetchEnergyData]);
+  }, [fetchEnergyData, user.id]);
 
   // Data refresh when viewMode or selectedDate changes (but not initial load)
   useEffect(() => {
@@ -138,11 +138,22 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     }
   }, [viewMode, selectedDate, fetchEnergyData, loading]);
 
+  const formatData = (data: EnergyData[]) => {
+    return data.map(item => ({
+      ...item,
+      time: format(new Date(item.timestamp), 'HH:mm'),
+      date: format(new Date(item.timestamp), 'dd/MM'),
+      consumption: Number(item.consumption),
+      shared_energy: Number(item.shared_energy),
+      production: Number(item.production || 0)
+    }));
+  };
+
   const aggregateDataByHour = (data: EnergyData[]) => {
     const hourlyData: Record<string, { consumption: number; shared_energy: number; production: number; count: number }> = {};
     
     data.forEach(item => {
-      const hour = format(parseISO(item.timestamp), 'HH:00');
+      const hour = format(new Date(item.timestamp), 'HH:00');
       
       if (!hourlyData[hour]) {
         hourlyData[hour] = { consumption: 0, shared_energy: 0, production: 0, count: 0 };
@@ -166,7 +177,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     const dailyData: Record<string, { consumption: number; shared_energy: number; production: number; count: number }> = {};
     
     data.forEach(item => {
-      const day = format(parseISO(item.timestamp), 'dd/MM');
+      const day = format(new Date(item.timestamp), 'dd/MM');
       
       if (!dailyData[day]) {
         dailyData[day] = { consumption: 0, shared_energy: 0, production: 0, count: 0 };
@@ -191,14 +202,19 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     if (!energyData.length) return [];
     
     // Formater les données selon le mode de vue
-    switch (viewMode) {
-      case 'day':
-        return aggregateDataByHour(energyData);
-      case 'week':
-      case 'month':
-        return aggregateDataByDay(energyData);
-      default:
-        return aggregateDataByHour(energyData);
+    try {
+      switch (viewMode) {
+        case 'day':
+          return aggregateDataByHour(energyData);
+        case 'week':
+        case 'month':
+          return aggregateDataByDay(energyData);
+        default:
+          return formatData(energyData);
+      }
+    } catch (error) {
+      console.error('Error formatting chart data:', error);
+      return [];
     }
   }, [energyData, viewMode]);
 
@@ -607,7 +623,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <input 
                   type="date" 
                   value={format(selectedDate, 'yyyy-MM-dd')}
-                  onChange={handleDateChange}
+                  onChange={(e) => setSelectedDate(new Date(e.target.value))}
                   disabled={dataLoading}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
@@ -642,15 +658,15 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <defs>
                   <linearGradient id="colorConsumption" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.2}/>
                   </linearGradient>
                   <linearGradient id="colorSharedEnergy" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
                   </linearGradient>
                   <linearGradient id="colorProduction" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.2}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -658,11 +674,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   dataKey={viewMode === 'day' ? 'time' : 'date'} 
                   stroke="#6B7280"
                   tick={{ fontSize: 12 }}
+                  tickMargin={5}
                 />
                 <YAxis 
                   stroke="#6B7280"
                   tick={{ fontSize: 12 }}
-                  label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
+                  tickMargin={5}
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
