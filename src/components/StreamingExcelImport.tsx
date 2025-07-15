@@ -1,6 +1,3 @@
-Here's the fixed version with all missing closing brackets added:
-
-```typescript
 import React, { useState, useRef } from 'react';
 import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle, Download, Info, Loader2, BarChart3, Pause, Play, Square, Users, Database } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -243,7 +240,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       '========================',
       '',
       `Fichier: ${file?.name}`,
-      `Date: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: fr })}`,
+      `Date: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`,
       '',
       `Lignes traitées: ${state.currentRow}`,
       `Lignes valides: ${state.validRows}`,
@@ -567,4 +564,3 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     </div>
   );
 }
-```
