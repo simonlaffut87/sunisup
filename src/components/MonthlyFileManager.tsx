@@ -80,16 +80,21 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         
         // Préparer les données pour le graphique
         const chartDataArray = Object.entries(data)
-          .map(([month, fileData]: [string, any]) => ({
-            month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
-            monthKey: month,
-            'Volume Partagé': fileData.totals?.total_volume_partage || 0,
-            'Volume Complémentaire': fileData.totals?.total_volume_complementaire || 0,
-            'Injection Partagée': fileData.totals?.total_injection_partagee || 0,
-            'Injection Résiduelle': fileData.totals?.total_injection_complementaire || 0
-          }))
+          .filter(([month, fileData]: [string, any]) => fileData && fileData.totals)
+          .map(([month, fileData]: [string, any]) => {
+            console.log('📊 Données graphique pour', month, ':', fileData.totals);
+            return {
+              month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
+              monthKey: month,
+              'Volume Partagé': Number(fileData.totals?.total_volume_partage || 0),
+              'Volume Complémentaire': Number(fileData.totals?.total_volume_complementaire || 0),
+              'Injection Partagée': Number(fileData.totals?.total_injection_partagee || 0),
+              'Injection Résiduelle': Number(fileData.totals?.total_injection_complementaire || 0)
+            };
+          })
           .sort((a, b) => a.monthKey.localeCompare(b.monthKey));
         
+        console.log('📈 Données pour le graphique:', chartDataArray);
         setChartData(chartDataArray);
       } else {
         setFiles([]);
