@@ -706,37 +706,61 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               </div>
 
               {/* Détail par participant */}
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto bg-gray-50 rounded-lg border border-gray-200">
+                <div className="p-4 border-b border-gray-200 bg-white">
+                  <h4 className="font-medium text-gray-900 flex items-center">
+                    <BarChart3 className="w-5 h-5 mr-2 text-amber-600" />
+                    Détail par participant ({Object.keys(viewingData.participants || {}).length})
+                  </h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Données mensuelles importées pour {format(new Date(viewingData.month + '-01'), 'MMMM yyyy', { locale: fr })}
+                  </p>
+                </div>
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Participant
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div className="flex items-center">
+                          <Users className="w-4 h-4 mr-2" />
+                          Participant
+                        </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Type
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Volume Compl.
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div className="flex items-center">
+                          <span className="text-blue-600">📥</span>
+                          <span className="ml-1">Volume Compl.</span>
+                        </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Volume Partagé
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div className="flex items-center">
+                          <span className="text-green-600">🔄</span>
+                          <span className="ml-1">Volume Partagé</span>
+                        </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Injection Compl.
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div className="flex items-center">
+                          <span className="text-amber-600">📤</span>
+                          <span className="ml-1">Injection Compl.</span>
+                        </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Injection Partagée
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div className="flex items-center">
+                          <span className="text-purple-600">⚡</span>
+                          <span className="ml-1">Injection Partagée</span>
+                        </div>
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {Object.entries(viewingData.participants || {}).map(([eanCode, participant]: [string, any]) => (
-                      <tr key={eanCode} className="hover:bg-gray-50">
+                      <tr key={eanCode} className="hover:bg-amber-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className="text-sm font-medium text-gray-900">{participant.name}</div>
-                            <div className="text-xs text-gray-500">{eanCode}</div>
+                            <div className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">{eanCode}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -748,17 +772,49 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                             {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {participant.data.volume_complementaire.toFixed(2)} kWh
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <span className="text-blue-600 mr-2">📥</span>
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {participant.data.volume_complementaire.toFixed(2)} kWh
+                              </div>
+                              <div className="text-xs text-gray-500">Réseau traditionnel</div>
+                            </div>
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {participant.data.volume_partage.toFixed(2)} kWh
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <span className="text-green-600 mr-2">🔄</span>
+                            <div>
+                              <div className="text-sm font-medium text-green-700">
+                                {participant.data.volume_partage.toFixed(2)} kWh
+                              </div>
+                              <div className="text-xs text-gray-500">Énergie communautaire</div>
+                            </div>
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {participant.data.injection_complementaire.toFixed(2)} kWh
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <span className="text-amber-600 mr-2">📤</span>
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {participant.data.injection_complementaire.toFixed(2)} kWh
+                              </div>
+                              <div className="text-xs text-gray-500">Vers le réseau</div>
+                            </div>
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {participant.data.injection_partagee.toFixed(2)} kWh
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <span className="text-purple-600 mr-2">⚡</span>
+                            <div>
+                              <div className="text-sm font-medium text-purple-700">
+                                {participant.data.injection_partagee.toFixed(2)} kWh
+                              </div>
+                              <div className="text-xs text-gray-500">Vers la communauté</div>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     ))}

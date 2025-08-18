@@ -272,25 +272,36 @@ export class ExcelProcessor {
    */
   private static extractMonthFromFilename(filename: string): string {
     try {
+      console.log('🔍 Extraction du mois depuis:', filename);
+      
       const monthMatch = filename.match(/([A-Z]{3})(\d{4})/i);
       if (monthMatch) {
         const [, monthAbbr, year] = monthMatch;
+        console.log('📅 Mois trouvé:', monthAbbr, 'Année:', year);
+        
         const monthMap: { [key: string]: string } = {
-          'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
-          'MAI': '05', 'JUN': '06', 'JUL': '07', 'AOU': '08',
+          'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'AVR': '04',
+          'MAY': '05', 'MAI': '05', 'JUN': '06', 'JUL': '07', 'AOU': '08', 'AUG': '08',
           'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
         };
         const monthNum = monthMap[monthAbbr.toUpperCase()];
+        console.log('🔍 Mapping:', monthAbbr.toUpperCase(), '->', monthNum);
         if (monthNum) {
-          return `${year}-${monthNum}`;
+          const result = `${year}-${monthNum}`;
+          console.log('✅ Mois final:', result);
+          return result;
         }
       }
       
       const now = new Date();
-      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const fallback = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      console.log('⚠️ Aucun pattern trouvé, fallback:', fallback);
+      return fallback;
     } catch (error) {
       const now = new Date();
-      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const fallback = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      console.log('❌ Erreur extraction, fallback:', fallback);
+      return fallback;
     }
   }
 
