@@ -9,13 +9,24 @@ import {
   RefreshCw,
   Database,
   Trash2,
-  Eye
+  Eye,
+  BarChart3
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 import { StreamingExcelImport } from './StreamingExcelImport';
 import { ExcelProcessor } from '../utils/excelProcessor';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 interface MonthlyFileManagerProps {
   onImportSuccess: () => void;
@@ -40,6 +51,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
   const [viewingData, setViewingData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
     loadFiles();
@@ -65,12 +77,28 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           mesures_count: fileData.stats?.mesuresCount || fileData.mesures?.length || 0
         }));
         setFiles(fileRecords.sort((a, b) => b.month.localeCompare(a.month)));
+        
+        // Préparer les données pour le graphique
+        const chartDataArray = Object.entries(data)
+          .map(([month, fileData]: [string, any]) => ({
+            month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
+            monthKey: month,
+            'Volume Partagé': fileData.totals?.total_volume_partage || 0,
+            'Volume Complémentaire': fileData.totals?.total_volume_complementaire || 0,
+            'Injection Partagée': fileData.totals?.total_injection_partagee || 0,
+            'Injection Résiduelle': fileData.totals?.total_injection_complementaire || 0
+          }))
+          .sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+        
+        setChartData(chartDataArray);
       } else {
         setFiles([]);
+        setChartData([]);
       }
     } catch (error) {
       console.error('Erreur chargement fichiers:', error);
       setFiles([]);
+      setChartData([]);
     } finally {
       setLoading(false);
     }
@@ -213,6 +241,93 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         </div>
       </div>
 
+      {/* Graphique des totaux mensuels */}
+      {chartData.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center mb-6">
+            <BarChart3 className="w-6 h-6 text-amber-600 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Évolution des totaux mensuels</h3>
+              <p className="text-sm text-gray-600">Répartition des volumes et injections par mois</p>
+            </div>
+          </div>
+          
+          <div className="h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="month" 
+                  stroke="#6B7280"
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  stroke="#6B7280"
+                  tick={{ fontSize: 12 }}
+                  label={{ value: 'kWh', angle: -90, position: 'insideLeft' }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    borderRadius: '8px', 
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e5e7eb'
+                  }}
+                  formatter={(value: number) => [`${value.toFixed(2)} kWh`, '']}
+                />
+                <Legend />
+                <Bar 
+                  dataKey="Volume Partagé" 
+                  fill="#10B981" 
+                  name="Volume Partagé"
+                  radius={[2, 2, 0, 0]}
+                />
+                <Bar 
+                  dataKey="Volume Complémentaire" 
+                  fill="#3B82F6" 
+                  name="Volume Complémentaire"
+                  radius={[2, 2, 0, 0]}
+                />
+                <Bar 
+                  dataKey="Injection Partagée" 
+                  fill="#F59E0B" 
+                  name="Injection Partagée"
+                  radius={[2, 2, 0, 0]}
+                />
+                <Bar 
+                  dataKey="Injection Résiduelle" 
+                  fill="#8B5CF6" 
+                  name="Injection Résiduelle"
+                  radius={[2, 2, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          
+          {/* Légende avec couleurs */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Volume Partagé</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Volume Complémentaire</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-amber-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Injection Partagée</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Injection Résiduelle</span>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Statistiques */}
       {files.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
