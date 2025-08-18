@@ -10,6 +10,7 @@ import { Database as DB } from '../types/supabase';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { ParticipantForm } from './ParticipantForm';
 import { StreamingExcelImport } from './StreamingExcelImport';
+import { MonthlyFileManager } from './MonthlyFileManager';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 
 type Participant = DB['public']['Tables']['participants']['Row'];
@@ -240,6 +241,9 @@ export function AdminDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Section Import de données mensuelles */}
+        <MonthlyFileManager onImportSuccess={handleRefreshData} />
+
         {/* Section Import de données */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
           <div className="px-6 py-4 border-b border-gray-200">
@@ -247,9 +251,8 @@ export function AdminDashboard() {
               <div className="flex items-center">
                 <FileSpreadsheet className="w-6 h-6 text-green-600 mr-3" />
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Import de données quart-horaires</h2>
-                  <p className="text-sm text-gray-600 mt-1">Importez les données Excel avec correspondance automatique par code EAN</p>
-                  <p className="text-xs text-gray-500 mt-1">Format attendu: colonnes EAN, FromDate, Flow, Volume (kWh)</p>
+                  <h2 className="text-xl font-semibold text-gray-900">Import de données individuelles</h2>
+                  <p className="text-sm text-gray-600 mt-1">Import pour un participant spécifique</p>
                 </div>
               </div>
               <button
@@ -257,7 +260,7 @@ export function AdminDashboard() {
                 className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm hover:shadow-md"
               >
                 <Upload className="w-4 h-4 mr-2" />
-                Importer données Excel
+                Import individuel
               </button>
             </div>
           </div>
@@ -267,13 +270,10 @@ export function AdminDashboard() {
               <div className="flex items-start">
                 <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
                 <div className="flex-1">
-                  <h3 className="font-medium text-blue-900 mb-2">Comment ça marche ?</h3>
+                  <h3 className="font-medium text-blue-900 mb-2">Import individuel</h3>
                   <div className="text-sm text-blue-800 space-y-1">
-                    <p>• Le système utilise le <strong>code EAN</strong> (541448...) pour faire le lien avec les participants</p>
-                    <p>• Format attendu comme dans le fichier <strong>Volumes_et_tarifs_mensuels_ESTOURETTAXIS_APR2025.xlsx</strong></p>
-                    <p>• Les colonnes reconnues: FromDate, EAN, Registre (HI/LOW), Volume Partagé, Volume Complémentaire, etc.</p>
-                    <p>• Le format de date peut être: 1-avr-25 ou MM/DD/YYYY</p>
-                    <p>• Les valeurs HI/LOW sont automatiquement converties en types de flux appropriés</p>
+                    <p>• Import de données pour un participant spécifique</p>
+                    <p>• Utilisez l'import mensuel ci-dessus pour traiter plusieurs participants à la fois</p>
                   </div>
                 </div>
               </div>
