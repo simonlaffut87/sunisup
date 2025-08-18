@@ -531,6 +531,9 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                       ⚠️ {state.errorRows} EAN(s) non reconnu(s) ont été ignoré(s)
                     </p>
                   )}
+                  <div className="mt-3 text-sm text-gray-600">
+                    💡 Les logs de debug ci-dessous montrent le détail du traitement
+                  </div>
                 </div>
               </div>
 
@@ -587,16 +590,33 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           )}
 
           {/* Debug Logs */}
-          {debugLogs.length > 0 && (
+          {debugLogs.length > 0 && (state.status === 'processing' || state.status === 'completed' || state.status === 'error') && (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-6">
               <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                 <Info className="w-4 h-4 mr-2" />
-                Logs de debug
+                Logs de debug ({debugLogs.length} entrées)
               </h4>
               <div className="bg-white border border-gray-200 rounded p-3 max-h-60 overflow-y-auto">
                 <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
                   {debugLogs.join('\n')}
                 </pre>
+              </div>
+              <div className="mt-3 flex justify-end">
+                <button
+                  onClick={() => {
+                    const logText = debugLogs.join('\n');
+                    const blob = new Blob([logText], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `debug-logs-${format(new Date(), 'yyyy-MM-dd-HHmm')}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 text-sm underline"
+                >
+                  Télécharger les logs
+                </button>
               </div>
             </div>
           )}
