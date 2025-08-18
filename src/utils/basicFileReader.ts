@@ -113,11 +113,11 @@ export class BasicFileReader {
   /**
    * Traite les données extraites pour créer le résultat final
    */
-  static processExtractedData(
+  static async processExtractedData(
     extractedData: { headers: string[]; rows: any[][]; totalRows: number },
     participantMapping: any,
     filename: string
-  ): any {
+  ): Promise<any> {
     console.log('🔄 TRAITEMENT DES DONNÉES EXTRAITES');
     
     const { headers, rows } = extractedData;
