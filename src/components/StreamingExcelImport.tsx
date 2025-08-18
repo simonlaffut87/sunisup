@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle, Download, Info, Loader2, BarChart3, Pause, Play, Square, Users, Database } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 import { supabase } from '../lib/supabase';
-import { ExcelProcessor } from '../utils/excelProcessor';
+import { BasicFileReader } from '../utils/basicFileReader';
 import { ImportReportModal } from './ImportReportModal';
 
 interface StreamingExcelImportProps {
@@ -89,31 +88,26 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
   const downloadTemplate = () => {
     try {
+      // Import dynamique de XLSX pour le template
+      import('xlsx').then(XLSX => {
       const templateData = [
-        // Format 1: Colonnes comme dans la capture d'écran
-        ['FromDate (Inclu)', 'ToDate (Exclu)', 'EAN', 'Compteur', 'Partage', 'Registre', 'Volume Partagé (kWh)', 'Volume Complémentaire (kWh)', 'Injection Partagée (kWh)', 'Injection Résiduelle (kWh)'],
-        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'HI', '23,39882797', '18,59517203', '', ''],
-        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'LOW', '12,55930924', '37,28169076', '', ''],
-        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'HI', '36,92423176', '33,28376824', '', ''],
-        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'LOW', '23,67788895', '38,45611105', '', ''],
-        ['1-avr-25', '1-mai-25', '541448 1SAG1100 ES_TOUR_ET_TAXIS', '', '', 'HI', '42,97592992', '31,68607008', '', ''],
-        
-        // Format 2: Format alternatif
-        [],
-        ['Format alternatif:'],
-        ['EAN', 'FromDate (GMT)', 'ToDate (GMT+)', 'Compteur', 'Partage', 'Type', 'Volume (kWh)'],
-        ['541448000000000001', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 1', 'Oui', 'Volume Complémentaire', '2,5'],
-        ['541448000000000001', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 1', 'Oui', 'Volume Partagé', '0,8'],
-        ['541448000000000002', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 2', 'Oui', 'Injection Complémentaire', '5,2'],
-        ['541448000000000002', '04/01/2025 00:00', '04/01/2025 00:15', 'Compteur 2', 'Oui', 'Injection Partagée', '4,1']
-      ];
+          ['EAN', 'Date', 'Type', 'Volume (kWh)'],
+          ['541448000000000001', '2025-04-01', 'Volume Complémentaire', '25.5'],
+          ['541448000000000001', '2025-04-01', 'Volume Partagé', '15.2'],
+          ['541448000000000002', '2025-04-01', 'Injection Complémentaire', '45.8'],
+          ['541448000000000002', '2025-04-01', 'Injection Partagée', '32.1']
+        ];
 
-      const ws = XLSX.utils.aoa_to_sheet(templateData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Template');
-      
-      XLSX.writeFile(wb, 'template-import-excel.xlsx');
-      toast.success('Template téléchargé avec succès');
+        const ws = XLSX.utils.aoa_to_sheet(templateData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Template');
+        
+        XLSX.writeFile(wb, 'template-import-excel.xlsx');
+        toast.success('Template téléchargé avec succès');
+      }).catch(error => {
+        console.error('Erreur import XLSX:', error);
+        toast.error('Erreur lors du téléchargement du template');
+      });
     } catch (error) {
       console.error('Error downloading template:', error);
       toast.error('Erreur lors du téléchargement du template');
@@ -144,20 +138,19 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
   const processFile = async () => {  
     if (!file) return;
 
-    console.log('🚀 Début processFile avec fichier:', file.name, 'Taille:', file.size);
+    console.log('🚀 DÉBUT IMPORT BASIQUE');
     setState(prev => ({ ...prev, status: 'reading', progress: 0 }));
 
     try {
-      // Charger les participants
-      console.log('📋 Chargement des participants...');
+      // Étape 1: Charger les participants
+      setState(prev => ({ ...prev, progress: 10 }));
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*');
 
       if (error) throw error;
-      console.log('✅ Participants chargés:', participants.length);
 
-      // Créer le mapping des participants par code EAN
+      // Créer le mapping
       const participantMapping = participants.reduce((acc, p) => {
         if (p.ean_code) {
           acc[p.ean_code] = {
@@ -168,65 +161,46 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         }
         return acc;
       }, {});
-      
-      console.log('🔗 Mapping créé:', Object.keys(participantMapping).length, 'participants avec EAN');
 
-      // Utiliser l'ExcelProcessor pour traiter le fichier
-      console.log('⚙️ Début traitement Excel...');
-      const result = await ExcelProcessor.processExcelFile(
-        file,
+      // Étape 2: Lire le fichier
+      setState(prev => ({ ...prev, progress: 30, status: 'processing' }));
+      const readResult = await BasicFileReader.readFile(file);
+      
+      if (!readResult.success) {
+        throw new Error(readResult.error || 'Erreur de lecture');
+      }
+      
+      // Étape 3: Traiter les données
+      setState(prev => ({ ...prev, progress: 70 }));
+      const processedData = BasicFileReader.processExtractedData(
+        readResult.data!,
         participantMapping,
-        (progressText, percentage) => {
-          console.log('📈 Progrès:', percentage + '%', progressText);
-          setState(prev => ({
-            ...prev,
-            status: 'processing',
-            progress: percentage,
-            canPause: true
-          }));
-        }
+        file.name
       );
 
-      console.log('🏁 Résultat traitement:', result.success ? 'SUCCÈS' : 'ÉCHEC');
+      // Étape 4: Finaliser
+      setState(prev => ({
+        ...prev,
+        status: 'completed',
+        progress: 100,
+        validRows: processedData.stats.validRowsImported,
+        errorRows: processedData.stats.unknownEansSkipped,
+        totalRows: processedData.stats.totalRowsProcessed,
+        mesuresCount: processedData.stats.participantsUpdated,
+        participants: processedData.participants,
+        month: processedData.month
+      }));
       
-      if (result.success) {
-        console.log('✅ Import réussi, données:', result.data);
-        setState(prev => ({
-          ...prev,
-          status: 'completed',
-          progress: 100,
-          validRows: result.data.stats.validRowsImported,
-          errorRows: result.data.stats.errorRowsSkipped,
-          totalRows: result.data.stats.totalRowsProcessed,
-          mesuresCount: result.data.stats.participantsUpdated,
-          participants: result.data.participants,
-          warnings: result.warnings,
-          errors: result.errors,
-          month: result.data.month
-        }));
-        
-        // Afficher le rapport d'import
-        setImportReport(result.data);
-        setShowReportModal(true);
-        
-        // Notifier le parent du succès
-        onSuccess(result.data);
-      } else {
-        console.error('❌ Échec import:', result.errors);
-        setState(prev => ({
-          ...prev,
-          status: 'error',
-          errors: result.errors,
-          warnings: result.warnings
-        }));
-      }
+      setImportReport(processedData);
+      setShowReportModal(true);
+      onSuccess(processedData);
+      
     } catch (error: any) {
       console.error('Error processing file:', error);
-      console.error('Stack trace:', error.stack);
       setState(prev => ({
         ...prev,
         status: 'error',
-        errors: [...state.errors, error.message || 'Erreur inconnue lors du traitement']
+        errors: [error.message || 'Erreur inconnue']
       }));
     }
   };
