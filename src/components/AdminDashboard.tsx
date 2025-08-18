@@ -9,7 +9,6 @@ import { fr } from 'date-fns/locale';
 import { Database as DB } from '../types/supabase';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { ParticipantForm } from './ParticipantForm';
-import { StreamingExcelImport } from './StreamingExcelImport';
 import { MonthlyFileManager } from './MonthlyFileManager';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 
