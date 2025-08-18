@@ -1,4 +1,3 @@
-import { supabase } from '../lib/supabase';
 import * as XLSX from 'xlsx';
 
 export class ExcelProcessor {
@@ -17,47 +16,68 @@ export class ExcelProcessor {
   }> {
     const errors: string[] = [];
     const warnings: string[] = [];
-    const unknownEans = new Set<string>();
-    const processedParticipants = new Set<string>();
 
     try {
-      console.log('📁 Traitement du fichier:', file.name);
+      console.log('📁 Début traitement fichier:', file.name);
       onProgress?.('Lecture du fichier Excel...', 10);
 
-      // Lire le fichier Excel
-      const arrayBuffer = await file.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-      
-      if (!workbook || workbook.SheetNames.length === 0) {
-        errors.push('Le fichier Excel ne contient aucune feuille');
+      // Lire le fichier comme ArrayBuffer
+      const buffer = await file.arrayBuffer();
+      console.log('📊 Taille buffer:', buffer.byteLength);
+
+      onProgress?.('Analyse du fichier...', 20);
+
+      // Lire le workbook
+      const workbook = XLSX.read(buffer, { type: 'array' });
+      console.log('📋 Feuilles trouvées:', workbook.SheetNames);
+
+      if (!workbook.SheetNames.length) {
+        errors.push('Aucune feuille trouvée dans le fichier Excel');
         return { success: false, errors, warnings };
       }
 
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' }) as any[][];
+      // Prendre la première feuille
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      console.log('📄 Feuille sélectionnée:', sheetName);
 
-      if (!rawData || rawData.length < 2) {
+      onProgress?.('Extraction des données...', 30);
+
+      // Convertir en JSON avec en-têtes
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      console.log('📊 Lignes extraites:', jsonData.length);
+
+      if (jsonData.length < 2) {
         errors.push('Le fichier doit contenir au moins une ligne d\'en-tête et une ligne de données');
         return { success: false, errors, warnings };
       }
 
-      // Extraire le mois du nom du fichier
-      const month = this.extractMonthFromFilename(file.name);
-      console.log('📅 Mois détecté:', month);
-
-      onProgress?.('Analyse des colonnes...', 20);
-
       // Analyser les en-têtes
-      const headers = rawData[0].map((h: any) => String(h || '').toLowerCase().trim());
-      
-      // Identifier les colonnes
-      const eanIndex = headers.findIndex(h => h.includes('ean'));
-      const volumePartageIndex = headers.findIndex(h => h.includes('volume') && h.includes('partag'));
-      const volumeComplIndex = headers.findIndex(h => h.includes('volume') && h.includes('compl'));
-      const injectionPartageIndex = headers.findIndex(h => h.includes('injection') && h.includes('partag'));
-      const injectionResiduelleIndex = headers.findIndex(h => h.includes('injection') && h.includes('résiduelle'));
+      const headers = jsonData[0] as string[];
+      console.log('📋 En-têtes:', headers);
 
-      console.log('📋 Colonnes trouvées:', {
+      // Trouver les colonnes importantes
+      const eanIndex = headers.findIndex(h => 
+        String(h).toLowerCase().includes('ean')
+      );
+      const volumePartageIndex = headers.findIndex(h => 
+        String(h).toLowerCase().includes('volume') && 
+        String(h).toLowerCase().includes('partag')
+      );
+      const volumeComplIndex = headers.findIndex(h => 
+        String(h).toLowerCase().includes('volume') && 
+        String(h).toLowerCase().includes('compl')
+      );
+      const injectionPartageIndex = headers.findIndex(h => 
+        String(h).toLowerCase().includes('injection') && 
+        String(h).toLowerCase().includes('partag')
+      );
+      const injectionResiduelleIndex = headers.findIndex(h => 
+        String(h).toLowerCase().includes('injection') && 
+        (String(h).toLowerCase().includes('résiduelle') || String(h).toLowerCase().includes('residuelle'))
+      );
+
+      console.log('🔍 Index des colonnes:', {
         ean: eanIndex,
         volumePartage: volumePartageIndex,
         volumeCompl: volumeComplIndex,
@@ -66,13 +86,17 @@ export class ExcelProcessor {
       });
 
       if (eanIndex === -1) {
-        errors.push('Colonne EAN manquante');
+        errors.push('Colonne EAN non trouvée dans le fichier');
         return { success: false, errors, warnings };
       }
 
-      onProgress?.('Traitement des données...', 30);
+      // Extraire le mois du nom du fichier
+      const month = this.extractMonthFromFilename(file.name);
+      console.log('📅 Mois détecté:', month);
 
-      // Collecter les données par EAN
+      onProgress?.('Traitement des données...', 50);
+
+      // Traiter les données
       const participantData: { [ean: string]: {
         volume_partage: number;
         volume_complementaire: number;
@@ -80,50 +104,58 @@ export class ExcelProcessor {
         injection_residuelle: number;
       } } = {};
 
+      const unknownEans = new Set<string>();
       let totalRowsProcessed = 0;
       let validRowsImported = 0;
 
-      // Traiter chaque ligne
-      for (let i = 1; i < rawData.length; i++) {
-        const row = rawData[i];
-        if (!row || row.length === 0 || !row.some(cell => cell)) continue;
+      // Traiter chaque ligne de données (ignorer l'en-tête)
+      for (let i = 1; i < jsonData.length; i++) {
+        const row = jsonData[i] as any[];
+        
+        if (!row || row.length === 0) continue;
         
         totalRowsProcessed++;
 
-        let eanCode = String(row[eanIndex] || '').trim();
-        if (!eanCode) {
-          continue;
-        }
+        // Extraire l'EAN
+        let eanRaw = row[eanIndex];
+        if (!eanRaw) continue;
 
-        // Essayer de matcher l'EAN avec les participants
-        let matchedEan = null;
+        let eanCode = String(eanRaw).trim();
+        
+        // Nettoyer l'EAN (garder seulement les chiffres)
+        const cleanEan = eanCode.replace(/[^0-9]/g, '');
+        
+        // Chercher le participant correspondant
+        let matchedParticipant = null;
+        
+        // Essayer avec l'EAN original
         if (participantMapping[eanCode]) {
-          matchedEan = eanCode;
-        } else {
-          // Essayer des variantes
-          const variants = [
-            eanCode.replace(/\s+/g, ''), // Sans espaces
-            eanCode.replace(/[^0-9]/g, ''), // Seulement chiffres
-          ];
-          
-          for (const variant of variants) {
-            if (participantMapping[variant]) {
-              matchedEan = variant;
+          matchedParticipant = participantMapping[eanCode];
+        }
+        // Essayer avec l'EAN nettoyé
+        else if (participantMapping[cleanEan]) {
+          matchedParticipant = participantMapping[cleanEan];
+          eanCode = cleanEan;
+        }
+        // Essayer de matcher partiellement
+        else {
+          for (const [mappedEan, participant] of Object.entries(participantMapping)) {
+            if (cleanEan.includes(mappedEan) || mappedEan.includes(cleanEan)) {
+              matchedParticipant = participant;
+              eanCode = mappedEan;
               break;
             }
           }
         }
 
-        if (!matchedEan) {
+        if (!matchedParticipant) {
           unknownEans.add(eanCode);
-          continue; // Ignorer les EANs non reconnus
+          continue;
         }
 
-        processedParticipants.add(matchedEan);
-
         // Initialiser les données pour ce participant
-        if (!participantData[matchedEan]) {
-          participantData[matchedEan] = {
+        if (!participantData[eanCode]) {
+          participantData[eanCode] = {
             volume_partage: 0,
             volume_complementaire: 0,
             injection_partagee: 0,
@@ -131,63 +163,81 @@ export class ExcelProcessor {
           };
         }
 
-        // Extraire les valeurs
-        const volumePartage = this.parseNumericValue(row[volumePartageIndex]);
-        const volumeCompl = this.parseNumericValue(row[volumeComplIndex]);
-        const injectionPartage = this.parseNumericValue(row[injectionPartageIndex]);
-        const injectionResiduelle = this.parseNumericValue(row[injectionResiduelleIndex]);
-
-        // Additionner les valeurs
-        participantData[matchedEan].volume_partage += volumePartage;
-        participantData[matchedEan].volume_complementaire += volumeCompl;
-        participantData[matchedEan].injection_partagee += injectionPartage;
-        participantData[matchedEan].injection_residuelle += injectionResiduelle;
+        // Extraire et additionner les valeurs
+        if (volumePartageIndex >= 0) {
+          const val = this.parseNumber(row[volumePartageIndex]);
+          participantData[eanCode].volume_partage += val;
+        }
         
+        if (volumeComplIndex >= 0) {
+          const val = this.parseNumber(row[volumeComplIndex]);
+          participantData[eanCode].volume_complementaire += val;
+        }
+        
+        if (injectionPartageIndex >= 0) {
+          const val = this.parseNumber(row[injectionPartageIndex]);
+          participantData[eanCode].injection_partagee += val;
+        }
+        
+        if (injectionResiduelleIndex >= 0) {
+          const val = this.parseNumber(row[injectionResiduelleIndex]);
+          participantData[eanCode].injection_residuelle += val;
+        }
+
         validRowsImported++;
       }
 
-      // Notifications pour les EANs non reconnus
+      console.log('📊 Données traitées:', {
+        totalRows: totalRowsProcessed,
+        validRows: validRowsImported,
+        participants: Object.keys(participantData).length,
+        unknownEans: unknownEans.size
+      });
+
       if (unknownEans.size > 0) {
-        const unknownList = Array.from(unknownEans).slice(0, 10).join(', ');
-        const moreCount = unknownEans.size > 10 ? ` et ${unknownEans.size - 10} autres` : '';
+        const unknownList = Array.from(unknownEans).slice(0, 5).join(', ');
+        const moreCount = unknownEans.size > 5 ? ` et ${unknownEans.size - 5} autres` : '';
         warnings.push(`${unknownEans.size} EAN(s) non reconnu(s) ignoré(s): ${unknownList}${moreCount}`);
       }
 
       if (Object.keys(participantData).length === 0) {
-        errors.push(`Aucun participant reconnu dans le fichier. ${unknownEans.size} EAN(s) non reconnu(s) ont été ignoré(s).`);
+        errors.push('Aucun participant reconnu dans le fichier');
         return { success: false, errors, warnings };
       }
 
-      onProgress?.('Mise à jour des participants...', 80);
+      onProgress?.('Sauvegarde des données...', 80);
 
-      // Mettre à jour chaque participant avec ses données mensuelles
+      // Mettre à jour les participants dans Supabase
+      const { supabase } = await import('../lib/supabase');
       let participantsUpdated = 0;
+
       for (const [eanCode, data] of Object.entries(participantData)) {
-        const participant = participantMapping[eanCode];
-        
         try {
-          // Récupérer les données mensuelles existantes
-          const { data: currentParticipant, error: fetchError } = await supabase
+          const participant = participantMapping[eanCode];
+          
+          // Récupérer les données actuelles du participant
+          const { data: currentData, error: fetchError } = await supabase
             .from('participants')
-            .select('*')
+            .select('monthly_data')
             .eq('id', participant.id)
             .single();
 
           if (fetchError) {
-            console.error('Erreur récupération participant:', fetchError);
-            warnings.push(`Impossible de récupérer les données de ${participant.name}`);
+            warnings.push(`Erreur récupération ${participant.name}: ${fetchError.message}`);
             continue;
           }
 
           // Préparer les nouvelles données mensuelles
           let monthlyData = {};
-          try {
-            monthlyData = currentParticipant.monthly_data ? JSON.parse(currentParticipant.monthly_data) : {};
-          } catch (e) {
-            monthlyData = {};
+          if (currentData?.monthly_data) {
+            try {
+              monthlyData = JSON.parse(currentData.monthly_data);
+            } catch (e) {
+              monthlyData = {};
+            }
           }
 
-          // Ajouter/écraser les données pour ce mois
+          // Ajouter les données pour ce mois
           monthlyData[month] = {
             volume_partage: Math.round(data.volume_partage * 100) / 100,
             volume_complementaire: Math.round(data.volume_complementaire * 100) / 100,
@@ -206,16 +256,14 @@ export class ExcelProcessor {
             .eq('id', participant.id);
 
           if (updateError) {
-            console.error('Erreur mise à jour participant:', updateError);
             warnings.push(`Erreur mise à jour ${participant.name}: ${updateError.message}`);
           } else {
-            console.log(`✅ Participant mis à jour: ${participant.name}`);
             participantsUpdated++;
+            console.log(`✅ ${participant.name} mis à jour`);
           }
 
-        } catch (error) {
-          console.error(`Erreur traitement ${participant.name}:`, error);
-          warnings.push(`Erreur traitement ${participant.name}: ${error.message}`);
+        } catch (error: any) {
+          warnings.push(`Erreur traitement ${participantMapping[eanCode]?.name}: ${error.message}`);
         }
       }
 
@@ -227,7 +275,7 @@ export class ExcelProcessor {
         stats: {
           totalRowsProcessed,
           validRowsImported,
-          participantsFound: participantsUpdated,
+          participantsFound: Object.keys(participantData).length,
           participantsUpdated,
           unknownEansSkipped: unknownEans.size,
           unknownEansList: Array.from(unknownEans)
@@ -236,11 +284,26 @@ export class ExcelProcessor {
 
       return { success: true, data: result, errors, warnings };
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erreur critique:', error);
       errors.push(`Erreur lors du traitement: ${error.message}`);
       return { success: false, errors, warnings };
     }
+  }
+
+  /**
+   * Parse un nombre depuis une valeur Excel
+   */
+  private static parseNumber(value: any): number {
+    if (value === null || value === undefined || value === '') {
+      return 0;
+    }
+    
+    // Convertir en string et remplacer les virgules par des points
+    const stringValue = String(value).replace(',', '.');
+    const numValue = parseFloat(stringValue);
+    
+    return isNaN(numValue) ? 0 : Math.max(0, numValue);
   }
 
   /**
@@ -258,7 +321,9 @@ export class ExcelProcessor {
           'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
         };
         const monthNum = monthMap[monthAbbr.toUpperCase()];
-        if (monthNum) return `${year}-${monthNum}`;
+        if (monthNum) {
+          return `${year}-${monthNum}`;
+        }
       }
       
       // Fallback sur le mois actuel
@@ -271,19 +336,35 @@ export class ExcelProcessor {
   }
 
   /**
-   * Parse une valeur numérique
+   * Génère un template Excel d'exemple
    */
-  private static parseNumericValue(value: any): number {
-    try {
-      if (value === null || value === undefined || value === '') {
-        return 0;
-      }
-      
-      const stringValue = String(value).replace(',', '.');
-      const numValue = parseFloat(stringValue);
-      return isNaN(numValue) ? 0 : Math.max(0, numValue);
-    } catch (error) {
-      return 0;
-    }
+  static generateTemplate() {
+    const templateData = [
+      ['FromDate (Inclu)', 'ToDate (Exclu)', 'EAN', 'Compteur', 'Partage', 'Registre', 'Volume Partagé (kWh)', 'Volume Complémentaire (kWh)', 'Injection Partagée (kWh)', 'Injection Résiduelle (kWh)'],
+      ['1-avr-25', '1-mai-25', '541448000000000001', '1SAG1100', 'ES_TOUR_ET_TAXIS', 'HI', '23,39882797', '18,59517203', '0', '0'],
+      ['1-avr-25', '1-mai-25', '541448000000000001', '1SAG1100', 'ES_TOUR_ET_TAXIS', 'LOW', '12,55930924', '37,28169076', '0', '0'],
+      ['1-avr-25', '1-mai-25', '541448000000000002', '1SAG1100', 'ES_TOUR_ET_TAXIS', 'HI', '36,92423176', '33,28376824', '15,5', '8,2'],
+      ['1-avr-25', '1-mai-25', '541448000000000002', '1SAG1100', 'ES_TOUR_ET_TAXIS', 'LOW', '23,67788895', '38,45611105', '12,3', '6,7']
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template');
+    
+    // Ajuster la largeur des colonnes
+    ws['!cols'] = [
+      { width: 15 }, // FromDate
+      { width: 15 }, // ToDate  
+      { width: 20 }, // EAN
+      { width: 12 }, // Compteur
+      { width: 20 }, // Partage
+      { width: 10 }, // Registre
+      { width: 20 }, // Volume Partagé
+      { width: 25 }, // Volume Complémentaire
+      { width: 20 }, // Injection Partagée
+      { width: 25 }  // Injection Résiduelle
+    ];
+    
+    XLSX.writeFile(wb, 'template-import-mensuel.xlsx');
   }
 }
