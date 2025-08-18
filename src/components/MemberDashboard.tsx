@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { 
   BarChart4, TrendingUp, Zap, LogOut, Calendar, Clock, Battery, 
-  Leaf, ChevronLeft, ChevronRight, Loader2
+  Leaf, ChevronLeft, ChevronRight, Loader2, Database
 } from 'lucide-react';
 import { format, parseISO, subDays, startOfDay, endOfDay, addDays, 
   addWeeks, addMonths, subWeeks, subMonths } from 'date-fns';
@@ -26,6 +26,7 @@ interface User {
   email: string;
   name: string;
   member_type: 'consumer' | 'producer';
+  monthly_data?: string;
 }
 
 interface EnergyData {
@@ -46,31 +47,51 @@ interface MemberDashboardProps {
 export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const [energyData, setEnergyData] = useState<EnergyData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dataLoading, setDataLoading] = useState(false); // Separate loading for data updates
+  const [dataLoading, setDataLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [userProfile, setUserProfile] = useState<User | null>(null);
+  const [monthlyData, setMonthlyData] = useState<any>({});
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const { data, error } = await supabase
-          .from('participants')
+          .from('participants') 
           .select('*')
           .eq('id', user.id)
           .single();
 
         if (error) throw error;
-        setUserProfile(data);
+        
+        setUserProfile({
+          id: data.id,
+          email: data.email || user.email,
+          name: data.name || user.name,
+          member_type: data.type,
+          monthly_data: data.monthly_data
+        });
+
+        // Parser les données mensuelles
+        if (data.monthly_data) {
+          try {
+            const parsed = JSON.parse(data.monthly_data);
+            setMonthlyData(parsed);
+          } catch (e) {
+            console.warn('Erreur parsing monthly_data:', e);
+            setMonthlyData({});
+          }
+        }
+        
       } catch (error) {
         console.error('Error fetching user profile:', error);
-        // Fallback to user data from props
         setUserProfile({
           id: user.id,
           email: user.email,
           name: user.name || data?.name || 'Membre',
           member_type: user.member_type || data?.type || 'consumer'
         });
+        setMonthlyData({});
       }
     };
 
@@ -229,6 +250,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const totalProduction = React.useMemo(() => {
     return energyData.reduce((sum, item) => sum + Number(item.production || 0), 0);
   }, [energyData]);
+
+  // Données mensuelles pour le mois sélectionné
+  const currentMonthData = React.useMemo(() => {
+    const monthKey = format(selectedDate, 'yyyy-MM');
+    return monthlyData[monthKey] || null;
+  }, [monthlyData, selectedDate]);
   
   // Calculer le pourcentage d'énergie partagée
   const sharedPercentage = React.useMemo(() => {
@@ -351,6 +378,52 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Données mensuelles si disponibles */}
+        {currentMonthData && (
+          <div className="mb-8 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <Database className="w-6 h-6 text-blue-600 mr-3" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Données mensuelles - {format(selectedDate, 'MMMM yyyy', { locale: fr })}
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-blue-100">
+                <div className="text-sm text-blue-600">Volume Partagé</div>
+                <div className="text-xl font-bold text-blue-900">
+                  {currentMonthData.volume_partage?.toFixed(2) || '0.00'} kWh
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-green-100">
+                <div className="text-sm text-green-600">Volume Complémentaire</div>
+                <div className="text-xl font-bold text-green-900">
+                  {currentMonthData.volume_complementaire?.toFixed(2) || '0.00'} kWh
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-amber-100">
+                <div className="text-sm text-amber-600">Injection Partagée</div>
+                <div className="text-xl font-bold text-amber-900">
+                  {currentMonthData.injection_partagee?.toFixed(2) || '0.00'} kWh
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-purple-100">
+                <div className="text-sm text-purple-600">Injection Résiduelle</div>
+                <div className="text-xl font-bold text-purple-900">
+                  {currentMonthData.injection_residuelle?.toFixed(2) || '0.00'} kWh
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-3 text-xs text-gray-500 text-center">
+              Dernière mise à jour: {currentMonthData.updated_at ? format(new Date(currentMonthData.updated_at), 'dd/MM/yyyy HH:mm', { locale: fr }) : 'Inconnue'}
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards with smooth transition */}
         <div className={`grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 transition-opacity duration-300 ${dataLoading ? 'opacity-60' : 'opacity-100'}`}>
           {isProducer ? (
