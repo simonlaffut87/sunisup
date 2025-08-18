@@ -286,7 +286,7 @@ export class BasicFileReader {
     console.log('✅ RÉSULTAT FINAL:', result);
     console.log('📊 Mesures finales:', result.stats.mesuresCount, '(4 par participant)');
     
-    // Sauvegarder dans localStorage
+    // Sauvegarder dans localStorage ET mettre à jour la base de données
     try {
       const monthlyData = JSON.parse(localStorage.getItem('monthly_data') || '{}');
       console.log('💾 Données existantes avant sauvegarde:', Object.keys(monthlyData));
@@ -294,11 +294,82 @@ export class BasicFileReader {
       localStorage.setItem('monthly_data', JSON.stringify(monthlyData));
       console.log('💾 Sauvegardé dans localStorage pour le mois:', month);
       console.log('💾 Données après sauvegarde:', Object.keys(monthlyData));
+      
+      // Mettre à jour la colonne monthly_data de chaque participant
+      await this.updateParticipantsMonthlyData(result.participants, month);
+      
     } catch (error) {
       console.warn('⚠️ Erreur sauvegarde:', error);
     }
     
     return result;
+  }
+
+  /**
+   * Met à jour la colonne monthly_data des participants dans la base de données
+   */
+  private static async updateParticipantsMonthlyData(participants: any, month: string) {
+    console.log('🔄 Mise à jour monthly_data pour', Object.keys(participants).length, 'participants...');
+    
+    // Import dynamique de supabase
+    const { supabase } = await import('../lib/supabase');
+    
+    for (const [eanCode, participantData] of Object.entries(participants)) {
+      try {
+        // Trouver le participant par son EAN
+        const { data: participant, error: findError } = await supabase
+          .from('participants')
+          .select('id, monthly_data')
+          .eq('ean_code', eanCode)
+          .single();
+        
+        if (findError || !participant) {
+          console.warn(`⚠️ Participant avec EAN ${eanCode} non trouvé:`, findError);
+          continue;
+        }
+        
+        // Parser les données mensuelles existantes
+        let existingMonthlyData = {};
+        if (participant.monthly_data) {
+          try {
+            existingMonthlyData = JSON.parse(participant.monthly_data);
+          } catch (e) {
+            console.warn(`⚠️ Erreur parsing monthly_data existant pour ${eanCode}:`, e);
+          }
+        }
+        
+        // Ajouter/mettre à jour les données pour ce mois
+        const updatedMonthlyData = {
+          ...existingMonthlyData,
+          [month]: {
+            volume_partage: (participantData as any).data.volume_partage,
+            volume_complementaire: (participantData as any).data.volume_complementaire,
+            injection_partagee: (participantData as any).data.injection_partagee,
+            injection_complementaire: (participantData as any).data.injection_complementaire,
+            updated_at: new Date().toISOString()
+          }
+        };
+        
+        // Mettre à jour dans la base de données
+        const { error: updateError } = await supabase
+          .from('participants')
+          .update({ 
+            monthly_data: JSON.stringify(updatedMonthlyData)
+          })
+          .eq('id', participant.id);
+        
+        if (updateError) {
+          console.error(`❌ Erreur mise à jour monthly_data pour ${eanCode}:`, updateError);
+        } else {
+          console.log(`✅ monthly_data mis à jour pour ${(participantData as any).name} (${eanCode})`);
+        }
+        
+      } catch (error) {
+        console.error(`❌ Erreur traitement participant ${eanCode}:`, error);
+      }
+    }
+    
+    console.log('✅ Mise à jour monthly_data terminée');
   }
 
   private static extractMonth(filename: string): string {
