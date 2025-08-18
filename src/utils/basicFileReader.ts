@@ -147,6 +147,7 @@ export class BasicFileReader {
     const injectionComplementaireIndex = headers.findIndex(h => 
       String(h).toLowerCase().includes('injection') && (String(h).toLowerCase().includes('complémentaire') || String(h).toLowerCase().includes('résiduelle'))
     );
+    
     if (eanIndex === -1) {
       console.error('❌ Colonne EAN non trouvée dans:', headers);
       throw new Error('Colonne EAN non trouvée');
@@ -161,21 +162,29 @@ export class BasicFileReader {
       injectionComplementaire: injectionComplementaireIndex
     });
     
-    // Structure pour accumuler les données par EAN
-    const participantAccumulator: { [ean: string]: {
+    // Structure pour grouper les données par EAN (HIGH + LOW)
+    const eanGroups: { [ean: string]: {
       info: any;
-      volume_partage: number;
-      volume_complementaire: number;
-      injection_partagee: number;
-      injection_complementaire: number;
+      high: {
+        volume_partage: number;
+        volume_complementaire: number;
+        injection_partagee: number;
+        injection_complementaire: number;
+      };
+      low: {
+        volume_partage: number;
+        volume_complementaire: number;
+        injection_partagee: number;
+        injection_complementaire: number;
+      };
     } } = {};
     
     const unknownEans = new Set<string>();
-    let validRows = 0;
+    let processedRows = 0;
     
-    // Traiter toutes les lignes pour avoir les vraies données
+    // Étape 1: Grouper toutes les lignes par EAN et registre (HIGH/LOW)
     const maxRows = rows.length;
-    console.log('📊 Traitement de', maxRows, 'lignes');
+    console.log('📊 Groupement de', maxRows, 'lignes par EAN...');
     
     for (let i = 0; i < maxRows; i++) {
       const row = rows[i];
@@ -185,16 +194,25 @@ export class BasicFileReader {
       if (!eanRaw) continue;
       
       const eanCode = String(eanRaw).trim();
+      const registre = String(row[registreIndex] || '').trim().toUpperCase();
       
       if (participantMapping[eanCode]) {
-        // Initialiser l'accumulateur pour ce participant si nécessaire
-        if (!participantAccumulator[eanCode]) {
-          participantAccumulator[eanCode] = {
+        // Initialiser le groupe pour ce participant si nécessaire
+        if (!eanGroups[eanCode]) {
+          eanGroups[eanCode] = {
             info: participantMapping[eanCode],
-            volume_partage: 0,
-            volume_complementaire: 0,
-            injection_partagee: 0,
-            injection_complementaire: 0
+            high: {
+              volume_partage: 0,
+              volume_complementaire: 0,
+              injection_partagee: 0,
+              injection_complementaire: 0
+            },
+            low: {
+              volume_partage: 0,
+              volume_complementaire: 0,
+              injection_partagee: 0,
+              injection_complementaire: 0
+            }
           };
         }
         
@@ -204,37 +222,42 @@ export class BasicFileReader {
         const injectionPartage = parseFloat(String(row[injectionPartageIndex] || 0).replace(',', '.')) || 0;
         const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || 0).replace(',', '.')) || 0;
         
-        // Accumuler les valeurs (somme HIGH + LOW pour chaque EAN)
-        participantAccumulator[eanCode].volume_partage += volumePartage;
-        participantAccumulator[eanCode].volume_complementaire += volumeComplementaire;
-        participantAccumulator[eanCode].injection_partagee += injectionPartage;
-        participantAccumulator[eanCode].injection_complementaire += injectionComplementaire;
+        // Assigner aux bonnes catégories HIGH ou LOW
+        const target = registre === 'HI' || registre === 'HIGH' ? eanGroups[eanCode].high : eanGroups[eanCode].low;
         
-        validRows++;
+        target.volume_partage += volumePartage;
+        target.volume_complementaire += volumeComplementaire;
+        target.injection_partagee += injectionPartage;
+        target.injection_complementaire += injectionComplementaire;
+        
+        processedRows++;
         
         if (i % 100 === 0) {
-          console.log(`📊 Ligne ${i}: EAN ${eanCode}, VP: ${volumePartage}, VC: ${volumeComplementaire}`);
+          console.log(`📊 Ligne ${i}: EAN ${eanCode} (${registre}), VP: ${volumePartage}, VC: ${volumeComplementaire}`);
         }
       } else {
         unknownEans.add(eanCode);
       }
     }
     
-    // Convertir l'accumulateur en format final
+    // Étape 2: Sommer HIGH + LOW pour chaque EAN
     const participantData: { [ean: string]: any } = {};
-    Object.entries(participantAccumulator).forEach(([eanCode, accumulated]) => {
+    Object.entries(eanGroups).forEach(([eanCode, group]) => {
       participantData[eanCode] = {
-        ...accumulated.info,
+        ...group.info,
         data: {
-          volume_complementaire: accumulated.volume_complementaire,
-          volume_partage: accumulated.volume_partage,
-          injection_complementaire: accumulated.injection_complementaire,
-          injection_partagee: accumulated.injection_partagee
+          volume_complementaire: group.high.volume_complementaire + group.low.volume_complementaire,
+          volume_partage: group.high.volume_partage + group.low.volume_partage,
+          injection_complementaire: group.high.injection_complementaire + group.low.injection_complementaire,
+          injection_partagee: group.high.injection_partagee + group.low.injection_partagee
         }
       };
+      
+      console.log(`✅ EAN ${eanCode} - Total: VP=${participantData[eanCode].data.volume_partage.toFixed(2)}, VC=${participantData[eanCode].data.volume_complementaire.toFixed(2)}`);
     });
     
     console.log('✅ Données accumulées par EAN:', Object.keys(participantData).length, 'participants');
+    console.log('📊 Chaque participant a maintenant 4 valeurs (HIGH + LOW sommées)');
     
     const month = this.extractMonth(filename);
     console.log('📅 Mois extrait du fichier:', month, 'depuis:', filename);
@@ -244,11 +267,11 @@ export class BasicFileReader {
       participants: participantData,
       stats: {
         totalRowsProcessed: maxRows,
-        validRowsImported: validRows,
+        validRowsImported: processedRows,
         participantsFound: Object.keys(participantData).length,
         unknownEansSkipped: unknownEans.size,
         participantsUpdated: Object.keys(participantData).length,
-        mesuresCount: validRows
+        mesuresCount: Object.keys(participantData).length * 4 // 4 valeurs par participant
       },
       totals: {
         total_volume_complementaire: Object.values(participantData).reduce((sum: number, p: any) => sum + p.data.volume_complementaire, 0),
@@ -261,6 +284,7 @@ export class BasicFileReader {
     };
     
     console.log('✅ RÉSULTAT FINAL:', result);
+    console.log('📊 Mesures finales:', result.stats.mesuresCount, '(4 par participant)');
     
     // Sauvegarder dans localStorage
     try {
