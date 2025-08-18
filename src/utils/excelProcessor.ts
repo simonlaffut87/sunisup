@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import * as XLSX from 'xlsx';
 
 export class ExcelProcessor {
   /**
@@ -25,7 +26,6 @@ export class ExcelProcessor {
 
       // Lire le fichier Excel
       const arrayBuffer = await file.arrayBuffer();
-      const XLSX = (await import('xlsx')).default || await import('xlsx');
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       
       if (!workbook || workbook.SheetNames.length === 0) {
