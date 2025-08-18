@@ -139,16 +139,33 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     if (!file) return;
 
     console.log('🚀 DÉBUT IMPORT BASIQUE');
-    setState(prev => ({ ...prev, status: 'reading', progress: 0 }));
+    setState(prev => ({ 
+      ...prev, 
+      status: 'reading', 
+      progress: 0,
+      errors: [],
+      warnings: [],
+      participants: {},
+      validRows: 0,
+      errorRows: 0,
+      totalRows: 0
+    }));
 
     try {
       // Étape 1: Charger les participants
+      console.log('📋 Chargement des participants...');
       setState(prev => ({ ...prev, progress: 10 }));
+      
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*');
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erreur participants:', error);
+        throw error;
+      }
+      
+      console.log('✅ Participants chargés:', participants?.length || 0);
 
       // Créer le mapping
       const participantMapping = participants.reduce((acc, p) => {
@@ -161,24 +178,36 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         }
         return acc;
       }, {});
+      
+      console.log('🗺️ Mapping créé:', Object.keys(participantMapping).length, 'participants');
 
       // Étape 2: Lire le fichier
+      console.log('📖 Lecture du fichier...');
       setState(prev => ({ ...prev, progress: 30, status: 'processing' }));
+      
       const readResult = await BasicFileReader.readFile(file);
       
       if (!readResult.success) {
+        console.error('❌ Erreur lecture:', readResult.error);
         throw new Error(readResult.error || 'Erreur de lecture');
       }
       
+      console.log('✅ Fichier lu avec succès');
+      
       // Étape 3: Traiter les données
+      console.log('⚙️ Traitement des données...');
       setState(prev => ({ ...prev, progress: 70 }));
+      
       const processedData = BasicFileReader.processExtractedData(
         readResult.data!,
         participantMapping,
         file.name
       );
+      
+      console.log('✅ Données traitées:', processedData);
 
       // Étape 4: Finaliser
+      console.log('🎯 Finalisation...');
       setState(prev => ({
         ...prev,
         status: 'completed',
@@ -191,17 +220,42 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         month: processedData.month
       }));
       
+      console.log('🎉 Import terminé avec succès !');
+      
+      // Créer le rapport d'import
+      const report = {
+        filename: file.name,
+        month: processedData.month,
+        stats: processedData.stats,
+        participants: processedData.participants,
+        errors: [],
+        warnings: []
+      };
+      
       setImportReport(processedData);
-      setShowReportModal(true);
+      
+      // Attendre un peu pour que l'utilisateur voie le succès
+      setTimeout(() => {
+        setShowReportModal(true);
+      }, 1000);
+      
+      // Notifier le parent du succès
       onSuccess(processedData);
+      
+      // Afficher un toast de succès
+      toast.success(`✅ Import réussi ! ${processedData.stats.validRowsImported} lignes importées`);
       
     } catch (error: any) {
       console.error('Error processing file:', error);
+      console.error('Stack trace:', error.stack);
+      
       setState(prev => ({
         ...prev,
         status: 'error',
         errors: [error.message || 'Erreur inconnue']
       }));
+      
+      toast.error(`❌ Erreur d'import: ${error.message}`);
     }
   };
 
