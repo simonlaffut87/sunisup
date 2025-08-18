@@ -198,7 +198,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       console.log('⚙️ Traitement des données...');
       setState(prev => ({ ...prev, progress: 70 }));
       
-      const processedData = BasicFileReader.processExtractedData(
+      const processedData = await BasicFileReader.processExtractedData(
         readResult.data!,
         participantMapping,
         file.name
