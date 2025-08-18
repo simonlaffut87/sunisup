@@ -254,7 +254,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                 <div className="text-2xl font-bold text-gray-900">
                   {files.reduce((sum, f) => sum + (f.mesures_count || 0), 0).toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600">Mesures quart-horaires</div>
+                <div className="text-sm text-gray-600">Mesures mensuelles</div>
               </div>
             </div>
           </div>
