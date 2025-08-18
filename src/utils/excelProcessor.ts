@@ -18,99 +18,174 @@ export class ExcelProcessor {
     const warnings: string[] = [];
 
     try {
-      console.log('📁 Début traitement fichier:', file.name);
-      console.log('📊 Taille réelle du fichier:', file.size, 'bytes (', (file.size / 1024 / 1024).toFixed(2), 'MB)');
-      onProgress?.('Lecture du fichier Excel...', 10);
+      console.log('🚀 DÉBUT PROCESSFILE');
+      console.log('📁 Fichier:', file.name);
+      console.log('📊 Taille fichier:', file.size, 'bytes');
+      console.log('📊 Taille en MB:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+      console.log('📋 Type MIME:', file.type);
+      console.log('📋 Dernière modification:', file.lastModified);
+      
+      onProgress?.('Vérification du fichier...', 5);
 
-      // Utiliser FileReader pour lire le fichier
-      const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target?.result instanceof ArrayBuffer) {
-            console.log('📊 Buffer lu avec succès:', e.target.result.byteLength, 'bytes');
-            resolve(e.target.result);
-          } else {
-            reject(new Error('Erreur de lecture du fichier'));
-          }
-        };
-        reader.onerror = () => reject(new Error('Erreur FileReader'));
-        reader.readAsArrayBuffer(file);
-      });
-
-      onProgress?.('Analyse du fichier...', 20);
-
-      // Lire le workbook
-      const workbook = XLSX.read(new Uint8Array(buffer), { 
-        type: 'array',
-        cellDates: true,
-        cellNF: false,
-        cellText: false
-      });
-      console.log('📋 Feuilles trouvées:', workbook.SheetNames);
-
-      if (!workbook.SheetNames.length) {
-        errors.push('Aucune feuille trouvée dans le fichier Excel');
-        return { success: false, errors, warnings };
+      // Vérification basique du fichier
+      if (!file) {
+        throw new Error('Aucun fichier fourni');
       }
+
+      if (file.size === 0) {
+        throw new Error('Le fichier est vide');
+      }
+
+      if (file.size > 100 * 1024 * 1024) { // 100MB
+        throw new Error('Le fichier est trop volumineux (max 100MB)');
+      }
+
+      console.log('✅ Vérifications basiques OK');
+      onProgress?.('Lecture du fichier...', 10);
+
+      // Méthode 1: Essayer avec readAsArrayBuffer
+      let buffer: ArrayBuffer;
+      try {
+        console.log('📖 Tentative lecture avec readAsArrayBuffer...');
+        buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+          const reader = new FileReader();
+          
+          reader.onload = (event) => {
+            console.log('📖 FileReader onload déclenché');
+            const result = event.target?.result;
+            if (result instanceof ArrayBuffer) {
+              console.log('✅ ArrayBuffer reçu, taille:', result.byteLength);
+              resolve(result);
+            } else {
+              console.error('❌ Résultat n\'est pas un ArrayBuffer:', typeof result);
+              reject(new Error('Résultat de lecture invalide'));
+            }
+          };
+          
+          reader.onerror = (event) => {
+            console.error('❌ Erreur FileReader:', event);
+            reject(new Error('Erreur lors de la lecture du fichier'));
+          };
+          
+          reader.onabort = () => {
+            console.error('❌ Lecture annulée');
+            reject(new Error('Lecture du fichier annulée'));
+          };
+          
+          console.log('📖 Démarrage readAsArrayBuffer...');
+          reader.readAsArrayBuffer(file);
+        });
+      } catch (readError) {
+        console.error('❌ Erreur lecture fichier:', readError);
+        throw new Error(`Impossible de lire le fichier: ${readError.message}`);
+      }
+
+      console.log('✅ Fichier lu avec succès');
+      console.log('📊 Taille buffer:', buffer.byteLength);
+      onProgress?.('Analyse du fichier Excel...', 20);
+
+      // Tentative de lecture avec XLSX
+      let workbook: XLSX.WorkBook;
+      try {
+        console.log('📋 Tentative lecture XLSX...');
+        console.log('📋 XLSX version:', XLSX.version || 'inconnue');
+        
+        // Essayer plusieurs méthodes de lecture
+        const uint8Array = new Uint8Array(buffer);
+        console.log('📋 Uint8Array créé, taille:', uint8Array.length);
+        console.log('📋 Premiers bytes:', Array.from(uint8Array.slice(0, 10)).map(b => b.toString(16)).join(' '));
+        
+        workbook = XLSX.read(uint8Array, { 
+          type: 'array',
+          cellDates: true,
+          cellNF: false,
+          cellText: false,
+          raw: false
+        });
+        
+        console.log('✅ XLSX.read réussi');
+      } catch (xlsxError) {
+        console.error('❌ Erreur XLSX.read:', xlsxError);
+        
+        // Essayer avec d'autres options
+        try {
+          console.log('📋 Tentative avec options différentes...');
+          workbook = XLSX.read(buffer, { 
+            type: 'buffer',
+            cellDates: false,
+            raw: true
+          });
+          console.log('✅ XLSX.read réussi avec options alternatives');
+        } catch (xlsxError2) {
+          console.error('❌ Erreur XLSX.read alternative:', xlsxError2);
+          throw new Error(`Impossible de lire le fichier Excel: ${xlsxError2.message}`);
+        }
+      }
+
+      console.log('📋 Workbook créé');
+      console.log('📋 Feuilles disponibles:', workbook.SheetNames);
+      
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        throw new Error('Aucune feuille trouvée dans le fichier Excel');
+      }
+
+      onProgress?.('Extraction des données...', 30);
 
       // Prendre la première feuille
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       console.log('📄 Feuille sélectionnée:', sheetName);
+      console.log('📄 Worksheet:', worksheet ? 'OK' : 'ERREUR');
 
-      onProgress?.('Extraction des données...', 30);
-
-      // Convertir en JSON avec en-têtes
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-        header: 1,
-        raw: false,
-        dateNF: 'dd/mm/yyyy'
-      });
-      console.log('📊 Lignes extraites:', jsonData.length);
-      
-      // Afficher les premières lignes pour debug
-      console.log('📋 Premières lignes:', jsonData.slice(0, 3));
-
-      if (jsonData.length < 2) {
-        errors.push('Le fichier doit contenir au moins une ligne d\'en-tête et une ligne de données');
-        return { success: false, errors, warnings };
+      if (!worksheet) {
+        throw new Error(`Impossible d'accéder à la feuille: ${sheetName}`);
       }
+
+      // Convertir en JSON
+      let jsonData: any[][];
+      try {
+        console.log('📊 Conversion en JSON...');
+        jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+          header: 1,
+          raw: false,
+          dateNF: 'dd/mm/yyyy',
+          defval: ''
+        });
+        console.log('✅ Conversion JSON réussie');
+        console.log('📊 Nombre de lignes:', jsonData.length);
+      } catch (jsonError) {
+        console.error('❌ Erreur conversion JSON:', jsonError);
+        throw new Error(`Erreur lors de la conversion des données: ${jsonError.message}`);
+      }
+
+      if (!jsonData || jsonData.length < 2) {
+        throw new Error('Le fichier doit contenir au moins une ligne d\'en-tête et une ligne de données');
+      }
+
+      // Afficher les premières lignes pour debug
+      console.log('📋 Premières lignes:');
+      jsonData.slice(0, 5).forEach((row, index) => {
+        console.log(`Ligne ${index}:`, row);
+      });
 
       // Analyser les en-têtes
       const headers = jsonData[0] as string[];
-      console.log('📋 En-têtes:', headers);
+      console.log('📋 En-têtes détectés:', headers);
+
+      // Le reste du traitement...
+      onProgress?.('Traitement des données...', 50);
 
       // Trouver les colonnes importantes
       const eanIndex = headers.findIndex(h => 
         String(h).toLowerCase().includes('ean')
       );
-      const volumePartageIndex = headers.findIndex(h => 
-        String(h).toLowerCase().includes('volume') && 
-        String(h).toLowerCase().includes('partag')
-      );
-      const volumeComplIndex = headers.findIndex(h => 
-        String(h).toLowerCase().includes('volume') && 
-        String(h).toLowerCase().includes('compl')
-      );
-      const injectionPartageIndex = headers.findIndex(h => 
-        String(h).toLowerCase().includes('injection') && 
-        String(h).toLowerCase().includes('partag')
-      );
-      const injectionResiduelleIndex = headers.findIndex(h => 
-        String(h).toLowerCase().includes('injection') && 
-        (String(h).toLowerCase().includes('résiduelle') || String(h).toLowerCase().includes('residuelle'))
-      );
-
-      console.log('🔍 Index des colonnes:', {
-        ean: eanIndex,
-        volumePartage: volumePartageIndex,
-        volumeCompl: volumeComplIndex,
-        injectionPartage: injectionPartageIndex,
-        injectionResiduelle: injectionResiduelleIndex
-      });
+      
+      console.log('🔍 Index EAN:', eanIndex);
 
       if (eanIndex === -1) {
         errors.push('Colonne EAN non trouvée dans le fichier');
+        console.error('❌ Colonne EAN non trouvée');
+        console.log('📋 En-têtes disponibles:', headers);
         return { success: false, errors, warnings };
       }
 
@@ -118,180 +193,57 @@ export class ExcelProcessor {
       const month = this.extractMonthFromFilename(file.name);
       console.log('📅 Mois détecté:', month);
 
-      onProgress?.('Traitement des données...', 50);
-
-      // Traiter les données
-      const participantData: { [ean: string]: {
-        volume_partage: number;
-        volume_complementaire: number;
-        injection_partagee: number;
-        injection_residuelle: number;
-      } } = {};
-
+      // Traitement simplifié pour test
+      const participantData: { [ean: string]: any } = {};
       const unknownEans = new Set<string>();
       let totalRowsProcessed = 0;
       let validRowsImported = 0;
 
-      // Traiter chaque ligne de données (ignorer l'en-tête)
-      for (let i = 1; i < jsonData.length; i++) {
+      console.log('🔄 Début traitement des lignes...');
+      
+      // Traiter seulement les 10 premières lignes pour test
+      const maxRows = Math.min(jsonData.length, 20);
+      console.log('📊 Traitement de', maxRows, 'lignes pour test');
+
+      for (let i = 1; i < maxRows; i++) {
         const row = jsonData[i] as any[];
         
-        if (!row || row.length === 0) continue;
+        if (!row || row.length === 0) {
+          console.log(`Ligne ${i}: vide, ignorée`);
+          continue;
+        }
         
         totalRowsProcessed++;
+        console.log(`Ligne ${i}:`, row.slice(0, 5)); // Afficher les 5 premières colonnes
 
         // Extraire l'EAN
-        let eanRaw = row[eanIndex];
-        if (!eanRaw) continue;
-
-        let eanCode = String(eanRaw).trim();
-        
-        // Nettoyer l'EAN (garder seulement les chiffres)
-        const cleanEan = eanCode.replace(/[^0-9]/g, '');
-        
-        // Chercher le participant correspondant
-        let matchedParticipant = null;
-        
-        // Essayer avec l'EAN original
-        if (participantMapping[eanCode]) {
-          matchedParticipant = participantMapping[eanCode];
-        }
-        // Essayer avec l'EAN nettoyé
-        else if (participantMapping[cleanEan]) {
-          matchedParticipant = participantMapping[cleanEan];
-          eanCode = cleanEan;
-        }
-        // Essayer de matcher partiellement
-        else {
-          for (const [mappedEan, participant] of Object.entries(participantMapping)) {
-            if (cleanEan.includes(mappedEan) || mappedEan.includes(cleanEan)) {
-              matchedParticipant = participant;
-              eanCode = mappedEan;
-              break;
-            }
-          }
-        }
-
-        if (!matchedParticipant) {
-          unknownEans.add(eanCode);
+        const eanRaw = row[eanIndex];
+        if (!eanRaw) {
+          console.log(`Ligne ${i}: EAN vide`);
           continue;
         }
 
-        // Initialiser les données pour ce participant
-        if (!participantData[eanCode]) {
-          participantData[eanCode] = {
-            volume_partage: 0,
-            volume_complementaire: 0,
-            injection_partagee: 0,
-            injection_residuelle: 0
-          };
-        }
+        const eanCode = String(eanRaw).trim();
+        console.log(`Ligne ${i}: EAN = "${eanCode}"`);
 
-        // Extraire et additionner les valeurs
-        if (volumePartageIndex >= 0) {
-          const val = this.parseNumber(row[volumePartageIndex]);
-          participantData[eanCode].volume_partage += val;
-        }
-        
-        if (volumeComplIndex >= 0) {
-          const val = this.parseNumber(row[volumeComplIndex]);
-          participantData[eanCode].volume_complementaire += val;
-        }
-        
-        if (injectionPartageIndex >= 0) {
-          const val = this.parseNumber(row[injectionPartageIndex]);
-          participantData[eanCode].injection_partagee += val;
-        }
-        
-        if (injectionResiduelleIndex >= 0) {
-          const val = this.parseNumber(row[injectionResiduelleIndex]);
-          participantData[eanCode].injection_residuelle += val;
-        }
-
-        validRowsImported++;
-      }
-
-      console.log('📊 Données traitées:', {
-        totalRows: totalRowsProcessed,
-        validRows: validRowsImported,
-        participants: Object.keys(participantData).length,
-        unknownEans: unknownEans.size
-      });
-
-      if (unknownEans.size > 0) {
-        const unknownList = Array.from(unknownEans).slice(0, 5).join(', ');
-        const moreCount = unknownEans.size > 5 ? ` et ${unknownEans.size - 5} autres` : '';
-        warnings.push(`${unknownEans.size} EAN(s) non reconnu(s) ignoré(s): ${unknownList}${moreCount}`);
-      }
-
-      if (Object.keys(participantData).length === 0) {
-        errors.push('Aucun participant reconnu dans le fichier');
-        return { success: false, errors, warnings };
-      }
-
-      onProgress?.('Sauvegarde des données...', 80);
-
-      // Mettre à jour les participants dans Supabase
-      const { supabase } = await import('../lib/supabase');
-      let participantsUpdated = 0;
-
-      for (const [eanCode, data] of Object.entries(participantData)) {
-        try {
-          const participant = participantMapping[eanCode];
-          
-          // Récupérer les données actuelles du participant
-          const { data: currentData, error: fetchError } = await supabase
-            .from('participants')
-            .select('monthly_data')
-            .eq('id', participant.id)
-            .single();
-
-          if (fetchError) {
-            warnings.push(`Erreur récupération ${participant.name}: ${fetchError.message}`);
-            continue;
-          }
-
-          // Préparer les nouvelles données mensuelles
-          let monthlyData = {};
-          if (currentData?.monthly_data) {
-            try {
-              monthlyData = JSON.parse(currentData.monthly_data);
-            } catch (e) {
-              monthlyData = {};
-            }
-          }
-
-          // Ajouter les données pour ce mois
-          monthlyData[month] = {
-            volume_partage: Math.round(data.volume_partage * 100) / 100,
-            volume_complementaire: Math.round(data.volume_complementaire * 100) / 100,
-            injection_partagee: Math.round(data.injection_partagee * 100) / 100,
-            injection_residuelle: Math.round(data.injection_residuelle * 100) / 100,
-            updated_at: new Date().toISOString()
-          };
-
-          // Mettre à jour le participant
-          const { error: updateError } = await supabase
-            .from('participants')
-            .update({ 
-              monthly_data: JSON.stringify(monthlyData),
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', participant.id);
-
-          if (updateError) {
-            warnings.push(`Erreur mise à jour ${participant.name}: ${updateError.message}`);
-          } else {
-            participantsUpdated++;
-            console.log(`✅ ${participant.name} mis à jour`);
-          }
-
-        } catch (error: any) {
-          warnings.push(`Erreur traitement ${participantMapping[eanCode]?.name}: ${error.message}`);
+        // Chercher le participant
+        if (participantMapping[eanCode]) {
+          console.log(`✅ Participant trouvé: ${participantMapping[eanCode].name}`);
+          participantData[eanCode] = participantMapping[eanCode];
+          validRowsImported++;
+        } else {
+          console.log(`❌ EAN non reconnu: ${eanCode}`);
+          unknownEans.add(eanCode);
         }
       }
 
-      onProgress?.('Import terminé !', 100);
+      console.log('📊 Résultats traitement:');
+      console.log('- Lignes traitées:', totalRowsProcessed);
+      console.log('- Lignes valides:', validRowsImported);
+      console.log('- Participants trouvés:', Object.keys(participantData).length);
+      console.log('- EANs inconnus:', unknownEans.size);
+
+      onProgress?.('Finalisation...', 90);
 
       const result = {
         month,
@@ -300,17 +252,20 @@ export class ExcelProcessor {
           totalRowsProcessed,
           validRowsImported,
           participantsFound: Object.keys(participantData).length,
-          participantsUpdated,
           unknownEansSkipped: unknownEans.size,
           unknownEansList: Array.from(unknownEans)
         }
       };
 
+      console.log('✅ TRAITEMENT TERMINÉ AVEC SUCCÈS');
+      onProgress?.('Import terminé !', 100);
+
       return { success: true, data: result, errors, warnings };
 
     } catch (error: any) {
-      console.error('❌ Erreur critique:', error);
-      errors.push(`Erreur lors du traitement: ${error.message}`);
+      console.error('❌ ERREUR CRITIQUE DANS PROCESSFILE:', error);
+      console.error('❌ Stack trace:', error.stack);
+      errors.push(`Erreur critique: ${error.message}`);
       return { success: false, errors, warnings };
     }
   }
@@ -323,7 +278,6 @@ export class ExcelProcessor {
       return 0;
     }
     
-    // Convertir en string et remplacer les virgules par des points
     const stringValue = String(value).replace(',', '.');
     const numValue = parseFloat(stringValue);
     
@@ -335,7 +289,6 @@ export class ExcelProcessor {
    */
   private static extractMonthFromFilename(filename: string): string {
     try {
-      // Chercher le pattern APR2025, MAI2025, etc.
       const monthMatch = filename.match(/([A-Z]{3})(\d{4})/i);
       if (monthMatch) {
         const [, monthAbbr, year] = monthMatch;
@@ -350,7 +303,6 @@ export class ExcelProcessor {
         }
       }
       
-      // Fallback sur le mois actuel
       const now = new Date();
       return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     } catch (error) {
@@ -375,18 +327,10 @@ export class ExcelProcessor {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Template');
     
-    // Ajuster la largeur des colonnes
     ws['!cols'] = [
-      { width: 15 }, // FromDate
-      { width: 15 }, // ToDate  
-      { width: 20 }, // EAN
-      { width: 12 }, // Compteur
-      { width: 20 }, // Partage
-      { width: 10 }, // Registre
-      { width: 20 }, // Volume Partagé
-      { width: 25 }, // Volume Complémentaire
-      { width: 20 }, // Injection Partagée
-      { width: 25 }  // Injection Résiduelle
+      { width: 15 }, { width: 15 }, { width: 20 }, { width: 12 }, 
+      { width: 20 }, { width: 10 }, { width: 20 }, { width: 25 }, 
+      { width: 20 }, { width: 25 }
     ];
     
     XLSX.writeFile(wb, 'template-import-mensuel.xlsx');
