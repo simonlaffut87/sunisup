@@ -144,15 +144,18 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
   const processFile = async () => {  
     if (!file) return;
 
+    console.log('🚀 Début processFile avec fichier:', file.name, 'Taille:', file.size);
     setState(prev => ({ ...prev, status: 'reading', progress: 0 }));
 
     try {
       // Charger les participants
+      console.log('📋 Chargement des participants...');
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*');
 
       if (error) throw error;
+      console.log('✅ Participants chargés:', participants.length);
 
       // Créer le mapping des participants par code EAN
       const participantMapping = participants.reduce((acc, p) => {
@@ -165,12 +168,16 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         }
         return acc;
       }, {});
+      
+      console.log('🔗 Mapping créé:', Object.keys(participantMapping).length, 'participants avec EAN');
 
       // Utiliser l'ExcelProcessor pour traiter le fichier
+      console.log('⚙️ Début traitement Excel...');
       const result = await ExcelProcessor.processExcelFile(
         file,
         participantMapping,
         (progressText, percentage) => {
+          console.log('📈 Progrès:', percentage + '%', progressText);
           setState(prev => ({
             ...prev,
             status: 'processing',
@@ -180,7 +187,10 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         }
       );
 
+      console.log('🏁 Résultat traitement:', result.success ? 'SUCCÈS' : 'ÉCHEC');
+      
       if (result.success) {
+        console.log('✅ Import réussi, données:', result.data);
         setState(prev => ({
           ...prev,
           status: 'completed',
@@ -202,6 +212,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         // Notifier le parent du succès
         onSuccess(result.data);
       } else {
+        console.error('❌ Échec import:', result.errors);
         setState(prev => ({
           ...prev,
           status: 'error',
@@ -211,6 +222,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       }
     } catch (error: any) {
       console.error('Error processing file:', error);
+      console.error('Stack trace:', error.stack);
       setState(prev => ({
         ...prev,
         status: 'error',

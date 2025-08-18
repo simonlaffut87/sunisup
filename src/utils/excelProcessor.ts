@@ -19,16 +19,33 @@ export class ExcelProcessor {
 
     try {
       console.log('📁 Début traitement fichier:', file.name);
+      console.log('📊 Taille réelle du fichier:', file.size, 'bytes (', (file.size / 1024 / 1024).toFixed(2), 'MB)');
       onProgress?.('Lecture du fichier Excel...', 10);
 
-      // Lire le fichier comme ArrayBuffer
-      const buffer = await file.arrayBuffer();
-      console.log('📊 Taille buffer:', buffer.byteLength);
+      // Utiliser FileReader pour lire le fichier
+      const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result instanceof ArrayBuffer) {
+            console.log('📊 Buffer lu avec succès:', e.target.result.byteLength, 'bytes');
+            resolve(e.target.result);
+          } else {
+            reject(new Error('Erreur de lecture du fichier'));
+          }
+        };
+        reader.onerror = () => reject(new Error('Erreur FileReader'));
+        reader.readAsArrayBuffer(file);
+      });
 
       onProgress?.('Analyse du fichier...', 20);
 
       // Lire le workbook
-      const workbook = XLSX.read(buffer, { type: 'array' });
+      const workbook = XLSX.read(new Uint8Array(buffer), { 
+        type: 'array',
+        cellDates: true,
+        cellNF: false,
+        cellText: false
+      });
       console.log('📋 Feuilles trouvées:', workbook.SheetNames);
 
       if (!workbook.SheetNames.length) {
@@ -44,8 +61,15 @@ export class ExcelProcessor {
       onProgress?.('Extraction des données...', 30);
 
       // Convertir en JSON avec en-têtes
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+        header: 1,
+        raw: false,
+        dateNF: 'dd/mm/yyyy'
+      });
       console.log('📊 Lignes extraites:', jsonData.length);
+      
+      // Afficher les premières lignes pour debug
+      console.log('📋 Premières lignes:', jsonData.slice(0, 3));
 
       if (jsonData.length < 2) {
         errors.push('Le fichier doit contenir au moins une ligne d\'en-tête et une ligne de données');
