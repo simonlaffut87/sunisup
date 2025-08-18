@@ -55,7 +55,81 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
 
   useEffect(() => {
     loadFiles();
+    loadChartDataFromParticipants();
   }, []);
+
+  const loadChartDataFromParticipants = async () => {
+    try {
+      console.log('📊 Chargement des données monthly_data depuis les participants...');
+      
+      const { data: participants, error } = await supabase
+        .from('participants')
+        .select('*')
+        .not('monthly_data', 'is', null);
+
+      if (error) {
+        console.error('❌ Erreur chargement participants:', error);
+        return;
+      }
+
+      console.log('✅ Participants avec monthly_data:', participants?.length || 0);
+
+      // Créer un objet pour accumuler les données par mois
+      const monthlyTotals: { [month: string]: {
+        volume_partage: number;
+        volume_complementaire: number;
+        injection_partagee: number;
+        injection_complementaire: number;
+      } } = {};
+
+      participants?.forEach(participant => {
+        if (participant.monthly_data) {
+          try {
+            const monthlyData = JSON.parse(participant.monthly_data);
+            console.log(`📊 Données mensuelles pour ${participant.name}:`, monthlyData);
+            
+            // Parcourir chaque mois dans les données du participant
+            Object.entries(monthlyData).forEach(([month, data]: [string, any]) => {
+              if (!monthlyTotals[month]) {
+                monthlyTotals[month] = {
+                  volume_partage: 0,
+                  volume_complementaire: 0,
+                  injection_partagee: 0,
+                  injection_complementaire: 0
+                };
+              }
+              
+              // Ajouter les valeurs de ce participant aux totaux du mois
+              monthlyTotals[month].volume_partage += Number(data.volume_partage || 0);
+              monthlyTotals[month].volume_complementaire += Number(data.volume_complementaire || 0);
+              monthlyTotals[month].injection_partagee += Number(data.injection_partagee || 0);
+              monthlyTotals[month].injection_complementaire += Number(data.injection_complementaire || 0);
+            });
+          } catch (error) {
+            console.warn(`⚠️ Erreur parsing monthly_data pour ${participant.name}:`, error);
+          }
+        }
+      });
+
+      console.log('📊 Totaux mensuels calculés:', monthlyTotals);
+
+      // Convertir en format pour le graphique
+      const chartDataArray = Object.entries(monthlyTotals).map(([month, totals]) => ({
+        month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
+        monthKey: month,
+        'Volume Partagé': totals.volume_partage,
+        'Volume Complémentaire': totals.volume_complementaire,
+        'Injection Partagée': totals.injection_partagee,
+        'Injection Résiduelle': totals.injection_complementaire
+      })).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+
+      console.log('📈 Données finales pour le graphique:', chartDataArray);
+      setChartData(chartDataArray);
+
+    } catch (error) {
+      console.error('❌ Erreur chargement données graphique:', error);
+    }
+  };
 
   const loadFiles = () => {
     try {
@@ -79,50 +153,6 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           mesures_count: fileData.stats?.mesuresCount || fileData.mesures?.length || 0
         }));
         setFiles(fileRecords.sort((a, b) => b.month.localeCompare(a.month)));
-        
-        // Préparer les données pour le graphique
-        const chartDataArray = Object.entries(data).map(([month, fileData]: [string, any]) => {
-          console.log('📊 Préparation graphique pour', month);
-          console.log('📊 FileData:', fileData);
-          console.log('📊 Totals:', fileData.totals);
-          
-          // Calculer les totaux à partir des participants si les totals n'existent pas
-          let totals = fileData.totals;
-          if (!totals && fileData.participants) {
-            console.log('📊 Calcul des totaux à partir des participants...');
-            totals = {
-              total_volume_partage: 0,
-              total_volume_complementaire: 0,
-              total_injection_partagee: 0,
-              total_injection_complementaire: 0
-            };
-            
-            Object.values(fileData.participants).forEach((participant: any) => {
-              if (participant.data) {
-                totals.total_volume_partage += Number(participant.data.volume_partage || 0);
-                totals.total_volume_complementaire += Number(participant.data.volume_complementaire || 0);
-                totals.total_injection_partagee += Number(participant.data.injection_partagee || 0);
-                totals.total_injection_complementaire += Number(participant.data.injection_complementaire || 0);
-              }
-            });
-            console.log('📊 Totaux calculés:', totals);
-          }
-          
-          const chartPoint = {
-            month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
-            monthKey: month,
-            'Volume Partagé': Number(totals?.total_volume_partage || 0),
-            'Volume Complémentaire': Number(totals?.total_volume_complementaire || 0),
-            'Injection Partagée': Number(totals?.total_injection_partagee || 0),
-            'Injection Résiduelle': Number(totals?.total_injection_complementaire || 0)
-          };
-          
-          console.log('📊 Point graphique créé:', chartPoint);
-          return chartPoint;
-        }).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
-        
-        console.log('📈 Données pour le graphique:', chartDataArray);
-        setChartData(chartDataArray);
       } else {
         setFiles([]);
         setChartData([]);
@@ -140,6 +170,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
     try {
       console.log('✅ Import réussi pour le mois:', data.month);
       loadFiles(); // Recharger la liste des fichiers
+      loadChartDataFromParticipants(); // Recharger les données du graphique
       onImportSuccess();
       
       toast.success(`✅ Données importées avec succès pour ${format(new Date(data.month + '-01'), 'MMMM yyyy', { locale: fr })}`);
@@ -154,7 +185,9 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       try {
         localStorage.removeItem('monthly_data');
         setFiles([]);
+        setChartData([]);
         toast.success('🧹 Toutes les données mensuelles ont été supprimées');
+        loadChartDataFromParticipants(); // Recharger le graphique
         onImportSuccess();
       } catch (error) {
         console.error('Erreur suppression:', error);
@@ -175,6 +208,8 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         const monthlyData = JSON.parse(localStorage.getItem('monthly_data') || '{}');
         delete monthlyData[file.month];
         localStorage.setItem('monthly_data', JSON.stringify(monthlyData));
+        
+        loadChartDataFromParticipants(); // Recharger le graphique
 
         toast.success('Fichier supprimé avec succès');
         onImportSuccess();
