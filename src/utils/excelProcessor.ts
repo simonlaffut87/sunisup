@@ -25,7 +25,7 @@ export class ExcelProcessor {
 
       // Lire le fichier Excel
       const arrayBuffer = await file.arrayBuffer();
-      const { default: XLSX } = await import('xlsx');
+      const XLSX = await import('xlsx');
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       
       if (!workbook || workbook.SheetNames.length === 0) {
