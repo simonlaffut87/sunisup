@@ -20,11 +20,9 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
-  const [showImportModal, setShowImportModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [viewingMemberDashboard, setViewingMemberDashboard] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [importStats, setImportStats] = useState<any>(null);
 
   useEffect(() => {
     loadParticipants();
@@ -79,10 +77,6 @@ export function AdminDashboard() {
     loadParticipants();
   };
 
-  const handleImportSuccess = () => {
-    setShowImportModal(false);
-    handleRefreshData();
-  };
 
   const handleViewParticipantDashboard = async (participant: Participant) => {
     // Vérifier si le participant a un email
@@ -244,42 +238,6 @@ export function AdminDashboard() {
         {/* Section Import de données mensuelles */}
         <MonthlyFileManager onImportSuccess={handleRefreshData} />
 
-        {/* Section Import de données */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <FileSpreadsheet className="w-6 h-6 text-green-600 mr-3" />
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Import de données individuelles</h2>
-                  <p className="text-sm text-gray-600 mt-1">Import pour un participant spécifique</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowImportModal(true)}
-                className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm hover:shadow-md"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Import individuel
-              </button>
-            </div>
-          </div>
-          
-          <div className="px-6 py-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-start">
-                <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="font-medium text-blue-900 mb-2">Import individuel</h3>
-                  <div className="text-sm text-blue-800 space-y-1">
-                    <p>• Import de données pour un participant spécifique</p>
-                    <p>• Utilisez l'import mensuel ci-dessus pour traiter plusieurs participants à la fois</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Participants Table */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200">
