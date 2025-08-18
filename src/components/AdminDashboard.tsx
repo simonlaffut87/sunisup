@@ -411,13 +411,6 @@ export function AdminDashboard() {
           </div>
         </div>
       </main>
-
-      {/* Modal d'import Excel unifié */}
-      <StreamingExcelImport
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        onSuccess={handleImportSuccess}
-      />
     </div>
   );
 }
