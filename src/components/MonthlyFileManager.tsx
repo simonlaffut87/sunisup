@@ -183,20 +183,47 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
 
   const handleClearAllData = () => {
     if (confirm('⚠️ ATTENTION ⚠️\n\nÊtes-vous sûr de vouloir supprimer TOUTES les données mensuelles ?\n\nCette action est irréversible !')) {
-      try {
-        localStorage.removeItem('monthly_data');
-        setFiles([]);
-        setChartData([]);
-        toast.success('🧹 Toutes les données mensuelles ont été supprimées');
-        loadChartDataFromParticipants(); // Recharger le graphique
-        onImportSuccess();
-      } catch (error) {
-        console.error('Erreur suppression:', error);
-        toast.error('Erreur lors de la suppression');
-      }
+      clearAllMonthlyData();
     }
   };
 
+  const clearAllMonthlyData = async () => {
+    try {
+      console.log('🧹 Début nettoyage complet des données mensuelles...');
+      
+      // 1. Supprimer localStorage
+      localStorage.removeItem('monthly_data');
+      console.log('✅ localStorage nettoyé');
+      
+      // 2. Vider la colonne monthly_data de tous les participants
+      const { error } = await supabase
+        .from('participants')
+        .update({ monthly_data: null })
+        .not('monthly_data', 'is', null);
+      
+      if (error) {
+        console.error('❌ Erreur nettoyage base de données:', error);
+        throw error;
+      }
+      
+      console.log('✅ Colonne monthly_data vidée pour tous les participants');
+      
+      // 3. Réinitialiser l'état local
+      setFiles([]);
+      setChartData([]);
+      
+      // 4. Recharger les données
+      await loadFiles();
+      await loadChartDataFromParticipants();
+      
+      toast.success('🧹 Toutes les données mensuelles ont été supprimées (localStorage + base de données)');
+      onImportSuccess();
+      
+    } catch (error) {
+      console.error('❌ Erreur suppression complète:', error);
+      toast.error('Erreur lors de la suppression complète');
+    }
+  };
   const handleDeleteFile = async (fileId: string) => {
     const file = files.find(f => f.id === fileId);
     if (!file) return;
