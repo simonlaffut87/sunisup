@@ -15,6 +15,7 @@ import {
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
+import { supabase } from '../lib/supabase';
 import { StreamingExcelImport } from './StreamingExcelImport';
 import { ExcelProcessor } from '../utils/excelProcessor';
 import {
