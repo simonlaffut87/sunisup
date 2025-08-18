@@ -188,7 +188,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           validRows: result.data.stats.validRowsImported,
           errorRows: result.data.stats.errorRowsSkipped,
           totalRows: result.data.stats.totalRowsProcessed,
-          mesuresCount: result.data.stats.mesuresCount,
+          mesuresCount: result.data.stats.participantsUpdated,
           participants: result.data.participants,
           warnings: result.warnings,
           errors: result.errors,
@@ -454,23 +454,39 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 <h3 className="text-lg font-semibold text-green-800 mb-2">
                   Import terminé avec succès!
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                   <div className="text-center">
                     <div className="font-medium text-green-700">{state.validRows.toLocaleString()}</div>
                     <div className="text-green-600">Lignes traitées</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-medium text-green-700">{state.mesuresCount.toLocaleString()}</div>
-                    <div className="text-green-600">Mesures importées</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium text-red-700">{state.errorRows.toLocaleString()}</div>
-                    <div className="text-red-600">Erreurs</div>
-                  </div>
-                  <div className="text-center">
                     <div className="font-medium text-blue-700">{Object.keys(state.participants).length}</div>
-                    <div className="text-blue-600">Participants</div>
+                    <div className="text-blue-600">Participants trouvés</div>
                   </div>
+                  <div className="text-center">
+                    <div className="font-medium text-green-700">{state.mesuresCount || Object.keys(state.participants).length}</div>
+                    <div className="text-green-600">Participants mis à jour</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-orange-700">{state.errorRows.toLocaleString()}</div>
+                    <div className="text-orange-600">EANs ignorés</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-purple-700">{state.totalRows.toLocaleString()}</div>
+                    <div className="text-purple-600">Lignes totales</div>
+                  </div>
+                </div>
+                
+                {/* Message de résumé */}
+                <div className="mt-4 p-4 bg-white border border-green-200 rounded-lg">
+                  <p className="text-green-800 font-medium">
+                    ✅ {Object.keys(state.participants).length} participant(s) ont eu leurs données mises à jour avec succès
+                  </p>
+                  {state.errorRows > 0 && (
+                    <p className="text-orange-700 text-sm mt-2">
+                      ⚠️ {state.errorRows} EAN(s) non reconnu(s) ont été ignoré(s)
+                    </p>
+                  )}
                 </div>
               </div>
 

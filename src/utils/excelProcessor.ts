@@ -16,6 +16,8 @@ export class ExcelProcessor {
   }> {
     const errors: string[] = [];
     const warnings: string[] = [];
+    const unknownEans = new Set<string>();
+    const processedParticipants = new Set<string>();
 
     try {
       console.log('📁 Traitement du fichier:', file.name);
@@ -78,20 +80,20 @@ export class ExcelProcessor {
         injection_residuelle: number;
       } } = {};
 
-      const eansInFile = new Set<string>();
-      const eansInDatabase = Object.keys(participantMapping);
-      
-      console.log('🔍 EANs dans la base:', eansInDatabase);
+      let totalRowsProcessed = 0;
+      let validRowsImported = 0;
 
       // Traiter chaque ligne
       for (let i = 1; i < rawData.length; i++) {
         const row = rawData[i];
-        if (!row || row.length === 0) continue;
+        if (!row || row.length === 0 || !row.some(cell => cell)) continue;
+        
+        totalRowsProcessed++;
 
         let eanCode = String(row[eanIndex] || '').trim();
-        if (!eanCode) continue;
-
-        eansInFile.add(eanCode);
+        if (!eanCode) {
+          continue;
+        }
 
         // Essayer de matcher l'EAN avec les participants
         let matchedEan = null;
@@ -113,8 +115,11 @@ export class ExcelProcessor {
         }
 
         if (!matchedEan) {
+          unknownEans.add(eanCode);
           continue; // Ignorer les EANs non reconnus
         }
+
+        processedParticipants.add(matchedEan);
 
         // Initialiser les données pour ce participant
         if (!participantData[matchedEan]) {
@@ -137,25 +142,26 @@ export class ExcelProcessor {
         participantData[matchedEan].volume_complementaire += volumeCompl;
         participantData[matchedEan].injection_partagee += injectionPartage;
         participantData[matchedEan].injection_residuelle += injectionResiduelle;
+        
+        validRowsImported++;
       }
 
-      console.log('🔍 EANs trouvés dans le fichier:', Array.from(eansInFile));
-      console.log('✅ Participants matchés:', Object.keys(participantData));
+      // Notifications pour les EANs non reconnus
+      if (unknownEans.size > 0) {
+        const unknownList = Array.from(unknownEans).slice(0, 10).join(', ');
+        const moreCount = unknownEans.size > 10 ? ` et ${unknownEans.size - 10} autres` : '';
+        warnings.push(`${unknownEans.size} EAN(s) non reconnu(s) ignoré(s): ${unknownList}${moreCount}`);
+      }
 
       if (Object.keys(participantData).length === 0) {
-        const eansInFileArray = Array.from(eansInFile);
-        errors.push(
-          `Aucun EAN du fichier ne correspond aux participants.\n\n` +
-          `EANs dans le fichier (${eansInFileArray.length}): ${eansInFileArray.slice(0, 5).join(', ')}${eansInFileArray.length > 5 ? '...' : ''}\n` +
-          `EANs dans la base (${eansInDatabase.length}): ${eansInDatabase.slice(0, 5).join(', ')}${eansInDatabase.length > 5 ? '...' : ''}\n\n` +
-          `Vérifiez que les codes EAN des participants correspondent exactement.`
-        );
+        errors.push(`Aucun participant reconnu dans le fichier. ${unknownEans.size} EAN(s) non reconnu(s) ont été ignoré(s).`);
         return { success: false, errors, warnings };
       }
 
       onProgress?.('Mise à jour des participants...', 80);
 
       // Mettre à jour chaque participant avec ses données mensuelles
+      let participantsUpdated = 0;
       for (const [eanCode, data] of Object.entries(participantData)) {
         const participant = participantMapping[eanCode];
         
@@ -169,6 +175,7 @@ export class ExcelProcessor {
 
           if (fetchError) {
             console.error('Erreur récupération participant:', fetchError);
+            warnings.push(`Impossible de récupérer les données de ${participant.name}`);
             continue;
           }
 
@@ -203,6 +210,7 @@ export class ExcelProcessor {
             warnings.push(`Erreur mise à jour ${participant.name}: ${updateError.message}`);
           } else {
             console.log(`✅ Participant mis à jour: ${participant.name}`);
+            participantsUpdated++;
           }
 
         } catch (error) {
@@ -217,10 +225,12 @@ export class ExcelProcessor {
         month,
         participants: participantData,
         stats: {
-          totalRowsProcessed: rawData.length - 1,
-          validRowsImported: Object.keys(participantData).length,
-          participantsFound: Object.keys(participantData).length,
-          unknownEansSkipped: eansInFile.size - Object.keys(participantData).length
+          totalRowsProcessed,
+          validRowsImported,
+          participantsFound: participantsUpdated,
+          participantsUpdated,
+          unknownEansSkipped: unknownEans.size,
+          unknownEansList: Array.from(unknownEans)
         }
       };
 
