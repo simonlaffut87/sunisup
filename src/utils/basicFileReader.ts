@@ -172,6 +172,7 @@ export class BasicFileReader {
     }
     
     const month = this.extractMonth(filename);
+    console.log('📅 Mois extrait du fichier:', month, 'depuis:', filename);
     
     const result = {
       month,
@@ -199,9 +200,11 @@ export class BasicFileReader {
     // Sauvegarder dans localStorage
     try {
       const monthlyData = JSON.parse(localStorage.getItem('monthly_data') || '{}');
+      console.log('💾 Données existantes avant sauvegarde:', Object.keys(monthlyData));
       monthlyData[month] = result;
       localStorage.setItem('monthly_data', JSON.stringify(monthlyData));
-      console.log('💾 Sauvegardé dans localStorage');
+      console.log('💾 Sauvegardé dans localStorage pour le mois:', month);
+      console.log('💾 Données après sauvegarde:', Object.keys(monthlyData));
     } catch (error) {
       console.warn('⚠️ Erreur sauvegarde:', error);
     }
@@ -210,7 +213,80 @@ export class BasicFileReader {
   }
 
   private static extractMonth(filename: string): string {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    console.log('🔍 Extraction du mois depuis:', filename);
+    
+    try {
+      // Chercher des patterns de mois dans le nom du fichier
+      const patterns = [
+        // Format APR2025, MAY2025, etc.
+        /([A-Z]{3})(\d{4})/i,
+        // Format 04-2025, 05-2025, etc.
+        /(\d{1,2})-(\d{4})/,
+        // Format 2025-04, 2025-05, etc.
+        /(\d{4})-(\d{1,2})/,
+        // Format avril, mai, etc.
+        /(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/i
+      ];
+      
+      // Essayer le pattern APR2025
+      const monthMatch = filename.match(patterns[0]);
+      if (monthMatch) {
+        const [, monthAbbr, year] = monthMatch;
+        const monthMap: { [key: string]: string } = {
+          'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
+          'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
+          'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
+        };
+        const monthNum = monthMap[monthAbbr.toUpperCase()];
+        if (monthNum) {
+          const result = `${year}-${monthNum}`;
+          console.log('✅ Mois extrait:', result, 'depuis pattern APR2025');
+          return result;
+        }
+      }
+      
+      // Si aucun pattern trouvé, utiliser le mois actuel
+      const now = new Date();
+      const result = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      console.log('⚠️ Aucun pattern trouvé, utilisation du mois actuel:', result);
+      return result;
+      
+    } catch (error) {
+      console.error('❌ Erreur extraction mois:', error);
+      const now = new Date();
+      const result = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      console.log('🔄 Fallback vers mois actuel:', result);
+      return result;
+    }
+  }
+  
+  /**
+   * Nettoie les données mensuelles stockées
+   */
+  static clearMonthlyData() {
+    try {
+      localStorage.removeItem('monthly_data');
+      console.log('🧹 Données mensuelles nettoyées');
+      return true;
+    } catch (error) {
+      console.error('❌ Erreur nettoyage:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Supprime un mois spécifique
+   */
+  static removeMonth(month: string) {
+    try {
+      const monthlyData = JSON.parse(localStorage.getItem('monthly_data') || '{}');
+      delete monthlyData[month];
+      localStorage.setItem('monthly_data', JSON.stringify(monthlyData));
+      console.log('🗑️ Mois supprimé:', month);
+      return true;
+    } catch (error) {
+      console.error('❌ Erreur suppression mois:', error);
+      return false;
+    }
   }
 }

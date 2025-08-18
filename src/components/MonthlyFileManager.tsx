@@ -39,6 +39,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [viewingData, setViewingData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
     loadFiles();
@@ -85,6 +86,20 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
     } catch (error) {
       console.error('❌ Erreur lors de la gestion de l\'import:', error);
       toast.error('Erreur lors de l\'importation des données');
+    }
+  };
+
+  const handleClearAllData = () => {
+    if (confirm('⚠️ ATTENTION ⚠️\n\nÊtes-vous sûr de vouloir supprimer TOUTES les données mensuelles ?\n\nCette action est irréversible !')) {
+      try {
+        localStorage.removeItem('monthly_data');
+        setFiles([]);
+        toast.success('🧹 Toutes les données mensuelles ont été supprimées');
+        onImportSuccess();
+      } catch (error) {
+        console.error('Erreur suppression:', error);
+        toast.error('Erreur lors de la suppression');
+      }
     }
   };
 
@@ -180,6 +195,13 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           >
             <Download className="w-4 h-4 mr-2" />
             Template
+          </button>
+          <button
+            onClick={handleClearAllData}
+            className="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm hover:shadow-md"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Nettoyer tout
           </button>
           <button
             onClick={() => setShowUploadModal(true)}
