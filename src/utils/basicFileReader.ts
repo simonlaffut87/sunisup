@@ -116,46 +116,55 @@ export class BasicFileReader {
   static async processExtractedData(
     extractedData: { headers: string[]; rows: any[][]; totalRows: number },
     participantMapping: any,
-    filename: string
+    filename: string,
+    onLog?: (log: string) => void
   ): Promise<any> {
     console.log('🔄 TRAITEMENT DES DONNÉES EXTRAITES');
     
     const { headers, rows } = extractedData;
     console.log('📋 Headers:', headers);
+    onLog?.(`📋 Headers détectés: ${JSON.stringify(headers)}`);
     
     // Trouver la colonne EAN
     const eanIndex = headers.findIndex(h => 
       String(h).toLowerCase().includes('ean')
     );
+    onLog?.(`🔍 Index colonne EAN: ${eanIndex} (${eanIndex >= 0 ? headers[eanIndex] : 'NON TROUVÉE'})`);
     
     // Recherche plus flexible des colonnes
     const registreIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
       return header.includes('registre') || header.includes('register');
     });
+    onLog?.(`🔍 Index colonne Registre: ${registreIndex} (${registreIndex >= 0 ? headers[registreIndex] : 'NON TROUVÉE'})`);
     
     const volumePartageIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
       return header.includes('partagé') && header.includes('volume');
     });
+    onLog?.(`🔍 Index Volume Partagé: ${volumePartageIndex} (${volumePartageIndex >= 0 ? headers[volumePartageIndex] : 'NON TROUVÉE'})`);
     
     const volumeComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
       return header.includes('complémentaire') && header.includes('volume');
     });
+    onLog?.(`🔍 Index Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉE'})`);
     
     const injectionPartageIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
       return header.includes('partagé') && header.includes('injection');
     });
+    onLog?.(`🔍 Index Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉE'})`);
     
     const injectionComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
       return (header.includes('complémentaire') || header.includes('résiduelle')) && header.includes('injection');
     });
+    onLog?.(`🔍 Index Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);
     
     if (eanIndex === -1) {
       console.error('❌ Colonne EAN non trouvée dans:', headers);
+      onLog?.('❌ ERREUR: Colonne EAN non trouvée !');
       throw new Error('Colonne EAN non trouvée');
     }
     
@@ -246,28 +255,34 @@ export class BasicFileReader {
         // Debug: afficher les valeurs extraites pour les premières lignes
         if (i < 10) {
           console.log(`🔍 LIGNE ${i} - EAN ${eanCode} (${registre}):`);
+          onLog?.(`🔍 LIGNE ${i} - EAN ${eanCode} (${registre}):`);
           console.log('  📊 Ligne complète:', row);
+          onLog?.(`  📊 Ligne complète: ${JSON.stringify(row)}`);
           console.log('  📍 Index des colonnes:', {
             volumePartageIndex,
             volumeComplementaireIndex,
             injectionPartageIndex,
             injectionComplementaireIndex
           });
+          onLog?.(`  📍 Index: VP=${volumePartageIndex}, VC=${volumeComplementaireIndex}, IP=${injectionPartageIndex}, IC=${injectionComplementaireIndex}`);
           console.log('  📋 Valeurs brutes extraites:', {
             volumePartage: row[volumePartageIndex],
             volumeComplementaire: row[volumeComplementaireIndex],
             injectionPartage: row[injectionPartageIndex],
             injectionComplementaire: row[injectionComplementaireIndex]
           });
+          onLog?.(`  📋 Valeurs brutes: VP="${row[volumePartageIndex]}", VC="${row[volumeComplementaireIndex]}", IP="${row[injectionPartageIndex]}", IC="${row[injectionComplementaireIndex]}"`);
           console.log('  🔢 Valeurs après parsing:', {
             volumePartage,
             volumeComplementaire,
             injectionPartage,
             injectionComplementaire
           });
+          onLog?.(`  🔢 Après parsing: VP=${volumePartage}, VC=${volumeComplementaire}, IP=${injectionPartage}, IC=${injectionComplementaire}`);
           console.log('  ✅ Toutes les valeurs sont-elles 0?', 
             volumePartage === 0 && volumeComplementaire === 0 && injectionPartage === 0 && injectionComplementaire === 0
           );
+          onLog?.(`  ✅ Toutes à 0? ${volumePartage === 0 && volumeComplementaire === 0 && injectionPartage === 0 && injectionComplementaire === 0}`);
         }
         
         // Assigner aux bonnes catégories HIGH ou LOW

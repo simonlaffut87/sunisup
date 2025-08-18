@@ -49,6 +49,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
   });
   const [importReport, setImportReport] = useState<any>(null);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
 
   const processingRef = useRef<{
     shouldStop: boolean;
@@ -201,7 +202,10 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       const processedData = await BasicFileReader.processExtractedData(
         readResult.data!,
         participantMapping,
-        file.name
+        file.name,
+        (log: string) => {
+          setDebugLogs(prev => [...prev, log]);
+        }
       );
       
       console.log('✅ Données traitées:', processedData);
@@ -578,6 +582,21 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 >
                   Réessayer
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* Debug Logs */}
+          {debugLogs.length > 0 && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-6">
+              <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                <Info className="w-4 h-4 mr-2" />
+                Logs de debug
+              </h4>
+              <div className="bg-white border border-gray-200 rounded p-3 max-h-60 overflow-y-auto">
+                <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
+                  {debugLogs.join('\n')}
+                </pre>
               </div>
             </div>
           )}
