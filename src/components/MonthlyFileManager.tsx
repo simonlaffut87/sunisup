@@ -17,6 +17,7 @@ import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
 import { StreamingExcelImport } from './StreamingExcelImport';
+import { ManualDataImport } from './ManualDataImport';
 import { ExcelProcessor } from '../utils/excelProcessor';
 import {
   BarChart,
@@ -49,6 +50,7 @@ interface MonthlyFileRecord {
 export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps) {
   const [files, setFiles] = useState<MonthlyFileRecord[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showManualImport, setShowManualImport] = useState(false);
   const [viewingData, setViewingData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -331,7 +333,14 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
             className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors shadow-sm hover:shadow-md"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Import Quart-Horaire
+            Import Excel
+          </button>
+          <button
+            onClick={() => setShowManualImport(true)}
+            className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm hover:shadow-md"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Import Manuel
           </button>
         </div>
       </div>
@@ -611,6 +620,13 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       <StreamingExcelImport
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
+        onSuccess={handleUploadSuccess}
+      />
+
+      {/* Modal d'import manuel */}
+      <ManualDataImport
+        isOpen={showManualImport}
+        onClose={() => setShowManualImport(false)}
         onSuccess={handleUploadSuccess}
       />
 
