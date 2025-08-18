@@ -244,19 +244,30 @@ export class BasicFileReader {
         const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || 0).replace(',', '.')) || 0;
         
         // Debug: afficher les valeurs extraites pour les premières lignes
-        if (i < 5) {
-          console.log(`🔍 Ligne ${i} - EAN ${eanCode} (${registre}):`, {
+        if (i < 10) {
+          console.log(`🔍 LIGNE ${i} - EAN ${eanCode} (${registre}):`);
+          console.log('  📊 Ligne complète:', row);
+          console.log('  📍 Index des colonnes:', {
+            volumePartageIndex,
+            volumeComplementaireIndex,
+            injectionPartageIndex,
+            injectionComplementaireIndex
+          });
+          console.log('  📋 Valeurs brutes extraites:', {
+            volumePartage: row[volumePartageIndex],
+            volumeComplementaire: row[volumeComplementaireIndex],
+            injectionPartage: row[injectionPartageIndex],
+            injectionComplementaire: row[injectionComplementaireIndex]
+          });
+          console.log('  🔢 Valeurs après parsing:', {
             volumePartage,
             volumeComplementaire,
             injectionPartage,
-            injectionComplementaire,
-            rawValues: {
-              volumePartage: row[volumePartageIndex],
-              volumeComplementaire: row[volumeComplementaireIndex],
-              injectionPartage: row[injectionPartageIndex],
-              injectionComplementaire: row[injectionComplementaireIndex]
-            }
+            injectionComplementaire
           });
+          console.log('  ✅ Toutes les valeurs sont-elles 0?', 
+            volumePartage === 0 && volumeComplementaire === 0 && injectionPartage === 0 && injectionComplementaire === 0
+          );
         }
         
         // Assigner aux bonnes catégories HIGH ou LOW
