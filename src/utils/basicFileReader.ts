@@ -128,32 +128,39 @@ export class BasicFileReader {
       String(h).toLowerCase().includes('ean')
     );
     
-    const registreIndex = headers.findIndex(h => 
-      String(h).toLowerCase().includes('registre') || String(h).toLowerCase().includes('register')
-    );
+    // Recherche plus flexible des colonnes
+    const registreIndex = headers.findIndex(h => {
+      const header = String(h).toLowerCase();
+      return header.includes('registre') || header.includes('register');
+    });
     
-    const volumePartageIndex = headers.findIndex(h => 
-      String(h).toLowerCase().includes('volume') && String(h).toLowerCase().includes('partagé')
-    );
+    const volumePartageIndex = headers.findIndex(h => {
+      const header = String(h).toLowerCase();
+      return header.includes('partagé') && header.includes('volume');
+    });
     
-    const volumeComplementaireIndex = headers.findIndex(h => 
-      String(h).toLowerCase().includes('volume') && String(h).toLowerCase().includes('complémentaire')
-    );
+    const volumeComplementaireIndex = headers.findIndex(h => {
+      const header = String(h).toLowerCase();
+      return header.includes('complémentaire') && header.includes('volume');
+    });
     
-    const injectionPartageIndex = headers.findIndex(h => 
-      String(h).toLowerCase().includes('injection') && String(h).toLowerCase().includes('partagé')
-    );
+    const injectionPartageIndex = headers.findIndex(h => {
+      const header = String(h).toLowerCase();
+      return header.includes('partagé') && header.includes('injection');
+    });
     
-    const injectionComplementaireIndex = headers.findIndex(h => 
-      String(h).toLowerCase().includes('injection') && (String(h).toLowerCase().includes('complémentaire') || String(h).toLowerCase().includes('résiduelle'))
-    );
+    const injectionComplementaireIndex = headers.findIndex(h => {
+      const header = String(h).toLowerCase();
+      return (header.includes('complémentaire') || header.includes('résiduelle')) && header.includes('injection');
+    });
     
     if (eanIndex === -1) {
       console.error('❌ Colonne EAN non trouvée dans:', headers);
       throw new Error('Colonne EAN non trouvée');
     }
     
-    console.log('✅ Colonnes trouvées:', {
+    console.log('🔍 Headers disponibles:', headers);
+    console.log('✅ Index des colonnes trouvées:', {
       ean: eanIndex,
       registre: registreIndex,
       volumePartage: volumePartageIndex,
@@ -161,6 +168,20 @@ export class BasicFileReader {
       injectionPartage: injectionPartageIndex,
       injectionComplementaire: injectionComplementaireIndex
     });
+    
+    // Vérifier que les colonnes essentielles sont trouvées
+    if (volumePartageIndex === -1) {
+      console.warn('⚠️ Colonne Volume Partagé non trouvée');
+    }
+    if (volumeComplementaireIndex === -1) {
+      console.warn('⚠️ Colonne Volume Complémentaire non trouvée');
+    }
+    if (injectionPartageIndex === -1) {
+      console.warn('⚠️ Colonne Injection Partagée non trouvée');
+    }
+    if (injectionComplementaireIndex === -1) {
+      console.warn('⚠️ Colonne Injection Complémentaire non trouvée');
+    }
     
     // Structure pour grouper les données par EAN (HIGH + LOW)
     const eanGroups: { [ean: string]: {
@@ -221,6 +242,22 @@ export class BasicFileReader {
         const volumeComplementaire = parseFloat(String(row[volumeComplementaireIndex] || 0).replace(',', '.')) || 0;
         const injectionPartage = parseFloat(String(row[injectionPartageIndex] || 0).replace(',', '.')) || 0;
         const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || 0).replace(',', '.')) || 0;
+        
+        // Debug: afficher les valeurs extraites pour les premières lignes
+        if (i < 5) {
+          console.log(`🔍 Ligne ${i} - EAN ${eanCode} (${registre}):`, {
+            volumePartage,
+            volumeComplementaire,
+            injectionPartage,
+            injectionComplementaire,
+            rawValues: {
+              volumePartage: row[volumePartageIndex],
+              volumeComplementaire: row[volumeComplementaireIndex],
+              injectionPartage: row[injectionPartageIndex],
+              injectionComplementaire: row[injectionComplementaireIndex]
+            }
+          });
+        }
         
         // Assigner aux bonnes catégories HIGH ou LOW
         const target = registre === 'HI' || registre === 'HIGH' ? eanGroups[eanCode].high : eanGroups[eanCode].low;
