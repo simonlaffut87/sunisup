@@ -376,11 +376,21 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'white', 
-                    borderRadius: '8px', 
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                    border: '1px solid #e5e7eb'
+                    borderRadius: '12px', 
+                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+                    border: '1px solid #e5e7eb',
+                    padding: '12px'
                   }}
-                  formatter={(value: number) => [`${value.toFixed(2)} kWh`, '']}
+                  labelStyle={{ 
+                    fontWeight: 'bold', 
+                    color: '#374151',
+                    marginBottom: '8px'
+                  }}
+                  formatter={(value: number, name: string) => [
+                    `${value.toFixed(2)} kWh`,
+                    name
+                  ]}
+                  separator=" : "
                 />
                 <Legend />
                 <Bar 
