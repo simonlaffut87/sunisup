@@ -212,11 +212,19 @@ export class BasicFileReader {
     const unknownEans = new Set<string>();
     let processedRows = 0;
     
-    // Étape 1: Grouper toutes les lignes par EAN et registre (HIGH/LOW)
-    const maxRows = rows.length;
-    console.log('📊 Groupement de', maxRows, 'lignes par EAN...');
+    // LIMITATION: Traiter maximum 1000 lignes pour éviter les crashes
+    const maxRows = Math.min(rows.length, 1000);
+    console.log('📊 Groupement de', maxRows, 'lignes par EAN (limité à 1000)...');
+    onLog?.(`📊 Traitement limité à ${maxRows} lignes sur ${rows.length} disponibles`);
     
-    for (let i = 0; i < maxRows; i++) {
+    // Traiter par cycles de 10 lignes pour éviter les blocages
+    for (let cycle = 0; cycle < Math.ceil(maxRows / 10); cycle++) {
+      const startIndex = cycle * 10;
+      const endIndex = Math.min(startIndex + 10, maxRows);
+      
+      onLog?.(`🔄 Cycle ${cycle + 1}: lignes ${startIndex} à ${endIndex - 1}`);
+      
+      for (let i = startIndex; i < endIndex; i++) {
       const row = rows[i];
       if (!row || row.length === 0) continue;
       
@@ -300,6 +308,12 @@ export class BasicFileReader {
         }
       } else {
         unknownEans.add(eanCode);
+      }
+      }
+      
+      // Petite pause entre les cycles pour éviter les blocages
+      if (cycle < Math.ceil(maxRows / 10) - 1) {
+        await new Promise(resolve => setTimeout(resolve, 10));
       }
     }
     
