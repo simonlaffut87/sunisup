@@ -128,19 +128,53 @@ export class BasicFileReader {
       String(h).toLowerCase().includes('ean')
     );
     
+    const registreIndex = headers.findIndex(h => 
+      String(h).toLowerCase().includes('registre') || String(h).toLowerCase().includes('register')
+    );
+    
+    const volumePartageIndex = headers.findIndex(h => 
+      String(h).toLowerCase().includes('volume') && String(h).toLowerCase().includes('partagé')
+    );
+    
+    const volumeComplementaireIndex = headers.findIndex(h => 
+      String(h).toLowerCase().includes('volume') && String(h).toLowerCase().includes('complémentaire')
+    );
+    
+    const injectionPartageIndex = headers.findIndex(h => 
+      String(h).toLowerCase().includes('injection') && String(h).toLowerCase().includes('partagé')
+    );
+    
+    const injectionComplementaireIndex = headers.findIndex(h => 
+      String(h).toLowerCase().includes('injection') && (String(h).toLowerCase().includes('complémentaire') || String(h).toLowerCase().includes('résiduelle'))
+    );
     if (eanIndex === -1) {
       console.error('❌ Colonne EAN non trouvée dans:', headers);
       throw new Error('Colonne EAN non trouvée');
     }
     
-    console.log('✅ Colonne EAN trouvée à l\'index:', eanIndex);
+    console.log('✅ Colonnes trouvées:', {
+      ean: eanIndex,
+      registre: registreIndex,
+      volumePartage: volumePartageIndex,
+      volumeComplementaire: volumeComplementaireIndex,
+      injectionPartage: injectionPartageIndex,
+      injectionComplementaire: injectionComplementaireIndex
+    });
     
-    const participantData: { [ean: string]: any } = {};
+    // Structure pour accumuler les données par EAN
+    const participantAccumulator: { [ean: string]: {
+      info: any;
+      volume_partage: number;
+      volume_complementaire: number;
+      injection_partagee: number;
+      injection_complementaire: number;
+    } } = {};
+    
     const unknownEans = new Set<string>();
     let validRows = 0;
     
-    // Traiter seulement les 50 premières lignes pour éviter les crashes
-    const maxRows = Math.min(rows.length, 50);
+    // Traiter toutes les lignes pour avoir les vraies données
+    const maxRows = rows.length;
     console.log('📊 Traitement de', maxRows, 'lignes');
     
     for (let i = 0; i < maxRows; i++) {
@@ -151,25 +185,56 @@ export class BasicFileReader {
       if (!eanRaw) continue;
       
       const eanCode = String(eanRaw).trim();
-      console.log('🔍 EAN trouvé:', eanCode);
       
       if (participantMapping[eanCode]) {
-        participantData[eanCode] = {
-          ...participantMapping[eanCode],
-          data: {
-            volume_complementaire: Math.random() * 100,
-            volume_partage: Math.random() * 50,
-            injection_complementaire: Math.random() * 30,
-            injection_partagee: Math.random() * 20
-          }
-        };
+        // Initialiser l'accumulateur pour ce participant si nécessaire
+        if (!participantAccumulator[eanCode]) {
+          participantAccumulator[eanCode] = {
+            info: participantMapping[eanCode],
+            volume_partage: 0,
+            volume_complementaire: 0,
+            injection_partagee: 0,
+            injection_complementaire: 0
+          };
+        }
+        
+        // Extraire les valeurs de la ligne
+        const volumePartage = parseFloat(String(row[volumePartageIndex] || 0).replace(',', '.')) || 0;
+        const volumeComplementaire = parseFloat(String(row[volumeComplementaireIndex] || 0).replace(',', '.')) || 0;
+        const injectionPartage = parseFloat(String(row[injectionPartageIndex] || 0).replace(',', '.')) || 0;
+        const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || 0).replace(',', '.')) || 0;
+        
+        // Accumuler les valeurs (somme HIGH + LOW pour chaque EAN)
+        participantAccumulator[eanCode].volume_partage += volumePartage;
+        participantAccumulator[eanCode].volume_complementaire += volumeComplementaire;
+        participantAccumulator[eanCode].injection_partagee += injectionPartage;
+        participantAccumulator[eanCode].injection_complementaire += injectionComplementaire;
+        
         validRows++;
-        console.log('✅ Participant trouvé:', participantMapping[eanCode].name);
+        
+        if (i % 100 === 0) {
+          console.log(`📊 Ligne ${i}: EAN ${eanCode}, VP: ${volumePartage}, VC: ${volumeComplementaire}`);
+        }
       } else {
         unknownEans.add(eanCode);
-        console.log('⚠️ EAN non reconnu:', eanCode);
       }
     }
+    
+    // Convertir l'accumulateur en format final
+    const participantData: { [ean: string]: any } = {};
+    Object.entries(participantAccumulator).forEach(([eanCode, accumulated]) => {
+      participantData[eanCode] = {
+        ...accumulated.info,
+        data: {
+          volume_complementaire: accumulated.volume_complementaire,
+          volume_partage: accumulated.volume_partage,
+          injection_complementaire: accumulated.injection_complementaire,
+          injection_partagee: accumulated.injection_partagee
+        }
+      };
+    });
+    
+    console.log('✅ Données accumulées par EAN:', Object.keys(participantData).length, 'participants');
     
     const month = this.extractMonth(filename);
     console.log('📅 Mois extrait du fichier:', month, 'depuis:', filename);
