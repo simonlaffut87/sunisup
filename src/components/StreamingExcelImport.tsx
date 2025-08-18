@@ -139,7 +139,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
   const processFile = async () => {  
     if (!file) return;
 
-    console.log('🚀 DÉBUT IMPORT BASIQUE');
+    console.log('🚀 DÉBUT LECTURE MINIMALE');
     setState(prev => ({ 
       ...prev, 
       status: 'reading', 
@@ -151,123 +151,63 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       errorRows: 0,
       totalRows: 0
     }));
+    setDebugLogs(['🚀 DÉBUT LECTURE MINIMALE']);
 
     try {
-      // Étape 1: Charger les participants
-      console.log('📋 Chargement des participants...');
-      setState(prev => ({ ...prev, progress: 10 }));
+      // LECTURE ULTRA-SIMPLE - JUSTE LIRE LE FICHIER
+      setDebugLogs(prev => [...prev, '📖 Lecture du fichier...']);
+      setState(prev => ({ ...prev, progress: 20 }));
       
-      const { data: participants, error } = await supabase
-        .from('participants')
-        .select('*');
-
-      if (error) {
-        console.error('❌ Erreur participants:', error);
-        throw error;
-      }
-      
-      console.log('✅ Participants chargés:', participants?.length || 0);
-
-      // Créer le mapping
-      const participantMapping = participants.reduce((acc, p) => {
-        if (p.ean_code) {
-          acc[p.ean_code] = {
-            name: p.name,
-            type: p.type,
-            id: p.id
-          };
-        }
-        return acc;
-      }, {});
-      
-      console.log('🗺️ Mapping créé:', Object.keys(participantMapping).length, 'participants');
-
-      // Étape 2: Lire le fichier
-      console.log('📖 Lecture du fichier...');
-      setState(prev => ({ ...prev, progress: 30, status: 'processing' }));
-      
-      // Import du nouveau lecteur sécurisé
-      const { SafeFileReader } = await import('../utils/safeFileReader');
-      
-      const readResult = await SafeFileReader.readFileSafely(file, (log: string) => {
-        setDebugLogs(prev => [...prev, log]);
+      // Lire comme ArrayBuffer
+      const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result instanceof ArrayBuffer) {
+            resolve(e.target.result);
+          } else {
+            reject(new Error('Erreur lecture'));
+          }
+        };
+        reader.onerror = () => reject(new Error('Erreur FileReader'));
+        reader.readAsArrayBuffer(file);
       });
       
-      if (!readResult.success) {
-        console.error('❌ Erreur lecture:', readResult.error);
-        throw new Error(readResult.error || 'Erreur de lecture');
+      setDebugLogs(prev => [...prev, `✅ Buffer lu: ${buffer.byteLength} bytes`]);
+      setState(prev => ({ ...prev, progress: 50 }));
+      
+      // Import XLSX
+      const XLSX = await import('xlsx');
+      setDebugLogs(prev => [...prev, '✅ XLSX importé']);
+      
+      // Lecture workbook
+      const workbook = XLSX.read(buffer, { type: 'buffer' });
+      setDebugLogs(prev => [...prev, `✅ Workbook: ${workbook.SheetNames.length} feuille(s)`]);
+      
+      // Première feuille
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      
+      setDebugLogs(prev => [...prev, `✅ ${jsonData.length} lignes extraites`]);
+      setDebugLogs(prev => [...prev, `📋 HEADERS: ${JSON.stringify(jsonData[0])}`]);
+      
+      // Montrer les 3 premières lignes
+      for (let i = 1; i <= Math.min(3, jsonData.length - 1); i++) {
+        setDebugLogs(prev => [...prev, `📋 LIGNE ${i}: ${JSON.stringify(jsonData[i])}`]);
       }
       
-      console.log('✅ Fichier lu avec succès');
-      
-      // Étape 3: Créer un résultat minimal pour éviter les crashes
-      console.log('⚙️ Création résultat minimal...');
-      setState(prev => ({ ...prev, progress: 70 }));
-      
-      const processedData = {
-        month: '2025-04', // Mois par défaut
-        participants: {},
-        stats: {
-          totalRowsProcessed: readResult.data.totalRows,
-          validRowsImported: 0,
-          participantsFound: 0,
-          unknownEansSkipped: 0,
-          participantsUpdated: 0
-        },
-        totals: {
-          total_volume_complementaire: 0,
-          total_volume_partage: 0,
-          total_injection_complementaire: 0,
-          total_injection_partagee: 0
-        },
-        upload_date: new Date().toISOString(),
-        filename: file.name
-      };
-      
-      console.log('✅ Résultat minimal créé');
-
-      // Étape 4: Finaliser
-      console.log('🎯 Finalisation...');
       setState(prev => ({
         ...prev,
         status: 'completed',
         progress: 100,
-        validRows: processedData.stats.validRowsImported,
-        errorRows: processedData.stats.unknownEansSkipped,
-        totalRows: processedData.stats.totalRowsProcessed,
-        mesuresCount: processedData.stats.participantsUpdated,
-        participants: processedData.participants,
-        month: processedData.month
+        totalRows: jsonData.length - 1,
+        validRows: jsonData.length - 1
       }));
       
-      console.log('🎉 Lecture terminée - REGARDEZ LES LOGS CI-DESSOUS !');
-      
-      // Créer le rapport d'import
-      const report = {
-        filename: file.name,
-        month: processedData.month,
-        stats: processedData.stats,
-        participants: processedData.participants,
-        errors: [],
-        warnings: []
-      };
-      
-      setImportReport(processedData);
-      
-      // Attendre un peu pour que l'utilisateur voie le succès
-      setTimeout(() => {
-        setShowReportModal(true);
-      }, 1000);
-      
-      // Notifier le parent du succès
-      onSuccess(processedData);
-      
-      // Afficher un toast informatif
-      toast.success(`✅ Fichier lu ! Regardez les logs pour voir les headers et valeurs`);
+      setDebugLogs(prev => [...prev, '🎉 LECTURE TERMINÉE - REGARDEZ LES HEADERS ET LIGNES CI-DESSUS']);
+      toast.success('✅ Fichier lu ! Regardez les logs de debug ci-dessous');
       
     } catch (error: any) {
-      console.error('Error processing file:', error);
-      console.error('Stack trace:', error.stack);
+      setDebugLogs(prev => [...prev, `❌ ERREUR: ${error.message}`]);
       
       setState(prev => ({
         ...prev,
@@ -275,7 +215,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         errors: [error.message || 'Erreur inconnue']
       }));
       
-      toast.error(`❌ Erreur d'import: ${error.message}`);
+      toast.error(`❌ Erreur: ${error.message}`);
     }
   };
 
