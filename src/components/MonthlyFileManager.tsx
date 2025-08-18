@@ -61,9 +61,11 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
     try {
       setLoading(true);
       const monthlyData = localStorage.getItem('monthly_data');
+      console.log('🔍 Données localStorage brutes:', monthlyData);
       
       if (monthlyData) {
         const data = JSON.parse(monthlyData);
+        console.log('📊 Données parsées:', data);
         const fileRecords = Object.entries(data).map(([month, fileData]: [string, any]) => ({
           id: month,
           month,
@@ -79,20 +81,45 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         setFiles(fileRecords.sort((a, b) => b.month.localeCompare(a.month)));
         
         // Préparer les données pour le graphique
-        const chartDataArray = Object.entries(data)
-          .filter(([month, fileData]: [string, any]) => fileData && fileData.totals)
-          .map(([month, fileData]: [string, any]) => {
-            console.log('📊 Données graphique pour', month, ':', fileData.totals);
-            return {
-              month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
-              monthKey: month,
-              'Volume Partagé': Number(fileData.totals?.total_volume_partage || 0),
-              'Volume Complémentaire': Number(fileData.totals?.total_volume_complementaire || 0),
-              'Injection Partagée': Number(fileData.totals?.total_injection_partagee || 0),
-              'Injection Résiduelle': Number(fileData.totals?.total_injection_complementaire || 0)
+        const chartDataArray = Object.entries(data).map(([month, fileData]: [string, any]) => {
+          console.log('📊 Préparation graphique pour', month);
+          console.log('📊 FileData:', fileData);
+          console.log('📊 Totals:', fileData.totals);
+          
+          // Calculer les totaux à partir des participants si les totals n'existent pas
+          let totals = fileData.totals;
+          if (!totals && fileData.participants) {
+            console.log('📊 Calcul des totaux à partir des participants...');
+            totals = {
+              total_volume_partage: 0,
+              total_volume_complementaire: 0,
+              total_injection_partagee: 0,
+              total_injection_complementaire: 0
             };
-          })
-          .sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+            
+            Object.values(fileData.participants).forEach((participant: any) => {
+              if (participant.data) {
+                totals.total_volume_partage += Number(participant.data.volume_partage || 0);
+                totals.total_volume_complementaire += Number(participant.data.volume_complementaire || 0);
+                totals.total_injection_partagee += Number(participant.data.injection_partagee || 0);
+                totals.total_injection_complementaire += Number(participant.data.injection_complementaire || 0);
+              }
+            });
+            console.log('📊 Totaux calculés:', totals);
+          }
+          
+          const chartPoint = {
+            month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
+            monthKey: month,
+            'Volume Partagé': Number(totals?.total_volume_partage || 0),
+            'Volume Complémentaire': Number(totals?.total_volume_complementaire || 0),
+            'Injection Partagée': Number(totals?.total_injection_partagee || 0),
+            'Injection Résiduelle': Number(totals?.total_injection_complementaire || 0)
+          };
+          
+          console.log('📊 Point graphique créé:', chartPoint);
+          return chartPoint;
+        }).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
         
         console.log('📈 Données pour le graphique:', chartDataArray);
         setChartData(chartDataArray);
@@ -247,7 +274,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       </div>
 
       {/* Graphique des totaux mensuels */}
-      {chartData.length > 0 && (
+      {chartData && chartData.length > 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center mb-6">
             <BarChart3 className="w-6 h-6 text-amber-600 mr-3" />
@@ -330,6 +357,14 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
               <span className="text-sm text-gray-700">Injection Résiduelle</span>
             </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="text-center text-gray-500">
+            <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-medium mb-2">Aucune donnée à afficher</p>
+            <p className="text-sm">Importez des fichiers Excel pour voir les graphiques</p>
           </div>
         </div>
       )}
