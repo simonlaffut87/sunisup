@@ -8,7 +8,8 @@ import {
   Leaf,
   Zap,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Building
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
