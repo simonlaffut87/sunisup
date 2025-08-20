@@ -529,7 +529,13 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               <span className="text-sm text-gray-700">Injection Partagée</span>
             </div>
             <div className="flex items-center">
-      )}
+              <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Injection Résiduelle</span>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Statistiques */}
       {files.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
