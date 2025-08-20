@@ -9,7 +9,6 @@ import AboutPage from './pages/AboutPage';
 import { ContactModal } from './components/ContactModal';
 import { LoginModal } from './components/LoginModal';
 import { MemberDashboard } from './components/MemberDashboard';
-import { AdminDashboard } from './components/AdminDashboard';
 import { LanguageSelector } from './components/LanguageSelector';
 import { useAutoLogout } from './hooks/useAutoLogout';
 import { supabase } from './lib/supabase';
@@ -251,7 +250,7 @@ function App() {
 
   if (showDashboard && user) {
     if (isAdmin) {
-      return <AdminDashboard />;
+      return <AdminPage />;
     } else {
       return <MemberDashboard user={user} onLogout={handleLogout} />;
     }

@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { BillingCalculator } from './billingCalculator';
+import { BillingCalculator } from '../utils/billingCalculator';
 import { supabase } from '../lib/supabase';
 
 export class ExcelProcessor {
