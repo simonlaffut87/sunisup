@@ -52,6 +52,10 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
       // Trouver les colonnes importantes
       const eanIndex = headers.findIndex(h => h.toLowerCase().includes('ean'));
+      const registreIndex = headers.findIndex(h => {
+        const header = h.toLowerCase();
+        return header.includes('registre') || header.includes('register') || header.includes('compteur');
+      });
       
       // Recherche plus flexible pour Volume Partagé
       const volumePartageIndex = headers.findIndex(h => {
@@ -83,6 +87,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       addLog(`📍 Index Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉ'})`);
       addLog(`📍 Index Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉ'})`);
       addLog(`📍 Index Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉ'})`);
+      addLog(`📍 Index Registre: ${registreIndex} (${registreIndex >= 0 ? headers[registreIndex] : 'NON TROUVÉ - OK pour injections'})`);
 
       if (eanIndex === -1) {
         throw new Error('Colonne EAN non trouvée. Assurez-vous qu\'une colonne contient "EAN"');
@@ -148,11 +153,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         const eanCodeRaw = row[eanIndex]?.trim();
         const eanCode = eanCodeRaw?.replace(/[^0-9]/g, ''); // Nettoyer l'EAN
         if (!eanCode) continue;
+        
+        // Récupérer le registre seulement s'il existe
+        const registre = registreIndex >= 0 ? String(row[registreIndex] || '').trim().toUpperCase() : '';
 
         // Debug pour l'EAN spécifique
         if (eanCode === targetEan || eanCodeRaw === targetEan || eanCode.includes('965001')) {
           addLog(`🎯 EAN CIBLE TROUVÉ dans les données: "${eanCode}"`);
           addLog(`🎯 EAN brut: "${eanCodeRaw}"`);
+          addLog(`🎯 Registre: "${registre}" (index: ${registreIndex})`);
           addLog(`📋 Ligne complète: ${JSON.stringify(row)}`);
           addLog(`🔍 Mapping disponible avec EAN nettoyé? ${!!participantMapping[eanCode]}`);
           addLog(`🔍 Mapping disponible avec EAN brut? ${!!participantMapping[eanCodeRaw]}`);
@@ -173,8 +182,8 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         if (mappedParticipant) {
           const finalEan = participantMapping[eanCode] ? eanCode : eanCodeRaw;
           
-          if (!participantData[eanCode]) {
-            participantData[eanCode] = {
+          if (!participantData[finalEan]) {
+            participantData[finalEan] = {
               ...mappedParticipant,
               data: {
                 volume_partage: 0,
@@ -186,6 +195,17 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addLog(`✅ Participant initialisé: ${mappedParticipant.name} (${finalEan})`);
           }
 
+          // Fonction pour nettoyer et parser les valeurs numériques
+          const parseValue = (value: any) => {
+            if (!value) return 0;
+            const cleaned = String(value)
+              .replace(/,/g, '.') // Virgule -> point
+              .replace(/\s/g, '') // Supprimer espaces
+              .replace(/[^\d.-]/g, ''); // Garder seulement chiffres, point et tiret
+            const parsed = parseFloat(cleaned);
+            return isNaN(parsed) ? 0 : parsed;
+          };
+          
           // Extraire les valeurs
           // Fonction pour nettoyer et parser les valeurs numériques
           const parseValue = (value: any) => {
@@ -203,9 +223,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const injectionPartage = parseValue(row[injectionPartageIndex]);
           const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
           
-          // Debug pour l'EAN cible ou les 3 premières lignes
-          if (eanCode === targetEan || eanCodeRaw === targetEan || i <= 3) {
-            addLog(`🔍 LIGNE ${i} - EAN ${finalEan}:`);
+          // Debug pour l'EAN cible ou les premières lignes
+          if (eanCode === targetEan || eanCodeRaw === targetEan || i <= 5) {
+            addLog(`🔍 LIGNE ${i} - EAN ${finalEan} (registre: "${registre}"):`);
             addLog(`  📋 Valeurs brutes: VP="${row[volumePartageIndex]}", VC="${row[volumeComplementaireIndex]}", IP="${row[injectionPartageIndex]}", IC="${row[injectionComplementaireIndex]}"`);
             addLog(`  🔢 Valeurs parsées: VP=${volumePartage}, VC=${volumeComplementaire}, IP=${injectionPartage}, IC=${injectionComplementaire}`);
             
@@ -214,35 +234,14 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             }
           }
 
-          // Additionner les valeurs
-          participantData[eanCode].data.volume_partage += volumePartage;
-          participantData[eanCode].data.volume_complementaire += volumeComplementaire;
-          participantData[eanCode].data.injection_partagee += injectionPartage;
-          participantData[eanCode].data.injection_complementaire += injectionComplementaire;
+          // Additionner les valeurs (utiliser finalEan pour la cohérence)
+          participantData[finalEan].data.volume_partage += volumePartage;
+          participantData[finalEan].data.volume_complementaire += volumeComplementaire;
+          participantData[finalEan].data.injection_partagee += injectionPartage;
+          participantData[finalEan].data.injection_complementaire += injectionComplementaire;
 
           validRows++;
 
-          // Debug pour les 3 premières lignes
-          if (i <= 3 || eanCode === targetEan) {
-            console.log(`🔍 LIGNE ${i} - EAN ${eanCode}:`);
-            console.log('  📋 Valeurs brutes:', {
-              volumePartage: row[volumePartageIndex],
-              volumeComplementaire: row[volumeComplementaireIndex],
-              injectionPartage: row[injectionPartageIndex],
-              injectionComplementaire: row[injectionComplementaireIndex]
-            });
-            console.log('  🔢 Valeurs parsées:', {
-              volumePartage,
-              volumeComplementaire,
-              injectionPartage,
-              injectionComplementaire
-            });
-            
-            // Debug supplémentaire pour voir les valeurs non-nulles
-            if (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0) {
-              console.log('🎉 VALEURS NON-NULLES TROUVÉES !');
-            }
-          }
         } else {
           unknownEans.add(eanCode);
           
@@ -260,6 +259,8 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       // Mettre à jour la base de données
       addLog('💾 Mise à jour de la base de données...');
       for (const [eanCode, data] of Object.entries(participantData)) {
+        addLog(`💾 Mise à jour participant EAN: ${eanCode}`);
+        
         const { data: participant, error: findError } = await supabase
           .from('participants')
           .select('id, monthly_data')
@@ -267,6 +268,8 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           .single();
 
         if (!findError && participant) {
+          addLog(`✅ Participant trouvé en base: ${participant.id}`);
+          
           let existingData = {};
           if (participant.monthly_data) {
             try {
@@ -279,10 +282,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const updatedData = {
             ...existingData,
             [month]: {
-              ...(data as any).data,
+              volume_partage: (data as any).data.volume_partage,
+              volume_complementaire: (data as any).data.volume_complementaire,
+              injection_partagee: (data as any).data.injection_partagee,
+              injection_complementaire: (data as any).data.injection_complementaire,
               updated_at: new Date().toISOString()
             }
           };
+          
+          addLog(`💾 Données à sauvegarder pour ${eanCode}: ${JSON.stringify(updatedData[month])}`);
 
           const { error: updateError } = await supabase
             .from('participants')
@@ -292,10 +300,13 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           if (updateError) {
             addLog(`❌ Erreur mise à jour ${eanCode}: ${updateError.message}`);
           } else {
-            addLog(`✅ Mise à jour réussie pour ${(data as any).name} (${eanCode})`);
+            addLog(`✅ Mise à jour réussie pour ${(data as any).name} (${eanCode}) - VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
           }
         } else {
           addLog(`❌ Participant non trouvé en base pour EAN: ${eanCode}`);
+          if (findError) {
+            addLog(`❌ Erreur de recherche: ${findError.message}`);
+          }
         }
       }
 
