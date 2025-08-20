@@ -249,11 +249,7 @@ function App() {
   });
 
   if (showDashboard && user) {
-    if (isAdmin) {
-      return <AdminPage />;
-    } else {
-      return <MemberDashboard user={user} onLogout={handleLogout} />;
-    }
+    return <MemberDashboard user={user} onLogout={handleLogout} />;
   }
 
   return (
