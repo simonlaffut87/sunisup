@@ -90,6 +90,18 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
       if (error) throw error;
 
+      // DEBUG SPÉCIFIQUE POUR L'EAN PROBLÉMATIQUE
+      const targetEan = '541448965001060702';
+      console.log('🎯 RECHERCHE SPÉCIFIQUE DE L\'EAN:', targetEan);
+      
+      const foundParticipant = participants?.find(p => p.ean_code === targetEan);
+      console.log('🔍 Participant trouvé dans la base?', !!foundParticipant);
+      if (foundParticipant) {
+        console.log('✅ Participant trouvé:', foundParticipant.name, foundParticipant.ean_code);
+      } else {
+        console.log('❌ Participant NON trouvé');
+        console.log('🔍 Tous les EAN dans la base:', participants?.map(p => p.ean_code).filter(Boolean));
+      }
       const participantMapping: { [ean: string]: any } = {};
       participants?.forEach(p => {
         if (p.ean_code) {
@@ -102,11 +114,19 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       });
 
       console.log('👥 Participants avec EAN:', Object.keys(participantMapping).length);
+      console.log('🎯 L\'EAN cible est-il dans le mapping?', !!participantMapping[targetEan]);
+      if (participantMapping[targetEan]) {
+        console.log('✅ Mapping trouvé:', participantMapping[targetEan]);
+      } else {
+        console.log('❌ Mapping NON trouvé pour:', targetEan);
+        console.log('🔍 EAN similaires dans le mapping:', Object.keys(participantMapping).filter(ean => 
+          ean.includes('541448') || ean.includes('965001') || ean.includes('060702')
+        ));
+      }
 
       // Debug: afficher tous les EAN disponibles
       console.log('🔍 EAN disponibles dans la base:', Object.keys(participantMapping));
       console.log('🔍 Recherche de l\'EAN "541448965001060702"...');
-      const targetEan = '541448965001060702';
       if (participantMapping[targetEan]) {
         console.log('✅ EAN trouvé:', participantMapping[targetEan]);
       } else {
@@ -126,14 +146,26 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         
         if (row.length < headers.length) continue;
 
-        const eanCode = row[eanIndex]?.trim().replace(/[^0-9]/g, ''); // Nettoyer l'EAN
+        const eanCodeRaw = row[eanIndex]?.trim();
+        const eanCode = eanCodeRaw?.replace(/[^0-9]/g, ''); // Nettoyer l'EAN
         if (!eanCode) continue;
 
         // Debug pour l'EAN spécifique
-        if (eanCode === targetEan || eanCode.includes('965001')) {
+        if (eanCode === targetEan || eanCodeRaw === targetEan || eanCode.includes('965001')) {
           console.log(`🎯 EAN CIBLE TROUVÉ dans les données: "${eanCode}"`);
+          console.log(`🎯 EAN brut: "${eanCodeRaw}"`);
           console.log('📋 Ligne complète:', row);
           console.log('🔍 Mapping disponible?', !!participantMapping[eanCode]);
+          console.log('🔍 Mapping avec EAN brut?', !!participantMapping[eanCodeRaw]);
+          
+          // Tester différentes variantes de l'EAN
+          const variants = [eanCode, eanCodeRaw, eanCode.padStart(18, '0'), eanCodeRaw?.padStart(18, '0')];
+          console.log('🔍 Test de variantes EAN:', variants);
+          variants.forEach(variant => {
+            if (variant && participantMapping[variant]) {
+              console.log(`✅ VARIANTE TROUVÉE: "${variant}" ->`, participantMapping[variant]);
+            }
+          });
         }
 
         if (participantMapping[eanCode]) {
