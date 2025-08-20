@@ -48,8 +48,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const [energyData, setEnergyData] = useState<EnergyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [monthlyData, setMonthlyData] = useState<any>({});
 
@@ -170,7 +169,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   }, [user, loadMonthlyDataFromParticipant]);
 
   // Fonction pour charger les données d'énergie depuis energy_data (ancienne méthode)
-  const fetchEnergyDataOld = useCallback(async (mode: 'day' | 'week' | 'month', date: Date, isInitial = false) => {
+  const fetchEnergyDataOld = useCallback(async (year: number, isInitial = false) => {
     if (isInitial) {
       setLoading(true);
     } else {
@@ -178,21 +177,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     }
 
     try {
-      let startDate;
-      let endDate = endOfDay(date);
-      
-      // Calculer les dates de début et de fin en fonction du mode de vue
-      switch (mode) {
-        case 'day':
-          startDate = startOfDay(date);
-          break;
-        case 'week':
-          startDate = startOfDay(subDays(date, 7));
-          break;
-        case 'month':
-          startDate = startOfDay(subDays(date, 30));
-          break;
-      }
+      const startDate = new Date(year, 0, 1); // 1er janvier de l'année
+      const endDate = new Date(year, 11, 31, 23, 59, 59); // 31 décembre de l'année
 
       // Chercher d'abord par participant_id, puis par user_id
       let query = supabase.from('energy_data').select('*');
@@ -225,7 +211,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   }, [user.id, userProfile?.id]);
 
   // Nouvelle fonction pour utiliser les données mensuelles
-  const fetchEnergyData = useCallback(async (mode: 'day' | 'week' | 'month', date: Date, isInitial = false) => {
+  const fetchEnergyData = useCallback(async (year: number, isInitial = false) => {
     if (isInitial) {
       setLoading(true);
     } else {
@@ -233,61 +219,50 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     }
 
     try {
-      // Utiliser les données mensuelles si disponibles
-      const monthKey = format(date, 'yyyy-MM');
-      const currentMonthData = monthlyData[monthKey];
+      // Créer des données mensuelles pour l'année sélectionnée
+      const simulatedData = [];
       
-      if (currentMonthData) {
-        // Créer des données simulées basées sur les données mensuelles
-        const simulatedData = [];
-        const isProducer = userProfile?.member_type === 'producer';
+      for (let month = 1; month <= 12; month++) {
+        const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+        const monthData = monthlyData[monthKey];
         
-        // Générer des points de données pour la période demandée
-        let dataPoints = 24; // Par défaut pour un jour
-        if (mode === 'week') dataPoints = 7;
-        if (mode === 'month') dataPoints = 30;
+        const pointDate = new Date(year, month - 1, 15); // 15 du mois
         
-        for (let i = 0; i < dataPoints; i++) {
-          let pointDate;
-          if (mode === 'day') {
-            pointDate = new Date(date);
-            pointDate.setHours(i);
-          } else if (mode === 'week') {
-            pointDate = subDays(date, 6 - i);
-          } else {
-            pointDate = subDays(date, 29 - i);
-          }
-          
-          // Répartir les données mensuelles sur la période
-          const factor = 1 / dataPoints;
-          
-          // Calculer les valeurs selon les nouvelles métriques
-          const volumePartageValue = (currentMonthData.volume_partage || 0) * factor;
-          const volumeResiduelValue = (currentMonthData.volume_complementaire || 0) * factor;
-          const injectionTotaleValue = ((currentMonthData.injection_partagee || 0) + (currentMonthData.injection_complementaire || 0)) * factor;
-          
-          simulatedData.push({
-            id: `sim-${i}`,
-            user_id: userProfile?.id || user.id,
-            timestamp: pointDate.toISOString(),
-            consumption: volumeResiduelValue, // Volume résiduel
-            shared_energy: volumePartageValue, // Volume partagé
-            production: injectionTotaleValue, // Injection totale
-            created_at: new Date().toISOString()
-          });
+        // Utiliser les données mensuelles si disponibles, sinon 0
+        const volumePartageValue = monthData?.volume_partage || 0;
+        const volumeResiduelValue = monthData?.volume_complementaire || 0;
+        const injectionTotaleValue = (monthData?.injection_partagee || 0) + (monthData?.injection_complementaire || 0);
+        
+        simulatedData.push({
+          id: `month-${month}`,
+          user_id: userProfile?.id || user.id,
+          timestamp: pointDate.toISOString(),
+          consumption: volumeResiduelValue, // Volume résiduel
+          shared_energy: volumePartageValue, // Volume partagé
+          production: injectionTotaleValue, // Injection totale
+          created_at: new Date().toISOString(),
+          month: month,
+          monthName: format(pointDate, 'MMM', { locale: fr })
+        });
+      }
+      
+      setEnergyData(simulatedData);
+      
+      // Si aucune donnée mensuelle, essayer les vraies données
+      if (simulatedData.every(d => d.consumption === 0 && d.shared_energy === 0 && d.production === 0)) {
+        await fetchEnergyDataOld(year, isInitial);
+        return;
         }
         
         setEnergyData(simulatedData);
       } else {
-        // Fallback vers les vraies données energy_data si pas de données mensuelles
-        await fetchEnergyDataOld(mode, date, isInitial);
-        return;
+        setEnergyData(simulatedData);
       }
 
     } catch (error) {
       console.error('Error fetching energy data:', error);
       // Fallback vers les vraies données en cas d'erreur
-      await fetchEnergyDataOld(mode, date, isInitial);
+      await fetchEnergyDataOld(year, isInitial);
     } finally {
       if (isInitial) {
         setLoading(false);
@@ -295,99 +270,42 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         setDataLoading(false);
       }
     }
-  }, [user.id, userProfile?.id, monthlyData, fetchEnergyDataOld, userProfile?.member_type]);
+  }, [user.id, userProfile?.id, monthlyData, fetchEnergyDataOld]);
 
   // Initial data load
   useEffect(() => {
-    fetchEnergyData(viewMode, selectedDate, true);
+    fetchEnergyData(selectedYear, true);
   }, [fetchEnergyData, user.id]);
 
   // Data refresh when viewMode or selectedDate changes (but not initial load)
   useEffect(() => {
     if (!loading) { // Only if not initial load
-      fetchEnergyData(viewMode, selectedDate, false);
+      fetchEnergyData(selectedYear, false);
     }
-  }, [viewMode, selectedDate, fetchEnergyData, loading]);
+  }, [selectedYear, fetchEnergyData, loading]);
 
   const formatData = (data: EnergyData[]) => {
     return data.map(item => ({
       ...item,
-      time: format(new Date(item.timestamp), 'HH:mm'),
-      date: format(new Date(item.timestamp), 'dd/MM'),
+      time: item.monthName || format(new Date(item.timestamp), 'MMM'),
+      date: item.monthName || format(new Date(item.timestamp), 'MMM'),
       consumption: Number(item.consumption),
       shared_energy: Number(item.shared_energy),
       production: Number(item.production || 0)
     }));
   };
 
-  const aggregateDataByHour = (data: EnergyData[]) => {
-    const hourlyData: Record<string, { consumption: number; shared_energy: number; production: number; count: number }> = {};
-    
-    data.forEach(item => {
-      const hour = format(new Date(item.timestamp), 'HH:00');
-      
-      if (!hourlyData[hour]) {
-        hourlyData[hour] = { consumption: 0, shared_energy: 0, production: 0, count: 0 };
-      }
-      
-      hourlyData[hour].consumption += Number(item.consumption);
-      hourlyData[hour].shared_energy += Number(item.shared_energy);
-      hourlyData[hour].production += Number(item.production || 0);
-      hourlyData[hour].count += 1;
-    });
-    
-    return Object.entries(hourlyData).map(([hour, values]) => ({
-      time: hour,
-      consumption: values.consumption / values.count,
-      shared_energy: values.shared_energy / values.count,
-      production: values.production / values.count
-    }));
-  };
-
-  const aggregateDataByDay = (data: EnergyData[]) => {
-    const dailyData: Record<string, { consumption: number; shared_energy: number; production: number; count: number }> = {};
-    
-    data.forEach(item => {
-      const day = format(new Date(item.timestamp), 'dd/MM');
-      
-      if (!dailyData[day]) {
-        dailyData[day] = { consumption: 0, shared_energy: 0, production: 0, count: 0 };
-      }
-      
-      dailyData[day].consumption += Number(item.consumption);
-      dailyData[day].shared_energy += Number(item.shared_energy);
-      dailyData[day].production += Number(item.production || 0);
-      dailyData[day].count += 1;
-    });
-    
-    return Object.entries(dailyData).map(([day, values]) => ({
-      date: day,
-      consumption: values.consumption,
-      shared_energy: values.shared_energy, 
-      production: values.production,
-      count: values.count
-    }));
-  };
-
   const chartData = React.useMemo(() => {
     if (!energyData.length) return [];
     
-    // Formater les données selon le mode de vue
+    // Formater les données mensuelles
     try {
-      switch (viewMode) {
-        case 'day':
-          return aggregateDataByHour(energyData);
-        case 'week':
-        case 'month':
-          return aggregateDataByDay(energyData);
-        default:
-          return formatData(energyData);
-      }
+      return formatData(energyData);
     } catch (error) {
       console.error('Error formatting chart data:', error);
       return [];
     }
-  }, [energyData, viewMode]);
+  }, [energyData]);
 
   const totalConsumption = React.useMemo(() => {
     return energyData.reduce((sum, item) => sum + Number(item.consumption), 0);
@@ -407,31 +325,49 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
   // Données mensuelles pour le mois sélectionné
   const currentMonthData = React.useMemo(() => {
-    const monthKey = format(selectedDate, 'yyyy-MM');
+    const monthKey = format(new Date(), 'yyyy-MM');
     return monthlyData[monthKey] || null;
-  }, [monthlyData, selectedDate]);
+  }, [monthlyData]);
 
   // Nouvelles métriques basées sur les données mensuelles
   const totalInjection = React.useMemo(() => {
-    if (currentMonthData) {
-      return (currentMonthData.injection_partagee || 0) + (currentMonthData.injection_complementaire || 0);
+    // Calculer l'injection totale pour l'année sélectionnée
+    let totalInjectionYear = 0;
+    for (let month = 1; month <= 12; month++) {
+      const monthKey = `${selectedYear}-${String(month).padStart(2, '0')}`;
+      const monthData = monthlyData[monthKey];
+      if (monthData) {
+        totalInjectionYear += (monthData.injection_partagee || 0) + (monthData.injection_complementaire || 0);
+      }
     }
-    return totalProduction; // Fallback vers les anciennes données
-  }, [currentMonthData, totalProduction]);
+    return totalInjectionYear;
+  }, [monthlyData, selectedYear]);
 
   const volumePartage = React.useMemo(() => {
-    if (currentMonthData) {
-      return currentMonthData.volume_partage || 0;
+    // Calculer le volume partagé pour l'année sélectionnée
+    let totalVolumePartage = 0;
+    for (let month = 1; month <= 12; month++) {
+      const monthKey = `${selectedYear}-${String(month).padStart(2, '0')}`;
+      const monthData = monthlyData[monthKey];
+      if (monthData) {
+        totalVolumePartage += monthData.volume_partage || 0;
+      }
     }
-    return totalSharedEnergy; // Fallback
-  }, [currentMonthData, totalSharedEnergy]);
+    return totalVolumePartage;
+  }, [monthlyData, selectedYear]);
 
   const volumeResiduel = React.useMemo(() => {
-    if (currentMonthData) {
-      return currentMonthData.volume_complementaire || 0;
+    // Calculer le volume résiduel pour l'année sélectionnée
+    let totalVolumeResiduel = 0;
+    for (let month = 1; month <= 12; month++) {
+      const monthKey = `${selectedYear}-${String(month).padStart(2, '0')}`;
+      const monthData = monthlyData[monthKey];
+      if (monthData) {
+        totalVolumeResiduel += monthData.volume_complementaire || 0;
+      }
     }
-    return residualConsumption; // Fallback
-  }, [currentMonthData, residualConsumption]);
+    return totalVolumeResiduel;
+  }, [monthlyData, selectedYear]);
 
   const volumeTotal = React.useMemo(() => {
     return volumePartage + volumeResiduel;
@@ -444,43 +380,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
   // Optimized navigation functions with immediate UI update
   const navigatePrevious = useCallback(() => {
-    setSelectedDate(prev => {
-      switch (viewMode) {
-        case 'day':
-          return subDays(prev, 1);
-        case 'week':
-          return subWeeks(prev, 1);
-        case 'month':
-          return subMonths(prev, 1);
-        default:
-          return prev;
-      }
-    });
-  }, [viewMode]);
-
-  const navigateNext = useCallback(() => {
-    setSelectedDate(prev => {
-      switch (viewMode) {
-        case 'day':
-          return addDays(prev, 1);
-        case 'week':
-          return addWeeks(prev, 1);
-        case 'month':
-          return addMonths(prev, 1);
-        default:
-          return prev;
-      }
-    });
-  }, [viewMode]);
-
-  // Optimized view mode change
-  const handleViewModeChange = useCallback((newMode: 'day' | 'week' | 'month') => {
-    setViewMode(newMode);
+    setSelectedYear(prev => prev - 1);
   }, []);
 
-  // Optimized date change
-  const handleDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(new Date(e.target.value));
+  const navigateNext = useCallback(() => {
+    setSelectedYear(prev => prev + 1);
   }, []);
 
   // Hook de déconnexion automatique pour les membres - NOUVEAU
@@ -492,21 +396,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
   // Calculate period display text
   const getPeriodDisplayText = () => {
-    const endDate = selectedDate;
-    let startDate;
-    
-    switch (viewMode) {
-      case 'day':
-        return format(selectedDate, 'EEEE dd MMMM yyyy', { locale: fr });
-      case 'week':
-        startDate = subDays(selectedDate, 7);
-        return `Du ${format(startDate, 'dd/MM', { locale: fr })} au ${format(endDate, 'dd/MM/yyyy', { locale: fr })}`;
-      case 'month':
-        startDate = subDays(selectedDate, 30);
-        return `Du ${format(startDate, 'dd/MM', { locale: fr })} au ${format(endDate, 'dd/MM/yyyy', { locale: fr })}`;
-      default:
-        return format(selectedDate, 'EEEE dd MMMM yyyy', { locale: fr });
-    }
+    return `Année ${selectedYear}`;
   };
 
   if (loading) {
@@ -535,6 +425,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </h1>
                 <p className="text-sm text-gray-600">
                   {isProducer ? 'Producteur' : 'Consommateur'} - Sun Is Up
+                </p>
+                <p className="text-xs text-gray-500">
+                  Données pour l'année {selectedYear}
                 </p>
               </div>
             </div>
@@ -616,7 +509,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <p className="text-sm text-gray-500">kWh</p>
                 {currentMonthData && (
                   <p className="text-xs text-amber-600">
-                    Partagée: {currentMonthData.injection_partagee?.toFixed(1) || '0.0'} + Résiduelle: {currentMonthData.injection_complementaire?.toFixed(1) || '0.0'}
+                    Total annuel: {totalInjection.toFixed(1)} kWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -644,7 +537,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <p className="text-sm text-gray-500">kWh</p>
                 {currentMonthData && (
                   <p className="text-xs text-green-600">
-                    Données mensuelles: {currentMonthData.volume_partage?.toFixed(1) || '0.0'} kWh
+                    Total annuel: {volumePartage.toFixed(1)} kWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -672,7 +565,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <p className="text-sm text-gray-500">kWh</p>
                 {currentMonthData && (
                   <p className="text-xs text-blue-600">
-                    Données mensuelles: {currentMonthData.volume_complementaire?.toFixed(1) || '0.0'} kWh
+                    Total annuel: {volumeResiduel.toFixed(1)} kWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -700,7 +593,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <p className="text-sm text-gray-500">du volume total</p>
                 {currentMonthData && (
                   <p className="text-xs text-purple-600">
-                    {volumePartage.toFixed(1)} / {volumeTotal.toFixed(1)} kWh
+                    {volumePartage.toFixed(1)} / {volumeTotal.toFixed(1)} kWh (année)
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -714,41 +607,19 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         {/* Period Selector with Navigation - Enhanced with loading state */}
         <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Period Type Selector */}
-            <div className="flex space-x-2">
-              <button 
-                onClick={() => handleViewModeChange('day')}
+            {/* Year Selector */}
+            <div className="flex items-center space-x-4">
+              <label className="text-sm font-medium text-gray-700">Année :</label>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
                 disabled={dataLoading}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 ${
-                  viewMode === 'day' 
-                    ? 'bg-amber-500 text-white shadow-md' 
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-50"
               >
-                Jour
-              </button>
-              <button 
-                onClick={() => handleViewModeChange('week')}
-                disabled={dataLoading}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 ${
-                  viewMode === 'week' 
-                    ? 'bg-amber-500 text-white shadow-md' 
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                Semaine
-              </button>
-              <button 
-                onClick={() => handleViewModeChange('month')}
-                disabled={dataLoading}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 ${
-                  viewMode === 'month' 
-                    ? 'bg-amber-500 text-white shadow-md' 
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                Mois
-              </button>
+                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
             </div>
 
             {/* Period Display and Navigation */}
@@ -770,7 +641,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   onClick={navigatePrevious}
                   disabled={dataLoading}
                   className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={`${viewMode === 'day' ? 'Jour' : viewMode === 'week' ? 'Semaine' : 'Mois'} précédent`}
+                  title="Année précédente"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -779,21 +650,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   onClick={navigateNext}
                   disabled={dataLoading}
                   className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={`${viewMode === 'day' ? 'Jour' : viewMode === 'week' ? 'Semaine' : 'Mois'} suivant`}
+                  title="Année suivante"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
-              </div>
-
-              {/* Date Picker */}
-              <div className="flex items-center">
-                <input 
-                  type="date" 
-                  value={format(selectedDate, 'yyyy-MM-dd')}
-                  onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                  disabled={dataLoading}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
               </div>
             </div>
           </div>
@@ -838,7 +698,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
-                  dataKey={viewMode === 'day' ? 'time' : 'date'} 
+                  dataKey="time"
                   stroke="#6B7280"
                   tick={{ fontSize: 12 }}
                   tickMargin={5}
