@@ -103,6 +103,19 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
       console.log('👥 Participants avec EAN:', Object.keys(participantMapping).length);
 
+      // Debug: afficher tous les EAN disponibles
+      console.log('🔍 EAN disponibles dans la base:', Object.keys(participantMapping));
+      console.log('🔍 Recherche de l\'EAN "541448965001060702"...');
+      const targetEan = '541448965001060702';
+      if (participantMapping[targetEan]) {
+        console.log('✅ EAN trouvé:', participantMapping[targetEan]);
+      } else {
+        console.log('❌ EAN NON TROUVÉ dans le mapping');
+        console.log('🔍 EAN similaires:', Object.keys(participantMapping).filter(ean => 
+          ean.includes('541448') || ean.includes('965001')
+        ));
+      }
+
       // Traiter les données ligne par ligne
       const participantData: { [ean: string]: any } = {};
       const unknownEans = new Set<string>();
@@ -113,8 +126,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         
         if (row.length < headers.length) continue;
 
-        const eanCode = row[eanIndex]?.trim();
+        const eanCode = row[eanIndex]?.trim().replace(/[^0-9]/g, ''); // Nettoyer l'EAN
         if (!eanCode) continue;
+
+        // Debug pour l'EAN spécifique
+        if (eanCode === targetEan || eanCode.includes('965001')) {
+          console.log(`🎯 EAN CIBLE TROUVÉ dans les données: "${eanCode}"`);
+          console.log('📋 Ligne complète:', row);
+          console.log('🔍 Mapping disponible?', !!participantMapping[eanCode]);
+        }
 
         if (participantMapping[eanCode]) {
           if (!participantData[eanCode]) {
@@ -174,7 +194,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           validRows++;
 
           // Debug pour les 3 premières lignes
-          if (i <= 3) {
+          if (i <= 3 || eanCode === targetEan) {
             console.log(`🔍 LIGNE ${i} - EAN ${eanCode}:`);
             console.log('  📋 Valeurs brutes:', {
               volumePartage: row[volumePartageIndex],
@@ -196,6 +216,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           }
         } else {
           unknownEans.add(eanCode);
+          
+          // Debug pour les EAN non reconnus
+          if (eanCode === targetEan || eanCode.includes('965001')) {
+            console.log(`❌ EAN NON RECONNU: "${eanCode}"`);
+            console.log('🔍 EAN disponibles:', Object.keys(participantMapping).slice(0, 5));
+          }
         }
       }
 
