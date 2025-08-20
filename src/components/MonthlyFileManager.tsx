@@ -596,33 +596,35 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
 
       {/* Debug des données */}
       {chartData && chartData.length > 0 && (
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <Database className="w-6 h-6 text-gray-600 mr-3" />
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Debug - Données calculées</h3>
-              <p className="text-sm text-gray-600">
-                Vérification des totaux par mois
-              </p>
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <Database className="w-6 h-6 text-gray-600 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Debug - Données calculées</h3>
+                <p className="text-sm text-gray-600">
+                  Vérification des totaux par mois
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Debug info */}
+          <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+            <h4 className="font-medium text-gray-900 mb-2">Données calculées :</h4>
+            <div className="text-xs text-gray-600 space-y-1 max-h-32 overflow-y-auto">
+              {chartData.map((item, index) => (
+                <div key={index} className="font-mono bg-white p-2 rounded border">
+                  <div className="font-bold text-gray-900">{item.month}</div>
+                  <div>VP: {item['Volume Partagé']} kWh | VC: {item['Volume Complémentaire']} kWh</div>
+                  <div>IP: {item['Injection Partagée']} kWh | IR: {item['Injection Résiduelle']} kWh</div>
+                  <div className="text-blue-600">Participants: {item.participants}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-        
-        {/* Debug info */}
-        <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-          <h4 className="font-medium text-gray-900 mb-2">Données calculées :</h4>
-          <div className="text-xs text-gray-600 space-y-1 max-h-32 overflow-y-auto">
-            {chartData.map((item, index) => (
-              <div key={index} className="font-mono bg-white p-2 rounded border">
-                <div className="font-bold text-gray-900">{item.month}</div>
-                <div>VP: {item['Volume Partagé']} kWh | VC: {item['Volume Complémentaire']} kWh</div>
-                <div>IP: {item['Injection Partagée']} kWh | IR: {item['Injection Résiduelle']} kWh</div>
-                <div className="text-blue-600">Participants: {item.participants}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Statistiques */}
       {files.length > 0 && (
