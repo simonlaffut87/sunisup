@@ -206,18 +206,6 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             return isNaN(parsed) ? 0 : parsed;
           };
           
-          // Extraire les valeurs
-          // Fonction pour nettoyer et parser les valeurs numériques
-          const parseValue = (value: any) => {
-            if (!value) return 0;
-            const cleaned = String(value)
-              .replace(/,/g, '.') // Virgule -> point
-              .replace(/\s/g, '') // Supprimer espaces
-              .replace(/[^\d.-]/g, ''); // Garder seulement chiffres, point et tiret
-            const parsed = parseFloat(cleaned);
-            return isNaN(parsed) ? 0 : parsed;
-          };
-          
           const volumePartage = parseValue(row[volumePartageIndex]);
           const volumeComplementaire = parseValue(row[volumeComplementaireIndex]);
           const injectionPartage = parseValue(row[injectionPartageIndex]);
