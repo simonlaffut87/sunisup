@@ -261,16 +261,18 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           // Répartir les données mensuelles sur la période
           const factor = 1 / dataPoints;
           
+          // Calculer les valeurs selon les nouvelles métriques
+          const volumePartageValue = (currentMonthData.volume_partage || 0) * factor;
+          const volumeResiduelValue = (currentMonthData.volume_complementaire || 0) * factor;
+          const injectionTotaleValue = ((currentMonthData.injection_partagee || 0) + (currentMonthData.injection_complementaire || 0)) * factor;
+          
           simulatedData.push({
             id: `sim-${i}`,
             user_id: userProfile?.id || user.id,
             timestamp: pointDate.toISOString(),
-            consumption: isProducer ? 
-              (currentMonthData.volume_complementaire + currentMonthData.volume_partage) * factor :
-              (currentMonthData.volume_complementaire + currentMonthData.volume_partage) * factor,
-            shared_energy: currentMonthData.volume_partage * factor,
-            production: isProducer ? 
-              (currentMonthData.injection_complementaire + currentMonthData.injection_partagee) * factor : 0,
+            consumption: volumeResiduelValue, // Volume résiduel
+            shared_energy: volumePartageValue, // Volume partagé
+            production: injectionTotaleValue, // Injection totale
             created_at: new Date().toISOString()
           });
         }
@@ -399,6 +401,32 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return energyData.reduce((sum, item) => sum + Number(item.production || 0), 0);
   }, [energyData]);
 
+  // Nouvelles métriques basées sur les données mensuelles
+  const totalInjection = React.useMemo(() => {
+    if (currentMonthData) {
+      return (currentMonthData.injection_partagee || 0) + (currentMonthData.injection_complementaire || 0);
+    }
+    return totalProduction; // Fallback vers les anciennes données
+  }, [currentMonthData, totalProduction]);
+
+  const volumePartage = React.useMemo(() => {
+    if (currentMonthData) {
+      return currentMonthData.volume_partage || 0;
+    }
+    return totalSharedEnergy; // Fallback
+  }, [currentMonthData, totalSharedEnergy]);
+
+  const volumeResiduel = React.useMemo(() => {
+    if (currentMonthData) {
+      return currentMonthData.volume_complementaire || 0;
+    }
+    return residualConsumption; // Fallback
+  }, [currentMonthData, residualConsumption]);
+
+  const volumeTotal = React.useMemo(() => {
+    return volumePartage + volumeResiduel;
+  }, [volumePartage, volumeResiduel]);
+
   // Données mensuelles pour le mois sélectionné
   const currentMonthData = React.useMemo(() => {
     const monthKey = format(selectedDate, 'yyyy-MM');
@@ -407,12 +435,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   
   // Calculer le pourcentage d'énergie partagée
   const sharedPercentage = React.useMemo(() => {
-    if (userProfile?.member_type === 'producer') {
-      return totalProduction > 0 ? ((totalSharedEnergy / totalProduction) * 100) : 0;
-    } else {
-      return totalConsumption > 0 ? ((totalSharedEnergy / totalConsumption) * 100) : 0;
-    }
-  }, [totalConsumption, totalSharedEnergy, totalProduction, userProfile?.member_type]);
+    return volumeTotal > 0 ? ((volumePartage / volumeTotal) * 100) : 0;
+  }, [volumePartage, volumeTotal]);
 
   const residualConsumption = React.useMemo(() => {
     return Math.max(0, totalConsumption - totalSharedEnergy);
@@ -574,230 +598,117 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
         {/* Stats Cards with smooth transition */}
         <div className={`grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 transition-opacity duration-300 ${dataLoading ? 'opacity-60' : 'opacity-100'}`}>
-          {isProducer ? (
-            <>
-              {/* Production totale */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-amber-100 rounded-lg">
-                        <Zap className="h-5 w-5 text-amber-600" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-600">Production totale</p>
-                      </div>
-                    </div>
+          {/* Injection totale */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="p-2 bg-amber-100 rounded-lg">
+                    <Zap className="h-5 w-5 text-amber-600" />
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold text-gray-900">{totalProduction.toFixed(1)}</p>
-                    <p className="text-sm text-gray-500">kWh</p>
-                    {currentMonthData && (
-                      <p className="text-xs text-amber-600">
-                        Données mensuelles: {(currentMonthData.injection_complementaire + currentMonthData.injection_partagee).toFixed(1)} kWh
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      {periodText}
-                    </p>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">Injection totale</p>
                   </div>
                 </div>
               </div>
+              <div className="space-y-1">
+                <p className="text-3xl font-bold text-gray-900">{totalInjection.toFixed(1)}</p>
+                <p className="text-sm text-gray-500">kWh</p>
+                {currentMonthData && (
+                  <p className="text-xs text-amber-600">
+                    Partagée: {currentMonthData.injection_partagee?.toFixed(1) || '0.0'} + Résiduelle: {currentMonthData.injection_complementaire?.toFixed(1) || '0.0'}
+                  </p>
+                )}
+                <p className="text-xs text-gray-400">
+                  {periodText}
+                </p>
+              </div>
+            </div>
+          </div>
 
-              {/* Énergie partagée */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <TrendingUp className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-600">Énergie partagée</p>
-                      </div>
-                    </div>
+          {/* Volume partagé */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Leaf className="h-5 w-5 text-green-600" />
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold text-gray-900">{totalSharedEnergy.toFixed(1)}</p>
-                    <p className="text-sm text-gray-500">kWh</p>
-                    {currentMonthData && (
-                      <p className="text-xs text-green-600">
-                        Données mensuelles: {currentMonthData.injection_partagee.toFixed(1)} kWh
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      {periodText}
-                    </p>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">Volume partagé</p>
                   </div>
                 </div>
               </div>
+              <div className="space-y-1">
+                <p className="text-3xl font-bold text-gray-900">{volumePartage.toFixed(1)}</p>
+                <p className="text-sm text-gray-500">kWh</p>
+                {currentMonthData && (
+                  <p className="text-xs text-green-600">
+                    Données mensuelles: {currentMonthData.volume_partage?.toFixed(1) || '0.0'} kWh
+                  </p>
+                )}
+                <p className="text-xs text-gray-400">
+                  {periodText}
+                </p>
+              </div>
+            </div>
+          </div>
 
-              {/* Autoconsommation */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Battery className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-600">Autoconsommation</p>
-                      </div>
-                    </div>
+          {/* Volume résiduel */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-blue-600" />
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold text-gray-900">{totalConsumption.toFixed(1)}</p>
-                    <p className="text-sm text-gray-500">kWh</p>
-                    {currentMonthData && (
-                      <p className="text-xs text-blue-600">
-                        Données mensuelles: {(currentMonthData.volume_complementaire + currentMonthData.volume_partage).toFixed(1)} kWh
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      {periodText}
-                    </p>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">Volume résiduel</p>
                   </div>
                 </div>
               </div>
+              <div className="space-y-1">
+                <p className="text-3xl font-bold text-gray-900">{volumeResiduel.toFixed(1)}</p>
+                <p className="text-sm text-gray-500">kWh</p>
+                {currentMonthData && (
+                  <p className="text-xs text-blue-600">
+                    Données mensuelles: {currentMonthData.volume_complementaire?.toFixed(1) || '0.0'} kWh
+                  </p>
+                )}
+                <p className="text-xs text-gray-400">
+                  {periodText}
+                </p>
+              </div>
+            </div>
+          </div>
 
-              {/* Taux de partage */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-purple-100 rounded-lg">
-                        <BarChart4 className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-600">Taux de partage</p>
-                      </div>
-                    </div>
+          {/* Taux de partage */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <BarChart4 className="h-5 w-5 text-purple-600" />
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold text-gray-900">{sharedPercentage.toFixed(1)}%</p>
-                    <p className="text-sm text-gray-500">de la production</p>
-                    <p className="text-xs text-gray-400">
-                      {periodText}
-                    </p>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">Taux de partage</p>
                   </div>
                 </div>
               </div>
-            </>
-          ) : (
-            <>
-              {/* Consommation totale */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <BarChart4 className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-600">Consommation totale</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold text-gray-900">{totalConsumption.toFixed(1)}</p>
-                    <p className="text-sm text-gray-500">kWh</p>
-                    {currentMonthData && (
-                      <p className="text-xs text-blue-600">
-                        Données mensuelles: {(currentMonthData.volume_complementaire + currentMonthData.volume_partage).toFixed(1)} kWh
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      {periodText}
-                    </p>
-                  </div>
-                </div>
+              <div className="space-y-1">
+                <p className="text-3xl font-bold text-gray-900">{sharedPercentage.toFixed(1)}%</p>
+                <p className="text-sm text-gray-500">du volume total</p>
+                {currentMonthData && (
+                  <p className="text-xs text-purple-600">
+                    {volumePartage.toFixed(1)} / {volumeTotal.toFixed(1)} kWh
+                  </p>
+                )}
+                <p className="text-xs text-gray-400">
+                  {periodText}
+                </p>
               </div>
-
-              {/* Énergie partagée */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-amber-100 rounded-lg">
-                        <Leaf className="h-5 w-5 text-amber-600" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-600">Énergie partagée</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold text-gray-900">{totalSharedEnergy.toFixed(1)}</p>
-                    <p className="text-sm text-gray-500">kWh</p>
-                    {currentMonthData && (
-                      <p className="text-xs text-amber-600">
-                        Données mensuelles: {currentMonthData.volume_partage.toFixed(1)} kWh
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      {periodText}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Consommation résiduelle */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <TrendingUp className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-600">Consommation résiduelle</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold text-gray-900">{residualConsumption.toFixed(1)}</p>
-                    <p className="text-sm text-gray-500">kWh</p>
-                    {currentMonthData && (
-                      <p className="text-xs text-green-600">
-                        Données mensuelles: {currentMonthData.volume_complementaire.toFixed(1)} kWh
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      {periodText}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Pourcentage partagé */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-purple-100 rounded-lg">
-                        <BarChart4 className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-600">Pourcentage partagé</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-3xl font-bold text-gray-900">{sharedPercentage.toFixed(1)}%</p>
-                    <p className="text-sm text-gray-500">de la consommation</p>
-                    {currentMonthData && (
-                      <p className="text-xs text-purple-600">
-                        Basé sur données mensuelles
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      {periodText}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
 
         {/* Period Selector with Navigation - Enhanced with loading state */}
@@ -892,7 +803,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
             <Clock className="w-5 h-5 mr-2 text-amber-500" />
-            {isProducer ? 'Production et partage' : 'Consommation et énergie partagée'}
+            Données énergétiques mensuelles
           </h3>
           
           {/* Loading overlay */}
@@ -936,6 +847,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   stroke="#6B7280"
                   tick={{ fontSize: 12 }}
                   tickMargin={5}
+                  label={{ value: 'kWh', angle: -90, position: 'insideLeft' }}
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
@@ -943,45 +855,30 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 />
                 <Legend />
                 
-                {isProducer ? (
-                  <>
-                    <Area 
-                      type="monotone" 
-                      dataKey="production" 
-                      name="Production" 
-                      stroke="#F59E0B" 
-                      fillOpacity={1} 
-                      fill="url(#colorProduction)" 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="shared_energy" 
-                      name="Énergie partagée" 
-                      stroke="#10B981" 
-                      fillOpacity={1} 
-                      fill="url(#colorSharedEnergy)" 
-                    />
-                  </>
-                ) : (
-                  <>
-                    <Area 
-                      type="monotone" 
-                      dataKey="consumption" 
-                      name="Consommation" 
-                      stroke="#3B82F6" 
-                      fillOpacity={1} 
-                      fill="url(#colorConsumption)" 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="shared_energy" 
-                      name="Énergie partagée" 
-                      stroke="#10B981" 
-                      fillOpacity={1} 
-                      fill="url(#colorSharedEnergy)" 
-                    />
-                  </>
-                )}
+                <Area 
+                  type="monotone" 
+                  dataKey="shared_energy" 
+                  name="Volume partagé" 
+                  stroke="#10B981" 
+                  fillOpacity={1} 
+                  fill="url(#colorSharedEnergy)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="consumption" 
+                  name="Volume résiduel" 
+                  stroke="#3B82F6" 
+                  fillOpacity={1} 
+                  fill="url(#colorConsumption)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="production" 
+                  name="Injection totale" 
+                  stroke="#F59E0B" 
+                  fillOpacity={1} 
+                  fill="url(#colorProduction)" 
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
