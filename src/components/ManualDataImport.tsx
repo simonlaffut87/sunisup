@@ -44,27 +44,40 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
       // Trouver les colonnes importantes
       const eanIndex = headers.findIndex(h => h.toLowerCase().includes('ean'));
-      const volumePartageIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('partagé') && h.toLowerCase().includes('volume')
-      );
-      const volumeComplementaireIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('complémentaire') && h.toLowerCase().includes('volume')
-      );
-      const injectionPartageIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('partagé') && h.toLowerCase().includes('injection')
-      );
-      const injectionComplementaireIndex = headers.findIndex(h => 
-        (h.toLowerCase().includes('complémentaire') || h.toLowerCase().includes('résiduelle') || h.toLowerCase().includes('residuelle')) && 
-        h.toLowerCase().includes('injection')
-      );
-
-      console.log('🔍 Index des colonnes:', {
+      
+      // Recherche plus flexible pour Volume Partagé
+      const volumePartageIndex = headers.findIndex(h => {
+        const header = h.toLowerCase().replace(/[éè]/g, 'e');
+        return (header.includes('partage') || header.includes('partage')) && header.includes('volume');
+      });
+      
+      // Recherche plus flexible pour Volume Complémentaire
+      const volumeComplementaireIndex = headers.findIndex(h => {
+        const header = h.toLowerCase().replace(/[éè]/g, 'e');
+        return (header.includes('complementaire') || header.includes('complementaire')) && header.includes('volume');
+      });
+      
+      // Recherche plus flexible pour Injection Partagée
+      const injectionPartageIndex = headers.findIndex(h => {
+        const header = h.toLowerCase().replace(/[éè]/g, 'e');
+        return (header.includes('partage') || header.includes('partage')) && header.includes('injection');
+      });
+      
+      // Recherche plus flexible pour Injection Complémentaire/Résiduelle
+      const injectionComplementaireIndex = headers.findIndex(h => {
+        const header = h.toLowerCase().replace(/[éè]/g, 'e');
+        return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel')) && header.includes('injection');
+      });
+      
+      console.log('🔍 RECHERCHE AMÉLIORÉE DES COLONNES:');
+      console.log('📋 Headers originaux:', headers);
+      console.log('📍 Index trouvés:', {
         ean: eanIndex,
         volumePartage: volumePartageIndex,
         volumeComplementaire: volumeComplementaireIndex,
         injectionPartage: injectionPartageIndex,
         injectionComplementaire: injectionComplementaireIndex
-      });
+      );
 
       if (eanIndex === -1) {
         throw new Error('Colonne EAN non trouvée. Assurez-vous qu\'une colonne contient "EAN"');
@@ -117,10 +130,40 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           }
 
           // Extraire les valeurs
-          const volumePartage = parseFloat(String(row[volumePartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
-          const volumeComplementaire = parseFloat(String(row[volumeComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
-          const injectionPartage = parseFloat(String(row[injectionPartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
-          const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+          // Fonction pour nettoyer et parser les valeurs numériques
+          const parseValue = (value: any) => {
+            if (!value) return 0;
+            const cleaned = String(value)
+              .replace(/,/g, '.') // Virgule -> point
+              .replace(/\s/g, '') // Supprimer espaces
+              .replace(/[^\d.-]/g, ''); // Garder seulement chiffres, point et tiret
+            const parsed = parseFloat(cleaned);
+            return isNaN(parsed) ? 0 : parsed;
+          };
+          
+          const volumePartage = parseValue(row[volumePartageIndex]);
+          const volumeComplementaire = parseValue(row[volumeComplementaireIndex]);
+          const injectionPartage = parseValue(row[injectionPartageIndex]);
+          const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
+          
+          console.log(`🔍 LIGNE ${i} - EAN ${eanCode}:`);
+          console.log('  📋 Valeurs brutes:', {
+            volumePartage: row[volumePartageIndex],
+            volumeComplementaire: row[volumeComplementaireIndex],
+            injectionPartage: row[injectionPartageIndex],
+            injectionComplementaire: row[injectionComplementaireIndex]
+          });
+          console.log('  🔢 Valeurs parsées:', {
+            volumePartage,
+            volumeComplementaire,
+            injectionPartage,
+            injectionComplementaire
+          });
+          
+          // Vérifier si on a des valeurs non-nulles
+          if (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0) {
+            console.log('🎉 VALEURS NON-NULLES TROUVÉES !');
+          }
 
           // Additionner les valeurs
           participantData[eanCode].data.volume_partage += volumePartage;
