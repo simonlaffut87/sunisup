@@ -68,7 +68,8 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*')
-        .not('monthly_data', 'is', null);
+        .not('monthly_data', 'is', null)
+        .not('monthly_data', 'eq', '{}');
 
       if (error) {
         console.error('❌ Erreur chargement participants:', error);
@@ -83,33 +84,61 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         volume_complementaire: number;
         injection_partagee: number;
         injection_complementaire: number;
+        participant_count: number;
       } } = {};
 
       participants?.forEach(participant => {
+        console.log(`🔍 Participant: ${participant.name}, monthly_data:`, participant.monthly_data);
+        
         if (participant.monthly_data) {
           try {
-            const monthlyData = JSON.parse(participant.monthly_data);
-            console.log(`📊 Données mensuelles pour ${participant.name}:`, monthlyData);
+            let monthlyData;
+            if (typeof participant.monthly_data === 'string') {
+              monthlyData = JSON.parse(participant.monthly_data);
+            } else {
+              monthlyData = participant.monthly_data;
+            }
+            
+            console.log(`📊 Données mensuelles parsées pour ${participant.name}:`, monthlyData);
             
             // Parcourir chaque mois dans les données du participant
             Object.entries(monthlyData).forEach(([month, data]: [string, any]) => {
+              console.log(`📅 Mois ${month} pour ${participant.name}:`, data);
+              
               if (!monthlyTotals[month]) {
                 monthlyTotals[month] = {
                   volume_partage: 0,
                   volume_complementaire: 0,
                   injection_partagee: 0,
-                  injection_complementaire: 0
+                  injection_complementaire: 0,
+                  participant_count: 0
                 };
               }
               
               // Ajouter les valeurs de ce participant aux totaux du mois
-              monthlyTotals[month].volume_partage += Number(data.volume_partage || 0);
-              monthlyTotals[month].volume_complementaire += Number(data.volume_complementaire || 0);
-              monthlyTotals[month].injection_partagee += Number(data.injection_partagee || 0);
-              monthlyTotals[month].injection_complementaire += Number(data.injection_complementaire || 0);
+              const volumePartage = Number(data.volume_partage || 0);
+              const volumeComplementaire = Number(data.volume_complementaire || 0);
+              const injectionPartagee = Number(data.injection_partagee || 0);
+              const injectionComplementaire = Number(data.injection_complementaire || 0);
+              
+              console.log(`➕ Ajout pour ${participant.name} (${month}):`, {
+                volumePartage,
+                volumeComplementaire,
+                injectionPartagee,
+                injectionComplementaire
+              });
+              
+              monthlyTotals[month].volume_partage += volumePartage;
+              monthlyTotals[month].volume_complementaire += volumeComplementaire;
+              monthlyTotals[month].injection_partagee += injectionPartagee;
+              monthlyTotals[month].injection_complementaire += injectionComplementaire;
+              monthlyTotals[month].participant_count += 1;
+              
+              console.log(`📊 Totaux après ajout pour ${month}:`, monthlyTotals[month]);
             });
           } catch (error) {
             console.warn(`⚠️ Erreur parsing monthly_data pour ${participant.name}:`, error);
+            console.log(`📋 Données brutes:`, participant.monthly_data);
           }
         }
       });
@@ -120,13 +149,25 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       const chartDataArray = Object.entries(monthlyTotals).map(([month, totals]) => ({
         month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
         monthKey: month,
-        'Volume Partagé': totals.volume_partage,
-        'Volume Complémentaire': totals.volume_complementaire,
-        'Injection Partagée': totals.injection_partagee,
-        'Injection Résiduelle': totals.injection_complementaire
+        'Volume Partagé': Math.round(totals.volume_partage * 100) / 100,
+        'Volume Complémentaire': Math.round(totals.volume_complementaire * 100) / 100,
+        'Injection Partagée': Math.round(totals.injection_partagee * 100) / 100,
+        'Injection Résiduelle': Math.round(totals.injection_complementaire * 100) / 100,
+        participants: totals.participant_count
       })).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
 
       console.log('📈 Données finales pour le graphique:', chartDataArray);
+      
+      // Vérifier si on a des données non-nulles
+      const hasData = chartDataArray.some(item => 
+        item['Volume Partagé'] > 0 || 
+        item['Volume Complémentaire'] > 0 || 
+        item['Injection Partagée'] > 0 || 
+        item['Injection Résiduelle'] > 0
+      );
+      
+      console.log('🔍 Le graphique a-t-il des données non-nulles ?', hasData);
+      
       setChartData(chartDataArray);
 
     } catch (error) {
@@ -346,7 +387,154 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       </div>
 
       {/* Graphique des totaux mensuels */}
-      {chartData && chartData.length > 0 ? (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <BarChart3 className="w-6 h-6 text-amber-600 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Évolution des totaux mensuels</h3>
+              <p className="text-sm text-gray-600">
+                {chartData && chartData.length > 0 
+                  ? `Données de ${chartData.length} mois importé(s)`
+                  : 'Aucune donnée mensuelle importée'
+                }
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={loadChartDataFromParticipants}
+            className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
+            title="Actualiser les données"
+          >
+            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+        
+        {chartData && chartData.length > 0 ? (
+          <>
+            {/* Debug info */}
+            <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-2">Debug - Données du graphique :</h4>
+              <div className="text-xs text-gray-600 space-y-1">
+                {chartData.map((item, index) => (
+                  <div key={index} className="font-mono">
+                    {item.month}: VP={item['Volume Partagé']}, VC={item['Volume Complémentaire']}, 
+                    IP={item['Injection Partagée']}, IR={item['Injection Résiduelle']}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#6B7280"
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis 
+                    stroke="#6B7280"
+                    tick={{ fontSize: 12 }}
+                    label={{ value: 'kWh', angle: -90, position: 'insideLeft' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      borderRadius: '8px', 
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      border: '1px solid #e5e7eb',
+                      padding: '12px',
+                      minWidth: '200px'
+                    }}
+                    labelStyle={{ 
+                      fontWeight: 'bold', 
+                      color: '#374151',
+                      marginBottom: '8px',
+                      fontSize: '14px'
+                    }}
+                    formatter={(value: number, name: string) => {
+                      if (value === 0) {
+                        return [`${name} : 0 kWh`, ''];
+                      }
+                      const formattedValue = value.toLocaleString('fr-FR', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                      });
+                      return [`${name} : ${formattedValue} kWh`, ''];
+                    }}
+                    separator=""
+                    labelFormatter={(label) => `Mois : ${label}`}
+                  />
+                  <Legend />
+                  <Bar 
+                    dataKey="Volume Partagé" 
+                    fill="#10B981" 
+                    name="Volume Partagé"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="Volume Complémentaire" 
+                    fill="#3B82F6" 
+                    name="Volume Complémentaire"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="Injection Partagée" 
+                    fill="#F59E0B" 
+                    name="Injection Partagée"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="Injection Résiduelle" 
+                    fill="#8B5CF6" 
+                    name="Injection Résiduelle"
+                    radius={[2, 2, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </>
+        ) : (
+          <div className="text-center text-gray-500 py-12">
+            <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-medium mb-2">Aucune donnée mensuelle trouvée</p>
+            <p className="text-sm">Importez des fichiers Excel pour voir les graphiques</p>
+            <button
+              onClick={loadChartDataFromParticipants}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Recharger les données
+            </button>
+          </div>
+        )}
+        
+        {/* Légende avec couleurs */}
+        {chartData && chartData.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Volume Partagé</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Volume Complémentaire</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-amber-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Injection Partagée</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+              <span className="text-sm text-gray-700">Injection Résiduelle</span>
+            </div>
+          </div>
+        )}
+      </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center mb-6">
             <BarChart3 className="w-6 h-6 text-amber-600 mr-3" />
@@ -389,13 +577,16 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                     fontSize: '14px'
                   }}
                   formatter={(value: number, name: string) => {
+                    if (value === 0) {
+                      return [`0 kWh`, name];
+                    }
                     const formattedValue = value.toLocaleString('fr-FR', {
-                      minimumFractionDigits: 2,
+                      minimumFractionDigits: 0,
                       maximumFractionDigits: 2
                     });
-                    return [`${formattedValue} kWh`, name];
+                    return [`${name} : ${formattedValue} kWh`, ''];
                   }}
-                  separator=" : "
+                  separator=""
                   labelFormatter={(label) => `Mois : ${label}`}
                 />
                 <Legend />
