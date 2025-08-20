@@ -54,7 +54,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         h.toLowerCase().includes('partagé') && h.toLowerCase().includes('injection')
       );
       const injectionComplementaireIndex = headers.findIndex(h => 
-        (h.toLowerCase().includes('complémentaire') || h.toLowerCase().includes('résiduelle')) && 
+        (h.toLowerCase().includes('complémentaire') || h.toLowerCase().includes('résiduelle') || h.toLowerCase().includes('residuelle')) && 
         h.toLowerCase().includes('injection')
       );
 
@@ -117,10 +117,10 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           }
 
           // Extraire les valeurs
-          const volumePartage = parseFloat(row[volumePartageIndex]?.replace(',', '.') || '0') || 0;
-          const volumeComplementaire = parseFloat(row[volumeComplementaireIndex]?.replace(',', '.') || '0') || 0;
-          const injectionPartage = parseFloat(row[injectionPartageIndex]?.replace(',', '.') || '0') || 0;
-          const injectionComplementaire = parseFloat(row[injectionComplementaireIndex]?.replace(',', '.') || '0') || 0;
+          const volumePartage = parseFloat(String(row[volumePartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+          const volumeComplementaire = parseFloat(String(row[volumeComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+          const injectionPartage = parseFloat(String(row[injectionPartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+          const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
 
           // Additionner les valeurs
           participantData[eanCode].data.volume_partage += volumePartage;
@@ -145,6 +145,11 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
               injectionPartage,
               injectionComplementaire
             });
+            
+            // Debug supplémentaire pour voir les valeurs non-nulles
+            if (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0) {
+              console.log('🎉 VALEURS NON-NULLES TROUVÉES !');
+            }
           }
         } else {
           unknownEans.add(eanCode);

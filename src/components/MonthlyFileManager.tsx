@@ -376,21 +376,27 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'white', 
-                    borderRadius: '12px', 
-                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+                    borderRadius: '8px', 
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                     border: '1px solid #e5e7eb',
-                    padding: '12px'
+                    padding: '12px',
+                    minWidth: '200px'
                   }}
                   labelStyle={{ 
                     fontWeight: 'bold', 
                     color: '#374151',
-                    marginBottom: '8px'
+                    marginBottom: '8px',
+                    fontSize: '14px'
                   }}
-                  formatter={(value: number, name: string) => [
-                    `${value.toFixed(2)} kWh`,
-                    name
-                  ]}
+                  formatter={(value: number, name: string) => {
+                    const formattedValue = value.toLocaleString('fr-FR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    });
+                    return [`${formattedValue} kWh`, name];
+                  }}
                   separator=" : "
+                  labelFormatter={(label) => `Mois : ${label}`}
                 />
                 <Legend />
                 <Bar 

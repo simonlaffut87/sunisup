@@ -134,31 +134,31 @@ export class BasicFileReader {
     // Recherche plus flexible des colonnes
     const registreIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return header.includes('registre') || header.includes('register');
+      return header.includes('registre') || header.includes('register') || header.includes('compteur');
     });
     onLog?.(`🔍 Index colonne Registre: ${registreIndex} (${registreIndex >= 0 ? headers[registreIndex] : 'NON TROUVÉE'})`);
     
     const volumePartageIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return header.includes('partagé') && header.includes('volume');
+      return (header.includes('partagé') || header.includes('partage')) && header.includes('volume');
     });
     onLog?.(`🔍 Index Volume Partagé: ${volumePartageIndex} (${volumePartageIndex >= 0 ? headers[volumePartageIndex] : 'NON TROUVÉE'})`);
     
     const volumeComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return header.includes('complémentaire') && header.includes('volume');
+      return (header.includes('complémentaire') || header.includes('complementaire')) && header.includes('volume');
     });
     onLog?.(`🔍 Index Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉE'})`);
     
     const injectionPartageIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return header.includes('partagé') && header.includes('injection');
+      return (header.includes('partagé') || header.includes('partage')) && header.includes('injection');
     });
     onLog?.(`🔍 Index Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉE'})`);
     
     const injectionComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('complémentaire') || header.includes('résiduelle')) && header.includes('injection');
+      return (header.includes('complémentaire') || header.includes('complementaire') || header.includes('résiduelle') || header.includes('residuelle')) && header.includes('injection');
     });
     onLog?.(`🔍 Index Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);
     
@@ -255,10 +255,10 @@ export class BasicFileReader {
         }
         
         // Extraire les valeurs de la ligne
-        const volumePartage = parseFloat(String(row[volumePartageIndex] || 0).replace(',', '.')) || 0;
-        const volumeComplementaire = parseFloat(String(row[volumeComplementaireIndex] || 0).replace(',', '.')) || 0;
-        const injectionPartage = parseFloat(String(row[injectionPartageIndex] || 0).replace(',', '.')) || 0;
-        const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || 0).replace(',', '.')) || 0;
+        const volumePartage = parseFloat(String(row[volumePartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+        const volumeComplementaire = parseFloat(String(row[volumeComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+        const injectionPartage = parseFloat(String(row[injectionPartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+        const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         
         // Debug: afficher les valeurs extraites pour les premières lignes
         if (i < 10) {
@@ -291,6 +291,12 @@ export class BasicFileReader {
             volumePartage === 0 && volumeComplementaire === 0 && injectionPartage === 0 && injectionComplementaire === 0
           );
           onLog?.(`  ✅ Toutes à 0? ${volumePartage === 0 && volumeComplementaire === 0 && injectionPartage === 0 && injectionComplementaire === 0}`);
+          
+          // Debug supplémentaire pour voir les valeurs non-nulles
+          if (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0) {
+            console.log('🎉 VALEURS NON-NULLES TROUVÉES !');
+            onLog?.('🎉 VALEURS NON-NULLES TROUVÉES !');
+          }
         }
         
         // Assigner aux bonnes catégories HIGH ou LOW
