@@ -37,12 +37,7 @@ export const supabase = createClient<Database>(
         'x-application-name': 'sun-is-up'
       },
       fetch: (url, options = {}) => {
-        return fetch(url, {
-          ...options,
-          headers: {
-            ...options.headers,
-          }
-        }).catch(error => {
+        return fetch(url, options).catch(error => {
           console.warn('Supabase fetch error:', error.message);
           throw new Error('Connection to database failed. Please check your internet connection and try again.');
         });
