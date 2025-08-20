@@ -19,6 +19,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
   });
   const [processing, setProcessing] = useState(false);
   const [results, setResults] = useState<any>(null);
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+
+  const addLog = (message: string) => {
+    console.log(message);
+    setDebugLogs(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+  };
 
   const handleProcess = async () => {
     if (!textData.trim()) {
@@ -28,11 +34,13 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
     setProcessing(true);
     setResults(null);
+    setDebugLogs([]);
+    addLog('🚀 DÉBUT DU TRAITEMENT MANUEL');
 
     try {
       // Diviser en lignes
       const lines = textData.trim().split('\n');
-      console.log('📊 Lignes trouvées:', lines.length);
+      addLog(`📊 Lignes trouvées: ${lines.length}`);
 
       if (lines.length < 2) {
         throw new Error('Il faut au moins une ligne d\'en-tête et une ligne de données');
@@ -40,7 +48,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
       // Première ligne = headers
       const headers = lines[0].split('\t').map(h => h.trim());
-      console.log('📋 Headers:', headers);
+      addLog(`📋 Headers: ${JSON.stringify(headers)}`);
 
       // Trouver les colonnes importantes
       const eanIndex = headers.findIndex(h => h.toLowerCase().includes('ean'));
@@ -69,39 +77,37 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel')) && header.includes('injection');
       });
       
-      console.log('🔍 RECHERCHE AMÉLIORÉE DES COLONNES:');
-      console.log('📋 Headers originaux:', headers);
-      console.log('📍 Index trouvés:', {
-        ean: eanIndex,
-        volumePartage: volumePartageIndex,
-        volumeComplementaire: volumeComplementaireIndex,
-        injectionPartage: injectionPartageIndex,
-        injectionComplementaire: injectionComplementaireIndex
-      });
+      addLog('🔍 RECHERCHE DES COLONNES:');
+      addLog(`📍 Index EAN: ${eanIndex} (${eanIndex >= 0 ? headers[eanIndex] : 'NON TROUVÉ'})`);
+      addLog(`📍 Index Volume Partagé: ${volumePartageIndex} (${volumePartageIndex >= 0 ? headers[volumePartageIndex] : 'NON TROUVÉ'})`);
+      addLog(`📍 Index Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉ'})`);
+      addLog(`📍 Index Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉ'})`);
+      addLog(`📍 Index Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉ'})`);
 
       if (eanIndex === -1) {
         throw new Error('Colonne EAN non trouvée. Assurez-vous qu\'une colonne contient "EAN"');
       }
 
       // Charger les participants
+      addLog('👥 Chargement des participants depuis la base...');
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*');
 
       if (error) throw error;
 
-      // DEBUG SPÉCIFIQUE POUR L'EAN PROBLÉMATIQUE
       const targetEan = '541448965001060702';
-      console.log('🎯 RECHERCHE SPÉCIFIQUE DE L\'EAN:', targetEan);
+      addLog(`🎯 RECHERCHE SPÉCIFIQUE DE L'EAN: ${targetEan}`);
       
       const foundParticipant = participants?.find(p => p.ean_code === targetEan);
-      console.log('🔍 Participant trouvé dans la base?', !!foundParticipant);
+      addLog(`🔍 Participant trouvé dans la base? ${!!foundParticipant}`);
       if (foundParticipant) {
-        console.log('✅ Participant trouvé:', foundParticipant.name, foundParticipant.ean_code);
+        addLog(`✅ Participant trouvé: ${foundParticipant.name} (${foundParticipant.ean_code})`);
       } else {
-        console.log('❌ Participant NON trouvé');
-        console.log('🔍 Tous les EAN dans la base:', participants?.map(p => p.ean_code).filter(Boolean));
+        addLog('❌ Participant NON trouvé dans la base');
+        addLog(`🔍 EAN disponibles: ${participants?.map(p => p.ean_code).filter(Boolean).join(', ')}`);
       }
+
       const participantMapping: { [ean: string]: any } = {};
       participants?.forEach(p => {
         if (p.ean_code) {
@@ -113,33 +119,26 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         }
       });
 
-      console.log('👥 Participants avec EAN:', Object.keys(participantMapping).length);
-      console.log('🎯 L\'EAN cible est-il dans le mapping?', !!participantMapping[targetEan]);
+      addLog(`👥 Participants avec EAN: ${Object.keys(participantMapping).length}`);
+      addLog(`🎯 L'EAN cible est-il dans le mapping? ${!!participantMapping[targetEan]}`);
       if (participantMapping[targetEan]) {
-        console.log('✅ Mapping trouvé:', participantMapping[targetEan]);
+        addLog(`✅ Mapping trouvé: ${JSON.stringify(participantMapping[targetEan])}`);
       } else {
-        console.log('❌ Mapping NON trouvé pour:', targetEan);
-        console.log('🔍 EAN similaires dans le mapping:', Object.keys(participantMapping).filter(ean => 
+        addLog(`❌ Mapping NON trouvé pour: ${targetEan}`);
+        const similarEans = Object.keys(participantMapping).filter(ean => 
           ean.includes('541448') || ean.includes('965001') || ean.includes('060702')
-        ));
+        );
+        addLog(`🔍 EAN similaires: ${similarEans.join(', ')}`);
       }
 
-      // Debug: afficher tous les EAN disponibles
-      console.log('🔍 EAN disponibles dans la base:', Object.keys(participantMapping));
-      console.log('🔍 Recherche de l\'EAN "541448965001060702"...');
-      if (participantMapping[targetEan]) {
-        console.log('✅ EAN trouvé:', participantMapping[targetEan]);
-      } else {
-        console.log('❌ EAN NON TROUVÉ dans le mapping');
-        console.log('🔍 EAN similaires:', Object.keys(participantMapping).filter(ean => 
-          ean.includes('541448') || ean.includes('965001')
-        ));
-      }
+      addLog(`🔍 Tous les EAN disponibles: ${Object.keys(participantMapping).join(', ')}`);
 
       // Traiter les données ligne par ligne
       const participantData: { [ean: string]: any } = {};
       const unknownEans = new Set<string>();
       let validRows = 0;
+
+      addLog(`📊 Traitement de ${lines.length - 1} lignes de données...`);
 
       for (let i = 1; i < lines.length; i++) {
         const row = lines[i].split('\t').map(cell => cell.trim());
@@ -152,26 +151,31 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
         // Debug pour l'EAN spécifique
         if (eanCode === targetEan || eanCodeRaw === targetEan || eanCode.includes('965001')) {
-          console.log(`🎯 EAN CIBLE TROUVÉ dans les données: "${eanCode}"`);
-          console.log(`🎯 EAN brut: "${eanCodeRaw}"`);
-          console.log('📋 Ligne complète:', row);
-          console.log('🔍 Mapping disponible?', !!participantMapping[eanCode]);
-          console.log('🔍 Mapping avec EAN brut?', !!participantMapping[eanCodeRaw]);
+          addLog(`🎯 EAN CIBLE TROUVÉ dans les données: "${eanCode}"`);
+          addLog(`🎯 EAN brut: "${eanCodeRaw}"`);
+          addLog(`📋 Ligne complète: ${JSON.stringify(row)}`);
+          addLog(`🔍 Mapping disponible avec EAN nettoyé? ${!!participantMapping[eanCode]}`);
+          addLog(`🔍 Mapping disponible avec EAN brut? ${!!participantMapping[eanCodeRaw]}`);
           
           // Tester différentes variantes de l'EAN
-          const variants = [eanCode, eanCodeRaw, eanCode.padStart(18, '0'), eanCodeRaw?.padStart(18, '0')];
-          console.log('🔍 Test de variantes EAN:', variants);
+          const variants = [eanCode, eanCodeRaw, eanCode?.padStart(18, '0'), eanCodeRaw?.padStart(18, '0')];
+          addLog(`🔍 Test de variantes EAN: ${JSON.stringify(variants)}`);
           variants.forEach(variant => {
             if (variant && participantMapping[variant]) {
-              console.log(`✅ VARIANTE TROUVÉE: "${variant}" ->`, participantMapping[variant]);
+              addLog(`✅ VARIANTE TROUVÉE: "${variant}" -> ${JSON.stringify(participantMapping[variant])}`);
             }
           });
         }
 
-        if (participantMapping[eanCode]) {
+        // Essayer d'abord avec l'EAN nettoyé, puis avec l'EAN brut
+        const mappedParticipant = participantMapping[eanCode] || participantMapping[eanCodeRaw];
+        
+        if (mappedParticipant) {
+          const finalEan = participantMapping[eanCode] ? eanCode : eanCodeRaw;
+          
           if (!participantData[eanCode]) {
             participantData[eanCode] = {
-              ...participantMapping[eanCode],
+              ...mappedParticipant,
               data: {
                 volume_partage: 0,
                 volume_complementaire: 0,
@@ -179,6 +183,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                 injection_complementaire: 0
               }
             };
+            addLog(`✅ Participant initialisé: ${mappedParticipant.name} (${finalEan})`);
           }
 
           // Extraire les valeurs
@@ -198,23 +203,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const injectionPartage = parseValue(row[injectionPartageIndex]);
           const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
           
-          console.log(`🔍 LIGNE ${i} - EAN ${eanCode}:`);
-          console.log('  📋 Valeurs brutes:', {
-            volumePartage: row[volumePartageIndex],
-            volumeComplementaire: row[volumeComplementaireIndex],
-            injectionPartage: row[injectionPartageIndex],
-            injectionComplementaire: row[injectionComplementaireIndex]
-          });
-          console.log('  🔢 Valeurs parsées:', {
-            volumePartage,
-            volumeComplementaire,
-            injectionPartage,
-            injectionComplementaire
-          });
-          
-          // Vérifier si on a des valeurs non-nulles
-          if (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0) {
-            console.log('🎉 VALEURS NON-NULLES TROUVÉES !');
+          // Debug pour l'EAN cible ou les 3 premières lignes
+          if (eanCode === targetEan || eanCodeRaw === targetEan || i <= 3) {
+            addLog(`🔍 LIGNE ${i} - EAN ${finalEan}:`);
+            addLog(`  📋 Valeurs brutes: VP="${row[volumePartageIndex]}", VC="${row[volumeComplementaireIndex]}", IP="${row[injectionPartageIndex]}", IC="${row[injectionComplementaireIndex]}"`);
+            addLog(`  🔢 Valeurs parsées: VP=${volumePartage}, VC=${volumeComplementaire}, IP=${injectionPartage}, IC=${injectionComplementaire}`);
+            
+            if (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0) {
+              addLog('🎉 VALEURS NON-NULLES TROUVÉES !');
+            }
           }
 
           // Additionner les valeurs
@@ -251,13 +248,17 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           
           // Debug pour les EAN non reconnus
           if (eanCode === targetEan || eanCode.includes('965001')) {
-            console.log(`❌ EAN NON RECONNU: "${eanCode}"`);
-            console.log('🔍 EAN disponibles:', Object.keys(participantMapping).slice(0, 5));
+            addLog(`❌ EAN NON RECONNU: "${eanCode}" (brut: "${eanCodeRaw}")`);
+            addLog(`🔍 Premiers EAN disponibles: ${Object.keys(participantMapping).slice(0, 5).join(', ')}`);
           }
         }
       }
 
+      addLog(`📊 Traitement terminé: ${validRows} lignes valides, ${unknownEans.size} EAN non reconnus`);
+      addLog(`👥 Participants mis à jour: ${Object.keys(participantData).length}`);
+
       // Mettre à jour la base de données
+      addLog('💾 Mise à jour de la base de données...');
       for (const [eanCode, data] of Object.entries(participantData)) {
         const { data: participant, error: findError } = await supabase
           .from('participants')
@@ -271,7 +272,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             try {
               existingData = JSON.parse(participant.monthly_data);
             } catch (e) {
-              console.warn('Erreur parsing monthly_data:', e);
+              addLog(`⚠️ Erreur parsing monthly_data pour ${eanCode}: ${e}`);
             }
           }
 
@@ -283,10 +284,18 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             }
           };
 
-          await supabase
+          const { error: updateError } = await supabase
             .from('participants')
             .update({ monthly_data: JSON.stringify(updatedData) })
             .eq('id', participant.id);
+
+          if (updateError) {
+            addLog(`❌ Erreur mise à jour ${eanCode}: ${updateError.message}`);
+          } else {
+            addLog(`✅ Mise à jour réussie pour ${(data as any).name} (${eanCode})`);
+          }
+        } else {
+          addLog(`❌ Participant non trouvé en base pour EAN: ${eanCode}`);
         }
       }
 
@@ -310,6 +319,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       };
 
       setResults(finalResults);
+      addLog(`🎉 IMPORT TERMINÉ AVEC SUCCÈS !`);
       
       toast.success(`✅ Import réussi ! ${Object.keys(participantData).length} participants mis à jour`);
       
@@ -319,7 +329,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       }, 3000);
 
     } catch (error: any) {
-      console.error('Erreur:', error);
+      addLog(`❌ ERREUR: ${error.message}`);
       toast.error(`Erreur: ${error.message}`);
     } finally {
       setProcessing(false);
@@ -408,6 +418,30 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             </button>
           </div>
 
+          {/* Debug Logs */}
+          {debugLogs.length > 0 && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                Logs de debug ({debugLogs.length} entrées)
+              </h4>
+              <div className="bg-white border border-gray-200 rounded p-3 max-h-60 overflow-y-auto">
+                <div className="space-y-1 text-xs font-mono">
+                  {debugLogs.map((log, index) => (
+                    <div key={index} className={`${
+                      log.includes('❌') ? 'text-red-600' :
+                      log.includes('✅') ? 'text-green-600' :
+                      log.includes('🎯') ? 'text-purple-600' :
+                      log.includes('⚠️') ? 'text-orange-600' :
+                      'text-gray-700'
+                    }`}>
+                      {log}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           {/* Results */}
           {results && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
