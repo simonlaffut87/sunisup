@@ -703,7 +703,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                   Participants
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Totaux calculés
+                  Mesures
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Statut
@@ -803,12 +803,6 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       </div>
 
       {/* Modal d'import streaming */}
-      <StreamingExcelImport
-        isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
-        onSuccess={handleUploadSuccess}
-      />
-
       {/* Modal d'import manuel */}
       <ManualDataImport
         isOpen={showManualImport}
