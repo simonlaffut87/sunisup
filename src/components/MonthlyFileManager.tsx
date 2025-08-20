@@ -699,17 +699,6 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                     </div>
                   </td>
                 </tr>
-              ) : files.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    <FileSpreadsheet className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p className="text-lg font-medium mb-2">Aucun fichier importé</p>
-                    <p className="text-sm">Utilisez l'import quart-horaire pour traiter vos fichiers Excel</p>
-                    <p className="text-xs text-green-600 mt-2">
-                      ✨ Nouveau : Import anti-crash avec pause/reprise
-                    </p>
-                  </td>
-                </tr>
               ) : (
                 files.map((file) => {
                   const monthLabel = format(new Date(file.month + '-01'), 'MMMM yyyy', { locale: fr });
