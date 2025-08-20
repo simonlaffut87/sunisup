@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, Hash, UserPlus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
@@ -12,10 +12,13 @@ interface LoginModalProps {
 
 export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   const { t } = useTranslation();
-  const [isResetPassword, setIsResetPassword] = useState(false);
+  const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [eanCode, setEanCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +26,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     setLoading(true);
 
     try {
-      if (isResetPassword) {
+      if (mode === 'reset') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
         });
@@ -35,9 +38,85 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         }
 
         toast.success('Email de réinitialisation envoyé ! Vérifiez votre boîte mail.');
-        setIsResetPassword(false);
+        setMode('login');
+      } else if (mode === 'register') {
+        // Vérifier que l'EAN existe dans la base participants
+        if (!eanCode || eanCode.length !== 18) {
+          toast.error('Veuillez entrer un code EAN valide de 18 chiffres');
+          setLoading(false);
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          toast.error('Les mots de passe ne correspondent pas');
+          setLoading(false);
+          return;
+        }
+
+        if (password.length < 6) {
+          toast.error('Le mot de passe doit contenir au moins 6 caractères');
+          setLoading(false);
+          return;
+        }
+
+        // Vérifier que l'EAN existe dans la table participants
+        const { data: participant, error: participantError } = await supabase
+          .from('participants')
+          .select('*')
+          .eq('ean_code', eanCode)
+          .single();
+
+        if (participantError || !participant) {
+          toast.error('Code EAN non trouvé. Contactez-nous pour être ajouté à la communauté.');
+          setLoading(false);
+          return;
+        }
+
+        // Vérifier que l'email correspond à celui du participant
+        if (participant.email && participant.email !== email) {
+          toast.error('L\'adresse email ne correspond pas à celle enregistrée pour ce code EAN');
+          setLoading(false);
+          return;
+        }
+
+        // Créer le compte utilisateur
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: participant.name,
+              ean_code: eanCode,
+              participant_id: participant.id
+            }
+          }
+        });
+
+        if (error) {
+          if (error.message.includes('User already registered')) {
+            toast.error('Un compte existe déjà avec cette adresse email. Utilisez la connexion.');
+          } else {
+            toast.error(error.message || 'Erreur lors de la création du compte');
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Mettre à jour l'email du participant si ce n'était pas fait
+        if (!participant.email) {
+          await supabase
+            .from('participants')
+            .update({ email })
+            .eq('id', participant.id);
+        }
+
+        toast.success('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
+        setMode('login');
+        setPassword('');
+        setConfirmPassword('');
+        setEanCode('');
       } else {
-        // Only login is allowed - no account creation
+        // Mode login
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -70,33 +149,42 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
   const resetForm = () => {
     setEmail('');
     setPassword('');
+    setConfirmPassword('');
+    setEanCode('');
     setShowPassword(false);
+    setShowConfirmPassword(false);
   };
 
-  const goToResetPassword = () => {
-    setIsResetPassword(true);
+  const switchMode = (newMode: 'login' | 'register' | 'reset') => {
+    setMode(newMode);
     setPassword('');
-  };
-
-  const goBackToLogin = () => {
-    setIsResetPassword(false);
-    resetForm();
+    setConfirmPassword('');
+    setEanCode('');
   };
 
   if (!isOpen) return null;
 
   const getTitle = () => {
-    if (isResetPassword) return 'Réinitialiser le mot de passe';
-    return 'Connexion membre';
+    switch (mode) {
+      case 'reset': return 'Réinitialiser le mot de passe';
+      case 'register': return 'Créer un compte membre';
+      default: return 'Connexion membre';
+    }
   };
 
   const getSubmitText = () => {
     if (loading) {
-      if (isResetPassword) return 'Envoi...';
-      return 'Connexion...';
+      switch (mode) {
+        case 'reset': return 'Envoi...';
+        case 'register': return 'Création...';
+        default: return 'Connexion...';
+      }
     }
-    if (isResetPassword) return 'Envoyer le lien';
-    return 'Se connecter';
+    switch (mode) {
+      case 'reset': return 'Envoyer le lien';
+      case 'register': return 'Créer le compte';
+      default: return 'Se connecter';
+    }
   };
 
   return (
@@ -105,9 +193,9 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-3">
-              {isResetPassword && (
+              {mode !== 'login' && (
                 <button
-                  onClick={goBackToLogin}
+                  onClick={() => switchMode('login')}
                   className="text-gray-500 hover:text-gray-700 transition-colors p-1"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -125,7 +213,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             </button>
           </div>
 
-          {isResetPassword && (
+          {mode === 'reset' && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-700">
                 Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
@@ -133,10 +221,18 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             </div>
           )}
 
-          {!isResetPassword && (
+          {mode === 'register' && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-700">
+                <strong>Création de compte membre.</strong> Votre code EAN doit être enregistré dans notre système.
+              </p>
+            </div>
+          )}
+
+          {mode === 'login' && (
             <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
-                <strong>Accès réservé aux membres.</strong> Si vous n'avez pas encore de compte, contactez-nous pour rejoindre la communauté.
+                <strong>Accès réservé aux membres.</strong> Si vous n'avez pas encore de compte, créez-en un avec votre code EAN.
               </p>
             </div>
           )}
@@ -161,7 +257,39 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
               </div>
             </div>
 
-            {!isResetPassword && (
+            {mode === 'register' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Code EAN (18 chiffres)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Hash className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={eanCode}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      if (value.length <= 18) {
+                        setEanCode(value);
+                      }
+                    }}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-mono"
+                    placeholder="541448000000000000"
+                    maxLength={18}
+                    required
+                  />
+                </div>
+                {eanCode && eanCode.length < 18 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    {18 - eanCode.length} chiffres restants
+                  </p>
+                )}
+              </div>
+            )}
+
+            {mode !== 'reset' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Mot de passe
@@ -194,6 +322,39 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
               </div>
             )}
 
+            {mode === 'register' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirmer le mot de passe
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                    placeholder="••••••••"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
@@ -211,23 +372,33 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           </form>
 
           <div className="mt-6 text-center space-y-3">
-            {!isResetPassword && (
+            {mode === 'login' && (
               <button
-                onClick={goToResetPassword}
+                onClick={() => switchMode('reset')}
                 className="text-sm text-gray-600 hover:text-gray-800 block"
               >
                 Mot de passe oublié ?
               </button>
             )}
             
+            {mode === 'login' && (
+              <button
+                onClick={() => switchMode('register')}
+                className="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center justify-center gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                Créer un compte avec mon code EAN
+              </button>
+            )}
+            
             <div className="pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-600 text-center">
-                Pas encore membre ?{' '}
+                {mode === 'register' ? 'Déjà un compte ?' : 'Pas encore membre ?'}{' '}
                 <button
-                  onClick={onClose}
+                  onClick={mode === 'register' ? () => switchMode('login') : onClose}
                   className="text-amber-600 hover:text-amber-700 font-medium"
                 >
-                  Contactez-nous pour rejoindre la communauté
+                  {mode === 'register' ? 'Se connecter' : 'Contactez-nous pour rejoindre la communauté'}
                 </button>
               </p>
             </div>
