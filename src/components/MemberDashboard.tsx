@@ -252,12 +252,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       if (simulatedData.every(d => d.consumption === 0 && d.shared_energy === 0 && d.production === 0)) {
         await fetchEnergyDataOld(year, isInitial);
         return;
-        }
-        
-        setEnergyData(simulatedData);
-      } else {
-        setEnergyData(simulatedData);
       }
+        
+      setEnergyData(simulatedData);
 
     } catch (error) {
       console.error('Error fetching energy data:', error);
@@ -449,7 +446,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             <div className="flex items-center mb-4">
               <Database className="w-6 h-6 text-blue-600 mr-3" />
               <h3 className="text-lg font-semibold text-gray-900">
-                Données mensuelles - {format(selectedDate, 'MMMM yyyy', { locale: fr })}
+                Données mensuelles - {format(new Date(), 'MMMM yyyy', { locale: fr })}
               </h3>
             </div>
             
