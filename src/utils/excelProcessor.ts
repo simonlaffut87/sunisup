@@ -1,4 +1,6 @@
 import * as XLSX from 'xlsx';
+import { BillingCalculator } from './billingCalculator';
+import { supabase } from '../lib/supabase';
 
 export class ExcelProcessor {
   /**
@@ -69,6 +71,9 @@ export class ExcelProcessor {
 
       console.log('✅ IMPORT TERMINÉ AVEC SUCCÈS');
       onProgress?.('Import terminé !', 100);
+
+      // Mettre à jour les données de facturation
+      await this.updateBillingData(result, participantMapping);
 
       return { success: true, data: result, errors, warnings };
 

@@ -11,6 +11,7 @@ import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { ParticipantForm } from './ParticipantForm';
 import { MonthlyFileManager } from './MonthlyFileManager';
 import { useAutoLogout } from '../hooks/useAutoLogout';
+import { ParticipantBillingDashboard } from './ParticipantBillingDashboard';
 
 type Participant = DB['public']['Tables']['participants']['Row'];
 
@@ -78,21 +79,7 @@ export function AdminDashboard() {
 
 
   const handleViewParticipantDashboard = async (participant: Participant) => {
-    // Vérifier si le participant a un email
-    if (!participant.email) {
-      toast.error(`${participant.name} n'a pas d'adresse email configurée. Modifiez le participant pour ajouter une adresse email.`);
-      return;
-    }
-
-    // Créer un objet utilisateur pour afficher le dashboard
-    const userObj = {
-      id: participant.id,
-      email: participant.email,
-      name: participant.name,
-      member_type: participant.type
-    };
-    
-    setViewingMemberDashboard(userObj);
+    setViewingMemberDashboard(participant);
   };
 
   const handleCloseMemberDashboard = () => {
@@ -177,9 +164,9 @@ export function AdminDashboard() {
 
   if (viewingMemberDashboard) {
     return (
-      <MemberDashboard 
-        user={viewingMemberDashboard} 
-        onLogout={handleCloseMemberDashboard}
+      <ParticipantBillingDashboard 
+        participant={viewingMemberDashboard} 
+        onBack={handleCloseMemberDashboard}
       />
     );
   }
