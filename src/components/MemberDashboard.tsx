@@ -401,6 +401,16 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return energyData.reduce((sum, item) => sum + Number(item.production || 0), 0);
   }, [energyData]);
 
+  const residualConsumption = React.useMemo(() => {
+    return Math.max(0, totalConsumption - totalSharedEnergy);
+  }, [totalConsumption, totalSharedEnergy]);
+
+  // Données mensuelles pour le mois sélectionné
+  const currentMonthData = React.useMemo(() => {
+    const monthKey = format(selectedDate, 'yyyy-MM');
+    return monthlyData[monthKey] || null;
+  }, [monthlyData, selectedDate]);
+
   // Nouvelles métriques basées sur les données mensuelles
   const totalInjection = React.useMemo(() => {
     if (currentMonthData) {
@@ -427,20 +437,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return volumePartage + volumeResiduel;
   }, [volumePartage, volumeResiduel]);
 
-  // Données mensuelles pour le mois sélectionné
-  const currentMonthData = React.useMemo(() => {
-    const monthKey = format(selectedDate, 'yyyy-MM');
-    return monthlyData[monthKey] || null;
-  }, [monthlyData, selectedDate]);
-  
   // Calculer le pourcentage d'énergie partagée
   const sharedPercentage = React.useMemo(() => {
     return volumeTotal > 0 ? ((volumePartage / volumeTotal) * 100) : 0;
   }, [volumePartage, volumeTotal]);
-
-  const residualConsumption = React.useMemo(() => {
-    return Math.max(0, totalConsumption - totalSharedEnergy);
-  }, [totalConsumption, totalSharedEnergy]);
 
   // Optimized navigation functions with immediate UI update
   const navigatePrevious = useCallback(() => {
