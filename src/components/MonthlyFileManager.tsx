@@ -356,25 +356,11 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         </div>
         <div className="flex space-x-3">
           <button
-            onClick={downloadTemplate}
-            className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-sm hover:shadow-md"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Template
-          </button>
-          <button
             onClick={handleClearAllData}
             className="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm hover:shadow-md"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Nettoyer tout
-          </button>
-          <button
-            onClick={() => setShowUploadModal(true)}
-            className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors shadow-sm hover:shadow-md"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Import Excel
           </button>
           <button
             onClick={() => setShowManualImport(true)}
