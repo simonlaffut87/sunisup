@@ -1,403 +1,384 @@
-import React, { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
+import { BillingCalculator } from './billingCalculator';
 import { supabase } from '../lib/supabase';
-import { MemberDashboard } from './MemberDashboard';
-import { toast } from 'react-hot-toast';
-import { Users, Plus, Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail, 
-  Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { Database as DB } from '../types/supabase';
-import { subDays, startOfDay, endOfDay } from 'date-fns';
-import { ParticipantForm } from './ParticipantForm';
-import { MonthlyFileManager } from './MonthlyFileManager';
-import { useAutoLogout } from '../hooks/useAutoLogout';
-import { ParticipantBillingDashboard } from './ParticipantBillingDashboard';
 
-type Participant = DB['public']['Tables']['participants']['Row'];
+export class ExcelProcessor {
+  /**
+   * Traite un fichier Excel mensuel avec timeout et approche simplifiée
+   */
+  static async processExcelFile(
+    file: File,
+    participantMapping: { [ean_code: string]: { name: string; type: 'producer' | 'consumer'; id: string } },
+    onProgress?: (progress: string, percentage: number) => void
+  ): Promise<{
+    success: boolean;
+    data?: any;
+    errors: string[];
+    warnings: string[];
+  }> {
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
-export function AdminDashboard() {
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [viewingMemberDashboard, setViewingMemberDashboard] = useState<any>(null);
-  const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    loadParticipants();
-  }, []);
-
-  const loadParticipants = async () => {
-    setLoading(true);
     try {
-      // Charger les participants
-      const { data, error } = await supabase
-        .from('participants')
-        .select('*')
-        .order('name');
+      console.log('🚀 DÉBUT IMPORT SIMPLIFIÉ');
+      console.log('📁 Fichier:', file.name, 'Taille:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+      
+      onProgress?.('Lecture du fichier...', 10);
 
-      if (error) throw error;
+      // Timeout pour éviter les blocages
+      const TIMEOUT_MS = 30000; // 30 secondes max
 
-      setParticipants(data || []);
-    } catch (error) {
-      console.error('Error loading participants:', error);
-      toast.error('Erreur lors du chargement des participants');
-    } finally {
-      setLoading(false);
+      // Lecture du fichier avec timeout
+      const buffer = await Promise.race([
+        this.readFileAsBuffer(file),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout: Lecture du fichier trop longue')), TIMEOUT_MS)
+        )
+      ]);
+
+      console.log('✅ Fichier lu, taille buffer:', buffer.byteLength);
+      onProgress?.('Analyse Excel...', 30);
+
+      // Lecture Excel avec timeout
+      const workbook = await Promise.race([
+        this.parseExcelBuffer(buffer),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout: Analyse Excel trop longue')), TIMEOUT_MS)
+        )
+      ]);
+
+      console.log('✅ Excel analysé, feuilles:', workbook.SheetNames);
+      onProgress?.('Extraction des données...', 50);
+
+      // Extraction des données avec timeout
+      const jsonData = await Promise.race([
+        this.extractDataFromWorkbook(workbook),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout: Extraction des données trop longue')), TIMEOUT_MS)
+        )
+      ]);
+
+      console.log('✅ Données extraites, lignes:', jsonData.length);
+      onProgress?.('Traitement des participants...', 70);
+
+      // Traitement des participants avec timeout
+      const result = await Promise.race([
+        this.processParticipants(jsonData, participantMapping, file.name, onProgress),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout: Traitement des participants trop long')), TIMEOUT_MS)
+        )
+      ]);
+
+      console.log('✅ IMPORT TERMINÉ AVEC SUCCÈS');
+      onProgress?.('Import terminé !', 100);
+
+      // Mettre à jour les données de facturation
+      await this.updateBillingData(result, participantMapping);
+
+      return { success: true, data: result, errors, warnings };
+
+    } catch (error: any) {
+      console.error('❌ ERREUR IMPORT:', error.message);
+      errors.push(`Erreur: ${error.message}`);
+      return { success: false, errors, warnings };
     }
-  };
+  }
 
-  // Actualiser les données
-  const handleRefreshData = async () => {
-    setRefreshing(true);
+  /**
+   * Lit le fichier comme ArrayBuffer
+   */
+  private static readFileAsBuffer(file: File): Promise<ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      console.log('📖 Début lecture fichier...');
+      
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        const result = event.target?.result;
+        if (result instanceof ArrayBuffer) {
+          console.log('✅ Fichier lu, taille:', result.byteLength);
+          resolve(result);
+        } else {
+          reject(new Error('Résultat de lecture invalide'));
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Erreur lecture fichier'));
+      reader.onabort = () => reject(new Error('Lecture annulée'));
+      
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  /**
+   * Parse le buffer Excel
+   */
+  private static async parseExcelBuffer(buffer: ArrayBuffer): Promise<XLSX.WorkBook> {
+    console.log('📋 Début analyse Excel...');
+    
     try {
-      await loadParticipants();
-      console.log('🔄 Données actualisées');
-    } catch (error) {
-      console.error('❌ Erreur actualisation:', error);
-    } finally {
-      setRefreshing(false);
+      const workbook = XLSX.read(buffer, { 
+        type: 'buffer',
+        cellDates: true,
+        cellNF: false,
+        raw: false
+      });
+      
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        throw new Error('Aucune feuille trouvée');
+      }
+      
+      console.log('✅ Excel analysé:', workbook.SheetNames.length, 'feuille(s)');
+      return workbook;
+      
+    } catch (error: any) {
+      console.error('❌ Erreur analyse Excel:', error);
+      throw new Error(`Impossible d'analyser le fichier Excel: ${error.message}`);
     }
-  };
+  }
 
-  const handleEdit = (participant: Participant) => {
-    setEditingParticipant(participant);
-    setShowForm(true);
-  };
-
-  const handleAdd = () => {
-    setEditingParticipant(null);
-    setShowForm(true);
-  };
-
-  const handleFormSuccess = () => {
-    setShowForm(false);
-    setEditingParticipant(null);
-    loadParticipants();
-  };
-
-
-  const handleViewParticipantDashboard = async (participant: Participant) => {
-    setViewingMemberDashboard(participant);
-  };
-
-  const handleCloseMemberDashboard = () => {
-    setViewingMemberDashboard(null);
-  };
-
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
+  /**
+   * Extrait les données de la première feuille
+   */
+  private static async extractDataFromWorkbook(workbook: XLSX.WorkBook): Promise<any[][]> {
+    console.log('📊 Début extraction données...');
     
-    setIsLoggingOut(true);
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
     
+    if (!worksheet) {
+      throw new Error(`Impossible d'accéder à la feuille: ${sheetName}`);
+    }
+    
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+      header: 1,
+      raw: false,
+      defval: ''
+    });
+    
+    if (!jsonData || jsonData.length < 2) {
+      throw new Error('Fichier vide ou sans données');
+    }
+    
+    console.log('✅ Données extraites:', jsonData.length, 'lignes');
+    console.log('📋 En-têtes:', jsonData[0]);
+    
+    return jsonData as any[][];
+  }
+
+  /**
+   * Traite les participants de manière simplifiée
+   */
+  private static async processParticipants(
+    jsonData: any[][],
+    participantMapping: any,
+    filename: string,
+    onProgress?: (progress: string, percentage: number) => void
+  ): Promise<any> {
+    console.log('👥 Début traitement participants...');
+    
+    const headers = jsonData[0] as string[];
+    console.log('📋 En-têtes:', headers);
+    
+    // Trouver la colonne EAN
+    const eanIndex = headers.findIndex(h => 
+      String(h).toLowerCase().includes('ean')
+    );
+    
+    if (eanIndex === -1) {
+      throw new Error('Colonne EAN non trouvée');
+    }
+    
+    console.log('🔍 Colonne EAN trouvée à l\'index:', eanIndex);
+    
+    const participantData: { [ean: string]: any } = {};
+    const unknownEans = new Set<string>();
+    let totalRowsProcessed = 0;
+    let validRowsImported = 0;
+    
+    // Traiter maximum 100 lignes pour éviter les blocages
+    const maxRows = Math.min(jsonData.length, 100);
+    console.log('📊 Traitement de', maxRows - 1, 'lignes de données');
+    
+    for (let i = 1; i < maxRows; i++) {
+      const row = jsonData[i] as any[];
+      
+      if (!row || row.length === 0) continue;
+      
+      totalRowsProcessed++;
+      
+      // Mettre à jour le progrès
+      if (i % 10 === 0) {
+        const progress = 70 + (i / maxRows) * 20;
+        onProgress?.(`Traitement ligne ${i}/${maxRows}...`, progress);
+      }
+      
+      const eanRaw = row[eanIndex];
+      if (!eanRaw) continue;
+      
+      const eanCode = String(eanRaw).trim();
+      
+      if (participantMapping[eanCode]) {
+        participantData[eanCode] = {
+          ...participantMapping[eanCode],
+          data: {
+            volume_complementaire: 0,
+            volume_partage: 0,
+            injection_complementaire: 0,
+            injection_partagee: 0
+          }
+        };
+        validRowsImported++;
+      } else {
+        unknownEans.add(eanCode);
+      }
+    }
+    
+    const month = this.extractMonthFromFilename(filename);
+    
+    const result = {
+      month,
+      participants: participantData,
+      stats: {
+        totalRowsProcessed,
+        validRowsImported,
+        participantsFound: Object.keys(participantData).length,
+        unknownEansSkipped: unknownEans.size,
+        participantsUpdated: Object.keys(participantData).length,
+        mesuresCount: validRowsImported
+      },
+      totals: {
+        total_volume_complementaire: 0,
+        total_volume_partage: 0,
+        total_injection_complementaire: 0,
+        total_injection_partagee: 0
+      },
+      upload_date: new Date().toISOString(),
+      filename
+    };
+    
+    console.log('✅ Traitement terminé:', result.stats);
+    
+    // Sauvegarder dans localStorage
     try {
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('supabase.auth.')) {
-          keysToRemove.push(key);
+      const monthlyData = JSON.parse(localStorage.getItem('monthly_data') || '{}');
+      monthlyData[month] = result;
+      localStorage.setItem('monthly_data', JSON.stringify(monthlyData));
+      console.log('💾 Données sauvegardées dans localStorage');
+    } catch (error) {
+      console.warn('⚠️ Erreur sauvegarde localStorage:', error);
+    }
+    
+    return result;
+  }
+
+  /**
+   * Extrait le mois à partir du nom du fichier
+   */
+  private static extractMonthFromFilename(filename: string): string {
+    try {
+      console.log('🔍 Extraction du mois depuis:', filename);
+      
+      const monthMatch = filename.match(/([A-Z]{3})(\d{4})/i);
+      if (monthMatch) {
+        const [, monthAbbr, year] = monthMatch;
+        console.log('📅 Mois trouvé:', monthAbbr, 'Année:', year);
+        
+        const monthMap: { [key: string]: string } = {
+          'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'AVR': '04',
+          'MAY': '05', 'MAI': '05', 'JUN': '06', 'JUL': '07', 'AOU': '08', 'AUG': '08',
+          'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
+        };
+        const monthNum = monthMap[monthAbbr.toUpperCase()];
+        console.log('🔍 Mapping:', monthAbbr.toUpperCase(), '->', monthNum);
+        if (monthNum) {
+          const result = `${year}-${monthNum}`;
+          console.log('✅ Mois final:', result);
+          return result;
         }
       }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
       
-      sessionStorage.clear();
-      
-      supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-      
-      window.location.href = '/';
-      
+      const now = new Date();
+      const fallback = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      console.log('⚠️ Aucun pattern trouvé, fallback:', fallback);
+      return fallback;
     } catch (error) {
-      console.error('Error logging out:', error);
-      window.location.href = '/';
+      const now = new Date();
+      const fallback = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      console.log('❌ Erreur extraction, fallback:', fallback);
+      return fallback;
     }
-  };
-
-  // Hook de déconnexion automatique
-  useAutoLogout({
-    onLogout: handleLogout,
-    timeoutMinutes: 15,
-    isLoggedIn: true
-  });
-
-  if (showForm) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="mr-4 p-2 text-gray-600 hover:text-gray-900"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {editingParticipant ? 'Modifier le participant' : 'Ajouter un participant'}
-                </h1>
-              </div>
-              <button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
-              </button>
-            </div>
-          </div>
-        </header>
-
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
-            <ParticipantForm
-              participant={editingParticipant}
-              onSuccess={handleFormSuccess}
-              onCancel={() => setShowForm(false)}
-            />
-          </div>
-        </main>
-      </div>
-    );
   }
 
-  if (viewingMemberDashboard) {
-    return (
-      <ParticipantBillingDashboard 
-        participant={viewingMemberDashboard} 
-        onBack={handleCloseMemberDashboard}
-      />
-    );
+  /**
+   * Met à jour les données de facturation
+   */
+  private static async updateBillingData(result: any, participantMapping: any): Promise<void> {
+    try {
+      console.log('💰 Mise à jour des données de facturation...');
+      
+      // Calculer les données de facturation pour chaque participant
+      for (const [eanCode, participantData] of Object.entries(result.participants)) {
+        const participant = participantMapping[eanCode];
+        if (!participant) continue;
+        
+        // Calculer les coûts avec BillingCalculator
+        const billingData = BillingCalculator.calculateMonthlyBilling(
+          participant.id,
+          result.month,
+          participantData.data
+        );
+        
+        // Sauvegarder dans Supabase
+        const { error } = await supabase
+          .from('monthly_billing')
+          .upsert({
+            participant_id: participant.id,
+            month: result.month,
+            volume_complementaire: participantData.data.volume_complementaire,
+            volume_partage: participantData.data.volume_partage,
+            injection_complementaire: participantData.data.injection_complementaire,
+            injection_partagee: participantData.data.injection_partagee,
+            cost_complementaire: billingData.cost_complementaire,
+            cost_partage: billingData.cost_partage,
+            revenue_injection: billingData.revenue_injection,
+            net_amount: billingData.net_amount,
+            updated_at: new Date().toISOString()
+          });
+        
+        if (error) {
+          console.error('❌ Erreur sauvegarde facturation:', error);
+        }
+      }
+      
+      console.log('✅ Données de facturation mises à jour');
+    } catch (error) {
+      console.error('❌ Erreur mise à jour facturation:', error);
+    }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
-      </div>
-    );
+  /**
+   * Génère un template Excel d'exemple
+   */
+  static generateTemplate() {
+    const templateData = [
+      ['FromDate (Inclu)', 'ToDate (Exclu)', 'EAN', 'Compteur', 'Partage', 'Registre', 'Volume Partagé (kWh)', 'Volume Complémentaire (kWh)', 'Injection Partagée (kWh)', 'Injection Résiduelle (kWh)'],
+      ['1-avr-25', '1-mai-25', '541448000000000001', '1SAG1100', 'ES_TOUR_ET_TAXIS', 'HI', '23,39882797', '18,59517203', '0', '0'],
+      ['1-avr-25', '1-mai-25', '541448000000000001', '1SAG1100', 'ES_TOUR_ET_TAXIS', 'LOW', '12,55930924', '37,28169076', '0', '0'],
+      ['1-avr-25', '1-mai-25', '541448000000000002', '1SAG1100', 'ES_TOUR_ET_TAXIS', 'HI', '36,92423176', '33,28376824', '15,5', '8,2'],
+      ['1-avr-25', '1-mai-25', '541448000000000002', '1SAG1100', 'ES_TOUR_ET_TAXIS', 'LOW', '23,67788895', '38,45611105', '12,3', '6,7']
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template');
+    
+    ws['!cols'] = [
+      { width: 15 }, { width: 15 }, { width: 20 }, { width: 12 }, 
+      { width: 20 }, { width: 10 }, { width: 20 }, { width: 25 }, 
+      { width: 20 }, { width: 25 }
+    ];
+    
+    XLSX.writeFile(wb, 'template-import-mensuel.xlsx');
   }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-12 w-12" />
-              </div>
-              <div className="ml-4">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Tableau de bord administrateur
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Gestion des participants Sun Is Up
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleRefreshData}
-                disabled={refreshing}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Actualiser les données"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-                {refreshing ? 'Actualisation...' : 'Actualiser'}
-              </button>
-              <button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Section Import de données mensuelles */}
-        <MonthlyFileManager onImportSuccess={handleRefreshData} />
-
-
-        {/* Participants Table */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Users className="w-6 h-6 text-amber-600 mr-3" />
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Participants de la communauté</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {participants.length} participant(s) • {participants.filter(p => p.ean_code).length} avec code EAN
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={handleAdd}
-                className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter un participant
-              </button>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      Nom
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      Adresse
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Date d'entrée
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Mail className="w-4 h-4 mr-2" />
-                      Email
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Hash className="w-4 h-4 mr-2" />
-                      Code EAN
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Euro className="w-4 h-4 mr-2" />
-                      Tarif commodité
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {participants.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                      <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                      <p className="text-lg font-medium mb-2">Aucun participant enregistré</p>
-                      <p className="text-sm">Ajoutez votre premier participant pour commencer</p>
-                    </td>
-                  </tr>
-                ) : (
-                  participants.map((participant) => (
-                    <tr key={participant.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="text-sm font-medium text-gray-900">{participant.name}</div>
-                          {participant.ean_code && (
-                            <div className="ml-2">
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                <Database className="w-3 h-3 mr-1" />
-                                Prêt import
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          participant.type === 'producer' 
-                            ? 'bg-amber-100 text-amber-800' 
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs truncate" title={participant.address}>
-                          {participant.address}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {participant.entry_date ? (
-                            format(new Date(participant.entry_date), 'dd/MM/yyyy', { locale: fr })
-                          ) : (
-                            <span className="text-gray-400 italic">Non renseignée</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {participant.email || (
-                            <span className="text-gray-400 italic">Non renseigné</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 font-mono">
-                          {participant.ean_code ? (
-                            <span className="bg-green-100 px-2 py-1 rounded text-xs font-medium">
-                              {participant.ean_code}
-                            </span>
-                          ) : (
-                            <span className="text-red-500 italic text-xs font-medium">⚠️ Manquant</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {participant.commodity_rate ? (
-                            `${participant.commodity_rate} €/MWh`
-                          ) : (
-                            <span className="text-gray-400 italic">Non renseigné</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => participant.email ? handleViewParticipantDashboard(participant) : null}
-                            className="text-blue-600 hover:text-blue-900 transition-colors"
-                            title={participant.email ? "Voir le dashboard" : "Email manquant"}
-                            disabled={!participant.email}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleEdit(participant)}
-                            className="text-amber-600 hover:text-amber-900 transition-colors"
-                            title="Modifier"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
 }
