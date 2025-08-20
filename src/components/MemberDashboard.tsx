@@ -53,34 +53,105 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [monthlyData, setMonthlyData] = useState<any>({});
 
+  // Fonction pour charger les données mensuelles depuis la colonne monthly_data
+  const loadMonthlyDataFromParticipant = useCallback(async (participantId: string) => {
+    try {
+      const { data: participant, error } = await supabase
+        .from('participants')
+        .select('monthly_data')
+        .eq('id', participantId)
+        .single();
+
+      if (error) {
+        console.error('Erreur chargement monthly_data:', error);
+        return {};
+      }
+
+      if (participant.monthly_data) {
+        try {
+          const parsed = typeof participant.monthly_data === 'string' 
+            ? JSON.parse(participant.monthly_data)
+            : participant.monthly_data;
+          console.log('✅ Données mensuelles chargées:', parsed);
+          return parsed;
+        } catch (e) {
+          console.warn('Erreur parsing monthly_data:', e);
+          return {};
+        }
+      }
+
+      return {};
+    } catch (error) {
+      console.error('Erreur lors du chargement des données mensuelles:', error);
+      return {};
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchUserProfileEffect = async () => {
       try {
-        const { data, error } = await supabase
-          .from('participants') 
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error) throw error;
+        // Chercher d'abord par participant_id dans les métadonnées utilisateur
+        let participantData = null;
         
-        setUserProfile({
-          id: data.id,
-          email: data.email || user.email,
-          name: data.name || user.name,
-          member_type: data.type,
-          monthly_data: data.monthly_data
-        });
-
-        // Parser les données mensuelles
-        if (data.monthly_data) {
-          try {
-            const parsed = JSON.parse(data.monthly_data);
-            setMonthlyData(parsed);
-          } catch (e) {
-            console.warn('Erreur parsing monthly_data:', e);
-            setMonthlyData({});
+        if (user.user_metadata?.participant_id) {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('*')
+            .eq('id', user.user_metadata.participant_id)
+            .single();
+          
+          if (!error && data) {
+            participantData = data;
           }
+        }
+        
+        // Si pas trouvé par participant_id, chercher par email
+        if (!participantData) {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('*')
+            .eq('email', user.email)
+            .single();
+          
+          if (!error && data) {
+            participantData = data;
+          }
+        }
+        
+        // Si pas trouvé par email, chercher par EAN dans les métadonnées
+        if (!participantData && user.user_metadata?.ean_code) {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('*')
+            .eq('ean_code', user.user_metadata.ean_code)
+            .single();
+          
+          if (!error && data) {
+            participantData = data;
+          }
+        }
+
+        if (participantData) {
+          setUserProfile({
+            id: participantData.id,
+            email: participantData.email || user.email,
+            name: participantData.name || user.name,
+            member_type: participantData.type,
+            monthly_data: participantData.monthly_data
+          });
+
+          // Charger les données mensuelles
+          const monthlyDataLoaded = await loadMonthlyDataFromParticipant(participantData.id);
+          setMonthlyData(monthlyDataLoaded);
+        } else {
+          // Fallback si aucun participant trouvé
+          setUserProfile({
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.name || user.name || 'Membre',
+            member_type: user.user_metadata?.member_type || 'consumer'
+          });
+          setMonthlyData({});
         }
         
       } catch (error) {
@@ -88,18 +159,18 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         setUserProfile({
           id: user.id,
           email: user.email,
-          name: user.name || data?.name || 'Membre',
-          member_type: user.member_type || data?.type || 'consumer'
+          name: user.user_metadata?.name || user.name || 'Membre',
+          member_type: user.user_metadata?.member_type || 'consumer'
         });
         setMonthlyData({});
       }
     };
 
-    fetchUserProfile();
-  }, [user]);
+    fetchUserProfileEffect();
+  }, [user, loadMonthlyDataFromParticipant]);
 
-  // Memoized function to fetch energy data
-  const fetchEnergyData = useCallback(async (mode: 'day' | 'week' | 'month', date: Date, isInitial = false) => {
+  // Fonction pour charger les données d'énergie depuis energy_data (ancienne méthode)
+  const fetchEnergyDataOld = useCallback(async (mode: 'day' | 'week' | 'month', date: Date, isInitial = false) => {
     if (isInitial) {
       setLoading(true);
     } else {
@@ -123,10 +194,16 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           break;
       }
 
-      const { data, error } = await supabase
-        .from('energy_data')
-        .select('*')
-        .eq('user_id', user.id || '')
+      // Chercher d'abord par participant_id, puis par user_id
+      let query = supabase.from('energy_data').select('*');
+      
+      if (userProfile?.id) {
+        query = query.eq('user_id', userProfile.id);
+      } else {
+        query = query.eq('user_id', user.id);
+      }
+
+      const { data, error } = await query
         .gte('timestamp', startDate.toISOString())
         .lte('timestamp', endDate.toISOString())
         .order('timestamp', { ascending: true });
@@ -145,7 +222,78 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         setDataLoading(false);
       }
     }
-  }, [user.id]);
+  }, [user.id, userProfile?.id]);
+
+  // Nouvelle fonction pour utiliser les données mensuelles
+  const fetchEnergyData = useCallback(async (mode: 'day' | 'week' | 'month', date: Date, isInitial = false) => {
+    if (isInitial) {
+      setLoading(true);
+    } else {
+      setDataLoading(true);
+    }
+
+    try {
+      // Utiliser les données mensuelles si disponibles
+      const monthKey = format(date, 'yyyy-MM');
+      const currentMonthData = monthlyData[monthKey];
+      
+      if (currentMonthData) {
+        // Créer des données simulées basées sur les données mensuelles
+        const simulatedData = [];
+        const isProducer = userProfile?.member_type === 'producer';
+        
+        // Générer des points de données pour la période demandée
+        let dataPoints = 24; // Par défaut pour un jour
+        if (mode === 'week') dataPoints = 7;
+        if (mode === 'month') dataPoints = 30;
+        
+        for (let i = 0; i < dataPoints; i++) {
+          let pointDate;
+          if (mode === 'day') {
+            pointDate = new Date(date);
+            pointDate.setHours(i);
+          } else if (mode === 'week') {
+            pointDate = subDays(date, 6 - i);
+          } else {
+            pointDate = subDays(date, 29 - i);
+          }
+          
+          // Répartir les données mensuelles sur la période
+          const factor = 1 / dataPoints;
+          
+          simulatedData.push({
+            id: `sim-${i}`,
+            user_id: userProfile?.id || user.id,
+            timestamp: pointDate.toISOString(),
+            consumption: isProducer ? 
+              (currentMonthData.volume_complementaire + currentMonthData.volume_partage) * factor :
+              (currentMonthData.volume_complementaire + currentMonthData.volume_partage) * factor,
+            shared_energy: currentMonthData.volume_partage * factor,
+            production: isProducer ? 
+              (currentMonthData.injection_complementaire + currentMonthData.injection_partagee) * factor : 0,
+            created_at: new Date().toISOString()
+          });
+        }
+        
+        setEnergyData(simulatedData);
+      } else {
+        // Fallback vers les vraies données energy_data si pas de données mensuelles
+        await fetchEnergyDataOld(mode, date, isInitial);
+        return;
+      }
+
+    } catch (error) {
+      console.error('Error fetching energy data:', error);
+      // Fallback vers les vraies données en cas d'erreur
+      await fetchEnergyDataOld(mode, date, isInitial);
+    } finally {
+      if (isInitial) {
+        setLoading(false);
+      } else {
+        setDataLoading(false);
+      }
+    }
+  }, [user.id, userProfile?.id, monthlyData, fetchEnergyDataOld, userProfile?.member_type]);
 
   // Initial data load
   useEffect(() => {
@@ -444,6 +592,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <div className="space-y-1">
                     <p className="text-3xl font-bold text-gray-900">{totalProduction.toFixed(1)}</p>
                     <p className="text-sm text-gray-500">kWh</p>
+                    {currentMonthData && (
+                      <p className="text-xs text-amber-600">
+                        Données mensuelles: {(currentMonthData.injection_complementaire + currentMonthData.injection_partagee).toFixed(1)} kWh
+                      </p>
+                    )}
                     <p className="text-xs text-gray-400">
                       {periodText}
                     </p>
@@ -467,6 +620,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <div className="space-y-1">
                     <p className="text-3xl font-bold text-gray-900">{totalSharedEnergy.toFixed(1)}</p>
                     <p className="text-sm text-gray-500">kWh</p>
+                    {currentMonthData && (
+                      <p className="text-xs text-green-600">
+                        Données mensuelles: {currentMonthData.injection_partagee.toFixed(1)} kWh
+                      </p>
+                    )}
                     <p className="text-xs text-gray-400">
                       {periodText}
                     </p>
@@ -490,6 +648,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <div className="space-y-1">
                     <p className="text-3xl font-bold text-gray-900">{totalConsumption.toFixed(1)}</p>
                     <p className="text-sm text-gray-500">kWh</p>
+                    {currentMonthData && (
+                      <p className="text-xs text-blue-600">
+                        Données mensuelles: {(currentMonthData.volume_complementaire + currentMonthData.volume_partage).toFixed(1)} kWh
+                      </p>
+                    )}
                     <p className="text-xs text-gray-400">
                       {periodText}
                     </p>
@@ -538,6 +701,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <div className="space-y-1">
                     <p className="text-3xl font-bold text-gray-900">{totalConsumption.toFixed(1)}</p>
                     <p className="text-sm text-gray-500">kWh</p>
+                    {currentMonthData && (
+                      <p className="text-xs text-blue-600">
+                        Données mensuelles: {(currentMonthData.volume_complementaire + currentMonthData.volume_partage).toFixed(1)} kWh
+                      </p>
+                    )}
                     <p className="text-xs text-gray-400">
                       {periodText}
                     </p>
@@ -561,6 +729,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <div className="space-y-1">
                     <p className="text-3xl font-bold text-gray-900">{totalSharedEnergy.toFixed(1)}</p>
                     <p className="text-sm text-gray-500">kWh</p>
+                    {currentMonthData && (
+                      <p className="text-xs text-amber-600">
+                        Données mensuelles: {currentMonthData.volume_partage.toFixed(1)} kWh
+                      </p>
+                    )}
                     <p className="text-xs text-gray-400">
                       {periodText}
                     </p>
@@ -584,6 +757,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <div className="space-y-1">
                     <p className="text-3xl font-bold text-gray-900">{residualConsumption.toFixed(1)}</p>
                     <p className="text-sm text-gray-500">kWh</p>
+                    {currentMonthData && (
+                      <p className="text-xs text-green-600">
+                        Données mensuelles: {currentMonthData.volume_complementaire.toFixed(1)} kWh
+                      </p>
+                    )}
                     <p className="text-xs text-gray-400">
                       {periodText}
                     </p>
@@ -607,6 +785,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <div className="space-y-1">
                     <p className="text-3xl font-bold text-gray-900">{sharedPercentage.toFixed(1)}%</p>
                     <p className="text-sm text-gray-500">de la consommation</p>
+                    {currentMonthData && (
+                      <p className="text-xs text-purple-600">
+                        Basé sur données mensuelles
+                      </p>
+                    )}
                     <p className="text-xs text-gray-400">
                       {periodText}
                     </p>
