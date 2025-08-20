@@ -29,11 +29,23 @@ export const supabase = createClient<Database>(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      flowType: 'pkce'
     },
     global: {
       headers: {
         'x-application-name': 'sun-is-up'
+      },
+      fetch: (url, options = {}) => {
+        return fetch(url, {
+          ...options,
+          headers: {
+            ...options.headers,
+          }
+        }).catch(error => {
+          console.warn('Supabase fetch error:', error.message);
+          throw new Error('Connection to database failed. Please check your internet connection and try again.');
+        });
       }
     },
     db: {
@@ -58,9 +70,9 @@ const testConnection = async () => {
       .from('participants')
       .select('count')
       .limit(1)
-      .single();
+      .maybeSingle();
     
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is OK
+    if (error && !['PGRST116', 'PGRST301'].includes(error.code)) { // Allow "no rows" and "multiple rows" errors
       throw error;
     }
     
@@ -76,12 +88,12 @@ const testConnection = async () => {
     });
     
     // Provide specific guidance based on error type
-    if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+    if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('Connection to database failed')) {
       console.error('🔧 Troubleshooting steps:');
       console.error('1. Check your internet connection');
       console.error('2. Verify Supabase project is active at:', supabaseUrl);
-      console.error('3. Check CORS settings in Supabase dashboard');
-      console.error('4. Ensure localhost:5173 is allowed in CORS origins');
+      console.error('3. Add https://localhost:5173 to CORS settings in Supabase dashboard');
+      console.error('4. Go to Project Settings > API > CORS and add the URL');
     } else if (error.code === '3000' || error.status === 401) {
       console.error('🔑 API key issue - check your VITE_SUPABASE_ANON_KEY');
     } else if (error.code === '42501' || error.status === 403) {
@@ -98,11 +110,14 @@ const connectionPromise = Promise.race([
   new Promise((_, reject) => 
     setTimeout(() => reject(new Error('Connection test timeout')), 10000)
   )
-]);
-
-connectionPromise.catch((error) => {
+]).catch((error) => {
   console.warn('⚠️ Connection test failed, but application will continue:', error.message);
   console.log('💡 The app may still work if the connection issue resolves itself');
+  console.log('🔧 To fix CORS issues: Add https://localhost:5173 to your Supabase project CORS settings');
+  return false;
 });
+
+// Initialize connection test
+connectionPromise;
 
 export default supabase;
