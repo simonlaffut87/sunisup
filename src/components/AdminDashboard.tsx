@@ -432,7 +432,6 @@ export function AdminDashboard() {
       </main>
     </div>
 
-    {/* Modal de facture */}
     {showInvoice && selectedParticipantForInvoice && (
       <InvoiceTemplate
         isOpen={showInvoice}
