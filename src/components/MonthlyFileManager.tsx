@@ -351,8 +351,6 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Fichiers mensuels</h2>
           <p className="text-gray-600 text-sm mt-1">
-            Import quart-horaire avec contrôle streaming
-          </p>
         </div>
         <div className="flex space-x-3">
           <button
