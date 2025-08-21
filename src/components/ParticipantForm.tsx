@@ -328,21 +328,24 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
 
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
-                <MapPin className="w-4 h-4 inline mr-2" />
-                Adresse *
+                <User className="w-4 h-4 inline mr-2" />
+                Type de participant *
               </label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
+              <select
+                value={formData.type}
+                onChange={(e) => handleInputChange('type', e.target.value)}
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
-                  errors.address ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
+                  errors.type ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
                 }`}
-                placeholder="Ex: 123 Rue du Commerce, 1000 Bruxelles"
                 required
-              />
-              {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
+              >
+                <option value="consumer">Consommateur</option>
+                <option value="producer">Producteur</option>
+              </select>
+              {errors.type && <p className="text-sm text-red-600 mt-1">{errors.type}</p>}
             </div>
+          </div>
+
           </div>
         </div>
 
