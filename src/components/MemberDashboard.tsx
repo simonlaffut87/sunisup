@@ -16,8 +16,8 @@ import {
   Tooltip, 
   Legend, 
   ResponsiveContainer,
-  AreaChart,
-  Area
+  BarChart,
+  Bar
 } from 'recharts';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 
@@ -361,55 +361,111 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return monthlyData[monthKey] || null;
   }, [monthlyData]);
 
-  // Nouvelles métriques basées sur les données mensuelles
-  const totalInjection = React.useMemo(() => {
-    // Calculer l'injection totale pour l'année sélectionnée
-    let totalInjectionYear = 0;
+  // Calculer la période avec des données disponibles
+  const availableDataPeriod = React.useMemo(() => {
+    const monthsWithData = [];
     for (let month = 1; month <= 12; month++) {
       const monthKey = `${selectedYear}-${String(month).padStart(2, '0')}`;
       const monthData = monthlyData[monthKey];
-      if (monthData) {
-        totalInjectionYear += (monthData.injection_partagee || 0) + (monthData.injection_complementaire || 0);
+      if (monthData && (
+        (monthData.volume_partage && monthData.volume_partage > 0) ||
+        (monthData.volume_complementaire && monthData.volume_complementaire > 0) ||
+        (monthData.injection_partagee && monthData.injection_partagee > 0) ||
+        (monthData.injection_complementaire && monthData.injection_complementaire > 0)
+      )) {
+        monthsWithData.push({
+          month,
+          monthKey,
+          data: monthData
+        });
       }
     }
-    return totalInjectionYear;
+    
+    if (monthsWithData.length === 0) {
+      return null;
+    }
+    
+    const firstMonth = monthsWithData[0].month;
+    const lastMonth = monthsWithData[monthsWithData.length - 1].month;
+    
+    const monthNames = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    
+    let periodText;
+    if (firstMonth === lastMonth) {
+      periodText = `${monthNames[firstMonth - 1]} ${selectedYear}`;
+    } else {
+      periodText = `${monthNames[firstMonth - 1]} à ${monthNames[lastMonth - 1]} ${selectedYear}`;
+    }
+    
+    return {
+      monthsWithData,
+      periodText,
+      monthCount: monthsWithData.length
+    };
   }, [monthlyData, selectedYear]);
+
+  // Nouvelles métriques basées sur les données mensuelles disponibles
+  const totalInjection = React.useMemo(() => {
+    if (!availableDataPeriod) return 0;
+    
+    return availableDataPeriod.monthsWithData.reduce((total, { data }) => {
+      return total + (data.injection_partagee || 0) + (data.injection_complementaire || 0);
+    }, 0);
+  }, [availableDataPeriod]);
 
   const volumePartage = React.useMemo(() => {
-    // Calculer le volume partagé pour l'année sélectionnée
-    let totalVolumePartage = 0;
-    for (let month = 1; month <= 12; month++) {
-      const monthKey = `${selectedYear}-${String(month).padStart(2, '0')}`;
-      const monthData = monthlyData[monthKey];
-      if (monthData) {
-        totalVolumePartage += monthData.volume_partage || 0;
-      }
-    }
-    return totalVolumePartage;
-  }, [monthlyData, selectedYear]);
+    if (!availableDataPeriod) return 0;
+    
+    return availableDataPeriod.monthsWithData.reduce((total, { data }) => {
+      return total + (data.volume_partage || 0);
+    }, 0);
+  }, [availableDataPeriod]);
 
   const volumeResiduel = React.useMemo(() => {
-    // Calculer le volume résiduel pour l'année sélectionnée
-    let totalVolumeResiduel = 0;
-    for (let month = 1; month <= 12; month++) {
-      const monthKey = `${selectedYear}-${String(month).padStart(2, '0')}`;
-      const monthData = monthlyData[monthKey];
-      if (monthData) {
-        totalVolumeResiduel += monthData.volume_complementaire || 0;
-      }
-    }
-    return totalVolumeResiduel;
-  }, [monthlyData, selectedYear]);
+    if (!availableDataPeriod) return 0;
+    
+    return availableDataPeriod.monthsWithData.reduce((total, { data }) => {
+      return total + (data.volume_complementaire || 0);
+    }, 0);
+  }, [availableDataPeriod]);
 
   const volumeTotal = React.useMemo(() => {
     return volumePartage + volumeResiduel;
   }, [volumePartage, volumeResiduel]);
 
-  // Calculer le pourcentage d'énergie partagée
+  // Calculer le taux de partage moyen
   const sharedPercentage = React.useMemo(() => {
-    return volumeTotal > 0 ? ((volumePartage / volumeTotal) * 100) : 0;
-  }, [volumePartage, volumeTotal]);
+    if (!availableDataPeriod || volumeTotal === 0) return 0;
+    
+    // Calculer le taux de partage moyen pondéré par les volumes
+    let totalWeightedPercentage = 0;
+    let totalWeight = 0;
+    
+    availableDataPeriod.monthsWithData.forEach(({ data }) => {
+      const monthVolumePartage = data.volume_partage || 0;
+      const monthVolumeTotal = (data.volume_partage || 0) + (data.volume_complementaire || 0);
+      
+      if (monthVolumeTotal > 0) {
+        const monthPercentage = (monthVolumePartage / monthVolumeTotal) * 100;
+        totalWeightedPercentage += monthPercentage * monthVolumeTotal;
+        totalWeight += monthVolumeTotal;
+      }
+    });
+    
+    return totalWeight > 0 ? totalWeightedPercentage / totalWeight : 0;
+  }, [availableDataPeriod, volumeTotal]);
 
+  // Période d'affichage
+  const displayPeriod = React.useMemo(() => {
+    if (availableDataPeriod) {
+      return availableDataPeriod.periodText;
+    }
+    return `Année ${selectedYear} (aucune donnée)`;
+  }, [availableDataPeriod, selectedYear]);
+    }
   // Optimized navigation functions with immediate UI update
   const navigatePrevious = useCallback(() => {
     setSelectedYear(prev => prev - 1);
@@ -425,11 +481,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     timeoutMinutes: 15, // 15 minutes d'inactivité
     isLoggedIn: true // Toujours actif pour le member dashboard
   });
-
-  // Calculate period display text
-  const getPeriodDisplayText = () => {
-    return `Année ${selectedYear}`;
-  };
 
   if (loading) {
     return (
@@ -539,13 +590,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{totalInjection.toFixed(1)}</p>
                 <p className="text-sm text-gray-500">kWh</p>
-                {currentMonthData && (
-                  <p className="text-xs text-amber-600">
-                    Total annuel: {totalInjection.toFixed(1)} kWh
-                  </p>
-                )}
                 <p className="text-xs text-gray-400">
-                  {periodText}
+                  {displayPeriod}
                 </p>
               </div>
             </div>
@@ -567,13 +613,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{volumePartage.toFixed(1)}</p>
                 <p className="text-sm text-gray-500">kWh</p>
-                {currentMonthData && (
-                  <p className="text-xs text-green-600">
-                    Total annuel: {volumePartage.toFixed(1)} kWh
-                  </p>
-                )}
                 <p className="text-xs text-gray-400">
-                  {periodText}
+                  {displayPeriod}
                 </p>
               </div>
             </div>
@@ -595,13 +636,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{volumeResiduel.toFixed(1)}</p>
                 <p className="text-sm text-gray-500">kWh</p>
-                {currentMonthData && (
-                  <p className="text-xs text-blue-600">
-                    Total annuel: {volumeResiduel.toFixed(1)} kWh
-                  </p>
-                )}
                 <p className="text-xs text-gray-400">
-                  {periodText}
+                  {displayPeriod}
                 </p>
               </div>
             </div>
@@ -623,13 +659,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{sharedPercentage.toFixed(1)}%</p>
                 <p className="text-sm text-gray-500">du volume total</p>
-                {currentMonthData && (
-                  <p className="text-xs text-purple-600">
-                    {volumePartage.toFixed(1)} / {volumeTotal.toFixed(1)} kWh (année)
-                  </p>
-                )}
                 <p className="text-xs text-gray-400">
-                  {periodText}
+                  {displayPeriod}
                 </p>
               </div>
             </div>
@@ -660,7 +691,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg relative">
                 <Calendar className="w-5 h-5 text-gray-400" />
                 <span className={`font-medium text-gray-900 min-w-0 transition-opacity duration-200 ${dataLoading ? 'opacity-50' : 'opacity-100'}`}>
-                  {periodText}
+                  {displayPeriod}
                 </span>
                 {dataLoading && (
                   <Loader2 className="w-4 h-4 text-amber-500 animate-spin absolute right-2" />
@@ -710,24 +741,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           
           <div className={`h-80 transition-opacity duration-300 ${dataLoading ? 'opacity-30' : 'opacity-100'}`}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
+              <BarChart
                 data={chartData}
                 margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
               >
-                <defs>
-                  <linearGradient id="colorConsumption" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.2}/>
-                  </linearGradient>
-                  <linearGradient id="colorSharedEnergy" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
-                  </linearGradient>
-                  <linearGradient id="colorProduction" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.2}/>
-                  </linearGradient>
-                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
                   dataKey="time"
@@ -747,31 +764,25 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 />
                 <Legend />
                 
-                <Area 
-                  type="monotone" 
+                <Bar 
                   dataKey="shared_energy" 
                   name="Volume partagé" 
-                  stroke="#10B981" 
-                  fillOpacity={1} 
-                  fill="url(#colorSharedEnergy)" 
+                  fill="#10B981"
+                  radius={[2, 2, 0, 0]}
                 />
-                <Area 
-                  type="monotone" 
+                <Bar 
                   dataKey="consumption" 
                   name="Volume résiduel" 
-                  stroke="#3B82F6" 
-                  fillOpacity={1} 
-                  fill="url(#colorConsumption)" 
+                  fill="#3B82F6"
+                  radius={[2, 2, 0, 0]}
                 />
-                <Area 
-                  type="monotone" 
+                <Bar 
                   dataKey="production" 
                   name="Injection totale" 
-                  stroke="#F59E0B" 
-                  fillOpacity={1} 
-                  fill="url(#colorProduction)" 
+                  fill="#F59E0B"
+                  radius={[2, 2, 0, 0]}
                 />
-              </AreaChart>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
