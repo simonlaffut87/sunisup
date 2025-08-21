@@ -465,7 +465,15 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     }
     return `Année ${selectedYear} (aucune donnée)`;
   }, [availableDataPeriod, selectedYear]);
+
+  // Fonction pour obtenir le texte de période d'affichage
+  const getPeriodDisplayText = () => {
+    if (availableDataPeriod) {
+      return availableDataPeriod.periodText;
     }
+    return `Année ${selectedYear} (aucune donnée)`;
+  };
+
   // Optimized navigation functions with immediate UI update
   const navigatePrevious = useCallback(() => {
     setSelectedYear(prev => prev - 1);
