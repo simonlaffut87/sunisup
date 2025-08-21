@@ -18,8 +18,7 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  AreaChart,
-  Area
+  AreaChart
 } from 'recharts';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 
@@ -506,6 +505,13 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
+              <button
+                onClick={onLogout}
+                className="mr-4 p-2 text-gray-600 hover:text-gray-900 transition-colors"
+                title="Retour"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
               <div className="flex-shrink-0">
                 <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-12 w-12" />
               </div>
@@ -768,24 +774,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           
           <div className={`h-80 transition-opacity duration-300 ${dataLoading ? 'opacity-30' : 'opacity-100'}`}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
+              <BarChart
                 data={chartData}
                 margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
               >
-                <defs>
-                  <linearGradient id="colorConsumption" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.2}/>
-                  </linearGradient>
-                  <linearGradient id="colorSharedEnergy" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.2}/>
-                  </linearGradient>
-                  <linearGradient id="colorProduction" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.2}/>
-                  </linearGradient>
-                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
                   dataKey="time"
@@ -805,31 +797,28 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 />
                 <Legend />
                 
-                <Area 
+                <Bar 
                   type="monotone" 
                   dataKey="shared_energy" 
                   name="Volume partagé" 
-                  stroke="#10B981" 
-                  fillOpacity={1} 
-                  fill="url(#colorSharedEnergy)" 
+                  fill="#10B981"
+                  radius={[2, 2, 0, 0]}
                 />
-                <Area 
+                <Bar 
                   type="monotone" 
                   dataKey="consumption" 
                   name="Volume résiduel" 
-                  stroke="#3B82F6" 
-                  fillOpacity={1} 
-                  fill="url(#colorConsumption)" 
+                  fill="#3B82F6"
+                  radius={[2, 2, 0, 0]}
                 />
-                <Area 
+                <Bar 
                   type="monotone" 
                   dataKey="production" 
                   name="Injection totale" 
-                  stroke="#F59E0B" 
-                  fillOpacity={1} 
-                  fill="url(#colorProduction)" 
+                  fill="#F59E0B"
+                  radius={[2, 2, 0, 0]}
                 />
-              </AreaChart>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
