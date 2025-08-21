@@ -219,32 +219,64 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     }
 
     try {
-      console.log('📊 Génération des données mensuelles pour l\'année:', year);
-      console.log('📋 Données mensuelles disponibles:', monthlyData);
+      console.log('📊 Chargement des données mensuelles pour l\'année:', year);
+      console.log('👤 Profil utilisateur:', userProfile);
       
-      // Créer des données mensuelles pour l'année sélectionnée
+      // Charger les données monthly_data du participant depuis la base
+      if (!userProfile?.id) {
+        console.warn('⚠️ Aucun profil utilisateur trouvé');
+        setEnergyData([]);
+        return;
+      }
+
+      const { data: participant, error } = await supabase
+        .from('participants')
+        .select('monthly_data')
+        .eq('id', userProfile.id)
+        .single();
+
+      if (error) {
+        console.error('❌ Erreur chargement participant:', error);
+        throw error;
+      }
+
+      console.log('📋 monthly_data brut:', participant.monthly_data);
+
+      let monthlyDataFromDB = {};
+      if (participant.monthly_data) {
+        try {
+          monthlyDataFromDB = typeof participant.monthly_data === 'string' 
+            ? JSON.parse(participant.monthly_data)
+            : participant.monthly_data;
+          console.log('✅ monthly_data parsé:', monthlyDataFromDB);
+        } catch (e) {
+          console.warn('⚠️ Erreur parsing monthly_data:', e);
+          monthlyDataFromDB = {};
+        }
+      }
+
+      // Créer les données mensuelles pour l'année sélectionnée
       const monthlyDataArray = [];
       
       for (let month = 1; month <= 12; month++) {
         const monthKey = `${year}-${String(month).padStart(2, '0')}`;
-        const monthData = monthlyData[monthKey];
+        const monthData = monthlyDataFromDB[monthKey];
         
-        console.log(`📅 Mois ${monthKey}:`, monthData);
+        console.log(`📅 Mois ${monthKey} - Données:`, monthData);
         
         const pointDate = new Date(year, month - 1, 15); // 15 du mois
         
-        // Utiliser les données mensuelles si disponibles, sinon des valeurs par défaut pour la démo
-        const volumePartageValue = monthData?.volume_partage || (month % 3 === 0 ? Math.random() * 100 : 0);
-        const volumeResiduelValue = monthData?.volume_complementaire || (Math.random() * 50 + 20);
+        // Utiliser les vraies données mensuelles
+        const volumePartageValue = monthData?.volume_partage || 0;
+        const volumeResiduelValue = monthData?.volume_complementaire || 0;
         const injectionTotaleValue = monthData ? 
-          ((monthData.injection_partagee || 0) + (monthData.injection_complementaire || 0)) :
-          (Math.random() * 80 + 10);
+          ((monthData.injection_partagee || 0) + (monthData.injection_complementaire || 0)) : 0;
         
         monthlyDataArray.push({
           id: `month-${month}`,
-          user_id: userProfile?.id || user.id,
+          user_id: userProfile.id,
           timestamp: pointDate.toISOString(),
-          consumption: volumeResiduelValue, // Volume résiduel
+          consumption: volumeResiduelValue, // Volume résiduel (complémentaire)
           shared_energy: volumePartageValue, // Volume partagé
           production: injectionTotaleValue, // Injection totale
           created_at: new Date().toISOString(),
@@ -259,23 +291,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
     } catch (error) {
       console.error('Error fetching energy data:', error);
-      // Fallback avec des données de démonstration
-      const fallbackData = [];
-      for (let month = 1; month <= 12; month++) {
-        const pointDate = new Date(year, month - 1, 15);
-        fallbackData.push({
-          id: `month-${month}`,
-          user_id: userProfile?.id || user.id,
-          timestamp: pointDate.toISOString(),
-          consumption: Math.random() * 50 + 20,
-          shared_energy: Math.random() * 30,
-          production: Math.random() * 80 + 10,
-          created_at: new Date().toISOString(),
-          month: month,
-          monthName: format(pointDate, 'MMM', { locale: fr })
-        });
-      }
-      setEnergyData(fallbackData);
+      // En cas d'erreur, afficher des données vides
+      setEnergyData([]);
     } finally {
       if (isInitial) {
         setLoading(false);
@@ -283,19 +300,21 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         setDataLoading(false);
       }
     }
-  }, [user.id, userProfile?.id, monthlyData]);
+  }, [userProfile?.id]);
 
   // Initial data load
   useEffect(() => {
-    fetchEnergyData(selectedYear, true);
-  }, [fetchEnergyData, user.id]);
+    if (userProfile?.id) {
+      fetchEnergyData(selectedYear, true);
+    }
+  }, [fetchEnergyData, userProfile?.id]);
 
   // Data refresh when viewMode or selectedDate changes (but not initial load)
   useEffect(() => {
-    if (!loading) { // Only if not initial load
+    if (!loading && userProfile?.id) { // Only if not initial load and user profile loaded
       fetchEnergyData(selectedYear, false);
     }
-  }, [selectedYear, fetchEnergyData, loading]);
+  }, [selectedYear, fetchEnergyData, loading, userProfile?.id]);
 
   const formatData = (data: EnergyData[]) => {
     return data.map(item => ({
