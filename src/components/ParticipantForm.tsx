@@ -346,7 +346,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
             </div>
           </div>
 
-          </div>
         </div>
 
         <div className="bg-gray-50 p-6 rounded-lg">
