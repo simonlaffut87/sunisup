@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { MemberDashboard } from './MemberDashboard';
 import { toast } from 'react-hot-toast';
 import { Users, Plus, Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail, 
-  Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye, FileText } from 'lucide-react';
+  Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Database as DB } from '../types/supabase';
@@ -11,7 +11,6 @@ import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { ParticipantForm } from './ParticipantForm';
 import { MonthlyFileManager } from './MonthlyFileManager';
 import { useAutoLogout } from '../hooks/useAutoLogout';
-import { InvoiceTemplate } from './InvoiceTemplate';
 
 type Participant = DB['public']['Tables']['participants']['Row'];
 
@@ -23,8 +22,6 @@ export function AdminDashboard() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [viewingMemberDashboard, setViewingMemberDashboard] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [showInvoice, setShowInvoice] = useState(false);
-  const [selectedParticipantForInvoice, setSelectedParticipantForInvoice] = useState<Participant | null>(null);
 
   useEffect(() => {
     loadParticipants();
@@ -100,16 +97,6 @@ export function AdminDashboard() {
 
   const handleCloseMemberDashboard = () => {
     setViewingMemberDashboard(null);
-  };
-
-  const handleShowInvoice = (participant: Participant) => {
-    setSelectedParticipantForInvoice(participant);
-    setShowInvoice(true);
-  };
-
-  const handleCloseInvoice = () => {
-    setShowInvoice(false);
-    setSelectedParticipantForInvoice(null);
   };
 
   const handleLogout = async () => {
@@ -401,13 +388,6 @@ export function AdminDashboard() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => handleShowInvoice(participant)}
-                            className="text-purple-600 hover:text-purple-900 transition-colors"
-                            title="Générer facture"
-                          >
-                            <FileText className="w-4 h-4" />
-                          </button>
-                          <button
                             onClick={() => participant.email ? handleViewParticipantDashboard(participant) : null}
                             className="text-blue-600 hover:text-blue-900 transition-colors"
                             title={participant.email ? "Voir le dashboard" : "Email manquant"}
@@ -433,14 +413,6 @@ export function AdminDashboard() {
         </div>
         </main>
       </div>
-
-      {showInvoice && selectedParticipantForInvoice && (
-        <InvoiceTemplate
-          isOpen={showInvoice}
-          onClose={handleCloseInvoice}
-          participant={selectedParticipantForInvoice}
-        />
-      )}
     </>
   );
 }
