@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { MemberDashboard } from './MemberDashboard';
 import { toast } from 'react-hot-toast';
 import { Users, Plus, Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail, 
-  Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye, FileText } from 'lucide-react';
+  Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye, FileText, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Database as DB } from '../types/supabase';
@@ -25,6 +25,11 @@ export function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedParticipantForInvoice, setSelectedParticipantForInvoice] = useState<Participant | null>(null);
+  const [showPeriodSelection, setShowPeriodSelection] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState({
+    startMonth: '',
+    endMonth: ''
+  });
 
   useEffect(() => {
     loadParticipants();
@@ -104,12 +109,36 @@ export function AdminDashboard() {
 
   const handleShowInvoice = (participant: Participant) => {
     setSelectedParticipantForInvoice(participant);
-    setShowInvoice(true);
+    setShowPeriodSelection(true);
+    
+    // Initialiser avec le mois actuel
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    setSelectedPeriod({
+      startMonth: currentMonth,
+      endMonth: currentMonth
+    });
   };
 
   const handleCloseInvoice = () => {
     setShowInvoice(false);
     setSelectedParticipantForInvoice(null);
+    setShowPeriodSelection(false);
+    setSelectedPeriod({ startMonth: '', endMonth: '' });
+  };
+
+  const handlePeriodConfirm = () => {
+    if (!selectedPeriod.startMonth || !selectedPeriod.endMonth) {
+      toast.error('Veuillez sélectionner une période valide');
+      return;
+    }
+    
+    if (selectedPeriod.startMonth > selectedPeriod.endMonth) {
+      toast.error('Le mois de début doit être antérieur ou égal au mois de fin');
+      return;
+    }
+    
+    setShowPeriodSelection(false);
+    setShowInvoice(true);
   };
 
   const handleLogout = async () => {
@@ -434,11 +463,89 @@ export function AdminDashboard() {
         </main>
       </div>
 
+      {/* Modal de sélection de période */}
+      {showPeriodSelection && selectedParticipantForInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <Calendar className="w-6 h-6 text-amber-600" />
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Période de facturation
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowPeriodSelection(false)}
+                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <span className="font-medium text-blue-900">
+                      {selectedParticipantForInvoice.name}
+                    </span>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Sélectionnez la période pour laquelle générer la facture
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Mois de début
+                    </label>
+                    <input
+                      type="month"
+                      value={selectedPeriod.startMonth}
+                      onChange={(e) => setSelectedPeriod(prev => ({ ...prev, startMonth: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Mois de fin
+                    </label>
+                    <input
+                      type="month"
+                      value={selectedPeriod.endMonth}
+                      onChange={(e) => setSelectedPeriod(prev => ({ ...prev, endMonth: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+                  </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowPeriodSelection(false)}
+                  className="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handlePeriodConfirm}
+                  className="px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors flex items-center space-x-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Générer la facture</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+                </div>
       {showInvoice && selectedParticipantForInvoice && (
         <InvoiceTemplate
           isOpen={showInvoice}
           onClose={handleCloseInvoice}
           participant={selectedParticipantForInvoice}
+          selectedPeriod={selectedPeriod}
         />
       )}
     </>
