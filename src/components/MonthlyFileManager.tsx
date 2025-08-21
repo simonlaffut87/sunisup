@@ -10,7 +10,8 @@ import {
   Database,
   Trash2,
   Eye,
-  BarChart3
+  BarChart3,
+  Users
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -351,6 +352,8 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Fichiers mensuels</h2>
           <p className="text-gray-600 text-sm mt-1">
+            Gestion des imports de données mensuelles
+          </p>
         </div>
         <div className="flex space-x-3">
           <button
