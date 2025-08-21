@@ -319,38 +319,14 @@ export function AdminDashboard() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      Adresse
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2" />
                       Date d'entrée
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
-                      <Mail className="w-4 h-4 mr-2" />
-                      Email
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Hash className="w-4 h-4 mr-2" />
-                      Code EAN
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
                       <Euro className="w-4 h-4 mr-2" />
                       Tarif commodité
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Hash className="w-4 h-4 mr-2" />
-                      N° entreprise
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -361,7 +337,7 @@ export function AdminDashboard() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {participants.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                       <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                       <p className="text-lg font-medium mb-2">Aucun participant enregistré</p>
                       <p className="text-sm">Ajoutez votre premier participant pour commencer</p>
@@ -392,11 +368,6 @@ export function AdminDashboard() {
                           {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs truncate" title={participant.address}>
-                          {participant.address}
-                        </div>
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           {participant.entry_date ? (
@@ -408,37 +379,8 @@ export function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {participant.email || (
-                            <span className="text-gray-400 italic">Non renseigné</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 font-mono">
-                          {participant.ean_code ? (
-                            <span className="bg-green-100 px-2 py-1 rounded text-xs font-medium">
-                              {participant.ean_code}
-                            </span>
-                          ) : (
-                            <span className="text-red-500 italic text-xs font-medium">⚠️ Manquant</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
                           {participant.commodity_rate ? (
                             `${participant.commodity_rate} €/MWh`
-                          ) : (
-                            <span className="text-gray-400 italic">Non renseigné</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {participant.company_number ? (
-                            <span className="bg-blue-100 px-2 py-1 rounded text-xs font-medium">
-                              {participant.company_number}
-                            </span>
                           ) : (
                             <span className="text-gray-400 italic">Non renseigné</span>
                           )}
