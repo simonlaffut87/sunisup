@@ -468,6 +468,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return `Année ${selectedYear} (aucune donnée)`;
   }, [availableDataPeriod, selectedYear]);
 
+  // Fonction pour obtenir le texte de période
+  const getPeriodDisplayText = () => {
+    return displayPeriod;
+  };
+
   // Optimized navigation functions with immediate UI update
   const navigatePrevious = useCallback(() => {
     setSelectedYear(prev => prev - 1);
@@ -483,11 +488,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     timeoutMinutes: 15, // 15 minutes d'inactivité
     isLoggedIn: true // Toujours actif pour le member dashboard
   });
-
-  // Calculate period display text
-  const getPeriodDisplayText = () => {
-    return `Année ${selectedYear}`;
-  };
 
   if (loading) {
     return (
