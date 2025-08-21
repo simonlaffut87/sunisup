@@ -11,6 +11,7 @@ import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { ParticipantForm } from './ParticipantForm';
 import { MonthlyFileManager } from './MonthlyFileManager';
 import { useAutoLogout } from '../hooks/useAutoLogout';
+import { InvoiceTemplate } from './InvoiceTemplate';
 
 type Participant = DB['public']['Tables']['participants']['Row'];
 
