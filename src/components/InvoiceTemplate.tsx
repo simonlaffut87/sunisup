@@ -303,13 +303,14 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Facturé à :</h3>
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <p className="font-medium text-gray-900">{participant.name}</p>
                 <p className="text-gray-600">{participant.address}</p>
-                <p className="text-gray-600">{participant.email}</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  <strong>Code EAN:</strong> {participant.ean_code}
-                </p>
+                {participant.company_number && (
+                  <p className="text-gray-600 mt-2">
+                    <strong>N° entreprise:</strong> {participant.company_number}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -317,10 +318,10 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Période de facturation :</h3>
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
                 <p className="text-amber-800">
-                  <strong>Du:</strong> [DATE_DEBUT]
+                  <strong>Du:</strong> {format(new Date(selectedPeriod.startMonth + '-01'), 'dd MMMM yyyy', { locale: fr })}
                 </p>
                 <p className="text-amber-800">
-                  <strong>Au:</strong> [DATE_FIN]
+                  <strong>Au:</strong> {format(new Date(selectedPeriod.endMonth + '-01'), 'dd MMMM yyyy', { locale: fr })}
                 </p>
                 <p className="text-sm text-amber-600 mt-2">
                   Type: {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
