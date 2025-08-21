@@ -321,7 +321,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   <strong>Du:</strong> {format(new Date(selectedPeriod.startMonth + '-01'), 'dd MMMM yyyy', { locale: fr })}
                 </p>
                 <p className="text-amber-800">
-                  <strong>Au:</strong> {format(new Date(selectedPeriod.endMonth + '-01'), 'dd MMMM yyyy', { locale: fr })}
+                  <strong>Au:</strong> {format(new Date(new Date(selectedPeriod.endMonth + '-01').getFullYear(), new Date(selectedPeriod.endMonth + '-01').getMonth() + 1, 0), 'dd MMMM yyyy', { locale: fr })}
                 </p>
                 <p className="text-sm text-amber-600 mt-2">
                   Type: {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
