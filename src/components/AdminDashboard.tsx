@@ -493,6 +493,8 @@ export function AdminDashboard() {
                   </div>
                   <p className="text-sm text-blue-700">
                     Sélectionnez la période pour laquelle générer la facture
+                  </p>
+                </div>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -519,7 +521,7 @@ export function AdminDashboard() {
                   </div>
                 </div>
               </div>
-                  </p>
+
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowPeriodSelection(false)}
@@ -539,7 +541,7 @@ export function AdminDashboard() {
           </div>
         </div>
       )}
-                </div>
+
       {showInvoice && selectedParticipantForInvoice && (
         <InvoiceTemplate
           isOpen={showInvoice}
