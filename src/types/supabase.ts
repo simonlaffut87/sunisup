@@ -45,6 +45,7 @@ export interface Database {
           ean_code: string | null
           commodity_rate: number | null
           entry_date: string | null
+          company_number: string | null
           peak_power: number | null
           annual_production: number | null
           annual_consumption: number | null
@@ -62,6 +63,7 @@ export interface Database {
           ean_code?: string | null
           commodity_rate?: number | null
           entry_date?: string | null
+          company_number?: string | null
           peak_power?: number | null
           annual_production?: number | null
           annual_consumption?: number | null
@@ -79,6 +81,7 @@ export interface Database {
           ean_code?: string | null
           commodity_rate?: number | null
           entry_date?: string | null
+          company_number?: string | null
           peak_power?: number | null
           annual_production?: number | null
           annual_consumption?: number | null

@@ -348,6 +348,12 @@ export function AdminDashboard() {
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <Hash className="w-4 h-4 mr-2" />
+                      N° entreprise
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -355,7 +361,7 @@ export function AdminDashboard() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {participants.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
                       <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                       <p className="text-lg font-medium mb-2">Aucun participant enregistré</p>
                       <p className="text-sm">Ajoutez votre premier participant pour commencer</p>
@@ -422,6 +428,17 @@ export function AdminDashboard() {
                         <div className="text-sm text-gray-900">
                           {participant.commodity_rate ? (
                             `${participant.commodity_rate} €/MWh`
+                          ) : (
+                            <span className="text-gray-400 italic">Non renseigné</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {participant.company_number ? (
+                            <span className="bg-blue-100 px-2 py-1 rounded text-xs font-medium">
+                              {participant.company_number}
+                            </span>
                           ) : (
                             <span className="text-gray-400 italic">Non renseigné</span>
                           )}

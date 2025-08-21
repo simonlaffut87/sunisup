@@ -20,6 +20,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     ean_code: '',
     entry_date: '',
     commodity_rate: '',
+    company_number: '',
     type: 'consumer'
   });
 
@@ -36,6 +37,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         ean_code: participant.ean_code || '',
         entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         commodity_rate: participant.commodity_rate?.toString() || '',
+        company_number: participant.company_number || '',
         type: participant.type || 'consumer'
       });
     }
@@ -101,6 +103,14 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
           delete newErrors.entry_date;
         }
         break;
+
+      case 'company_number':
+        if (value.trim() && !/^BE\s?\d{4}\.\d{3}\.\d{3}$/.test(value.trim())) {
+          newErrors.company_number = 'Format invalide. Utilisez: BE 0123.456.789';
+        } else {
+          delete newErrors.company_number;
+        }
+        break;
     }
 
     setErrors(newErrors);
@@ -152,6 +162,11 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         case 'entry_date':
           if (!value) newErrors.entry_date = 'La date d\'entrée est requise';
           break;
+        case 'company_number':
+          if (value.trim() && !/^BE\s?\d{4}\.\d{3}\.\d{3}$/.test(value.trim())) {
+            newErrors.company_number = 'Format invalide. Utilisez: BE 0123.456.789';
+          }
+          break;
       }
     });
 
@@ -178,6 +193,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         ean_code: formData.ean_code.trim(),
         commodity_rate: parseFloat(formData.commodity_rate),
         entry_date: formData.entry_date,
+        company_number: formData.company_number.trim() || null,
         lat: 50.8503,
         lng: 4.3517,
         peak_power: 0,
@@ -417,6 +433,26 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               </div>
               {errors.commodity_rate && <p className="text-sm text-red-600 mt-1">{errors.commodity_rate}</p>}
             </div>
+          </div>
+
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              <Hash className="w-4 h-4 inline mr-2" />
+              Numéro d'entreprise
+            </label>
+            <input
+              type="text"
+              value={formData.company_number}
+              onChange={(e) => handleInputChange('company_number', e.target.value)}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
+                errors.company_number ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
+              }`}
+              placeholder="Ex: BE 0123.456.789"
+            />
+            {errors.company_number && <p className="text-sm text-red-600 mt-1">{errors.company_number}</p>}
+            <p className="text-xs text-gray-500 mt-1">
+              Format belge: BE suivi de 10 chiffres (ex: BE 0123.456.789)
+            </p>
           </div>
         </div>
 
