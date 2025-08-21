@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { 
-  BarChart4, TrendingUp, Zap, LogOut, Calendar, Clock, Battery, 
+  BarChart4, TrendingUp, Zap, LogOut, Calendar, Clock, Battery, ArrowLeft,
   Leaf, ChevronLeft, ChevronRight, Loader2, Database
 } from 'lucide-react';
 import { format, parseISO, subDays, startOfDay, endOfDay, addDays, 
