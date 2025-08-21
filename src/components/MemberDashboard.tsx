@@ -270,8 +270,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         // Utiliser les vraies données mensuelles
         const volumePartageValue = monthData?.volume_partage || 0;
         const volumeResiduelValue = monthData?.volume_complementaire || 0;
-        const injectionTotaleValue = monthData ? 
-          ((monthData.injection_partagee || 0) + (monthData.injection_complementaire || 0)) : 0;
+        const injectionPartageeValue = monthData?.injection_partagee || 0;
+        const injectionResiduelleValue = monthData?.injection_complementaire || 0;
         
         monthlyDataArray.push({
           id: `month-${month}`,
@@ -279,7 +279,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           timestamp: pointDate.toISOString(),
           consumption: volumeResiduelValue, // Volume résiduel (complémentaire)
           shared_energy: volumePartageValue, // Volume partagé
-          production: injectionTotaleValue, // Injection totale
+          injection_partagee: injectionPartageeValue, // Injection partagée
+          injection_residuelle: injectionResiduelleValue, // Injection résiduelle
           created_at: new Date().toISOString(),
           month: month,
           monthName: format(pointDate, 'MMM', { locale: fr })
@@ -417,6 +418,21 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     }, 0);
   }, [availableDataPeriod]);
 
+  const injectionPartagee = React.useMemo(() => {
+    if (!availableDataPeriod) return 0;
+    
+    return availableDataPeriod.monthsWithData.reduce((total, { data }) => {
+      return total + (data.injection_partagee || 0);
+    }, 0);
+  }, [availableDataPeriod]);
+
+  const injectionResiduelle = React.useMemo(() => {
+    if (!availableDataPeriod) return 0;
+    
+    return availableDataPeriod.monthsWithData.reduce((total, { data }) => {
+      return total + (data.injection_complementaire || 0);
+    }, 0);
+  }, [availableDataPeriod]);
   const volumePartage = React.useMemo(() => {
     if (!availableDataPeriod) return 0;
     
@@ -586,8 +602,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         )}
 
         {/* Stats Cards with smooth transition */}
-        <div className={`grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 transition-opacity duration-300 ${dataLoading ? 'opacity-60' : 'opacity-100'}`}>
-          {/* Injection totale */}
+        <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 transition-opacity duration-300 ${dataLoading ? 'opacity-60' : 'opacity-100'}`}>
+          {/* Injection partagée */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -596,16 +612,16 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     <Zap className="h-5 w-5 text-amber-600" />
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Injection totale</p>
+                    <p className="text-sm font-medium text-gray-600">Injection partagée</p>
                   </div>
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-3xl font-bold text-gray-900">{totalInjection.toFixed(1)}</p>
+                <p className="text-3xl font-bold text-gray-900">{injectionPartagee.toFixed(1)}</p>
                 <p className="text-sm text-gray-500">kWh</p>
                 {currentMonthData && (
                   <p className="text-xs text-amber-600">
-                    Total annuel: {totalInjection.toFixed(1)} kWh
+                    Total période: {injectionPartagee.toFixed(1)} kWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -615,6 +631,33 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             </div>
           </div>
 
+          {/* Injection résiduelle */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Zap className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">Injection résiduelle</p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <p className="text-3xl font-bold text-gray-900">{injectionResiduelle.toFixed(1)}</p>
+                <p className="text-sm text-gray-500">kWh</p>
+                {currentMonthData && (
+                  <p className="text-xs text-purple-600">
+                    Total période: {injectionResiduelle.toFixed(1)} kWh
+                  </p>
+                )}
+                <p className="text-xs text-gray-400">
+                  {periodText}
+                </p>
+              </div>
+            </div>
+          </div>
           {/* Volume partagé */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
@@ -812,10 +855,15 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
-                  type="monotone" 
-                  dataKey="production" 
-                  name="Injection totale" 
+                  dataKey="injection_partagee" 
+                  name="Injection partagée" 
                   fill="#F59E0B"
+                  radius={[2, 2, 0, 0]}
+                />
+                <Bar 
+                  dataKey="injection_residuelle" 
+                  name="Injection résiduelle" 
+                  fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}
                 />
               </BarChart>
