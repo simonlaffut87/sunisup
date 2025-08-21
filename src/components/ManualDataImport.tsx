@@ -186,6 +186,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             participantData[finalEan] = {
               ...mappedParticipant,
               data: {
+                // Stocker toutes les colonnes avec leurs valeurs
+                allColumns: {},
+                // Garder les totaux énergétiques pour compatibilité
                 volume_partage: 0,
                 volume_complementaire: 0,
                 injection_partagee: 0,
@@ -206,6 +209,29 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             return isNaN(parsed) ? 0 : parsed;
           };
           
+          // Stocker TOUTES les colonnes de cette ligne
+          const allColumnData: { [columnName: string]: any } = {};
+          headers.forEach((header, index) => {
+            const rawValue = row[index];
+            const cleanedValue = rawValue ? String(rawValue).trim() : '';
+            
+            // Pour les colonnes numériques, parser la valeur
+            if (header.toLowerCase().includes('volume') || 
+                header.toLowerCase().includes('injection') ||
+                header.toLowerCase().includes('tarif') ||
+                header.toLowerCase().includes('prix') ||
+                header.toLowerCase().includes('montant')) {
+              allColumnData[header] = parseValue(rawValue);
+            } else {
+              allColumnData[header] = cleanedValue;
+            }
+          });
+          
+          // Ajouter les données de cette ligne aux données du participant
+          if (!participantData[finalEan].data.allColumns[i]) {
+            participantData[finalEan].data.allColumns[i] = allColumnData;
+          }
+          
           const volumePartage = parseValue(row[volumePartageIndex]);
           const volumeComplementaire = parseValue(row[volumeComplementaireIndex]);
           const injectionPartage = parseValue(row[injectionPartageIndex]);
@@ -216,6 +242,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addLog(`🔍 LIGNE ${i} - EAN ${finalEan} (registre: "${registre}"):`);
             addLog(`  📋 Valeurs brutes: VP="${row[volumePartageIndex]}", VC="${row[volumeComplementaireIndex]}", IP="${row[injectionPartageIndex]}", IC="${row[injectionComplementaireIndex]}"`);
             addLog(`  🔢 Valeurs parsées: VP=${volumePartage}, VC=${volumeComplementaire}, IP=${injectionPartage}, IC=${injectionComplementaire}`);
+            addLog(`  📊 Toutes les colonnes stockées: ${Object.keys(allColumnData).length} colonnes`);
             
             if (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0) {
               addLog('🎉 VALEURS NON-NULLES TROUVÉES !');
@@ -270,6 +297,10 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const updatedData = {
             ...existingData,
             [month]: {
+              // Stocker toutes les données de colonnes
+              allColumns: (data as any).data.allColumns,
+              headers: headers,
+              // Garder les totaux énergétiques
               volume_partage: (data as any).data.volume_partage,
               volume_complementaire: (data as any).data.volume_complementaire,
               injection_partagee: (data as any).data.injection_partagee,
@@ -278,7 +309,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             }
           };
           
-          addLog(`💾 Données à sauvegarder pour ${eanCode}: ${JSON.stringify(updatedData[month])}`);
+          addLog(`💾 Données à sauvegarder pour ${eanCode}: totaux énergétiques + ${Object.keys((data as any).data.allColumns).length} lignes détaillées`);
 
           const { error: updateError } = await supabase
             .from('participants')
@@ -288,7 +319,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           if (updateError) {
             addLog(`❌ Erreur mise à jour ${eanCode}: ${updateError.message}`);
           } else {
-            addLog(`✅ Mise à jour réussie pour ${(data as any).name} (${eanCode}) - VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
+            addLog(`✅ Mise à jour réussie pour ${(data as any).name} (${eanCode}) - ${Object.keys((data as any).data.allColumns).length} lignes + totaux: VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
           }
         } else {
           addLog(`❌ Participant non trouvé en base pour EAN: ${eanCode}`);
