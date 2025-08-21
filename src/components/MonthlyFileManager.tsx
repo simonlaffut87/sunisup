@@ -149,10 +149,10 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       const chartDataArray = Object.entries(monthlyTotals).map(([month, totals]) => ({
         month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
         monthKey: month,
-        'Volume Partagé': Math.round(totals.volume_partage * 100) / 100,
-        'Volume Complémentaire': Math.round(totals.volume_complementaire * 100) / 100,
-        'Injection Partagée': Math.round(totals.injection_partagee * 100) / 100,
-        'Injection Résiduelle': Math.round(totals.injection_complementaire * 100) / 100,
+        'Volume Partagé': Math.round(totals.volume_partage / 1000 * 1000) / 1000,
+        'Volume Complémentaire': Math.round(totals.volume_complementaire / 1000 * 1000) / 1000,
+        'Injection Partagée': Math.round(totals.injection_partagee / 1000 * 1000) / 1000,
+        'Injection Résiduelle': Math.round(totals.injection_complementaire / 1000 * 1000) / 1000,
         participants: totals.participant_count
       })).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
 
@@ -411,7 +411,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                   <YAxis 
                     stroke="#6B7280"
                     tick={{ fontSize: 12 }}
-                    label={{ value: 'kWh', angle: -90, position: 'insideLeft' }}
+                    label={{ value: 'MWh', angle: -90, position: 'insideLeft' }}
                   />
                   <Tooltip 
                     contentStyle={{ 
@@ -430,13 +430,13 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                     }}
                     formatter={(value: number, name: string) => {
                       if (value === 0) {
-                        return [`0 kWh`, ''];
+                        return [`0 MWh`, ''];
                       }
                       const formattedValue = value.toLocaleString('fr-FR', {
                         minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
+                        maximumFractionDigits: 3
                       });
-                      return [`${formattedValue} kWh`, ''];
+                      return [`${formattedValue} MWh`, ''];
                     }}
                     separator=""
                     labelFormatter={(label) => `Mois : ${label}`}
@@ -510,7 +510,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                   <YAxis 
                     stroke="#6B7280"
                     tick={{ fontSize: 12 }}
-                    label={{ value: 'kWh', angle: -90, position: 'insideLeft' }}
+                    label={{ value: 'MWh', angle: -90, position: 'insideLeft' }}
                   />
                   <Tooltip 
                     contentStyle={{ 
@@ -529,13 +529,13 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                     }}
                     formatter={(value: number, name: string) => {
                       if (value === 0) {
-                        return [`0 kWh`, ''];
+                        return [`0 MWh`, ''];
                       }
                       const formattedValue = value.toLocaleString('fr-FR', {
                         minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
+                        maximumFractionDigits: 3
                       });
-                      return [`${formattedValue} kWh`, ''];
+                      return [`${formattedValue} MWh`, ''];
                     }}
                     separator=""
                     labelFormatter={(label) => `Mois : ${label}`}
@@ -602,8 +602,8 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               {chartData.map((item, index) => (
                 <div key={index} className="font-mono bg-white p-2 rounded border">
                   <div className="font-bold text-gray-900">{item.month}</div>
-                  <div>VP: {item['Volume Partagé']} kWh | VC: {item['Volume Complémentaire']} kWh</div>
-                  <div>IP: {item['Injection Partagée']} kWh | IR: {item['Injection Résiduelle']} kWh</div>
+                  <div>VP: {item['Volume Partagé']} MWh | VC: {item['Volume Complémentaire']} MWh</div>
+                  <div>IP: {item['Injection Partagée']} MWh | IR: {item['Injection Résiduelle']} MWh</div>
                   <div className="text-blue-600">Participants: {item.participants}</div>
                 </div>
               ))}
@@ -727,25 +727,25 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <div className="text-sm text-blue-600">Volume Complémentaire</div>
                   <div className="text-xl font-bold text-blue-900">
-                    {viewingData.totals.total_volume_complementaire.toFixed(2)} kWh
+                    {(viewingData.totals.total_volume_complementaire / 1000).toFixed(3)} MWh
                   </div>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
                   <div className="text-sm text-green-600">Volume Partagé</div>
                   <div className="text-xl font-bold text-green-900">
-                    {viewingData.totals.total_volume_partage.toFixed(2)} kWh
+                    {(viewingData.totals.total_volume_partage / 1000).toFixed(3)} MWh
                   </div>
                 </div>
                 <div className="bg-amber-50 p-4 rounded-lg">
                   <div className="text-sm text-amber-600">Injection Complémentaire</div>
                   <div className="text-xl font-bold text-amber-900">
-                    {viewingData.totals.total_injection_complementaire.toFixed(2)} kWh
+                    {(viewingData.totals.total_injection_complementaire / 1000).toFixed(3)} MWh
                   </div>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg">
                   <div className="text-sm text-purple-600">Injection Partagée</div>
                   <div className="text-xl font-bold text-purple-900">
-                    {viewingData.totals.total_injection_partagee.toFixed(2)} kWh
+                    {(viewingData.totals.total_injection_partagee / 1000).toFixed(3)} MWh
                   </div>
                 </div>
               </div>
@@ -822,7 +822,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                             <span className="text-blue-600 mr-2">📥</span>
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {participant.data.volume_complementaire.toFixed(2)} kWh
+                                {(participant.data.volume_complementaire / 1000).toFixed(3)} MWh
                               </div>
                               <div className="text-xs text-gray-500">Réseau traditionnel</div>
                             </div>
@@ -833,7 +833,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                             <span className="text-green-600 mr-2">🔄</span>
                             <div>
                               <div className="text-sm font-medium text-green-700">
-                                {participant.data.volume_partage.toFixed(2)} kWh
+                                {(participant.data.volume_partage / 1000).toFixed(3)} MWh
                               </div>
                               <div className="text-xs text-gray-500">Énergie communautaire</div>
                             </div>
@@ -844,7 +844,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                             <span className="text-amber-600 mr-2">📤</span>
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {participant.data.injection_complementaire.toFixed(2)} kWh
+                                {(participant.data.injection_complementaire / 1000).toFixed(3)} MWh
                               </div>
                               <div className="text-xs text-gray-500">Vers le réseau</div>
                             </div>
@@ -855,7 +855,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                             <span className="text-purple-600 mr-2">⚡</span>
                             <div>
                               <div className="text-sm font-medium text-purple-700">
-                                {participant.data.injection_partagee.toFixed(2)} kWh
+                                {(participant.data.injection_partagee / 1000).toFixed(3)} MWh
                               </div>
                               <div className="text-xs text-gray-500">Vers la communauté</div>
                             </div>
