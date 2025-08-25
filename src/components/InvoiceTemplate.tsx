@@ -459,7 +459,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       </tr>
                       <tr>
                         <td className="px-6 py-4 text-sm text-gray-900">
-                          Électricité réseau
+                          Frais réseaux
                           <div className="text-xs text-gray-400">Frais versés à Sibelga</div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
