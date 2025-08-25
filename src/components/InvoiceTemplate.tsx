@@ -29,6 +29,141 @@ interface InvoiceTemplateProps {
 export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }: InvoiceTemplateProps) {
   if (!isOpen) return null;
 
+  // Calculer les vraies données de facturation
+  const calculateBillingData = React.useMemo(() => {
+    try {
+      console.log('💰 Calcul des données de facturation pour:', participant.name);
+      console.log('📅 Période:', selectedPeriod);
+
+      // Charger les données mensuelles du participant
+      let monthlyData = {};
+      if (participant.monthly_data) {
+        try {
+          monthlyData = typeof participant.monthly_data === 'string' 
+            ? JSON.parse(participant.monthly_data)
+            : participant.monthly_data;
+        } catch (e) {
+          console.warn('Erreur parsing monthly_data:', e);
+        }
+      }
+
+      // Générer la liste des mois dans la période
+      const startDate = new Date(selectedPeriod.startMonth + '-01');
+      const endDate = new Date(selectedPeriod.endMonth + '-01');
+      const months = [];
+      
+      for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        months.push(monthKey);
+      }
+
+      console.log('📅 Mois à traiter:', months);
+
+      // Calculer les totaux pour la période
+      let totalVolumePartage = 0;
+      let totalVolumeComplementaire = 0;
+      let totalInjectionPartagee = 0;
+      let totalInjectionComplementaire = 0;
+      const monthlyDetails = [];
+
+      months.forEach(monthKey => {
+        const monthData = monthlyData[monthKey];
+        if (monthData) {
+          const volumePartage = monthData.volume_partage || 0;
+          const volumeComplementaire = monthData.volume_complementaire || 0;
+          const injectionPartagee = monthData.injection_partagee || 0;
+          const injectionComplementaire = monthData.injection_complementaire || 0;
+
+          totalVolumePartage += volumePartage;
+          totalVolumeComplementaire += volumeComplementaire;
+          totalInjectionPartagee += injectionPartagee;
+          totalInjectionComplementaire += injectionComplementaire;
+
+          monthlyDetails.push({
+            month: monthKey,
+            monthName: format(new Date(monthKey + '-01'), 'MMMM yyyy', { locale: fr }),
+            volumePartage,
+            volumeComplementaire,
+            injectionPartagee,
+            injectionComplementaire
+          });
+        }
+      });
+
+      // Calculer les montants financiers
+      const commodityRate = participant.commodity_rate || 100; // €/MWh
+      const networkRate = 150; // €/MWh (prix réseau estimé)
+      const injectionNetworkRate = 50; // €/MWh (prix injection réseau)
+
+      // Montants pour consommateur
+      const montantVolumePartage = (totalVolumePartage / 1000) * commodityRate;
+      const montantVolumeComplementaire = (totalVolumeComplementaire / 1000) * networkRate;
+      
+      // Montants pour producteur
+      const montantInjectionPartagee = (totalInjectionPartagee / 1000) * commodityRate;
+      const montantInjectionComplementaire = (totalInjectionComplementaire / 1000) * injectionNetworkRate;
+
+      // Calcul du total selon le type
+      let sousTotal = 0;
+      if (participant.type === 'consumer') {
+        sousTotal = montantVolumePartage + montantVolumeComplementaire;
+      } else {
+        sousTotal = montantInjectionPartagee + montantInjectionComplementaire;
+      }
+
+      const tva = sousTotal * 0.21;
+      const totalFinal = sousTotal + tva;
+
+      return {
+        energy: {
+          totalVolumePartage,
+          totalVolumeComplementaire,
+          totalInjectionPartagee,
+          totalInjectionComplementaire,
+          volumeTotal: totalVolumePartage + totalVolumeComplementaire,
+          injectionTotale: totalInjectionPartagee + totalInjectionComplementaire
+        },
+        amounts: {
+          montantVolumePartage: Math.round(montantVolumePartage * 100) / 100,
+          montantVolumeComplementaire: Math.round(montantVolumeComplementaire * 100) / 100,
+          montantInjectionPartagee: Math.round(montantInjectionPartagee * 100) / 100,
+          montantInjectionComplementaire: Math.round(montantInjectionComplementaire * 100) / 100,
+          sousTotal: Math.round(sousTotal * 100) / 100,
+          tva: Math.round(tva * 100) / 100,
+          totalFinal: Math.round(totalFinal * 100) / 100
+        },
+        rates: {
+          commodityRate,
+          networkRate,
+          injectionNetworkRate
+        },
+        statistics: {
+          pourcentageLocal: totalVolumePartage + totalVolumeComplementaire > 0 
+            ? Math.round((totalVolumePartage / (totalVolumePartage + totalVolumeComplementaire)) * 100)
+            : 0,
+          pourcentagePartage: totalInjectionPartagee + totalInjectionComplementaire > 0
+            ? Math.round((totalInjectionPartagee / (totalInjectionPartagee + totalInjectionComplementaire)) * 100)
+            : 0,
+          economieRealisee: participant.type === 'consumer' 
+            ? Math.round(((totalVolumePartage / 1000) * (networkRate - commodityRate)) * 100) / 100
+            : 0,
+          revenusSup: participant.type === 'producer'
+            ? Math.round(((totalInjectionPartagee / 1000) * (commodityRate - injectionNetworkRate)) * 100) / 100
+            : 0
+        }
+      };
+
+    } catch (error) {
+      console.error('❌ Erreur calcul facturation:', error);
+      return {
+        energy: { totalVolumePartage: 0, totalVolumeComplementaire: 0, totalInjectionPartagee: 0, totalInjectionComplementaire: 0, volumeTotal: 0, injectionTotale: 0 },
+        amounts: { montantVolumePartage: 0, montantVolumeComplementaire: 0, montantInjectionPartagee: 0, montantInjectionComplementaire: 0, sousTotal: 0, tva: 0, totalFinal: 0 },
+        rates: { commodityRate: 100, networkRate: 150, injectionNetworkRate: 50 },
+        statistics: { pourcentageLocal: 0, pourcentagePartage: 0, economieRealisee: 0, revenusSup: 0 }
+      };
+    }
+  }, [participant, selectedPeriod]);
+
   // Calculer et stocker les données de facturation
   React.useEffect(() => {
     if (isOpen && participant && selectedPeriod) {
@@ -363,13 +498,13 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                           <div className="text-xs text-gray-500">Énergie partagée de la communauté</div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          [VOLUME_PARTAGE] MWh
+                          {(calculateBillingData.energy.totalVolumePartage / 1000).toFixed(3)} MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           {participant.commodity_rate} €/MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          [MONTANT_PARTAGE] €
+                          {calculateBillingData.amounts.montantVolumePartage.toFixed(2)} €
                         </td>
                       </tr>
                       <tr>
@@ -378,13 +513,13 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                           <div className="text-xs text-gray-500">Complément via le réseau traditionnel</div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          [VOLUME_COMPLEMENTAIRE] MWh
+                          {(calculateBillingData.energy.totalVolumeComplementaire / 1000).toFixed(3)} MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          [PRIX_RESEAU] €/MWh
+                          {calculateBillingData.rates.networkRate} €/MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          [MONTANT_COMPLEMENTAIRE] €
+                          {calculateBillingData.amounts.montantVolumeComplementaire.toFixed(2)} €
                         </td>
                       </tr>
                     </>
@@ -396,13 +531,13 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                           <div className="text-xs text-gray-500">Énergie vendue à la communauté</div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          [INJECTION_PARTAGEE] MWh
+                          {(calculateBillingData.energy.totalInjectionPartagee / 1000).toFixed(3)} MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           {participant.commodity_rate} €/MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          [MONTANT_INJECTION_PARTAGEE] €
+                          {calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €
                         </td>
                       </tr>
                       <tr>
@@ -411,13 +546,13 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                           <div className="text-xs text-gray-500">Énergie vendue au réseau</div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          [INJECTION_COMPLEMENTAIRE] MWh
+                          {(calculateBillingData.energy.totalInjectionComplementaire / 1000).toFixed(3)} MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          [PRIX_INJECTION_RESEAU] €/MWh
+                          {calculateBillingData.rates.injectionNetworkRate} €/MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          [MONTANT_INJECTION_COMPLEMENTAIRE] €
+                          {calculateBillingData.amounts.montantInjectionComplementaire.toFixed(2)} €
                         </td>
                       </tr>
                     </>
@@ -436,15 +571,15 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">[VOLUME_TOTAL] MWh</div>
+                  <div className="text-2xl font-bold text-green-600">{(calculateBillingData.energy.volumeTotal / 1000).toFixed(3)} MWh</div>
                   <div className="text-sm text-green-700">Volume total consommé</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">[POURCENTAGE_LOCAL]%</div>
+                  <div className="text-2xl font-bold text-green-600">{calculateBillingData.statistics.pourcentageLocal}%</div>
                   <div className="text-sm text-green-700">Part d'énergie locale</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">[ECONOMIE_TOTALE] €</div>
+                  <div className="text-2xl font-bold text-green-600">{calculateBillingData.statistics.economieRealisee.toFixed(2)} €</div>
                   <div className="text-sm text-green-700">Économie réalisée</div>
                 </div>
               </div>
@@ -461,15 +596,15 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">[INJECTION_TOTALE] MWh</div>
+                    <div className="text-2xl font-bold text-amber-600">{(calculateBillingData.energy.injectionTotale / 1000).toFixed(3)} MWh</div>
                     <div className="text-sm text-amber-700">Injection totale</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">[POURCENTAGE_PARTAGE]%</div>
+                    <div className="text-2xl font-bold text-amber-600">{calculateBillingData.statistics.pourcentagePartage}%</div>
                     <div className="text-sm text-amber-700">Part vendue localement</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">[REVENUS_TOTAUX] €</div>
+                    <div className="text-2xl font-bold text-amber-600">{calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €</div>
                     <div className="text-sm text-amber-700">Revenus totaux</div>
                   </div>
                 </div>
@@ -486,16 +621,16 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <div className="bg-gray-50 rounded-lg p-6">
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                 <span className="text-gray-700">Sous-total</span>
-                <span className="font-medium">[SOUS_TOTAL] €</span>
+                <span className="font-medium">{calculateBillingData.amounts.sousTotal.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                 <span className="text-gray-700">TVA (21%)</span>
-                <span className="font-medium">[TVA] €</span>
+                <span className="font-medium">{calculateBillingData.amounts.tva.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between items-center py-3 text-lg font-bold text-gray-900">
                 <span>Total à {participant.type === 'producer' ? 'recevoir' : 'payer'}</span>
                 <span className={participant.type === 'producer' ? 'text-green-600' : 'text-amber-600'}>
-                  [TOTAL_FINAL] €
+                  {calculateBillingData.amounts.totalFinal.toFixed(2)} €
                 </span>
               </div>
             </div>
