@@ -29,7 +29,6 @@ interface InvoiceTemplateProps {
 export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }: InvoiceTemplateProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [billingDataBackup, setBillingDataBackup] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -168,28 +167,10 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     }
   }, [participant, selectedPeriod]);
 
-  // Calculer et stocker les données de facturation
-  React.useEffect(() => {
-    if (isOpen && participant && selectedPeriod) {
-      calculateAndStoreBillingData(true); // true = temporaire
-    }
-  }, [isOpen, participant, selectedPeriod]);
-
-  const calculateAndStoreBillingData = async (isTemporary = false) => {
+  const saveBillingData = async () => {
     try {
       console.log('💰 Calcul des données de facturation pour:', participant.name);
       console.log('📅 Période:', selectedPeriod);
-
-      // Sauvegarder les anciennes données billing_data avant modification
-      if (isTemporary && !billingDataBackup) {
-        const { data: currentParticipant } = await supabase
-          .from('participants')
-          .select('billing_data')
-          .eq('id', participant.id)
-          .single();
-        
-        setBillingDataBackup(currentParticipant?.billing_data || null);
-      }
 
       // Charger les données mensuelles du participant
       let monthlyData = {};
@@ -345,13 +326,14 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           participantName: participant.name,
           participantEan: participant.ean_code,
           monthsIncluded: months.length,
-          dataSource: 'monthly_data'
+          dataSource: 'monthly_data',
+          period: selectedPeriod
         }
       };
 
       console.log('💰 Données de facturation calculées:', billingData);
 
-      // Sauvegarder dans la colonne billing_data
+      // Sauvegarder définitivement dans la colonne billing_data
       const { error } = await supabase
         .from('participants')
         .update({ 
@@ -361,58 +343,31 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
       if (error) {
         console.error('❌ Erreur sauvegarde billing_data:', error);
-        if (!isTemporary) {
-          toast.error('Erreur lors de la sauvegarde des données de facturation');
-        }
+        toast.error('Erreur lors de la sauvegarde des données de facturation');
       } else {
-        console.log(`✅ Données de facturation ${isTemporary ? 'temporairement ' : ''}sauvegardées dans billing_data`);
-        if (!isTemporary) {
-          toast.success('Données de facturation sauvegardées définitivement');
-          setIsSaved(true);
-        }
+        console.log('✅ Données de facturation sauvegardées définitivement dans billing_data');
+        toast.success('Données de facturation sauvegardées définitivement');
+        setIsSaved(true);
       }
 
     } catch (error) {
       console.error('❌ Erreur calcul facturation:', error);
-      if (!isTemporary) {
-        toast.error('Erreur lors du calcul des données de facturation');
-      }
+      toast.error('Erreur lors du calcul des données de facturation');
     }
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await calculateAndStoreBillingData(false); // false = définitif
+      await saveBillingData();
     } finally {
       setSaving(false);
     }
   };
 
-  const handleClose = async () => {
-    if (!isSaved) {
-      // Restaurer les anciennes données billing_data
-      try {
-        const { error } = await supabase
-          .from('participants')
-          .update({ 
-            billing_data: billingDataBackup
-          })
-          .eq('id', participant.id);
-
-        if (error) {
-          console.error('❌ Erreur restauration billing_data:', error);
-        } else {
-          console.log('🔄 Données billing_data restaurées (facture non sauvegardée)');
-        }
-      } catch (error) {
-        console.error('❌ Erreur lors de la restauration:', error);
-      }
-    }
-    
+  const handleClose = () => {
     // Reset des états
     setIsSaved(false);
-    setBillingDataBackup(null);
     onClose();
   };
 
