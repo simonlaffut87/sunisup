@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FileText, Download, X, Save, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
