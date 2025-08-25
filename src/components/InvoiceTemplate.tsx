@@ -461,6 +461,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         <td className="px-6 py-4 text-sm text-gray-900">
                           Électricité réseau
                           <div className="text-xs text-gray-500">Complément via le réseau traditionnel</div>
+                          <div className="text-xs text-gray-400">Frais réseau (frais versés à Sibelga)</div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           {(calculateBillingData.energy.totalVolumeComplementaire / 1000).toFixed(3)} MWh
