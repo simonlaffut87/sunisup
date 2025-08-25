@@ -245,7 +245,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         .update({ 
           monthly_data: null
         })
-        .not('monthly_data', 'is', null);
+        .not('id', 'is', null);
       
       if (monthlyError) {
         console.error('❌ Erreur nettoyage monthly_data:', monthlyError);
@@ -259,7 +259,8 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         .from('participants')
         .update({ 
           billing_data: null
-        });
+        })
+        .not('id', 'is', null);
       
       if (billingError) {
         console.error('❌ Erreur nettoyage billing_data:', billingError);
