@@ -346,6 +346,24 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
             </div>
           </div>
 
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              <MapPin className="w-4 h-4 inline mr-2" />
+              Adresse complète *
+            </label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
+                errors.address ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
+              }`}
+              placeholder="Ex: Rue de la Science 14B, 1040 Bruxelles"
+              required
+            />
+            {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
+          </div>
+
         </div>
 
         <div className="bg-gray-50 p-6 rounded-lg">

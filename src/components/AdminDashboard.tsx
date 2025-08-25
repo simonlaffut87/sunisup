@@ -319,6 +319,12 @@ export function AdminDashboard() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-2" />
+                      Adresse
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2" />
                       Date d'entrée
                     </div>
@@ -337,7 +343,7 @@ export function AdminDashboard() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {participants.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                       <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                       <p className="text-lg font-medium mb-2">Aucun participant enregistré</p>
                       <p className="text-sm">Ajoutez votre premier participant pour commencer</p>
@@ -367,6 +373,11 @@ export function AdminDashboard() {
                         }`}>
                           {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 max-w-xs truncate" title={participant.address}>
+                          {participant.address}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
