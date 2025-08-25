@@ -309,7 +309,8 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             }
           };
           
-          addLog(`💾 Données à sauvegarder pour ${eanCode}: totaux énergétiques + ${Object.keys((data as any).data.allColumns).length} lignes détaillées`);
+          addLog(`💾 ÉCRASEMENT des données pour ${eanCode} - mois ${month}: totaux énergétiques + ${Object.keys((data as any).data.allColumns).length} lignes détaillées`);
+          addLog(`🔄 Anciennes données pour ${month}: ${existingData[month] ? 'PRÉSENTES (seront écrasées)' : 'AUCUNE'}`);
 
           const { error: updateError } = await supabase
             .from('participants')
@@ -319,7 +320,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           if (updateError) {
             addLog(`❌ Erreur mise à jour ${eanCode}: ${updateError.message}`);
           } else {
-            addLog(`✅ Mise à jour réussie pour ${(data as any).name} (${eanCode}) - ${Object.keys((data as any).data.allColumns).length} lignes + totaux: VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
+            addLog(`✅ ÉCRASEMENT RÉUSSI pour ${(data as any).name} (${eanCode}) - mois ${month} REMPLACÉ - ${Object.keys((data as any).data.allColumns).length} lignes + totaux: VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
           }
         } else {
           addLog(`❌ Participant non trouvé en base pour EAN: ${eanCode}`);
@@ -349,9 +350,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       };
 
       setResults(finalResults);
-      addLog(`🎉 IMPORT TERMINÉ AVEC SUCCÈS !`);
+      addLog(`🎉 IMPORT TERMINÉ AVEC SUCCÈS - DONNÉES DU MOIS ${month} ÉCRASÉES !`);
       
-      toast.success(`✅ Import réussi ! ${Object.keys(participantData).length} participants mis à jour`);
+      toast.success(`✅ Import réussi ! ${Object.keys(participantData).length} participants mis à jour pour ${month} (données écrasées)`);
       
       setTimeout(() => {
         onSuccess(finalResults);
