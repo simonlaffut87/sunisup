@@ -240,26 +240,39 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       console.log('✅ localStorage nettoyé');
       
       // 2. Vider la colonne monthly_data de tous les participants
-      const { error } = await supabase
+      const { error: monthlyError } = await supabase
         .from('participants')
         .update({ 
-          monthly_data: null,
-          billing_data: null
+          monthly_data: null
         })
         .not('monthly_data', 'is', null);
       
-      if (error) {
-        console.error('❌ Erreur nettoyage base de données:', error);
-        throw error;
+      if (monthlyError) {
+        console.error('❌ Erreur nettoyage monthly_data:', monthlyError);
+        throw monthlyError;
       }
       
-      console.log('✅ Colonnes monthly_data et billing_data vidées pour tous les participants');
+      console.log('✅ Colonne monthly_data vidée pour tous les participants');
       
-      // 3. Réinitialiser l'état local
+      // 3. Vider la colonne billing_data de TOUS les participants (sans condition)
+      const { error: billingError } = await supabase
+        .from('participants')
+        .update({ 
+          billing_data: null
+        });
+      
+      if (billingError) {
+        console.error('❌ Erreur nettoyage billing_data:', billingError);
+        throw billingError;
+      }
+      
+      console.log('✅ Colonne billing_data vidée pour TOUS les participants');
+      
+      // 4. Réinitialiser l'état local
       setFiles([]);
       setChartData([]);
       
-      // 4. Recharger les données
+      // 5. Recharger les données
       await loadFiles();
       await loadChartDataFromParticipants();
       
