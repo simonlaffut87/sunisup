@@ -242,7 +242,10 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       // 2. Vider la colonne monthly_data de tous les participants
       const { error } = await supabase
         .from('participants')
-        .update({ monthly_data: null })
+        .update({ 
+          monthly_data: null,
+          billing_data: null
+        })
         .not('monthly_data', 'is', null);
       
       if (error) {
@@ -250,7 +253,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         throw error;
       }
       
-      console.log('✅ Colonne monthly_data vidée pour tous les participants');
+      console.log('✅ Colonnes monthly_data et billing_data vidées pour tous les participants');
       
       // 3. Réinitialiser l'état local
       setFiles([]);
@@ -260,7 +263,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       await loadFiles();
       await loadChartDataFromParticipants();
       
-      toast.success('🧹 Toutes les données mensuelles ont été supprimées (localStorage + base de données)');
+      toast.success('🧹 Toutes les données mensuelles et de facturation ont été supprimées (localStorage + base de données)');
       onImportSuccess();
       
     } catch (error) {
