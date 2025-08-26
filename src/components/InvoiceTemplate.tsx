@@ -508,7 +508,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                               console.error('Erreur calcul frais réseau:', error);
                               return '0.00';
                             }
-                          })())} €
+                          })()} €
                         </td>
                       </tr>
                     </>
