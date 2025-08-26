@@ -489,20 +489,33 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                                 
                                 if (monthData && monthData.allColumns) {
                                   Object.values(monthData.allColumns).forEach((rowData: any) => {
-                                    const utilisationReseau = parseFloat(rowData['Utilisation du réseau € HTVA'] || 0);
-                                    const surcharges = parseFloat(rowData['Surcharges € HTVA'] || 0);
-                                    const tarifCapac = parseFloat(rowData['Tarif capac. (>2020) € HTVA'] || 0);
-                                    const tarifMesure = parseFloat(rowData['Tarif mesure & comptage € HTVA'] || 0);
-                                    const tarifOSP = parseFloat(rowData['Tarif OSP € HTVA'] || 0);
-                                    const transportElia = parseFloat(rowData['Transport - coût ELIA € HTVA'] || 0);
-                                    const redevanceVoirie = parseFloat(rowData['Redevance de voirie € HTVA'] || 0);
-                                    const gridfee = parseFloat(rowData['Gridfee € HTVA'] || 0);
+                                    // Toutes les colonnes de frais réseau à additionner
+                                    const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
+                                    
+                                    console.log('🔍 Frais réseau détaillés:', {
+                                      utilisationReseau,
+                                      surcharges,
+                                      tarifCapac,
+                                      tarifMesure,
+                                      tarifOSP,
+                                      transportElia,
+                                      redevanceVoirie,
+                                      gridfee
+                                    });
                                     
                                     totalNetworkFees += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
                                   });
                                 }
                               }
                               
+                              console.log('💰 Total frais réseau calculé:', totalNetworkFees);
                               return totalNetworkFees.toFixed(2);
                             } catch (error) {
                               console.error('Erreur calcul frais réseau:', error);
