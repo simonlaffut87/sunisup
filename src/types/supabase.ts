@@ -51,6 +51,7 @@ export interface Database {
           annual_consumption: number | null
           lat: number | null
           lng: number | null
+          shared_energy_price: number | null
           created_at: string
           updated_at: string
         }
@@ -69,6 +70,7 @@ export interface Database {
           annual_consumption?: number | null
           lat?: number | null
           lng?: number | null
+          shared_energy_price?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -87,6 +89,7 @@ export interface Database {
           annual_consumption?: number | null
           lat?: number | null
           lng?: number | null
+          shared_energy_price?: number | null
           created_at?: string
           updated_at?: string
         }

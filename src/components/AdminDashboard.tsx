@@ -336,6 +336,12 @@ export function AdminDashboard() {
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <Euro className="w-4 h-4 mr-2" />
+                      Prix énergie partagée
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -392,6 +398,15 @@ export function AdminDashboard() {
                         <div className="text-sm text-gray-900">
                           {participant.commodity_rate ? (
                             `${participant.commodity_rate} €/MWh`
+                          ) : (
+                            <span className="text-gray-400 italic">Non renseigné</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {participant.shared_energy_price ? (
+                            `${participant.shared_energy_price} €/MWh`
                           ) : (
                             <span className="text-gray-400 italic">Non renseigné</span>
                           )}
