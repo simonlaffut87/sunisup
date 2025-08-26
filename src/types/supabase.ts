@@ -53,6 +53,7 @@ export interface Database {
           lng: number | null
           created_at: string
           updated_at: string
+          shared_energy_price: number | null
         }
         Insert: {
           id?: string
@@ -71,6 +72,7 @@ export interface Database {
           lng?: number | null
           created_at?: string
           updated_at?: string
+          shared_energy_price?: number | null
         }
         Update: {
           id?: string
@@ -89,6 +91,7 @@ export interface Database {
           lng?: number | null
           created_at?: string
           updated_at?: string
+          shared_energy_price?: number | null
         }
       }
       energy_data: {

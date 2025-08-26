@@ -21,7 +21,8 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     entry_date: '',
     commodity_rate: '',
     company_number: '',
-    type: 'consumer'
+    type: 'consumer',
+    shared_energy_price: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,8 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         commodity_rate: participant.commodity_rate?.toString() || '',
         company_number: participant.company_number || '',
-        type: participant.type || 'consumer'
+        type: participant.type || 'consumer',
+        shared_energy_price: participant.shared_energy_price?.toString() || ''
       });
     }
   }, [participant]);
@@ -96,6 +98,19 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         }
         break;
 
+      case 'shared_energy_price':
+        if (!value.trim()) {
+          newErrors.shared_energy_price = 'Le prix de l\'énergie partagée est requis';
+        } else {
+          const numRate = parseFloat(value);
+          if (isNaN(numRate) || numRate < 0 || numRate > 1000) {
+            newErrors.shared_energy_price = 'Le prix doit être un nombre entre 0 et 1000 €/MWh';
+          } else {
+            delete newErrors.shared_energy_price;
+          }
+        }
+        break;
+
       case 'entry_date':
         if (!value) {
           newErrors.entry_date = 'La date d\'entrée est requise';
@@ -122,7 +137,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   };
 
   const validateAllFields = () => {
-    const requiredFields = ['name', 'address', 'email', 'ean_code', 'commodity_rate', 'entry_date'];
+    const requiredFields = ['name', 'address', 'email', 'ean_code', 'commodity_rate', 'shared_energy_price', 'entry_date'];
     const newErrors: Record<string, string> = {};
 
     requiredFields.forEach(field => {
@@ -156,6 +171,16 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
             const numRate = parseFloat(value);
             if (isNaN(numRate) || numRate < 0 || numRate > 1000) {
               newErrors.commodity_rate = 'Le tarif doit être un nombre entre 0 et 1000 €/MWh';
+            }
+          }
+          break;
+        case 'shared_energy_price':
+          if (!value.trim()) {
+            newErrors.shared_energy_price = 'Le prix de l\'énergie partagée est requis';
+          } else {
+            const numRate = parseFloat(value);
+            if (isNaN(numRate) || numRate < 0 || numRate > 1000) {
+              newErrors.shared_energy_price = 'Le prix doit être un nombre entre 0 et 1000 €/MWh';
             }
           }
           break;
@@ -194,6 +219,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         commodity_rate: parseFloat(formData.commodity_rate),
         entry_date: formData.entry_date,
         company_number: formData.company_number.trim() || null,
+        shared_energy_price: parseFloat(formData.shared_energy_price),
         lat: 50.8503,
         lng: 4.3517,
         peak_power: 0,
@@ -275,6 +301,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
            formData.email.trim() &&
            formData.ean_code.trim() &&
            formData.commodity_rate.trim() &&
+           formData.shared_energy_price.trim() &&
            formData.entry_date;
   };
 
@@ -452,6 +479,35 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 </div>
               </div>
               {errors.commodity_rate && <p className="text-sm text-red-600 mt-1">{errors.commodity_rate}</p>}
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                <Euro className="w-4 h-4 inline mr-2" />
+                Prix de l'énergie partagée *
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.shared_energy_price}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const cleanValue = value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                    handleInputChange('shared_energy_price', cleanValue);
+                  }}
+                  className={`w-full px-4 py-3 pr-16 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
+                    errors.shared_energy_price ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
+                  }`}
+                  placeholder="Ex: 100.00"
+                  required
+                />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 text-sm font-medium">€/MWh</span>
+                </div>
+              </div>
+              {errors.shared_energy_price && <p className="text-sm text-red-600 mt-1">{errors.shared_energy_price}</p>}
             </div>
           </div>
 
