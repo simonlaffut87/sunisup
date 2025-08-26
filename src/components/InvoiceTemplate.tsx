@@ -466,10 +466,49 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                           {(calculateBillingData.energy.totalVolumeComplementaire / 1000).toFixed(3)} MWh
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          {calculateBillingData.rates.networkRate} €/MWh
+                          -
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {calculateBillingData.amounts.montantVolumeComplementaire.toFixed(2)} €
+                          {(() => {
+                            // Calculer le montant des frais réseau depuis monthly_data
+                            try {
+                              let monthlyData = {};
+                              if (participant.monthly_data) {
+                                monthlyData = typeof participant.monthly_data === 'string' 
+                                  ? JSON.parse(participant.monthly_data)
+                                  : participant.monthly_data;
+                              }
+                              
+                              const startDate = new Date(selectedPeriod.startMonth + '-01');
+                              const endDate = new Date(selectedPeriod.endMonth + '-01');
+                              let totalNetworkFees = 0;
+                              
+                              for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+                                const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                                const monthData = monthlyData[monthKey];
+                                
+                                if (monthData && monthData.allColumns) {
+                                  Object.values(monthData.allColumns).forEach((rowData: any) => {
+                                    const utilisationReseau = parseFloat(rowData['Utilisation du réseau € HTVA'] || 0);
+                                    const surcharges = parseFloat(rowData['Surcharges € HTVA'] || 0);
+                                    const tarifCapac = parseFloat(rowData['Tarif capac. (>2020) € HTVA'] || 0);
+                                    const tarifMesure = parseFloat(rowData['Tarif mesure & comptage € HTVA'] || 0);
+                                    const tarifOSP = parseFloat(rowData['Tarif OSP € HTVA'] || 0);
+                                    const transportElia = parseFloat(rowData['Transport - coût ELIA € HTVA'] || 0);
+                                    const redevanceVoirie = parseFloat(rowData['Redevance de voirie € HTVA'] || 0);
+                                    const gridfee = parseFloat(rowData['Gridfee € HTVA'] || 0);
+                                    
+                                    totalNetworkFees += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
+                                  });
+                                }
+                              }
+                              
+                              return totalNetworkFees.toFixed(2);
+                            } catch (error) {
+                              console.error('Erreur calcul frais réseau:', error);
+                              return '0.00';
+                            }
+                          })())} €
                         </td>
                       </tr>
                     </>
