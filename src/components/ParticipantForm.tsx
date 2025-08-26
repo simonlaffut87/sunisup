@@ -20,7 +20,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     ean_code: '',
     entry_date: '',
     commodity_rate: '',
-    shared_energy_price: '100',
     company_number: '',
     type: 'consumer'
   });
@@ -38,7 +37,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         ean_code: participant.ean_code || '',
         entry_date: participant.entry_date || participant.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         commodity_rate: participant.commodity_rate?.toString() || '',
-        shared_energy_price: participant.shared_energy_price?.toString() || '100',
         company_number: participant.company_number || '',
         type: participant.type || 'consumer'
       });
@@ -454,33 +452,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 </div>
               </div>
               {errors.commodity_rate && <p className="text-sm text-red-600 mt-1">{errors.commodity_rate}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                <Euro className="w-4 h-4 inline mr-2" />
-                Prix énergie partagée *
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={formData.shared_energy_price || '100'}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const cleanValue = value.replace(/[^0-9.,]/g, '').replace(',', '.');
-                    handleInputChange('shared_energy_price', cleanValue);
-                  }}
-                  className={`w-full px-4 py-3 pr-16 border rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 ${
-                    errors.shared_energy_price ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
-                  }`}
-                  placeholder="Ex: 100"
-                  required
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 text-sm font-medium">€/MWh</span>
-                </div>
-              </div>
-              {errors.shared_energy_price && <p className="text-sm text-red-600 mt-1">{errors.shared_energy_price}</p>}
             </div>
           </div>
 
