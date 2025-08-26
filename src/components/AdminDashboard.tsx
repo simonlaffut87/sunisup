@@ -13,7 +13,6 @@ interface ParticipantFormProps {
 }
 
 export function ParticipantForm({ participant, onSuccess, onCancel }: ParticipantFormProps) {
-export function AdminDashboard({ participant, onSuccess, onCancel }: ParticipantFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     address: '',
