@@ -564,30 +564,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             </div>
           </div>
 
-          {/* Résumé des coûts réels pour l'électricité consommée localement */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Résumé des coûts réels pour l'électricité consommée localement
-            </h3>
-            
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{(calculateBillingData.energy.volumeTotal / 1000).toFixed(3)} MWh</div>
-                  <div className="text-sm text-green-700">Volume total consommé</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{calculateBillingData.statistics.pourcentageLocal}%</div>
-                  <div className="text-sm text-green-700">Part d'énergie locale</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{calculateBillingData.statistics.economieRealisee.toFixed(2)} €</div>
-                  <div className="text-sm text-green-700">Économie réalisée</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Résumé des rémunérations liées à l'injection locale (pour producteurs) */}
           {participant.type === 'producer' && (
             <div className="mb-8">
