@@ -770,9 +770,15 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Conditions de paiement</h3>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <div className="text-sm text-gray-700 space-y-1">
-                  <p><strong>Échéance:</strong> {dueDate}</p>
-                  <p><strong>Délai:</strong> 30 jours</p>
-                  <p><strong>Pénalités:</strong> 1% par mois de retard</p>
+                  <p><strong>Échéance:</strong> {(() => {
+                    // Calculer 2 mois après la fin de la période de facturation
+                    const endOfPeriod = new Date(selectedPeriod.endMonth + '-01');
+                    endOfPeriod.setMonth(endOfPeriod.getMonth() + 1); // Fin du mois
+                    endOfPeriod.setDate(0); // Dernier jour du mois
+                    endOfPeriod.setMonth(endOfPeriod.getMonth() + 2); // + 2 mois
+                    return format(endOfPeriod, 'dd/MM/yyyy');
+                  })()}</p>
+                  <p><strong>Délai:</strong> 2 mois après la fin de la période</p>
                 </div>
               </div>
             </div>
