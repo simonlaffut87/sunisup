@@ -886,7 +886,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   const sousTotal = electriciteLocale + fraisReseau;
                   const totalTVA = sousTotal * 0.21;
                   return totalTVA.toFixed(2);
-                })())} €</span>
+                })()} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                 <span>Total à {participant.type === 'producer' ? 'recevoir' : 'payer'} TVAC</span>
