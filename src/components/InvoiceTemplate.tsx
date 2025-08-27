@@ -435,10 +435,10 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       Prix unitaire
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                      Montant HTVA
+                      Taux TVA
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                      Taux TVA
+                      Montant HTVA
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                       Montant TVAC
@@ -459,11 +459,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           {participant.commodity_rate} €/MWh
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {calculateBillingData.amounts.montantVolumePartage.toFixed(2)} €
-                        </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           21%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                          {calculateBillingData.amounts.montantVolumePartage.toFixed(2)} €
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
                           {(calculateBillingData.amounts.montantVolumePartage * 1.21).toFixed(2)} €
@@ -479,6 +479,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           -
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
+                          21%
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
                           {(() => {
@@ -534,9 +537,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                               return '0.00';
                             }
                           })()} €
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          21%
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
                           {(() => {
@@ -594,11 +594,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           {participant.commodity_rate} €/MWh
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €
-                        </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           21%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                          {calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
                           {(calculateBillingData.amounts.montantInjectionPartagee * 1.21).toFixed(2)} €
@@ -615,11 +615,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           {calculateBillingData.rates.injectionNetworkRate} €/MWh
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {calculateBillingData.amounts.montantInjectionComplementaire.toFixed(2)} €
-                        </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right">
                           21%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                          {calculateBillingData.amounts.montantInjectionComplementaire.toFixed(2)} €
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
                           {(calculateBillingData.amounts.montantInjectionComplementaire * 1.21).toFixed(2)} €
