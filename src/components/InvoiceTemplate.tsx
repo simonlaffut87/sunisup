@@ -806,7 +806,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   
                   let fraisReseau = 0;
                   try {
-                    let monthlyData = {};
+                   })()} €</span>
                     if (participant.monthly_data) {
                       monthlyData = typeof participant.monthly_data === 'string' 
                         ? JSON.parse(participant.monthly_data)
