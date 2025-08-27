@@ -796,11 +796,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               Résumé de la facture finale
             </h3>
             
-            <div className="bg-gray-50 rounded-lg p-6">
-              <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                <span className="text-gray-700">Sous-total HTVA</span>
-                <span className="font-medium">{(() => {
-                  // Calculer le sous-total HTVA (électricité locale + frais réseau)
+            <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Résumé de la facture</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                  <span className="text-gray-700 font-medium">Sous-total HTVA</span>
+                  <span className="font-semibold text-gray-900">{(() => {
                   const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
                   
                   let fraisReseau = 0;
@@ -840,11 +841,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   
                   const sousTotal = electriciteLocale + fraisReseau;
                   return sousTotal.toFixed(2);
-                })()} €</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                <span className="text-gray-700">Total TVA (21%)</span>
-                <span className="font-medium">{(() => {
+                  })())} €</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                  <span className="text-gray-700 font-medium">Total TVA (21%)</span>
+                  <span className="font-semibold text-gray-900">{(() => {
                   // Calculer le total TVA
                   const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
                   
@@ -886,12 +887,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   const sousTotal = electriciteLocale + fraisReseau;
                   const totalTVA = sousTotal * 0.21;
                   return totalTVA.toFixed(2);
-                })()} €</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                <span>Total à {participant.type === 'producer' ? 'recevoir' : 'payer'} TVAC</span>
-                <span className={participant.type === 'producer' ? 'text-green-600' : 'text-amber-600'}>
-                  {(() => {
+                  })())} €</span>
+                </div>
+                <div className="flex justify-between items-center py-4 bg-amber-50 rounded-lg px-4 border-2 border-amber-200">
+                  <span className="text-lg font-bold text-gray-900">Total à {participant.type === 'producer' ? 'recevoir' : 'payer'} TVAC</span>
+                  <span className="text-2xl font-bold text-amber-600">{(() => {
                     // Calculer le total TVAC
                     const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
                     
@@ -933,8 +933,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     const sousTotal = electriciteLocale + fraisReseau;
                     const totalTVAC = sousTotal * 1.21;
                     return totalTVAC.toFixed(2);
-                  })()} €
-                </span>
+                  })())} €</span>
+                </div>
               </div>
             </div>
           </div>
