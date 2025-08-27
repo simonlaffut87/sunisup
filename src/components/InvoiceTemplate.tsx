@@ -798,11 +798,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <p>
                 • Pour toute question concernant cette facture, contactez-nous à info@sunisup.be ou +32 471 31 71 48.
               </p>
-              {participant.type === 'consumer' && (
-                <p>
-                  • Votre consommation d'énergie locale vous permet d'économiser par rapport aux tarifs du marché traditionnel.
-                </p>
-              )}
               {participant.type === 'producer' && (
                 <p>
                   • Merci de contribuer à l'approvisionnement en énergie locale de notre communauté.
