@@ -933,7 +933,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     const sousTotal = electriciteLocale + fraisReseau;
                     const totalTVAC = sousTotal * 1.21;
                     return totalTVAC.toFixed(2);
-                  })())} €
+                  })()} €
                 </span>
               </div>
             </div>
