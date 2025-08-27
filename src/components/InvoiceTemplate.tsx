@@ -418,7 +418,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           {/* Détail de la consommation d'électricité locale */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Consommation d'électricité locale
+              Détail de la consommation d'électricité locale
             </h3>
             
             <div className="overflow-x-auto">
@@ -436,6 +436,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                       Montant HTVA
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                      Taux TVA
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                      Montant TVAC
                     </th>
                   </tr>
                 </thead>
@@ -455,6 +461,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
                           {calculateBillingData.amounts.montantVolumePartage.toFixed(2)} €
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
+                          21%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                          {(calculateBillingData.amounts.montantVolumePartage * 1.21).toFixed(2)} €
                         </td>
                       </tr>
                       <tr>
@@ -523,6 +535,50 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                             }
                           })()} €
                         </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
+                          21%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                          {(() => {
+                            try {
+                              let monthlyData = {};
+                              if (participant.monthly_data) {
+                                monthlyData = typeof participant.monthly_data === 'string' 
+                                  ? JSON.parse(participant.monthly_data)
+                                  : participant.monthly_data;
+                              }
+                              
+                              const startDate = new Date(selectedPeriod.startMonth + '-01');
+                              const endDate = new Date(selectedPeriod.endMonth + '-01');
+                              let totalNetworkFees = 0;
+                              
+                              for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+                                const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                                const monthData = monthlyData[monthKey];
+                                
+                                if (monthData && monthData.allColumns) {
+                                  Object.values(monthData.allColumns).forEach((rowData: any) => {
+                                    const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
+                                    const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
+                                    
+                                    totalNetworkFees += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
+                                  });
+                                }
+                              }
+                              
+                              return (totalNetworkFees * 1.21).toFixed(2);
+                            } catch (error) {
+                              console.error('Erreur calcul frais réseau TVAC:', error);
+                              return '0.00';
+                            }
+                          })()} €
+                        </td>
                       </tr>
                     </>
                   ) : (
@@ -541,6 +597,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
                           {calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €
                         </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
+                          21%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                          {(calculateBillingData.amounts.montantInjectionPartagee * 1.21).toFixed(2)} €
+                        </td>
                       </tr>
                       <tr>
                         <td className="px-6 py-4 text-sm text-gray-900">
@@ -555,6 +617,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
                           {calculateBillingData.amounts.montantInjectionComplementaire.toFixed(2)} €
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
+                          21%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                          {(calculateBillingData.amounts.montantInjectionComplementaire * 1.21).toFixed(2)} €
                         </td>
                       </tr>
                     </>
@@ -583,6 +651,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       </th>
                       <th className="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">
                         Montant HTVA
+                      </th>
+                      <th className="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">
+                        Montant TVAC
                       </th>
                     </tr>
                   </thead>
@@ -655,6 +726,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                                 <td className="px-6 py-3 text-sm text-gray-900 text-right font-medium">
                                   {montant.toFixed(2)} €
                                 </td>
+                                <td className="px-6 py-3 text-sm text-gray-900 text-right font-medium">
+                                  {(montant * 1.21).toFixed(2)} €
+                                </td>
                               </tr>
                             ))}
                             <tr className="bg-gray-50 font-medium">
@@ -667,6 +741,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                               <td className="px-6 py-3 text-sm text-gray-900 text-right font-bold">
                                 {totalFrais.toFixed(2)} €
                               </td>
+                              <td className="px-6 py-3 text-sm text-gray-900 text-right font-bold">
+                                {(totalFrais * 1.21).toFixed(2)} €
+                              </td>
                             </tr>
                           </>
                         );
@@ -674,7 +751,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         console.error('Erreur calcul frais Sibelga détaillés:', error);
                         return (
                           <tr>
-                            <td colSpan={3} className="px-6 py-3 text-center text-red-600">
+                            <td colSpan={4} className="px-6 py-3 text-center text-red-600">
                               Erreur lors du calcul des frais détaillés
                             </td>
                           </tr>
@@ -721,17 +798,142 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             
             <div className="bg-gray-50 rounded-lg p-6">
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                <span className="text-gray-700">Sous-total</span>
-                <span className="font-medium">{calculateBillingData.amounts.sousTotal.toFixed(2)} €</span>
+                <span className="text-gray-700">Sous-total HTVA</span>
+                <span className="font-medium">{(() => {
+                  // Calculer le sous-total HTVA (électricité locale + frais réseau)
+                  const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
+                  
+                  let fraisReseau = 0;
+                  try {
+                    let monthlyData = {};
+                    if (participant.monthly_data) {
+                      monthlyData = typeof participant.monthly_data === 'string' 
+                        ? JSON.parse(participant.monthly_data)
+                        : participant.monthly_data;
+                    }
+                    
+                    const startDate = new Date(selectedPeriod.startMonth + '-01');
+                    const endDate = new Date(selectedPeriod.endMonth + '-01');
+                    
+                    for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+                      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                      const monthData = monthlyData[monthKey];
+                      
+                      if (monthData && monthData.allColumns) {
+                        Object.values(monthData.allColumns).forEach((rowData: any) => {
+                          const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
+                          const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
+                          const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
+                          const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
+                          const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
+                          const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
+                          const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
+                          const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
+                          
+                          fraisReseau += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
+                        });
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Erreur calcul frais réseau:', error);
+                  }
+                  
+                  const sousTotal = electriciteLocale + fraisReseau;
+                  return sousTotal.toFixed(2);
+                })())} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                <span className="text-gray-700">TVA (21%)</span>
-                <span className="font-medium">{calculateBillingData.amounts.tva.toFixed(2)} €</span>
+                <span className="text-gray-700">Total TVA (21%)</span>
+                <span className="font-medium">{(() => {
+                  // Calculer le total TVA
+                  const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
+                  
+                  let fraisReseau = 0;
+                  try {
+                    let monthlyData = {};
+                    if (participant.monthly_data) {
+                      monthlyData = typeof participant.monthly_data === 'string' 
+                        ? JSON.parse(participant.monthly_data)
+                        : participant.monthly_data;
+                    }
+                    
+                    const startDate = new Date(selectedPeriod.startMonth + '-01');
+                    const endDate = new Date(selectedPeriod.endMonth + '-01');
+                    
+                    for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+                      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                      const monthData = monthlyData[monthKey];
+                      
+                      if (monthData && monthData.allColumns) {
+                        Object.values(monthData.allColumns).forEach((rowData: any) => {
+                          const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
+                          const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
+                          const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
+                          const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
+                          const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
+                          const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
+                          const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
+                          const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
+                          
+                          fraisReseau += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
+                        });
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Erreur calcul frais réseau:', error);
+                  }
+                  
+                  const sousTotal = electriciteLocale + fraisReseau;
+                  const totalTVA = sousTotal * 0.21;
+                  return totalTVA.toFixed(2);
+                })())} €</span>
               </div>
-              <div className="flex justify-between items-center py-3 text-lg font-bold text-gray-900">
-                <span>Total à {participant.type === 'producer' ? 'recevoir' : 'payer'}</span>
+              <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                <span>Total à {participant.type === 'producer' ? 'recevoir' : 'payer'} TVAC</span>
                 <span className={participant.type === 'producer' ? 'text-green-600' : 'text-amber-600'}>
-                  {calculateBillingData.amounts.totalFinal.toFixed(2)} €
+                  {(() => {
+                    // Calculer le total TVAC
+                    const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
+                    
+                    let fraisReseau = 0;
+                    try {
+                      let monthlyData = {};
+                      if (participant.monthly_data) {
+                        monthlyData = typeof participant.monthly_data === 'string' 
+                          ? JSON.parse(participant.monthly_data)
+                          : participant.monthly_data;
+                      }
+                      
+                      const startDate = new Date(selectedPeriod.startMonth + '-01');
+                      const endDate = new Date(selectedPeriod.endMonth + '-01');
+                      
+                      for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+                        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                        const monthData = monthlyData[monthKey];
+                        
+                        if (monthData && monthData.allColumns) {
+                          Object.values(monthData.allColumns).forEach((rowData: any) => {
+                            const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
+                            const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
+                            const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
+                            const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
+                            const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
+                            const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
+                            const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
+                            const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
+                            
+                            fraisReseau += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
+                          });
+                        }
+                      }
+                    } catch (error) {
+                      console.error('Erreur calcul frais réseau:', error);
+                    }
+                    
+                    const sousTotal = electriciteLocale + fraisReseau;
+                    const totalTVAC = sousTotal * 1.21;
+                    return totalTVAC.toFixed(2);
+                  })())} €
                 </span>
               </div>
             </div>
