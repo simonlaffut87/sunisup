@@ -365,9 +365,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
                 <p className="text-gray-600">Communauté d'énergie locale</p>
                 <div className="text-sm text-gray-500 mt-2">
-                  <p>Rue de la Science 14B</p>
-                  <p>1040 Bruxelles</p>
-                  <p>TVA: BE 0123.456.789</p>
+                  <p>235 chaussée d'ixelles</p>
+                  <p>1050 Bruxelles</p>
+                  <p>TVA: BE 1022108004</p>
                 </div>
               </div>
             </div>
@@ -1013,7 +1013,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <p>
               Sun Is Up ASBL - Communauté d'énergie bruxelloise | 
               info@sunisup.be | +32 471 31 71 48 | 
-              TVA: BE 0123.456.789
+              TVA: BE 1022108004
             </p>
             <p className="mt-1">
               Facture générée automatiquement le {format(new Date(), 'dd/MM/yyyy à HH:mm', { locale: fr })}
