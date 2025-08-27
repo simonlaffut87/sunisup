@@ -744,9 +744,24 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="text-sm text-blue-800 space-y-1">
                   <p><strong>Bénéficiaire:</strong> Sun Is Up ASBL</p>
-                  <p><strong>IBAN:</strong> BE12 3456 7890 1234</p>
-                  <p><strong>BIC:</strong> GKCCBEBB</p>
-                  <p><strong>Communication:</strong> {invoiceNumber}</p>
+                  <p><strong>IBAN:</strong> BE96 0020 1192 6005</p>
+                  <p><strong>BIC:</strong> GEBABEBB</p>
+                  <p><strong>Communication:</strong> {participant.name} - {(() => {
+                    const startDate = new Date(selectedPeriod.startMonth + '-01');
+                    const endDate = new Date(selectedPeriod.endMonth + '-01');
+                    const months = [];
+                    
+                    for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+                      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                      months.push(monthKey);
+                    }
+                    
+                    if (months.length === 1) {
+                      return format(new Date(months[0] + '-01'), 'MMMM yyyy', { locale: fr });
+                    } else {
+                      return `${format(new Date(months[0] + '-01'), 'MMMM yyyy', { locale: fr })} à ${format(new Date(months[months.length - 1] + '-01'), 'MMMM yyyy', { locale: fr })}`;
+                    }
+                  })()}</p>
                 </div>
               </div>
             </div>
