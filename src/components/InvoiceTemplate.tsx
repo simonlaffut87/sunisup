@@ -568,7 +568,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           {participant.type === 'consumer' && (
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Coût du réseau pour la consommation locale
+                Détail des coûts réseaux pour la consommation locale
               </h3>
               
               <div className="overflow-x-auto">
@@ -579,7 +579,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         Description
                       </th>
                       <th className="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">
-                        Pourcentage
+                        Taux TVA
                       </th>
                       <th className="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">
                         Montant HTVA
@@ -650,7 +650,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                                   <div className="text-xs text-gray-500">Consommation</div>
                                 </td>
                                 <td className="px-6 py-3 text-sm text-gray-900 text-right">
-                                  6%
+                                  21%
                                 </td>
                                 <td className="px-6 py-3 text-sm text-gray-900 text-right font-medium">
                                   {montant.toFixed(2)} €
