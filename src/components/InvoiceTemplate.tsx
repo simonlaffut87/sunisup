@@ -806,7 +806,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   
                   let fraisReseau = 0;
                   try {
-                   })()} €</span>
+                    let monthlyData = {};
                     if (participant.monthly_data) {
                       monthlyData = typeof participant.monthly_data === 'string' 
                         ? JSON.parse(participant.monthly_data)
@@ -841,7 +841,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   
                   const sousTotal = electriciteLocale + fraisReseau;
                   return sousTotal.toFixed(2);
-                  })())} €</span>
+                  })()} €</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200">
                   <span className="text-gray-700 font-medium">Total TVA (21%)</span>
@@ -887,7 +887,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   const sousTotal = electriciteLocale + fraisReseau;
                   const totalTVA = sousTotal * 0.21;
                   return totalTVA.toFixed(2);
-                  })())} €</span>
+                  })()} €</span>
                 </div>
                 <div className="flex justify-between items-center py-4 bg-amber-50 rounded-lg px-4 border-2 border-amber-200">
                   <span className="text-lg font-bold text-gray-900">Total à {participant.type === 'producer' ? 'recevoir' : 'payer'} TVAC</span>
@@ -933,7 +933,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     const sousTotal = electriciteLocale + fraisReseau;
                     const totalTVAC = sousTotal * 1.21;
                     return totalTVAC.toFixed(2);
-                  })())} €</span>
+                  })()} €</span>
                 </div>
               </div>
             </div>
@@ -1024,3 +1024,5 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     </div>
   );
 }
+
+export { InvoiceTemplate }
