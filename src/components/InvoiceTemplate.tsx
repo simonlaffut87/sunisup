@@ -840,7 +840,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   
                   const sousTotal = electriciteLocale + fraisReseau;
                   return sousTotal.toFixed(2);
-                })())} €</span>
+                })()} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                 <span className="text-gray-700">Total TVA (21%)</span>
