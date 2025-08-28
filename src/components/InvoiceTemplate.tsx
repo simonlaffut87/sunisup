@@ -793,7 +793,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-amber-600">{calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €</div>
-                    <div className="text-sm text-amber-700">Revenus totaux</div>
+                    <p>N° TVA: {participant.company_number && participant.company_number.startsWith('BE') ? participant.company_number : 'Non renseigné'}</p>
                   </div>
                 </div>
               </div>
