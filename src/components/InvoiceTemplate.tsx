@@ -270,10 +270,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         }
       } catch (error) {
         console.error('❌ Erreur lors de la suppression:', error);
-    // Utiliser la date de fin de période pour déterminer l'année et le trimestre
-    const endDate = new Date(period.endMonth + '-01');
-    const year = endDate.getFullYear();
-    const month = endDate.getMonth() + 1; // getMonth() retourne 0-11, donc +1 pour 1-12
+      }
+    }
     
     // Reset des états
     setIsSaved(false);
@@ -292,6 +290,16 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     // Logique pour télécharger le PDF
     console.log('Téléchargement de la facture pour:', participant.name);
   };
+
+  // Calculer l'échéance : 2 mois avant la fin de la période
+  const calculateDueDate = (period: { startMonth: string; endMonth: string }) => {
+    const endDate = new Date(period.endMonth + '-01');
+    // Soustraire 2 mois
+    endDate.setMonth(endDate.getMonth() - 2);
+    return endDate;
+  };
+
+  const dueDateCalculated = calculateDueDate(selectedPeriod);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -374,37 +382,28 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               </div>
             </div>
             
-  // Calculer l'échéance : 2 mois avant la fin de la période
-  const calculateDueDate = (period: { startMonth: string; endMonth: string }) => {
-    const endDate = new Date(period.endMonth + '-01');
-    // Soustraire 2 mois
-    endDate.setMonth(endDate.getMonth() - 2);
-    return endDate;
-  };
-
             <div className="text-right">
-  const dueDate = calculateDueDate(selectedPeriod);
               <h2 className="text-xl font-bold text-amber-600 mb-2">
                 {participant.type === 'producer' ? 'Facture de production' : 'Facture d\'électricité locale'}
               </h2>
               <div className="text-sm text-gray-600">
                 <p><strong>N° Facture:</strong> {invoiceNumber}</p>
                 <p><strong>Date:</strong> {invoiceDate}</p>
-                <p><strong>Échéance:</strong> {dueDate}</p>
+                <p>Échéance: {format(dueDateCalculated, 'dd/MM/yyyy', { locale: fr })}</p>
               </div>
             </div>
           </div>
 
           {/* Informations client */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <p>Échéance: {format(dueDate, 'dd/MM/yyyy', { locale: fr })}</p>
+            <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Facturé à :</h3>
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <p className="font-medium text-gray-900">{participant.name}</p>
                 <p className="text-gray-600">{participant.address}</p>
                 {participant.company_number && (
                   <p className="text-gray-600 mt-2">
-                    {format(dueDate, 'dd MMMM yyyy', { locale: fr })}
+                    {format(dueDateCalculated, 'dd MMMM yyyy', { locale: fr })}
                   </p>
                 )}
               </div>
