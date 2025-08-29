@@ -273,62 +273,88 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
       // Mettre à jour la base de données
       addLog('💾 Mise à jour de la base de données...');
+      let updateSuccessCount = 0;
+      let updateErrorCount = 0;
+      
       for (const [eanCode, data] of Object.entries(participantData)) {
         addLog(`💾 Mise à jour participant EAN: ${eanCode}`);
         
         const { data: participant, error: findError } = await supabase
           .from('participants')
-          .select('id, monthly_data')
+          .select('id, monthly_data, name')
           .eq('ean_code', eanCode)
           .single();
 
         if (!findError && participant) {
-          addLog(`✅ Participant trouvé en base: ${participant.id}`);
+          addLog(`✅ Participant trouvé en base: ${participant.name} (ID: ${participant.id})`);
           
           let existingData = {};
           if (participant.monthly_data) {
             try {
-              existingData = JSON.parse(participant.monthly_data);
+              if (typeof participant.monthly_data === 'string') {
+                existingData = JSON.parse(participant.monthly_data);
+              } else {
+                existingData = participant.monthly_data;
+              }
             } catch (e) {
               addLog(`⚠️ Erreur parsing monthly_data pour ${eanCode}: ${e}`);
+              existingData = {};
             }
           }
 
-          const updatedData = {
-            ...existingData,
-            [month]: {
-              // Stocker toutes les données de colonnes
-              allColumns: (data as any).data.allColumns,
-              headers: headers,
-              // Garder les totaux énergétiques
-              volume_partage: (data as any).data.volume_partage,
-              volume_complementaire: (data as any).data.volume_complementaire,
-              injection_partagee: (data as any).data.injection_partagee,
-              injection_complementaire: (data as any).data.injection_complementaire,
-              updated_at: new Date().toISOString()
-            }
+          // Préparer les nouvelles données pour ce mois
+          const newMonthData = {
+            volume_partage: (data as any).data.volume_partage,
+            volume_complementaire: (data as any).data.volume_complementaire,
+            injection_partagee: (data as any).data.injection_partagee,
+            injection_complementaire: (data as any).data.injection_complementaire,
+            updated_at: new Date().toISOString()
           };
           
-          addLog(`💾 ÉCRASEMENT des données pour ${eanCode} - mois ${month}: totaux énergétiques + ${Object.keys((data as any).data.allColumns).length} lignes détaillées`);
-          addLog(`🔄 Anciennes données pour ${month}: ${existingData[month] ? 'PRÉSENTES (seront écrasées)' : 'AUCUNE'}`);
+          addLog(`📊 Nouvelles données pour ${month}: VP=${newMonthData.volume_partage}, VC=${newMonthData.volume_complementaire}`);
+          
+          const updatedData = {
+            ...existingData,
+            [month]: newMonthData
+          };
+          
+          addLog(`💾 Données à sauvegarder pour ${participant.name}:`, JSON.stringify(updatedData));
 
           const { error: updateError } = await supabase
             .from('participants')
-            .update({ monthly_data: JSON.stringify(updatedData) })
+            .update({ monthly_data: updatedData })
             .eq('id', participant.id);
 
           if (updateError) {
-            addLog(`❌ Erreur mise à jour ${eanCode}: ${updateError.message}`);
+            addLog(`❌ Erreur mise à jour ${eanCode}: ${JSON.stringify(updateError)}`);
+            updateErrorCount++;
           } else {
-            addLog(`✅ ÉCRASEMENT RÉUSSI pour ${(data as any).name} (${eanCode}) - mois ${month} REMPLACÉ - ${Object.keys((data as any).data.allColumns).length} lignes + totaux: VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
+            addLog(`✅ SAUVEGARDE RÉUSSIE pour ${participant.name} (${eanCode}) - mois ${month}`);
+            updateSuccessCount++;
+            
+            // Vérification immédiate
+            const { data: verifyData, error: verifyError } = await supabase
+              .from('participants')
+              .select('monthly_data')
+              .eq('id', participant.id)
+              .single();
+            
+            if (!verifyError && verifyData) {
+              addLog(`🔍 VÉRIFICATION: monthly_data sauvegardé = ${JSON.stringify(verifyData.monthly_data)}`);
+            } else {
+              addLog(`❌ ERREUR VÉRIFICATION: ${JSON.stringify(verifyError)}`);
+            }
           }
         } else {
           addLog(`❌ Participant non trouvé en base pour EAN: ${eanCode}`);
           if (findError) {
             addLog(`❌ Erreur de recherche: ${findError.message}`);
           }
+          updateErrorCount++;
         }
       }
+      
+      addLog(`📊 RÉSUMÉ MISE À JOUR: ${updateSuccessCount} succès, ${updateErrorCount} erreurs`);
 
       const finalResults = {
         month,
