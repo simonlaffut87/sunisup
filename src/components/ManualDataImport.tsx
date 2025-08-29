@@ -297,10 +297,6 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const updatedData = {
             ...existingData,
             [month]: {
-              // Stocker toutes les données de colonnes
-              allColumns: (data as any).data.allColumns,
-              headers: headers,
-              // Garder les totaux énergétiques
               volume_partage: (data as any).data.volume_partage,
               volume_complementaire: (data as any).data.volume_complementaire,
               injection_partagee: (data as any).data.injection_partagee,
@@ -309,18 +305,19 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             }
           };
           
-          addLog(`💾 ÉCRASEMENT des données pour ${eanCode} - mois ${month}: totaux énergétiques + ${Object.keys((data as any).data.allColumns).length} lignes détaillées`);
+          addLog(`💾 MISE À JOUR des données pour ${eanCode} - mois ${month}: totaux énergétiques`);
           addLog(`🔄 Anciennes données pour ${month}: ${existingData[month] ? 'PRÉSENTES (seront écrasées)' : 'AUCUNE'}`);
 
           const { error: updateError } = await supabase
             .from('participants')
-            .update({ monthly_data: JSON.stringify(updatedData) })
+            .update({ monthly_data: updatedData })
             .eq('id', participant.id);
 
           if (updateError) {
             addLog(`❌ Erreur mise à jour ${eanCode}: ${updateError.message}`);
+            throw updateError;
           } else {
-            addLog(`✅ ÉCRASEMENT RÉUSSI pour ${(data as any).name} (${eanCode}) - mois ${month} REMPLACÉ - ${Object.keys((data as any).data.allColumns).length} lignes + totaux: VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
+            addLog(`✅ MISE À JOUR RÉUSSIE pour ${(data as any).name} (${eanCode}) - mois ${month} - VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
           }
         } else {
           addLog(`❌ Participant non trouvé en base pour EAN: ${eanCode}`);
