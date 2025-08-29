@@ -394,90 +394,66 @@ export class BasicFileReader {
   private static async updateParticipantsMonthlyData(participants: any, month: string) {
     console.log('🔄 Mise à jour monthly_data pour', Object.keys(participants).length, 'participants...');
     
-    try {
-      // Import dynamique de supabase
-      const { supabase } = await import('../lib/supabase');
-      
-      let updatedCount = 0;
-      
-      for (const [eanCode, participantData] of Object.entries(participants)) {
-        try {
-          console.log(`🔍 Traitement participant EAN: ${eanCode}`);
-          
-          // Trouver le participant par son EAN
-          const { data: participant, error: findError } = await supabase
-            .from('participants')
-            .select('id, monthly_data, name')
-            .eq('ean_code', eanCode)
-            .single();
-          
-          if (findError || !participant) {
-            console.warn(`⚠️ Participant avec EAN ${eanCode} non trouvé:`, findError);
-            continue;
+    // Import dynamique de supabase
+    const { supabase } = await import('../lib/supabase');
+    
+    for (const [eanCode, participantData] of Object.entries(participants)) {
+      try {
+        // Trouver le participant par son EAN
+        const { data: participant, error: findError } = await supabase
+          .from('participants')
+          .select('id, monthly_data')
+          .eq('ean_code', eanCode)
+          .single();
+        
+        if (findError || !participant) {
+          console.warn(`⚠️ Participant avec EAN ${eanCode} non trouvé:`, findError);
+          continue;
+        }
+        
+        // Parser les données mensuelles existantes
+        let existingMonthlyData = {};
+        if (participant.monthly_data) {
+          try {
+            existingMonthlyData = JSON.parse(participant.monthly_data);
+          } catch (e) {
+            console.warn(`⚠️ Erreur parsing monthly_data existant pour ${eanCode}:`, e);
           }
-          
-          console.log(`✅ Participant trouvé: ${participant.name} (ID: ${participant.id})`);
-          
-          // Parser les données mensuelles existantes
-          let existingMonthlyData = {};
-          if (participant.monthly_data) {
-            try {
-              existingMonthlyData = typeof participant.monthly_data === 'string' 
-                ? JSON.parse(participant.monthly_data)
-                : participant.monthly_data;
-              console.log(`📊 Données existantes pour ${participant.name}:`, Object.keys(existingMonthlyData));
-            } catch (e) {
-              console.warn(`⚠️ Erreur parsing monthly_data existant pour ${eanCode}:`, e);
-              existingMonthlyData = {};
-            }
-          }
-          
-          // Ajouter/mettre à jour les données pour ce mois
-          const newMonthData = {
+        }
+        
+        // Ajouter/mettre à jour les données pour ce mois
+        const updatedMonthlyData = {
+          ...existingMonthlyData,
+          [month]: {
             volume_partage: (participantData as any).data.volume_partage,
             volume_complementaire: (participantData as any).data.volume_complementaire,
             injection_partagee: (participantData as any).data.injection_partagee,
             injection_complementaire: (participantData as any).data.injection_complementaire,
             updated_at: new Date().toISOString()
-          };
-          
-          const updatedMonthlyData = {
-            ...existingMonthlyData,
-            [month]: newMonthData
-          };
-          
-          console.log(`💾 Mise à jour monthly_data pour ${participant.name} (mois ${month}):`, newMonthData);
-          
-          // Mettre à jour dans la base de données
-          const { error: updateError } = await supabase
-            .from('participants')
-            .update({ 
-              monthly_data: updatedMonthlyData
-            })
-            .eq('id', participant.id);
-          
-          if (updateError) {
-            console.error(`❌ Erreur mise à jour monthly_data pour ${eanCode}:`, updateError);
-            throw updateError;
-          } else {
-            console.log(`✅ monthly_data mis à jour avec succès pour ${participant.name} (${eanCode})`);
-            updatedCount++;
           }
-          
-        } catch (error) {
-          console.error(`❌ Erreur traitement participant ${eanCode}:`, error);
-          throw error;
+        };
+        
+        // Mettre à jour dans la base de données
+        const { error: updateError } = await supabase
+          .from('participants')
+          .update({ 
+            monthly_data: JSON.stringify(updatedMonthlyData)
+          })
+          .eq('id', participant.id);
+        
+        if (updateError) {
+          console.error(`❌ Erreur mise à jour monthly_data pour ${eanCode}:`, updateError);
+        } else {
+          console.log(`✅ monthly_data mis à jour pour ${(participantData as any).name} (${eanCode})`);
         }
+        
+      } catch (error) {
+        console.error(`❌ Erreur traitement participant ${eanCode}:`, error);
       }
-      
-      console.log(`✅ Mise à jour monthly_data terminée: ${updatedCount}/${Object.keys(participants).length} participants mis à jour`);
-      
-    } catch (error) {
-      console.error('❌ Erreur globale mise à jour monthly_data:', error);
-      throw error;
     }
-  }
     
+    console.log('✅ Mise à jour monthly_data terminée');
+  }
 
   private static extractMonth(filename: string): string {
     console.log('🔍 Extraction du mois depuis:', filename);
