@@ -529,9 +529,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div className="flex-shrink-0">
-                <div className="h-12 w-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-lg">☀️</span>
-                </div>
+                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-12 w-12" />
               </div>
               <div className="ml-4">
                 <h1 className="text-2xl font-bold text-gray-900">
