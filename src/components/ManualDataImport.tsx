@@ -493,10 +493,11 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         toast.error(`❌ ERREUR CRITIQUE: Aucun participant mis à jour en base ! Vérifiez les logs de debug.`);
       }
       
-      setTimeout(() => {
-        onSuccess(finalResults);
-        onClose();
-      }, 3000);
+      // Ne plus fermer automatiquement - laisser l'utilisateur voir les logs
+      // setTimeout(() => {
+      //   onSuccess(finalResults);
+      //   onClose();
+      // }, 3000);
 
     } catch (error: any) {
       addLog(`❌ ERREUR: ${error.message}`);
@@ -686,6 +687,33 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Boutons d'action après traitement */}
+          {results && (
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  const logText = debugLogs.join('\n');
+                  navigator.clipboard.writeText(logText);
+                  toast.success('Logs copiés dans le presse-papiers');
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              >
+                <Copy className="w-4 h-4" />
+                <span>Copier les logs</span>
+              </button>
+              <button
+                onClick={() => {
+                  onSuccess(results);
+                  onClose();
+                }}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>Confirmer et fermer</span>
+              </button>
             </div>
           )}
         </div>
