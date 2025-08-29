@@ -12,8 +12,8 @@ export function useAutoLogout({
   timeoutMinutes = 15, 
   isLoggedIn 
 }: UseAutoLogoutProps) {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const warningTimeoutRef = useRef<number | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
 
   const TIMEOUT_MS = timeoutMinutes * 60 * 1000; // 15 minutes en millisecondes
