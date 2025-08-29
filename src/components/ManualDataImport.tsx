@@ -590,12 +590,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
           {/* Debug Logs */}
           {debugLogs.length > 0 && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-2" />
-                Logs de debug ({debugLogs.length} entrées)
+                <AlertCircle className="w-5 h-5 mr-2 text-yellow-600" />
+                🔍 LOGS DE DEBUG DÉTAILLÉS ({debugLogs.length} entrées)
               </h4>
-              <div className="bg-white border border-gray-200 rounded p-3 max-h-60 overflow-y-auto">
+              <div className="bg-white border-2 border-yellow-200 rounded p-4 max-h-80 overflow-y-auto">
                 <div className="space-y-1 text-xs font-mono">
                   {debugLogs.map((log, index) => (
                     <div key={index} className={`${
@@ -603,12 +603,27 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                       log.includes('✅') ? 'text-green-600' :
                       log.includes('🎯') ? 'text-purple-600' :
                       log.includes('⚠️') ? 'text-orange-600' :
+                      log.includes('💾') ? 'text-blue-600 font-bold' :
+                      log.includes('🔍') ? 'text-indigo-600' :
                       'text-gray-700'
-                    }`}>
+                    } p-1 border-b border-gray-100`}>
                       {log}
                     </div>
                   ))}
                 </div>
+              </div>
+              <div className="mt-3 text-center">
+                <button
+                  onClick={() => {
+                    const logText = debugLogs.join('\n');
+                    navigator.clipboard.writeText(logText);
+                    toast.success('Logs copiés dans le presse-papiers');
+                  }}
+                  className="text-yellow-600 hover:text-yellow-800 text-sm underline flex items-center justify-center gap-1"
+                >
+                  <Copy className="w-3 h-3" />
+                  Copier tous les logs
+                </button>
               </div>
             </div>
           )}
