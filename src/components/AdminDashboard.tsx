@@ -242,7 +242,9 @@ export function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-12 w-12" />
+                <div className="h-12 w-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">☀️</span>
+                </div>
               </div>
               <div className="ml-4">
                 <h1 className="text-2xl font-bold text-gray-900">

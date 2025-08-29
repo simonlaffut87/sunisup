@@ -291,6 +291,16 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     console.log('Téléchargement de la facture pour:', participant.name);
   };
 
+  // Calculer l'échéance : 2 mois avant la fin de la période
+  const calculateDueDate = (period: { startMonth: string; endMonth: string }) => {
+    const endDate = new Date(period.endMonth + '-01');
+    // Soustraire 2 mois
+    endDate.setMonth(endDate.getMonth() - 2);
+    return endDate;
+  };
+
+  const dueDateCalculated = calculateDueDate(selectedPeriod);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -379,7 +389,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <div className="text-sm text-gray-600">
                 <p><strong>N° Facture:</strong> {invoiceNumber}</p>
                 <p><strong>Date:</strong> {invoiceDate}</p>
-                <p><strong>Échéance:</strong> {dueDate}</p>
+                <p>Échéance: {format(dueDateCalculated, 'dd/MM/yyyy', { locale: fr })}</p>
               </div>
             </div>
           </div>
@@ -393,7 +403,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 <p className="text-gray-600">{participant.address}</p>
                 {participant.company_number && (
                   <p className="text-gray-600 mt-2">
-                    <strong>N° entreprise:</strong> {participant.company_number}
+                    {format(dueDateCalculated, 'dd MMMM yyyy', { locale: fr })}
                   </p>
                 )}
               </div>
@@ -783,7 +793,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-amber-600">{calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €</div>
-                    <div className="text-sm text-amber-700">Revenus totaux</div>
+                    <p>N° TVA: {participant.company_number && participant.company_number.startsWith('BE') ? participant.company_number : 'Non renseigné'}</p>
                   </div>
                 </div>
               </div>

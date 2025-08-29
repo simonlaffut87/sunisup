@@ -266,7 +266,9 @@ function App() {
             <div className="flex items-center justify-between">
               <Link to="/" className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
                 <div className="relative flex-shrink-0">
-                  <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20" />
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-lg sm:text-xl lg:text-2xl">☀️</span>
+                  </div>
                 </div>
                 <div className="min-w-0 flex-1">
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
@@ -335,7 +337,9 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
                 <div className="flex items-center space-x-3 mb-4">
-                  <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-12 h-12" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold">☀️</span>
+                  </div>
                   <h3 className="text-xl font-bold">Sun Is Up</h3>
                 </div>
                 <p className="text-gray-400 text-sm">

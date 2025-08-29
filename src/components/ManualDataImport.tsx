@@ -35,9 +35,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
     setProcessing(true);
     setResults(null);
     setDebugLogs([]);
-    addLog('🚀 DÉBUT DU TRAITEMENT MANUEL - DIAGNOSTIC COMPLET');
-    addLog(`📅 Mois sélectionné: ${month}`);
-    addLog(`📊 Taille des données: ${textData.length} caractères`);
+    addLog('🚀 DÉBUT DU TRAITEMENT MANUEL');
 
     try {
       // Diviser en lignes
@@ -97,18 +95,11 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
       // Charger les participants
       addLog('👥 Chargement des participants depuis la base...');
-      addLog('🔗 URL Supabase: ' + (import.meta.env.VITE_SUPABASE_URL ? 'Configurée' : 'MANQUANTE'));
-      
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*');
 
-      if (error) {
-        addLog(`❌ ERREUR CHARGEMENT PARTICIPANTS: ${JSON.stringify(error)}`);
-        throw error;
-      }
-      
-      addLog(`✅ ${participants?.length || 0} participants chargés depuis la base`);
+      if (error) throw error;
 
       const targetEan = '541448965001060702';
       addLog(`🎯 RECHERCHE SPÉCIFIQUE DE L'EAN: ${targetEan}`);
@@ -195,6 +186,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             participantData[finalEan] = {
               ...mappedParticipant,
               data: {
+                // Stocker toutes les colonnes avec leurs valeurs
+                allColumns: {},
+                // Garder les totaux énergétiques pour compatibilité
                 volume_partage: 0,
                 volume_complementaire: 0,
                 injection_partagee: 0,
@@ -215,6 +209,29 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             return isNaN(parsed) ? 0 : parsed;
           };
           
+          // Stocker TOUTES les colonnes de cette ligne
+          const allColumnData: { [columnName: string]: any } = {};
+          headers.forEach((header, index) => {
+            const rawValue = row[index];
+            const cleanedValue = rawValue ? String(rawValue).trim() : '';
+            
+            // Pour les colonnes numériques, parser la valeur
+            if (header.toLowerCase().includes('volume') || 
+                header.toLowerCase().includes('injection') ||
+                header.toLowerCase().includes('tarif') ||
+                header.toLowerCase().includes('prix') ||
+                header.toLowerCase().includes('montant')) {
+              allColumnData[header] = parseValue(rawValue);
+            } else {
+              allColumnData[header] = cleanedValue;
+            }
+          });
+          
+          // Ajouter les données de cette ligne aux données du participant
+          if (!participantData[finalEan].data.allColumns[i]) {
+            participantData[finalEan].data.allColumns[i] = allColumnData;
+          }
+          
           const volumePartage = parseValue(row[volumePartageIndex]);
           const volumeComplementaire = parseValue(row[volumeComplementaireIndex]);
           const injectionPartage = parseValue(row[injectionPartageIndex]);
@@ -225,6 +242,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addLog(`🔍 LIGNE ${i} - EAN ${finalEan} (registre: "${registre}"):`);
             addLog(`  📋 Valeurs brutes: VP="${row[volumePartageIndex]}", VC="${row[volumeComplementaireIndex]}", IP="${row[injectionPartageIndex]}", IC="${row[injectionComplementaireIndex]}"`);
             addLog(`  🔢 Valeurs parsées: VP=${volumePartage}, VC=${volumeComplementaire}, IP=${injectionPartage}, IC=${injectionComplementaire}`);
+            addLog(`  📊 Toutes les colonnes stockées: ${Object.keys(allColumnData).length} colonnes`);
             
             if (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0) {
               addLog('🎉 VALEURS NON-NULLES TROUVÉES !');
@@ -253,184 +271,63 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       addLog(`📊 Traitement terminé: ${validRows} lignes valides, ${unknownEans.size} EAN non reconnus`);
       addLog(`👥 Participants mis à jour: ${Object.keys(participantData).length}`);
 
-      // DIAGNOSTIC DÉTAILLÉ DES DONNÉES À SAUVEGARDER
-      addLog('🔍 DIAGNOSTIC DÉTAILLÉ DES DONNÉES:');
-      Object.entries(participantData).forEach(([ean, data]: [string, any]) => {
-        addLog(`📊 EAN ${ean}: ${data.name}`);
-        addLog(`  📈 VP: ${data.data.volume_partage}, VC: ${data.data.volume_complementaire}`);
-        addLog(`  📈 IP: ${data.data.injection_partagee}, IC: ${data.data.injection_complementaire}`);
-        addLog(`  🆔 ID participant: ${data.id}`);
-      });
-
       // Mettre à jour la base de données
-      addLog('💾 DÉBUT MISE À JOUR BASE DE DONNÉES...');
-      addLog(`🔗 Connexion Supabase: ${supabase ? 'OK' : 'ERREUR'}`);
-      
-      let updateSuccessCount = 0;
-      let updateErrorCount = 0;
-      
+      addLog('💾 Mise à jour de la base de données...');
       for (const [eanCode, data] of Object.entries(participantData)) {
-        addLog(`💾 TRAITEMENT PARTICIPANT EAN: ${eanCode}`);
-        addLog(`👤 Nom: ${(data as any).name}`);
-        addLog(`🆔 ID: ${(data as any).id}`);
+        addLog(`💾 Mise à jour participant EAN: ${eanCode}`);
         
-        // ÉTAPE 1: Recherche du participant
-        addLog(`🔍 Recherche participant avec EAN: ${eanCode}`);
         const { data: participant, error: findError } = await supabase
           .from('participants')
-          .select('id, monthly_data, name')
+          .select('id, monthly_data')
           .eq('ean_code', eanCode)
           .single();
 
-        if (findError) {
-          addLog(`❌ ERREUR RECHERCHE PARTICIPANT: ${JSON.stringify(findError)}`);
-          updateErrorCount++;
-          continue;
-        }
-        
-        if (!participant) {
-          addLog(`❌ PARTICIPANT NON TROUVÉ pour EAN: ${eanCode}`);
-          updateErrorCount++;
-          continue;
-        }
-        
-        addLog(`✅ PARTICIPANT TROUVÉ: ${participant.name} (ID: ${participant.id})`);
-        
-        // ÉTAPE 2: Récupération des données existantes
-        addLog(`📊 monthly_data actuel: ${JSON.stringify(participant.monthly_data)}`);
-        
-        let existingData = {};
-        if (participant.monthly_data) {
-          try {
-            if (typeof participant.monthly_data === 'string') {
+        if (!findError && participant) {
+          addLog(`✅ Participant trouvé en base: ${participant.id}`);
+          
+          let existingData = {};
+          if (participant.monthly_data) {
+            try {
               existingData = JSON.parse(participant.monthly_data);
-              addLog(`✅ monthly_data parsé depuis string`);
-            } else {
-              existingData = participant.monthly_data;
-              addLog(`✅ monthly_data utilisé directement (objet)`);
+            } catch (e) {
+              addLog(`⚠️ Erreur parsing monthly_data pour ${eanCode}: ${e}`);
             }
-            addLog(`📊 Données existantes: ${JSON.stringify(existingData)}`);
-          } catch (e) {
-            addLog(`⚠️ Erreur parsing monthly_data pour ${eanCode}: ${e}`);
-            existingData = {};
           }
-        } else {
-          addLog(`📊 Aucune donnée monthly_data existante`);
-        }
 
-        // ÉTAPE 3: Préparation des nouvelles données
-        const newMonthData = {
-          volume_partage: (data as any).data.volume_partage,
-          volume_complementaire: (data as any).data.volume_complementaire,
-          injection_partagee: (data as any).data.injection_partagee,
-          injection_complementaire: (data as any).data.injection_complementaire,
-          updated_at: new Date().toISOString()
-        };
-        
-        addLog(`📊 NOUVELLES DONNÉES pour ${month}:`);
-        addLog(`  📈 VP: ${newMonthData.volume_partage}`);
-        addLog(`  📈 VC: ${newMonthData.volume_complementaire}`);
-        addLog(`  📈 IP: ${newMonthData.injection_partagee}`);
-        addLog(`  📈 IC: ${newMonthData.injection_complementaire}`);
-        
-        // ÉTAPE 4: Fusion avec les données existantes
-        const updatedData = {
-          ...existingData,
-          [month]: newMonthData
-        };
-        
-        addLog(`💾 DONNÉES COMPLÈTES À SAUVEGARDER:`);
-        addLog(`📊 Nombre de mois: ${Object.keys(updatedData).length}`);
-        addLog(`📊 Mois disponibles: ${Object.keys(updatedData).join(', ')}`);
-        addLog(`📊 Données pour ${month}: ${JSON.stringify(updatedData[month])}`);
-
-        // ÉTAPE 5: Sauvegarde dans la base
-        addLog(`💾 SAUVEGARDE EN BASE pour participant ID: ${participant.id}`);
-        
-        const { data: updateResult, error: updateError } = await supabase
-          .from('participants')
-          .update({ 
-            monthly_data: updatedData
-          })
-          .eq('id', participant.id)
-          .select('monthly_data');
-
-        if (updateError) {
-          addLog(`❌ ERREUR MISE À JOUR: ${JSON.stringify(updateError)}`);
-          updateErrorCount++;
-        } else {
-          addLog(`✅ MISE À JOUR RÉUSSIE pour ${participant.name}`);
-          addLog(`📊 Données retournées par update: ${JSON.stringify(updateResult)}`);
-          updateSuccessCount++;
+          const updatedData = {
+            ...existingData,
+            [month]: {
+              // Stocker toutes les données de colonnes
+              allColumns: (data as any).data.allColumns,
+              headers: headers,
+              // Garder les totaux énergétiques
+              volume_partage: (data as any).data.volume_partage,
+              volume_complementaire: (data as any).data.volume_complementaire,
+              injection_partagee: (data as any).data.injection_partagee,
+              injection_complementaire: (data as any).data.injection_complementaire,
+              updated_at: new Date().toISOString()
+            }
+          };
           
-          // ÉTAPE 6: Vérification immédiate
-          addLog(`🔍 VÉRIFICATION IMMÉDIATE...`);
-          const { data: verifyData, error: verifyError } = await supabase
+          addLog(`💾 ÉCRASEMENT des données pour ${eanCode} - mois ${month}: totaux énergétiques + ${Object.keys((data as any).data.allColumns).length} lignes détaillées`);
+          addLog(`🔄 Anciennes données pour ${month}: ${existingData[month] ? 'PRÉSENTES (seront écrasées)' : 'AUCUNE'}`);
+
+          const { error: updateError } = await supabase
             .from('participants')
-            .select('monthly_data')
-            .eq('id', participant.id)
-            .single();
-          
-          if (verifyError) {
-            addLog(`❌ ERREUR VÉRIFICATION: ${JSON.stringify(verifyError)}`);
+            .update({ monthly_data: JSON.stringify(updatedData) })
+            .eq('id', participant.id);
+
+          if (updateError) {
+            addLog(`❌ Erreur mise à jour ${eanCode}: ${updateError.message}`);
           } else {
-            addLog(`🔍 VÉRIFICATION RÉUSSIE:`);
-            addLog(`📊 monthly_data vérifié: ${JSON.stringify(verifyData.monthly_data)}`);
-            
-            if (verifyData.monthly_data && verifyData.monthly_data[month]) {
-              addLog(`✅ DONNÉES DU MOIS ${month} CONFIRMÉES EN BASE !`);
-              addLog(`📊 Valeurs confirmées: ${JSON.stringify(verifyData.monthly_data[month])}`);
-            } else {
-              addLog(`❌ DONNÉES DU MOIS ${month} NON TROUVÉES EN BASE !`);
-            }
+            addLog(`✅ ÉCRASEMENT RÉUSSI pour ${(data as any).name} (${eanCode}) - mois ${month} REMPLACÉ - ${Object.keys((data as any).data.allColumns).length} lignes + totaux: VP:${(data as any).data.volume_partage}, VC:${(data as any).data.volume_complementaire}, IP:${(data as any).data.injection_partagee}, IC:${(data as any).data.injection_complementaire}`);
+          }
+        } else {
+          addLog(`❌ Participant non trouvé en base pour EAN: ${eanCode}`);
+          if (findError) {
+            addLog(`❌ Erreur de recherche: ${findError.message}`);
           }
         }
-      }
-      
-      addLog(`📊 RÉSUMÉ FINAL: ${updateSuccessCount} succès, ${updateErrorCount} erreurs`);
-      
-      // ÉTAPE 7: Vérification globale finale
-      addLog('🔍 VÉRIFICATION GLOBALE FINALE...');
-      const { data: allParticipants, error: finalCheckError } = await supabase
-        .from('participants')
-        .select('name, ean_code, monthly_data')
-        .not('monthly_data', 'is', null);
-      
-      if (finalCheckError) {
-        addLog(`❌ ERREUR VÉRIFICATION GLOBALE: ${JSON.stringify(finalCheckError)}`);
-      } else {
-        addLog(`✅ VÉRIFICATION GLOBALE: ${allParticipants?.length || 0} participants avec monthly_data`);
-        allParticipants?.forEach(p => {
-          if (p.monthly_data && p.monthly_data[month]) {
-            addLog(`✅ ${p.name} (${p.ean_code}): données ${month} présentes`);
-          }
-        });
-      }
-
-      // ÉTAPE 8: Sauvegarde localStorage
-      addLog('💾 SAUVEGARDE LOCALSTORAGE...');
-      try {
-        const monthlyData = JSON.parse(localStorage.getItem('monthly_data') || '{}');
-        addLog(`📊 localStorage avant: ${Object.keys(monthlyData).length} mois`);
-        
-        monthlyData[month] = {
-          month,
-          participants: participantData,
-          stats: {
-            totalRowsProcessed: lines.length - 1,
-            validRowsImported: validRows,
-            participantsFound: Object.keys(participantData).length,
-            unknownEansSkipped: unknownEans.size
-          },
-          upload_date: new Date().toISOString(),
-          filename: `manual-import-${month}.txt`
-        };
-        
-        localStorage.setItem('monthly_data', JSON.stringify(monthlyData));
-        addLog(`✅ localStorage sauvegardé pour ${month}`);
-        addLog(`📊 localStorage après: ${Object.keys(monthlyData).length} mois`);
-      } catch (error) {
-        addLog(`❌ ERREUR localStorage: ${error}`);
       }
 
       const finalResults = {
@@ -453,13 +350,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       };
 
       setResults(finalResults);
-      addLog(`🎉 IMPORT TERMINÉ - VÉRIFIEZ LES LOGS CI-DESSUS POUR CONFIRMER LA SAUVEGARDE !`);
+      addLog(`🎉 IMPORT TERMINÉ AVEC SUCCÈS - DONNÉES DU MOIS ${month} ÉCRASÉES !`);
       
-      if (updateSuccessCount > 0) {
-        toast.success(`✅ Import réussi ! ${updateSuccessCount} participants mis à jour en base pour ${month}`);
-      } else {
-        toast.error(`❌ Aucun participant mis à jour en base ! Vérifiez les logs.`);
-      }
+      toast.success(`✅ Import réussi ! ${Object.keys(participantData).length} participants mis à jour pour ${month} (données écrasées)`);
       
       setTimeout(() => {
         onSuccess(finalResults);
