@@ -455,22 +455,31 @@ export class BasicFileReader {
           
           console.log(`💾 Données complètes à sauvegarder:`, updatedMonthlyData);
           
-          // Mettre à jour dans la base de données avec le bon format
-          const { error: updateError } = await supabase
+          // Mettre à jour dans la base de données - FORCER LA SAUVEGARDE
+          console.log(`💾 DÉBUT SAUVEGARDE pour participant ID: ${participant.id}`);
+          const { data: updateResult, error: updateError } = await supabase
             .from('participants')
             .update({ 
               monthly_data: updatedMonthlyData
             })
-            .eq('id', participant.id);
+            .eq('id', participant.id)
+            .select('monthly_data');
           
           if (updateError) {
-            console.error(`❌ Erreur mise à jour monthly_data pour ${eanCode}:`, updateError);
+            console.error(`❌ ERREUR CRITIQUE mise à jour monthly_data pour ${eanCode}:`, {
+              error: updateError,
+              participantId: participant.id,
+              eanCode: eanCode,
+              dataToSave: updatedMonthlyData
+            });
             errorCount++;
           } else {
-            console.log(`✅ monthly_data mis à jour pour ${participant.name} (${eanCode}) - mois ${month}`);
+            console.log(`✅ SAUVEGARDE RÉUSSIE pour ${participant.name} (${eanCode}) - mois ${month}`);
+            console.log(`📊 Données retournées par la base:`, updateResult);
             successCount++;
             
-            // Vérification immédiate
+            // Vérification immédiate OBLIGATOIRE
+            console.log(`🔍 VÉRIFICATION IMMÉDIATE pour ${participant.name}...`);
             const { data: verifyData, error: verifyError } = await supabase
               .from('participants')
               .select('monthly_data')
@@ -478,20 +487,44 @@ export class BasicFileReader {
               .single();
             
             if (!verifyError && verifyData) {
-              console.log(`🔍 Vérification sauvegarde pour ${participant.name}:`, verifyData.monthly_data);
+              console.log(`🔍 VÉRIFICATION RÉUSSIE pour ${participant.name}:`);
+              console.log(`📊 monthly_data en base:`, verifyData.monthly_data);
+              
+              if (verifyData.monthly_data && verifyData.monthly_data[month]) {
+                console.log(`✅ CONFIRMATION: Données du mois ${month} bien présentes en base !`);
+                console.log(`📊 Valeurs confirmées:`, verifyData.monthly_data[month]);
+              } else {
+                console.error(`❌ PROBLÈME: Données du mois ${month} NON trouvées en base après sauvegarde !`);
+                console.log(`📊 Structure monthly_data actuelle:`, verifyData.monthly_data);
+              }
+            } else {
+              console.error(`❌ ERREUR VÉRIFICATION pour ${participant.name}:`, verifyError);
             }
           }
           
         } catch (error) {
-          console.error(`❌ Erreur traitement participant ${eanCode}:`, error);
+          console.error(`❌ ERREUR CRITIQUE traitement participant ${eanCode}:`, {
+            error: error,
+            message: error.message,
+            stack: error.stack
+          });
           errorCount++;
         }
       }
       
-      console.log(`✅ Mise à jour monthly_data terminée: ${successCount} succès, ${errorCount} erreurs`);
+      console.log(`📊 RÉSUMÉ FINAL mise à jour monthly_data: ${successCount} succès, ${errorCount} erreurs`);
+      
+      if (successCount === 0) {
+        console.error(`❌ AUCUNE SAUVEGARDE RÉUSSIE ! Vérifiez les permissions Supabase et la structure de la table.`);
+        throw new Error(`Aucun participant n'a pu être mis à jour en base de données`);
+      }
       
     } catch (error) {
-      console.error('❌ Erreur générale lors de la mise à jour monthly_data:', error);
+      console.error('❌ ERREUR GÉNÉRALE lors de la mise à jour monthly_data:', {
+        error: error,
+        message: error.message,
+        stack: error.stack
+      });
       throw error;
     }
   }

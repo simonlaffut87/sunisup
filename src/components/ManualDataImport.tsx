@@ -433,6 +433,37 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         addLog(`❌ ERREUR localStorage: ${error}`);
       }
 
+      // ÉTAPE 9: VÉRIFICATION FINALE GLOBALE DE LA BASE DE DONNÉES
+      addLog('🔍 VÉRIFICATION FINALE GLOBALE...');
+      try {
+        const { data: allParticipants, error: finalError } = await supabase
+          .from('participants')
+          .select('name, ean_code, monthly_data')
+          .not('monthly_data', 'is', null);
+        
+        if (finalError) {
+          addLog(`❌ ERREUR vérification finale: ${JSON.stringify(finalError)}`);
+        } else {
+          addLog(`📊 VÉRIFICATION: ${allParticipants?.length || 0} participants avec monthly_data en base`);
+          
+          // Vérifier spécifiquement les participants qu'on vient de traiter
+          Object.keys(participantData).forEach(eanCode => {
+            const foundInDB = allParticipants?.find(p => p.ean_code === eanCode);
+            if (foundInDB) {
+              addLog(`✅ ${foundInDB.name} (${eanCode}): monthly_data présent en base`);
+              if (foundInDB.monthly_data && foundInDB.monthly_data[month]) {
+                addLog(`✅ Données du mois ${month} confirmées pour ${foundInDB.name}`);
+              } else {
+                addLog(`❌ Données du mois ${month} MANQUANTES pour ${foundInDB.name} !`);
+              }
+            } else {
+              addLog(`❌ Participant ${eanCode} NON trouvé en base !`);
+            }
+          });
+        }
+      } catch (error) {
+        addLog(`❌ ERREUR vérification finale: ${error.message}`);
+      }
       const finalResults = {
         month,
         participants: participantData,
@@ -458,7 +489,8 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       if (updateSuccessCount > 0) {
         toast.success(`✅ Import réussi ! ${updateSuccessCount} participants mis à jour en base pour ${month}`);
       } else {
-        toast.error(`❌ Aucun participant mis à jour en base ! Vérifiez les logs.`);
+        addLog(`❌ AUCUN PARTICIPANT MIS À JOUR EN BASE !`);
+        toast.error(`❌ ERREUR CRITIQUE: Aucun participant mis à jour en base ! Vérifiez les logs de debug.`);
       }
       
       setTimeout(() => {
