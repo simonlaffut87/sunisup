@@ -271,6 +271,8 @@ export default function SimulationPage() {
                     onChange={(e) => setAnnualConsumption(e.target.value)}
                     className="w-full px-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white"
                     placeholder="Ex: 25000"
+                   min="0"
+                   step="1"
                     required
                   />
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
