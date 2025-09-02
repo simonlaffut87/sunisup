@@ -30,6 +30,8 @@ export function AdminDashboard() {
     startMonth: '',
     endMonth: ''
   });
+  const [sortBy, setSortBy] = useState<'name' | 'type' | 'entry_date'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadParticipants();
@@ -42,7 +44,7 @@ export function AdminDashboard() {
       const { data, error } = await supabase
         .from('participants')
         .select('*')
-        .order('name');
+        .order(sortBy, { ascending: sortOrder === 'asc' });
 
       if (error) throw error;
 
@@ -54,6 +56,25 @@ export function AdminDashboard() {
       setLoading(false);
     }
   };
+
+  // Fonction pour changer le tri
+  const handleSort = (column: 'name' | 'type' | 'entry_date') => {
+    if (sortBy === column) {
+      // Si on clique sur la même colonne, inverser l'ordre
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Si on clique sur une nouvelle colonne, commencer par ordre croissant
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
+
+  // Recharger les données quand le tri change
+  useEffect(() => {
+    if (!loading) {
+      loadParticipants();
+    }
+  }, [sortBy, sortOrder]);
 
   // Actualiser les données
   const handleRefreshData = async () => {
@@ -294,13 +315,36 @@ export function AdminDashboard() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleAdd}
-                className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter un participant
-              </button>
+              <div className="flex items-center space-x-4">
+                {/* Options de tri */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">Trier par :</span>
+                  <select
+                    value={`${sortBy}-${sortOrder}`}
+                    onChange={(e) => {
+                      const [column, order] = e.target.value.split('-') as [typeof sortBy, typeof sortOrder];
+                      setSortBy(column);
+                      setSortOrder(order);
+                    }}
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  >
+                    <option value="name-asc">Nom (A-Z)</option>
+                    <option value="name-desc">Nom (Z-A)</option>
+                    <option value="type-asc">Type (Consommateur d'abord)</option>
+                    <option value="type-desc">Type (Producteur d'abord)</option>
+                    <option value="entry_date-asc">Date d'entrée (Plus ancien)</option>
+                    <option value="entry_date-desc">Date d'entrée (Plus récent)</option>
+                  </select>
+                </div>
+                
+                <button
+                  onClick={handleAdd}
+                  className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter un participant
+                </button>
+              </div>
             </div>
           </div>
 
