@@ -454,6 +454,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addWarning(`${confirmedCount}/${Object.keys(participantData).length} participants confirmés en base`);
           }
         }
+        }
       } catch (error) {
         addWarning(`Erreur vérification finale: ${error.message}`);
       }
