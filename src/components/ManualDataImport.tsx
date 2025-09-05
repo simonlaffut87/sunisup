@@ -321,6 +321,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           
           // Log seulement pour les 3 premiers participants trouvés
           if (Object.keys(participantData).length <= 3) {
+          }
         }
 
         const newMonthData = {
@@ -445,15 +446,16 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           let confirmedCount = 0;
           Object.keys(participantData).forEach(eanCode => {
             const foundInDB = allParticipants?.find(p => p.ean_code === eanCode);
-                confirmedCount++;
-          addError(`Erreur traitement ${eanCode}: ${error.message}`);
+            if (foundInDB && foundInDB.monthly_data && foundInDB.monthly_data[month]) {
+              confirmedCount++;
+            }
+          });
           
           if (confirmedCount === Object.keys(participantData).length) {
             addSuccess(`Toutes les données ${month} confirmées en base !`);
           } else {
             addWarning(`${confirmedCount}/${Object.keys(participantData).length} participants confirmés en base`);
           }
-        }
         }
       } catch (error) {
         addWarning(`Erreur vérification finale: ${error.message}`);
@@ -497,9 +499,11 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       if (updateSuccessCount === 0) {
         throw new Error('Aucun participant n\'a pu être mis à jour en base de données');
       }
+    } catch (error) {
       addError(`Erreur générale: ${error.message}`);
       setProcessing(false);
       addError(`ERREUR GÉNÉRALE: ${error.message}`);
+    }
   };
 
   if (!isOpen) return null;
