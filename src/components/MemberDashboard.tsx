@@ -111,10 +111,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             .from('participants')
             .select('*')
             .eq('email', user.email)
-            .single();
+            .limit(1);
           
-          if (!error && data) {
-            participantData = data;
+          if (!error && data && data.length > 0) {
+            participantData = data[0];
           }
         }
         
