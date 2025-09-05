@@ -140,25 +140,27 @@ export class BasicFileReader {
     
     const volumePartageIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('partagé') || header.includes('partage')) && header.includes('volume');
+      return (header.includes('partage') || header.includes('partagee')) && 
+             (header.includes('volume') || header.includes('consommation'));
     });
     onLog?.(`🔍 Index Volume Partagé: ${volumePartageIndex} (${volumePartageIndex >= 0 ? headers[volumePartageIndex] : 'NON TROUVÉE'})`);
     
     const volumeComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('complémentaire') || header.includes('complementaire')) && header.includes('volume');
+      return (header.includes('complementaire') || header.includes('reseau') || header.includes('residuel')) && 
+             (header.includes('volume') || header.includes('consommation'));
     });
     onLog?.(`🔍 Index Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉE'})`);
     
     const injectionPartageIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('partagé') || header.includes('partage')) && header.includes('injection');
+      return (header.includes('partage') || header.includes('partagee')) && header.includes('injection');
     });
     onLog?.(`🔍 Index Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉE'})`);
     
     const injectionComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('complémentaire') || header.includes('complementaire') || header.includes('résiduelle') || header.includes('residuelle')) && header.includes('injection');
+      return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel')) && header.includes('injection');
     });
     onLog?.(`🔍 Index Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);
     

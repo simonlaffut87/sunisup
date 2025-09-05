@@ -93,13 +93,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       // Recherche plus flexible pour Volume Partagé
       const volumePartageIndex = headers.findIndex(h => {
         const header = h.toLowerCase().replace(/[éè]/g, 'e');
-        return (header.includes('partage') || header.includes('partage')) && header.includes('volume');
+        return (header.includes('partage') || header.includes('partagee')) && 
+               (header.includes('volume') || header.includes('consommation'));
       });
       
       // Recherche plus flexible pour Volume Complémentaire
       const volumeComplementaireIndex = headers.findIndex(h => {
         const header = h.toLowerCase().replace(/[éè]/g, 'e');
-        return (header.includes('complementaire') || header.includes('complementaire')) && header.includes('volume');
+        return (header.includes('complementaire') || header.includes('reseau') || header.includes('residuel')) && 
+               (header.includes('volume') || header.includes('consommation'));
       });
       
       // Recherche plus flexible pour Injection Partagée
