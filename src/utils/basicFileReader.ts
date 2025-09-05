@@ -160,7 +160,7 @@ export class BasicFileReader {
     
     const injectionComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel')) && header.includes('injection');
+      return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel') || header.includes('reseau')) && header.includes('injection');
     });
     onLog?.(`🔍 Index Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);
     
@@ -191,7 +191,7 @@ export class BasicFileReader {
       console.warn('⚠️ Colonne Injection Partagée non trouvée');
     }
     if (injectionComplementaireIndex === -1) {
-      console.warn('⚠️ Colonne Injection Complémentaire non trouvée');
+      console.warn('⚠️ Colonne Injection Réseau non trouvée');
     }
     
     // Structure pour grouper les données par EAN (HIGH + LOW)

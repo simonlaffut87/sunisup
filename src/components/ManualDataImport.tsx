@@ -113,7 +113,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       // Recherche plus flexible pour Injection Complémentaire/Résiduelle
       const injectionComplementaireIndex = headers.findIndex(h => {
         const header = h.toLowerCase().replace(/[éè]/g, 'e');
-        return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel')) && header.includes('injection');
+        return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel') || header.includes('reseau')) && header.includes('injection');
       });
       
       addSubSection('MAPPING DES COLONNES');
@@ -143,9 +143,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       }
       
       if (injectionComplementaireIndex >= 0) {
-        addSuccess(`Injection Complémentaire: "${headers[injectionComplementaireIndex]}" (position ${injectionComplementaireIndex})`);
+        addSuccess(`Injection Réseau: "${headers[injectionComplementaireIndex]}" (position ${injectionComplementaireIndex})`);
       } else {
-        addWarning('Injection Complémentaire non trouvée');
+        addWarning('Injection Réseau non trouvée');
       }
       
       if (registreIndex >= 0) {
