@@ -852,10 +852,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </div>
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{sharedPercentage.toFixed(1)}%</p>
-                <p className="text-sm text-gray-500">du volume total</p>
+                <p className="text-sm text-gray-500">
+                  {userProfile?.member_type === 'producer' ? 'de l\'injection totale' : 'de la consommation totale'}
+                </p>
                 {currentMonthData && (
                   <p className="text-xs text-purple-600">
-                    {(volumePartage / 1000).toFixed(3)} / {(volumeTotal / 1000).toFixed(3)} MWh (période)
+                    {(sharedForSharing / 1000).toFixed(3)} / {(totalForSharing / 1000).toFixed(3)} MWh (période)
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -984,7 +986,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
-                  dataKey="injection_complementaire" 
+                  dataKey="injection_residuelle" 
                   name="Injection Réseau" 
                   fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}
