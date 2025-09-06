@@ -414,7 +414,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       shared_energy: Number(item.shared_energy),
       production: Number(item.production || 0),
       injection_partagee: Number(item.injection_partagee || 0),
-      injection_complementaire: Number(item.injection_complementaire || 0)
+      injection_complementaire: Number(item.injection_complementaire || 0),
+      // Versions divisées par 1000 pour l'affichage en MWh
+      consumption_mwh: Number(item.consumption) / 1000,
+      shared_energy_mwh: Number(item.shared_energy) / 1000,
+      injection_partagee_mwh: Number(item.injection_partagee || 0) / 1000,
+      injection_complementaire_mwh: Number(item.injection_complementaire || 0) / 1000
     }));
   };
 
@@ -961,32 +966,32 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
-                  formatter={(value: number) => [`${(value / 1000).toFixed(3)} MWh`, '']}
+                  formatter={(value: number) => [`${value.toFixed(3)} MWh`, '']}
                 />
                 <Legend />
                 
                 <Bar 
                   type="monotone" 
-                  dataKey="shared_energy" 
+                  dataKey="shared_energy_mwh" 
                   name="Consommation Partagée" 
                   fill="#10B981"
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
                   type="monotone" 
-                  dataKey="consumption" 
+                  dataKey="consumption_mwh" 
                   name="Consommation Réseau" 
                   fill="#3B82F6"
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
-                  dataKey="injection_partagee" 
+                  dataKey="injection_partagee_mwh" 
                   name="Injection Partagée" 
                   fill="#F59E0B"
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
-                  dataKey="injection_complementaire"
+                  dataKey="injection_complementaire_mwh"
                   name="Injection Réseau" 
                   fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}
