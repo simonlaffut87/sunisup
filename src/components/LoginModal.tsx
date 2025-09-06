@@ -81,7 +81,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             data: {
               name: participant.name,
               ean_code: eanCode,
-              participant_id: participant.id
+              participant_id: participant.id,
+              member_type: 'member'
             }
           }
         });
