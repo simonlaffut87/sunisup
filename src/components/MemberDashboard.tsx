@@ -414,7 +414,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       shared_energy: Number(item.shared_energy),
       production: Number(item.production || 0),
       injection_partagee: Number(item.injection_partagee || 0),
-      injection_complementaire: Number(item.injection_complementaire || 0)
+      injection_residuelle: Number(item.injection_residuelle || 0)
     }));
   };
 
@@ -950,7 +950,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
-                  dataKey="injection_residuelle" 
+                  dataKey="injection_complementaire" 
                   name="Injection Réseau" 
                   fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}

@@ -116,9 +116,15 @@ export function AdminDashboard() {
     // Créer un objet utilisateur pour afficher le dashboard
     const userObj = {
       id: participant.id,
+      participant_id: participant.id, // Ajouter l'ID spécifique du participant
       email: participant.email,
       name: participant.name,
-      member_type: participant.type
+      member_type: participant.type,
+      user_metadata: {
+        participant_id: participant.id,
+        ean_code: participant.ean_code,
+        name: participant.name
+      }
     };
     
     setViewingMemberDashboard(userObj);
