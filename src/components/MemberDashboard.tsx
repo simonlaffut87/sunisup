@@ -651,7 +651,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="bg-white p-4 rounded-lg border border-purple-100">
                 <div className="text-sm text-purple-600">Injection Résiduelle</div>
                 <div className="text-xl font-bold text-purple-900">
-                  {((currentMonthData.injection_residuelle || 0) / 1000).toFixed(3)} MWh
+                  <p className="text-sm font-medium text-gray-600">Consommation réseau</p>
                 </div>
               </div>
             </div>
@@ -904,14 +904,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <Bar 
                   type="monotone" 
                   dataKey="shared_energy" 
-                  name="Volume partagé" 
+                  name="Consommation partagée" 
                   fill="#10B981"
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
                   type="monotone" 
                   dataKey="consumption" 
-                  name="Volume résiduel" 
+                  name="Consommation réseau" 
                   fill="#3B82F6"
                   radius={[2, 2, 0, 0]}
                 />
@@ -923,7 +923,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 />
                 <Bar 
                   dataKey="injection_residuelle" 
-                  name="Injection résiduelle" 
+                  name="Injection réseau" 
                   fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}
                 />

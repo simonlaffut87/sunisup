@@ -141,14 +141,14 @@ export class BasicFileReader {
     const volumePartageIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
       return (header.includes('partage') || header.includes('partagee')) && 
-             (header.includes('volume') || header.includes('consommation'));
+             header.includes('consommation');
     });
     onLog?.(`🔍 Index Volume Partagé: ${volumePartageIndex} (${volumePartageIndex >= 0 ? headers[volumePartageIndex] : 'NON TROUVÉE'})`);
     
     const volumeComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('complementaire') || header.includes('reseau') || header.includes('residuel')) && 
-             (header.includes('volume') || header.includes('consommation'));
+      return header.includes('consommation') && 
+             (header.includes('reseau') || header.includes('complementaire') || header.includes('residuel'));
     });
     onLog?.(`🔍 Index Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉE'})`);
     
@@ -160,7 +160,8 @@ export class BasicFileReader {
     
     const injectionComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel') || header.includes('reseau')) && header.includes('injection');
+      return header.includes('injection') && 
+             (header.includes('reseau') || header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel'));
     });
     onLog?.(`🔍 Index Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);
     

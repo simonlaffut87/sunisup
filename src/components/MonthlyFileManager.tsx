@@ -566,9 +566,9 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                     radius={[2, 2, 0, 0]}
                   />
                   <Bar 
-                    dataKey="Injection Résiduelle" 
+                    dataKey="Injection Réseau" 
                     fill="#8B5CF6" 
-                    name="Injection Résiduelle"
+                    name="Injection Réseau"
                     radius={[2, 2, 0, 0]}
                   />
                 </BarChart>
@@ -591,7 +591,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-700">Injection Résiduelle</span>
+                <span className="text-sm text-gray-700">Injection Réseau</span>
               </div>
             </div>
           )}
@@ -621,7 +621,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                 <div key={index} className="font-mono bg-white p-2 rounded border">
                   <div className="font-bold text-gray-900">{item.month}</div>
                   <div>VP: {item['Volume Partagé']} MWh | VC: {item['Volume Complémentaire']} MWh</div>
-                  <div>IP: {item['Injection Partagée']} MWh | IR: {item['Injection Résiduelle']} MWh</div>
+                  <div>IP: {item['Injection Partagée']} MWh | IR: {item['Injection Réseau']} MWh</div>
                   <div className="text-blue-600">Participants: {item.participants}</div>
                 </div>
               ))}

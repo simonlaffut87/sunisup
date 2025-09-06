@@ -94,14 +94,14 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       const volumePartageIndex = headers.findIndex(h => {
         const header = h.toLowerCase().replace(/[éè]/g, 'e');
         return (header.includes('partage') || header.includes('partagee')) && 
-               (header.includes('volume') || header.includes('consommation'));
+               header.includes('consommation');
       });
       
       // Recherche plus flexible pour Volume Complémentaire
       const volumeComplementaireIndex = headers.findIndex(h => {
         const header = h.toLowerCase().replace(/[éè]/g, 'e');
-        return (header.includes('complementaire') || header.includes('reseau') || header.includes('residuel')) && 
-               (header.includes('volume') || header.includes('consommation'));
+        return header.includes('consommation') && 
+               (header.includes('reseau') || header.includes('complementaire') || header.includes('residuel'));
       });
       
       // Recherche plus flexible pour Injection Partagée
@@ -113,7 +113,8 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       // Recherche plus flexible pour Injection Complémentaire/Résiduelle
       const injectionComplementaireIndex = headers.findIndex(h => {
         const header = h.toLowerCase().replace(/[éè]/g, 'e');
-        return (header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel') || header.includes('reseau')) && header.includes('injection');
+        return header.includes('injection') && 
+               (header.includes('reseau') || header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel'));
       });
       
       addSubSection('MAPPING DES COLONNES');
