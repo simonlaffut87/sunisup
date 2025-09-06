@@ -56,6 +56,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   // Fonction pour charger les données mensuelles depuis la colonne monthly_data
   const loadMonthlyDataFromParticipant = useCallback(async (participantId: string) => {
     try {
+      console.log('📊 Chargement monthly_data pour participant ID:', participantId);
+      
       const { data: participant, error } = await supabase
         .from('participants')
         .select('monthly_data')
@@ -64,25 +66,32 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
       if (error) {
         console.error('Erreur chargement monthly_data:', error);
+        console.log('❌ Impossible de charger monthly_data:', error.message);
         return {};
       }
 
+      console.log('📋 monthly_data brut récupéré:', participant.monthly_data);
+      
       if (participant.monthly_data) {
         try {
           const parsed = typeof participant.monthly_data === 'string' 
             ? JSON.parse(participant.monthly_data)
             : participant.monthly_data;
-          console.log('✅ Données mensuelles chargées:', parsed);
+          console.log('✅ Données mensuelles parsées:', Object.keys(parsed));
+          console.log('📊 Détail des mois disponibles:', parsed);
           return parsed;
         } catch (e) {
           console.warn('Erreur parsing monthly_data:', e);
+          console.log('❌ Erreur parsing monthly_data:', e.message);
           return {};
         }
       }
 
+      console.log('⚠️ Aucune monthly_data trouvée pour ce participant');
       return {};
     } catch (error) {
       console.error('Erreur lors du chargement des données mensuelles:', error);
+      console.log('❌ Erreur générale chargement monthly_data:', error.message);
       return {};
     }
   }, []);
@@ -90,10 +99,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   useEffect(() => {
     const fetchUserProfileEffect = async () => {
       try {
+        console.log('🔍 Recherche du profil utilisateur pour:', user.email);
+        console.log('📋 Métadonnées utilisateur:', user.user_metadata);
+        
         // Chercher d'abord par participant_id dans les métadonnées utilisateur
         let participantData = null;
         
         if (user.user_metadata?.participant_id) {
+          console.log('🔍 Recherche par participant_id:', user.user_metadata.participant_id);
           const { data, error } = await supabase
             .from('participants')
             .select('*')
@@ -101,12 +114,16 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             .single();
           
           if (!error && data) {
+            console.log('✅ Participant trouvé par participant_id:', data.name);
             participantData = data;
+          } else {
+            console.log('❌ Participant non trouvé par participant_id:', error?.message);
           }
         }
         
         // Si pas trouvé par participant_id, chercher par email
         if (!participantData) {
+          console.log('🔍 Recherche par email:', user.email);
           const { data, error } = await supabase
             .from('participants')
             .select('*')
@@ -114,12 +131,16 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             .limit(1);
           
           if (!error && data && data.length > 0) {
+            console.log('✅ Participant trouvé par email:', data[0].name);
             participantData = data[0];
+          } else {
+            console.log('❌ Participant non trouvé par email:', error?.message);
           }
         }
         
         // Si pas trouvé par email, chercher par EAN dans les métadonnées
         if (!participantData && user.user_metadata?.ean_code) {
+          console.log('🔍 Recherche par EAN code:', user.user_metadata.ean_code);
           const { data, error } = await supabase
             .from('participants')
             .select('*')
@@ -127,11 +148,22 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             .single();
           
           if (!error && data) {
+            console.log('✅ Participant trouvé par EAN:', data.name);
             participantData = data;
+          } else {
+            console.log('❌ Participant non trouvé par EAN:', error?.message);
           }
         }
 
         if (participantData) {
+          console.log('✅ Profil participant final:', {
+            id: participantData.id,
+            name: participantData.name,
+            email: participantData.email,
+            ean_code: participantData.ean_code,
+            hasMonthlyData: !!participantData.monthly_data
+          });
+          
           setUserProfile({
             id: participantData.id,
             email: participantData.email || user.email,
@@ -142,8 +174,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
           // Charger les données mensuelles
           const monthlyDataLoaded = await loadMonthlyDataFromParticipant(participantData.id);
+          console.log('📊 Données mensuelles chargées:', monthlyDataLoaded);
           setMonthlyData(monthlyDataLoaded);
         } else {
+          console.log('❌ Aucun participant trouvé - utilisation du profil utilisateur de base');
           // Fallback si aucun participant trouvé
           setUserProfile({
             id: user.id,
@@ -156,6 +190,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         
       } catch (error) {
         console.error('Error fetching user profile:', error);
+        console.log('❌ Erreur lors de la récupération du profil utilisateur');
         setUserProfile({
           id: user.id,
           email: user.email,
@@ -222,6 +257,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     try {
       console.log('📊 Chargement des données mensuelles pour l\'année:', year);
       console.log('👤 Profil utilisateur:', userProfile);
+      console.log('📋 Données mensuelles disponibles:', Object.keys(monthlyData));
       
       // Charger les données monthly_data du participant depuis la base
       if (!userProfile?.id) {
@@ -230,18 +266,26 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         return;
       }
 
+      // Recharger les données fraîches depuis la base
+      console.log('🔄 Rechargement des données fraîches depuis la base...');
       const { data: participant, error } = await supabase
         .from('participants')
-        .select('monthly_data')
+        .select('monthly_data, name, ean_code')
         .eq('id', userProfile.id)
         .single();
 
       if (error) {
         console.error('❌ Erreur chargement participant:', error);
+        console.log('❌ Impossible de charger le participant depuis la base');
         throw error;
       }
 
-      console.log('📋 monthly_data brut:', participant.monthly_data);
+      console.log('📋 Participant chargé:', {
+        name: participant.name,
+        ean_code: participant.ean_code,
+        hasMonthlyData: !!participant.monthly_data
+      });
+      console.log('📊 monthly_data brut depuis la base:', participant.monthly_data);
 
       let monthlyDataFromDB = {};
       if (participant.monthly_data) {
@@ -249,13 +293,19 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           monthlyDataFromDB = typeof participant.monthly_data === 'string' 
             ? JSON.parse(participant.monthly_data)
             : participant.monthly_data;
-          console.log('✅ monthly_data parsé:', monthlyDataFromDB);
+          console.log('✅ monthly_data parsé - mois disponibles:', Object.keys(monthlyDataFromDB));
+          console.log('📊 Détail des données par mois:', monthlyDataFromDB);
         } catch (e) {
           console.warn('⚠️ Erreur parsing monthly_data:', e);
           monthlyDataFromDB = {};
         }
+      } else {
+        console.log('⚠️ Aucune monthly_data trouvée pour ce participant');
       }
 
+      // Mettre à jour les données mensuelles locales
+      setMonthlyData(monthlyDataFromDB);
+      
       // Créer les données mensuelles pour l'année sélectionnée
       const monthlyDataArray = [];
       
@@ -263,7 +313,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         const monthKey = `${year}-${String(month).padStart(2, '0')}`;
         const monthData = monthlyDataFromDB[monthKey];
         
-        console.log(`📅 Mois ${monthKey} - Données:`, monthData);
+        if (monthData) {
+          console.log(`📅 ${monthKey} - Données trouvées:`, {
+            volume_partage: monthData.volume_partage,
+            volume_complementaire: monthData.volume_complementaire,
+            injection_partagee: monthData.injection_partagee,
+            injection_complementaire: monthData.injection_complementaire
+          });
+        }
         
         const pointDate = new Date(year, month - 1, 15); // 15 du mois
         
@@ -287,12 +344,16 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         });
       }
       
-      console.log('📊 Données générées:', monthlyDataArray);
+      console.log('📊 Données générées pour le graphique:', monthlyDataArray.length, 'points');
+      console.log('📈 Données avec valeurs non-nulles:', monthlyDataArray.filter(d => 
+        d.consumption > 0 || d.shared_energy > 0 || d.injection_partagee > 0 || d.injection_residuelle > 0
+      ).length);
       setEnergyData(monthlyDataArray);
         
 
     } catch (error) {
       console.error('Error fetching energy data:', error);
+      console.log('❌ Erreur lors du chargement des données énergétiques');
       // En cas d'erreur, afficher des données vides
       setEnergyData([]);
     } finally {
