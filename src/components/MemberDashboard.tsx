@@ -576,6 +576,13 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       return volumePartage;
     }
   }, [userProfile?.member_type, volumePartage, injectionPartagee]);
+
+  // Calculer le taux de partage pondéré par volume
+  const weightedSharedPercentage = React.useMemo(() => {
+    if (!availableDataPeriod || volumeTotal === 0) return 0;
+    
+    let totalWeightedPercentage = 0;
+    let totalWeight = 0;
     
     availableDataPeriod.monthsWithData.forEach(({ data }) => {
       const monthVolumePartage = data.volume_partage || 0;
@@ -845,12 +852,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </div>
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{sharedPercentage.toFixed(1)}%</p>
-                <p className="text-sm text-gray-500">
-                  {userProfile?.member_type === 'producer' ? 'de l\'injection totale' : 'de la consommation totale'}
-                </p>
+                <p className="text-sm text-gray-500">du volume total</p>
                 {currentMonthData && (
                   <p className="text-xs text-purple-600">
-                    {(sharedForSharing / 1000).toFixed(3)} / {(totalForSharing / 1000).toFixed(3)} MWh (période)
+                    {(volumePartage / 1000).toFixed(3)} / {(volumeTotal / 1000).toFixed(3)} MWh (période)
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -979,7 +984,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
-                  dataKey="injection_residuelle" 
+                  dataKey="injection_complementaire" 
                   name="Injection Réseau" 
                   fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}
