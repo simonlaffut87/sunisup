@@ -463,13 +463,13 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                   <Bar 
                     dataKey="Volume Partagé" 
                     fill="#10B981" 
-                    name="Volume Partagé"
+                    name="Consommation Partagée"
                     radius={[2, 2, 0, 0]}
                   />
                   <Bar 
                     dataKey="Volume Complémentaire" 
                     fill="#3B82F6" 
-                    name="Volume Complémentaire"
+                    name="Consommation Réseau"
                     radius={[2, 2, 0, 0]}
                   />
                 </BarChart>
@@ -488,11 +488,11 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="flex items-center">
                 <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-700">Volume Partagé</span>
+                <span className="text-sm text-gray-700">Consommation Partagée</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-700">Volume Complémentaire</span>
+                <span className="text-sm text-gray-700">Consommation Réseau</span>
               </div>
             </div>
           )}
@@ -566,7 +566,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                     radius={[2, 2, 0, 0]}
                   />
                   <Bar 
-                    dataKey="Injection Réseau" 
+                    dataKey="Injection Résiduelle" 
                     fill="#8B5CF6" 
                     name="Injection Réseau"
                     radius={[2, 2, 0, 0]}

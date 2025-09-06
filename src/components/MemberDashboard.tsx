@@ -386,7 +386,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       date: item.monthName || format(new Date(item.timestamp), 'MMM'),
       consumption: Number(item.consumption),
       shared_energy: Number(item.shared_energy),
-      production: Number(item.production || 0)
+      production: Number(item.production || 0),
+      injection_partagee: Number(item.injection_partagee || 0),
+      injection_residuelle: Number(item.injection_residuelle || 0)
     }));
   };
 
@@ -628,14 +630,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white p-4 rounded-lg border border-blue-100">
-                <div className="text-sm text-blue-600">Volume Partagé</div>
+                <div className="text-sm text-blue-600">Consommation Partagée</div>
                 <div className="text-xl font-bold text-blue-900">
                   {((currentMonthData.volume_partage || 0) / 1000).toFixed(3)} MWh
                 </div>
               </div>
               
               <div className="bg-white p-4 rounded-lg border border-green-100">
-                <div className="text-sm text-green-600">Volume Complémentaire</div>
+                <div className="text-sm text-green-600">Consommation Réseau</div>
                 <div className="text-xl font-bold text-green-900">
                   {((currentMonthData.volume_complementaire || 0) / 1000).toFixed(3)} MWh
                 </div>
@@ -649,9 +651,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </div>
               
               <div className="bg-white p-4 rounded-lg border border-purple-100">
-                <div className="text-sm text-purple-600">Injection Résiduelle</div>
+                <div className="text-sm text-purple-600">Injection Réseau</div>
                 <div className="text-xl font-bold text-purple-900">
-                  <p className="text-sm font-medium text-gray-600">Consommation réseau</p>
+                  {((currentMonthData.injection_complementaire || 0) / 1000).toFixed(3)} MWh
                 </div>
               </div>
             </div>
@@ -701,7 +703,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     <Zap className="h-5 w-5 text-purple-600" />
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Injection résiduelle</p>
+                    <p className="text-sm font-medium text-gray-600">Injection réseau</p>
                   </div>
                 </div>
               </div>
@@ -728,7 +730,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     <Leaf className="h-5 w-5 text-green-600" />
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Volume partagé</p>
+                    <p className="text-sm font-medium text-gray-600">Consommation partagée</p>
                   </div>
                 </div>
               </div>
@@ -756,7 +758,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     <TrendingUp className="h-5 w-5 text-blue-600" />
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Volume résiduel</p>
+                    <p className="text-sm font-medium text-gray-600">Consommation réseau</p>
                   </div>
                 </div>
               </div>
@@ -904,26 +906,26 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <Bar 
                   type="monotone" 
                   dataKey="shared_energy" 
-                  name="Consommation partagée" 
+                  name="Consommation Partagée" 
                   fill="#10B981"
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
                   type="monotone" 
                   dataKey="consumption" 
-                  name="Consommation réseau" 
+                  name="Consommation Réseau" 
                   fill="#3B82F6"
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
                   dataKey="injection_partagee" 
-                  name="Injection partagée" 
+                  name="Injection Partagée" 
                   fill="#F59E0B"
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
                   dataKey="injection_residuelle" 
-                  name="Injection réseau" 
+                  name="Injection Réseau" 
                   fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}
                 />
