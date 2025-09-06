@@ -66,14 +66,21 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           .eq('ean_code', eanCode)
           .limit(1);
 
-        if (participantError || !participant || participant.length === 0) {
-          toast.error('Code EAN non trouvé. Contactez-nous pour être ajouté à la communauté.');
+        if (participantError) {
+          console.error('Erreur lors de la recherche du participant:', participantError);
+          toast.error('Erreur lors de la vérification du code EAN. Veuillez réessayer.');
+          setLoading(false);
+          return;
+        }
+
+        if (!participant || participant.length === 0) {
+          toast.error('Code EAN non trouvé dans notre système. Contactez-nous pour être ajouté à la communauté.');
           setLoading(false);
           return;
         }
 
         const participantData = participant[0];
-
+        console.log('Participant trouvé:', participantData);
         // Vérifier si le participant a déjà un email associé
         if (participantData.email && participantData.email.trim()) {
           toast.error(`Ce code EAN est déjà associé à l'adresse email: ${participantData.email}. Utilisez la connexion ou contactez-nous.`);
@@ -81,6 +88,11 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
+        console.log('Tentative de création de compte pour:', {
+          email,
+          participantName: participantData.name,
+          eanCode
+        });
 
         // Créer le compte utilisateur
         const { data, error } = await supabase.auth.signUp({
@@ -96,8 +108,11 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         });
 
         if (error) {
+          console.error('Erreur création compte:', error);
           if (error.message.includes('User already registered')) {
             toast.error('Un compte existe déjà avec cette adresse email. Si c\'est votre compte, utilisez la connexion. Sinon, contactez-nous.');
+          } else if (error.message.includes('Database error saving new user')) {
+            toast.error('Erreur de configuration de la base de données. Contactez-nous pour résoudre ce problème.');
           } else {
             toast.error(`Erreur lors de la création du compte: ${error.message}. Contactez-nous si le problème persiste.`);
           }
@@ -105,8 +120,10 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
+        console.log('Compte créé avec succès:', data);
         // Only update participant email if signup was successful and we have a user
         if (data.user) {
+          console.log('Mise à jour de l\'email du participant...');
           // Update participant email with the new email
           const { error: updateError } = await supabase
             .from('participants')
@@ -119,6 +136,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             setLoading(false);
             return;
           }
+          
+          console.log('Email du participant mis à jour avec succès');
         }
 
         toast.success('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
