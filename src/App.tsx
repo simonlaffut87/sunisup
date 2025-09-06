@@ -158,21 +158,31 @@ function App() {
     i18n.changeLanguage(initialLang);
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Session error:', error);
+        handleLogout();
+      } else if (session) {
         setUser(session.user);
         checkIsAdmin(session.user.email);
       }
+    }).catch((error) => {
+      console.error('Failed to get session:', error);
+      handleLogout();
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkIsAdmin(session.user.email);
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'TOKEN_REFRESHED' && !session) {
+        // Token refresh failed, clear everything
+        handleLogout();
+      } else if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
         setShowDashboard(false);
         setIsAdmin(false);
+      } else if (session?.user) {
+        setUser(session.user);
+        checkIsAdmin(session.user.email);
       }
     });
 
