@@ -140,11 +140,9 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           console.log('Email du participant mis à jour avec succès');
         }
 
-        toast.success('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
-        setMode('login');
-        setPassword('');
-        setConfirmPassword('');
-        setEanCode('');
+        toast.success('Compte créé avec succès ! Connexion automatique...');
+        onLoginSuccess(data.user);
+        onClose();
       } else {
         // Mode login
         const { data, error } = await supabase.auth.signInWithPassword({
