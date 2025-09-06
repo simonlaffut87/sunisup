@@ -740,11 +740,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-3xl font-bold text-gray-900">{(injectionPartagee / 1000).toFixed(3)}</p>
-                <p className="text-sm text-gray-500">MWh</p>
+                <p className="text-3xl font-bold text-gray-900">{injectionPartagee.toFixed(0)}</p>
+                <p className="text-sm text-gray-500">kWh</p>
                 {currentMonthData && (
                   <p className="text-xs text-amber-600">
-                    Total période: {(injectionPartagee / 1000).toFixed(3)} MWh
+                    Total période: {injectionPartagee.toFixed(0)} kWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -768,11 +768,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-3xl font-bold text-gray-900">{(injectionResiduelle / 1000).toFixed(3)}</p>
-                <p className="text-sm text-gray-500">MWh</p>
+                <p className="text-3xl font-bold text-gray-900">{injectionResiduelle.toFixed(0)}</p>
+                <p className="text-sm text-gray-500">kWh</p>
                 {currentMonthData && (
                   <p className="text-xs text-purple-600">
-                    Total période: {(injectionResiduelle / 1000).toFixed(3)} MWh
+                    Total période: {injectionResiduelle.toFixed(0)} kWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -795,11 +795,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-3xl font-bold text-gray-900">{(volumePartage / 1000).toFixed(3)}</p>
-                <p className="text-sm text-gray-500">MWh</p>
+                <p className="text-3xl font-bold text-gray-900">{volumePartage.toFixed(0)}</p>
+                <p className="text-sm text-gray-500">kWh</p>
                 {currentMonthData && (
                   <p className="text-xs text-green-600">
-                    Total période: {(volumePartage / 1000).toFixed(3)} MWh
+                    Total période: {volumePartage.toFixed(0)} kWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -823,11 +823,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-3xl font-bold text-gray-900">{(volumeResiduel / 1000).toFixed(3)}</p>
-                <p className="text-sm text-gray-500">MWh</p>
+                <p className="text-3xl font-bold text-gray-900">{volumeResiduel.toFixed(0)}</p>
+                <p className="text-sm text-gray-500">kWh</p>
                 {currentMonthData && (
                   <p className="text-xs text-blue-600">
-                    Total période: {(volumeResiduel / 1000).toFixed(3)} MWh
+                    Total période: {volumeResiduel.toFixed(0)} kWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -857,7 +857,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </p>
                 {currentMonthData && (
                   <p className="text-xs text-purple-600">
-                    {(sharedForSharing / 1000).toFixed(3)} / {(totalForSharing / 1000).toFixed(3)} MWh (période)
+                    {sharedForSharing.toFixed(0)} / {totalForSharing.toFixed(0)} kWh (période)
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -958,10 +958,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   tick={{ fontSize: 12 }}
                   tickMargin={5}
                   label={{ value: 'MWh', angle: -90, position: 'insideLeft' }}
+                  label={{ value: 'kWh', angle: -90, position: 'insideLeft' }}
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
-                  formatter={(value: number) => [`${(value / 1000).toFixed(3)} MWh`, '']}
+                  formatter={(value: number) => [`${value.toFixed(0)} kWh`, '']}
                 />
                 <Legend />
                 
