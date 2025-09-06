@@ -986,7 +986,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
-                  dataKey="injection_complementaire" 
+                  dataKey="injection_complementaire"
                   name="Injection Réseau" 
                   fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}
