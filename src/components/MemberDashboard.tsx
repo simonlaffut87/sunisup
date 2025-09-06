@@ -62,7 +62,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         .from('participants')
         .select('monthly_data')
         .eq('id', participantId)
-        .single();
+        .limit(1);
 
       if (error) {
         console.error('Erreur chargement monthly_data:', error);
@@ -70,13 +70,19 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         return {};
       }
 
+      if (!participant || participant.length === 0) {
+        console.log('⚠️ Aucun participant trouvé pour cet ID');
+        return {};
+      }
+
+      const participantData = participant[0];
       console.log('📋 monthly_data brut récupéré:', participant.monthly_data);
       
-      if (participant.monthly_data) {
+      if (participantData.monthly_data) {
         try {
-          const parsed = typeof participant.monthly_data === 'string' 
-            ? JSON.parse(participant.monthly_data)
-            : participant.monthly_data;
+          const parsed = typeof participantData.monthly_data === 'string' 
+            ? JSON.parse(participantData.monthly_data)
+            : participantData.monthly_data;
           console.log('✅ Données mensuelles parsées:', Object.keys(parsed));
           console.log('📊 Détail des mois disponibles:', parsed);
           return parsed;
@@ -110,19 +116,20 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             .from('participants')
             .select('*')
             .eq('id', user.participant_id)
-            .single();
+            .limit(1);
           
-          if (!error && data) {
-            console.log('✅ Participant spécifique trouvé:', data.name);
+          if (!error && data && data.length > 0) {
+            const participantData = data[0];
+            console.log('✅ Participant spécifique trouvé:', participantData.name);
             setUserProfile({
-              id: data.id,
-              email: data.email || user.email,
-              name: data.name || user.name,
-              member_type: data.type,
-              monthly_data: data.monthly_data
+              id: participantData.id,
+              email: participantData.email || user.email,
+              name: participantData.name || user.name,
+              member_type: participantData.type,
+              monthly_data: participantData.monthly_data
             });
 
-            const monthlyDataLoaded = await loadMonthlyDataFromParticipant(data.id);
+            const monthlyDataLoaded = await loadMonthlyDataFromParticipant(participantData.id);
             setMonthlyData(monthlyDataLoaded);
             return;
           }
@@ -134,19 +141,20 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           .from('participants')
           .select('*')
           .eq('email', user.email)
-          .single();
+          .limit(1);
         
-        if (!emailError && participantByEmail) {
-          console.log('✅ Participant trouvé par email:', participantByEmail.name);
+        if (!emailError && participantByEmail && participantByEmail.length > 0) {
+          const participantData = participantByEmail[0];
+          console.log('✅ Participant trouvé par email:', participantData.name);
           setUserProfile({
-            id: participantByEmail.id,
-            email: participantByEmail.email || user.email,
-            name: participantByEmail.name || user.name,
-            member_type: participantByEmail.type,
-            monthly_data: participantByEmail.monthly_data
+            id: participantData.id,
+            email: participantData.email || user.email,
+            name: participantData.name || user.name,
+            member_type: participantData.type,
+            monthly_data: participantData.monthly_data
           });
 
-          const monthlyDataLoaded = await loadMonthlyDataFromParticipant(participantByEmail.id);
+          const monthlyDataLoaded = await loadMonthlyDataFromParticipant(participantData.id);
           setMonthlyData(monthlyDataLoaded);
           return;
         }
@@ -160,11 +168,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             .from('participants')
             .select('*')
             .eq('id', user.user_metadata.participant_id)
-            .single();
+            .limit(1);
           
-          if (!error && data) {
-            console.log('✅ Participant trouvé par participant_id:', data.name);
-            participantData = data;
+          if (!error && data && data.length > 0) {
+            console.log('✅ Participant trouvé par participant_id:', data[0].name);
+            participantData = data[0];
           } else {
             console.log('❌ Participant non trouvé par participant_id:', error?.message);
           }
@@ -177,11 +185,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             .from('participants')
             .select('*')
             .eq('ean_code', user.user_metadata.ean_code)
-            .single();
+            .limit(1);
           
-          if (!error && data) {
-            console.log('✅ Participant trouvé par EAN:', data.name);
-            participantData = data;
+          if (!error && data && data.length > 0) {
+            console.log('✅ Participant trouvé par EAN:', data[0].name);
+            participantData = data[0];
           } else {
             console.log('❌ Participant non trouvé par EAN:', error?.message);
           }
@@ -304,7 +312,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         .from('participants')
         .select('monthly_data, name, ean_code')
         .eq('id', userProfile.id)
-        .single();
+        .limit(1);
 
       if (error) {
         console.error('❌ Erreur chargement participant:', error);
@@ -312,19 +320,25 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         throw error;
       }
 
+      if (!participant || participant.length === 0) {
+        console.log('❌ Aucun participant trouvé avec cet ID');
+        throw new Error('Participant non trouvé');
+      }
+
+      const participantData = participant[0];
       console.log('📋 Participant chargé:', {
-        name: participant.name,
-        ean_code: participant.ean_code,
-        hasMonthlyData: !!participant.monthly_data
+        name: participantData.name,
+        ean_code: participantData.ean_code,
+        hasMonthlyData: !!participantData.monthly_data
       });
-      console.log('📊 monthly_data brut depuis la base:', participant.monthly_data);
+      console.log('📊 monthly_data brut depuis la base:', participantData.monthly_data);
 
       let monthlyDataFromDB = {};
-      if (participant.monthly_data) {
+      if (participantData.monthly_data) {
         try {
-          monthlyDataFromDB = typeof participant.monthly_data === 'string' 
-            ? JSON.parse(participant.monthly_data)
-            : participant.monthly_data;
+          monthlyDataFromDB = typeof participantData.monthly_data === 'string' 
+            ? JSON.parse(participantData.monthly_data)
+            : participantData.monthly_data;
           console.log('✅ monthly_data parsé - mois disponibles:', Object.keys(monthlyDataFromDB));
           console.log('📊 Détail des données par mois:', monthlyDataFromDB);
         } catch (e) {

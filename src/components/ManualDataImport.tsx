@@ -292,7 +292,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           .from('participants')
           .select('id, monthly_data, name')
           .eq('ean_code', eanCode)
-          .single();
+          .limit(1);
 
         if (findError) {
           addError(`Impossible de trouver le participant ${eanCode}: ${findError.message}`);
@@ -300,24 +300,25 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           continue;
         }
         
-        if (!participant) {
+        if (!participant || participant.length === 0) {
           addError(`Participant non trouvé pour EAN: ${eanCode}`);
           updateErrorCount++;
           continue;
         }
         
-        addInfo(`Participant trouvé: ${participant.name}`);
+        const participantData = participant[0];
+        addInfo(`Participant trouvé: ${participantData.name}`);
         
         let existingData = {};
-        if (participant.monthly_data) {
+        if (participantData.monthly_data) {
           try {
-            if (typeof participant.monthly_data === 'string') {
-              existingData = JSON.parse(participant.monthly_data);
+            if (typeof participantData.monthly_data === 'string') {
+              existingData = JSON.parse(participantData.monthly_data);
             } else {
-              existingData = participant.monthly_data;
+              existingData = participantData.monthly_data;
             }
           } catch (e) {
-            addWarning(`Erreur parsing données existantes pour ${participant.name}`);
+            addWarning(`Erreur parsing données existantes pour ${participantData.name}`);
             existingData = {};
           }
         } else {
@@ -354,14 +355,14 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           .update({ 
             monthly_data: updatedData
           })
-          .eq('id', participant.id)
+          .eq('id', participantData.id)
           .select('monthly_data');
 
         if (updateError) {
-          addError(`Échec sauvegarde ${participant.name}: ${updateError.message}`);
+          addError(`Échec sauvegarde ${participantData.name}: ${updateError.message}`);
           updateErrorCount++;
         } else {
-          addSuccess(`Sauvegarde réussie: ${participant.name}`);
+          addSuccess(`Sauvegarde réussie: ${participantData.name}`);
           updateSuccessCount++;
           
           // Vérification seulement pour les 2 premiers
@@ -372,18 +373,18 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const { data: verifyData, error: verifyError } = await supabase
             .from('participants')
             .select('monthly_data')
-            .eq('id', participant.id)
-            .single();
+            .eq('id', participantData.id)
+            .limit(1);
           
           if (verifyError) {
-            addWarning(`Erreur vérification ${participant.name}: ${verifyError.message}`);
+            addWarning(`Erreur vérification ${participantData.name}: ${verifyError.message}`);
           } else {
-            if (verifyData.monthly_data && verifyData.monthly_data[month]) {
+            if (verifyData && verifyData.length > 0 && verifyData[0].monthly_data && verifyData[0].monthly_data[month]) {
               if (updateSuccessCount <= 2) {
-                addSuccess(`Données ${month} confirmées en base pour ${participant.name}`);
+                addSuccess(`Données ${month} confirmées en base pour ${participantData.name}`);
               }
             } else {
-              addError(`Données ${month} non trouvées après sauvegarde pour ${participant.name}`);
+              addError(`Données ${month} non trouvées après sauvegarde pour ${participantData.name}`);
             }
           }
         }

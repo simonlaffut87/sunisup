@@ -64,13 +64,15 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           .from('participants')
           .select('*')
           .eq('ean_code', eanCode)
-          .single();
+          .limit(1);
 
-        if (participantError || !participant) {
+        if (participantError || !participant || participant.length === 0) {
           toast.error('Code EAN non trouvé. Contactez-nous pour être ajouté à la communauté.');
           setLoading(false);
           return;
         }
+
+        const participantData = participant[0];
 
 
         // Créer le compte utilisateur
@@ -79,9 +81,9 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           password,
           options: {
             data: {
-              name: participant.name,
+              name: participantData.name,
               ean_code: eanCode,
-              participant_id: participant.id,
+              participant_id: participantData.id,
               member_type: 'member'
             }
           }
@@ -103,7 +105,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           const { error: updateError } = await supabase
             .from('participants')
             .update({ email })
-            .eq('id', participant.id);
+            .eq('id', participantData.id);
 
           if (updateError) {
             console.error('Error updating participant email:', updateError);
