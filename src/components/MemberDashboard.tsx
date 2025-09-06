@@ -544,11 +544,38 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
   // Calculer le taux de partage moyen
   const sharedPercentage = React.useMemo(() => {
-    if (!availableDataPeriod || volumeTotal === 0) return 0;
+    if (!availableDataPeriod) return 0;
     
-    // Calculer le taux de partage moyen pondéré par les volumes
-    let totalWeightedPercentage = 0;
-    let totalWeight = 0;
+    // Pour les consommateurs: consommation partagée / consommation totale
+    // Pour les producteurs: injection partagée / injection totale
+    if (userProfile?.member_type === 'producer') {
+      const totalInjectionForCalc = injectionPartagee + injectionResiduelle;
+      if (totalInjectionForCalc === 0) return 0;
+      return (injectionPartagee / totalInjectionForCalc) * 100;
+    } else {
+      // Consommateur
+      const totalConsumptionForCalc = volumePartage + volumeResiduel;
+      if (totalConsumptionForCalc === 0) return 0;
+      return (volumePartage / totalConsumptionForCalc) * 100;
+    }
+  }, [availableDataPeriod, volumePartage, volumeResiduel, injectionPartagee, injectionResiduelle, userProfile?.member_type]);
+
+  // Calculer les totaux pour l'affichage du taux
+  const totalForSharing = React.useMemo(() => {
+    if (userProfile?.member_type === 'producer') {
+      return injectionPartagee + injectionResiduelle;
+    } else {
+      return volumePartage + volumeResiduel;
+    }
+  }, [userProfile?.member_type, volumePartage, volumeResiduel, injectionPartagee, injectionResiduelle]);
+
+  const sharedForSharing = React.useMemo(() => {
+    if (userProfile?.member_type === 'producer') {
+      return injectionPartagee;
+    } else {
+      return volumePartage;
+    }
+  }, [userProfile?.member_type, volumePartage, injectionPartagee]);
     
     availableDataPeriod.monthsWithData.forEach(({ data }) => {
       const monthVolumePartage = data.volume_partage || 0;
@@ -818,10 +845,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </div>
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{sharedPercentage.toFixed(1)}%</p>
-                <p className="text-sm text-gray-500">du volume total</p>
+                <p className="text-sm text-gray-500">
+                  {userProfile?.member_type === 'producer' ? 'de l\'injection totale' : 'de la consommation totale'}
+                </p>
                 {currentMonthData && (
                   <p className="text-xs text-purple-600">
-                    {(volumePartage / 1000).toFixed(3)} / {(volumeTotal / 1000).toFixed(3)} MWh (période)
+                    {(sharedForSharing / 1000).toFixed(3)} / {(totalForSharing / 1000).toFixed(3)} MWh (période)
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
@@ -950,7 +979,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   radius={[2, 2, 0, 0]}
                 />
                 <Bar 
-                  dataKey="injection_complementaire" 
+                  dataKey="injection_residuelle" 
                   name="Injection Réseau" 
                   fill="#8B5CF6"
                   radius={[2, 2, 0, 0]}
