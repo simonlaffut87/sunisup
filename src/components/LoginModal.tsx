@@ -96,15 +96,19 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
-        // Mettre à jour l'email du participant avec le nouvel email
-        const { error: updateError } = await supabase
-          .from('participants')
-          .update({ email })
-          .eq('id', participant.id);
+        // Only update participant email if signup was successful and we have a user
+        if (authData.user) {
+          // Update participant email with the new email
+          const { error: updateError } = await supabase
+            .from('participants')
+            .update({ email })
+            .eq('id', participantId);
 
-        if (updateError) {
-          console.warn('Erreur mise à jour email participant:', updateError);
-          // Ne pas bloquer la création du compte pour cette erreur
+          if (updateError) {
+            console.error('Error updating participant email:', updateError);
+            // Don't throw here as the user was created successfully
+            // Just log the error and continue
+          }
         }
 
         toast.success('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
