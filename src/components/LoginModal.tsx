@@ -97,12 +97,12 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         }
 
         // Only update participant email if signup was successful and we have a user
-        if (authData.user) {
+        if (data.user) {
           // Update participant email with the new email
           const { error: updateError } = await supabase
             .from('participants')
             .update({ email })
-            .eq('id', participantId);
+            .eq('id', participant.id);
 
           if (updateError) {
             console.error('Error updating participant email:', updateError);
