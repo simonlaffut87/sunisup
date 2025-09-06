@@ -736,9 +736,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{(injectionResiduelle / 1000).toFixed(3)}</p>
                 <p className="text-sm text-gray-500">MWh</p>
-                {currentMonthData && (
+                {currentMonthData && currentMonthData.injection_complementaire > 0 && (
                   <p className="text-xs text-purple-600">
-                    Total période: {(injectionResiduelle / 1000).toFixed(3)} MWh
+                    Ce mois: {(currentMonthData.injection_complementaire / 1000).toFixed(3)} MWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
