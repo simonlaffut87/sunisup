@@ -72,12 +72,6 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
-        // Vérifier que l'email correspond à celui du participant
-        if (participant.email && participant.email !== email) {
-          toast.error('L\'adresse email ne correspond pas à celle enregistrée pour ce code EAN');
-          setLoading(false);
-          return;
-        }
 
         // Créer le compte utilisateur
         const { data, error } = await supabase.auth.signUp({
@@ -102,12 +96,15 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
-        // Mettre à jour l'email du participant si ce n'était pas fait
-        if (!participant.email) {
-          await supabase
-            .from('participants')
-            .update({ email })
-            .eq('id', participant.id);
+        // Mettre à jour l'email du participant avec le nouvel email
+        const { error: updateError } = await supabase
+          .from('participants')
+          .update({ email })
+          .eq('id', participant.id);
+
+        if (updateError) {
+          console.warn('Erreur mise à jour email participant:', updateError);
+          // Ne pas bloquer la création du compte pour cette erreur
         }
 
         toast.success('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');

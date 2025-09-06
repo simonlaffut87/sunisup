@@ -204,7 +204,7 @@ function App() {
   const handleLoginSuccess = (userData: any) => {
     setUser(userData);
     setShowDashboard(true);
-    checkIsAdmin(userData.email);
+    // Ne pas vérifier admin ici - sera géré dans le dashboard
   };
 
   const handleLogout = async () => {
@@ -260,9 +260,11 @@ function App() {
   });
 
   if (showDashboard && user) {
-    if (isAdmin) {
+    // Vérifier si c'est l'admin seulement pour l'email spécifique
+    if (user.email === 'info@sunisup.be') {
       return <AdminDashboard />;
     } else {
+      // Tous les autres utilisateurs vont au dashboard membre personnel
       return <MemberDashboard user={user} onLogout={handleLogout} />;
     }
   }

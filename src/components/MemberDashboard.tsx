@@ -128,7 +128,30 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           }
         }
         
-        // PRIORITÉ 2: Chercher par participant_id dans les métadonnées utilisateur
+        // PRIORITÉ 2: Chercher par email d'abord (plus fiable après mise à jour)
+        console.log('🔍 Recherche par email:', user.email);
+        const { data: participantByEmail, error: emailError } = await supabase
+          .from('participants')
+          .select('*')
+          .eq('email', user.email)
+          .single();
+        
+        if (!emailError && participantByEmail) {
+          console.log('✅ Participant trouvé par email:', participantByEmail.name);
+          setUserProfile({
+            id: participantByEmail.id,
+            email: participantByEmail.email || user.email,
+            name: participantByEmail.name || user.name,
+            member_type: participantByEmail.type,
+            monthly_data: participantByEmail.monthly_data
+          });
+
+          const monthlyDataLoaded = await loadMonthlyDataFromParticipant(participantByEmail.id);
+          setMonthlyData(monthlyDataLoaded);
+          return;
+        }
+        
+        // PRIORITÉ 3: Chercher par participant_id dans les métadonnées utilisateur
         let participantData = null;
         
         if (user.user_metadata?.participant_id) {
@@ -144,23 +167,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             participantData = data;
           } else {
             console.log('❌ Participant non trouvé par participant_id:', error?.message);
-          }
-        }
-        
-        // PRIORITÉ 3: Si pas trouvé par participant_id, chercher par email
-        if (!participantData) {
-          console.log('🔍 Recherche par email:', user.email);
-          const { data, error } = await supabase
-            .from('participants')
-            .select('*')
-            .eq('email', user.email)
-            .limit(1);
-          
-          if (!error && data && data.length > 0) {
-            console.log('✅ Participant trouvé par email:', data[0].name);
-            participantData = data[0];
-          } else {
-            console.log('❌ Participant non trouvé par email:', error?.message);
           }
         }
         
