@@ -70,8 +70,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
           newErrors.email = 'Format d\'email invalide';
         } else {
           delete newErrors.email;
-        } else {
-          delete newErrors.email;
         }
         break;
 
