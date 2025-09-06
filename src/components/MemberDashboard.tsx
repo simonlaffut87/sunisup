@@ -692,28 +692,28 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="bg-white p-4 rounded-lg border border-blue-100">
                 <div className="text-sm text-blue-600">Consommation Partagée</div>
                 <div className="text-xl font-bold text-blue-900">
-                  {((currentMonthData.volume_partage || 0) / 1000).toFixed(3)} MWh
+                  {(currentMonthData.volume_partage || 0).toFixed(0)} kWh
                 </div>
               </div>
               
               <div className="bg-white p-4 rounded-lg border border-green-100">
                 <div className="text-sm text-green-600">Consommation Réseau</div>
                 <div className="text-xl font-bold text-green-900">
-                  {((currentMonthData.volume_complementaire || 0) / 1000).toFixed(3)} MWh
+                  {(currentMonthData.volume_complementaire || 0).toFixed(0)} kWh
                 </div>
               </div>
               
               <div className="bg-white p-4 rounded-lg border border-amber-100">
                 <div className="text-sm text-amber-600">Injection Partagée</div>
                 <div className="text-xl font-bold text-amber-900">
-                  {((currentMonthData.injection_partagee || 0) / 1000).toFixed(3)} MWh
+                  {(currentMonthData.injection_partagee || 0).toFixed(0)} kWh
                 </div>
               </div>
               
               <div className="bg-white p-4 rounded-lg border border-purple-100">
                 <div className="text-sm text-purple-600">Injection Réseau</div>
                 <div className="text-xl font-bold text-purple-900">
-                  {((currentMonthData.injection_complementaire || 0) / 1000).toFixed(3)} MWh
+                  {(currentMonthData.injection_complementaire || 0).toFixed(0)} kWh
                 </div>
               </div>
             </div>
