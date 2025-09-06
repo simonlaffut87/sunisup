@@ -98,13 +98,6 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: {
-              name: participantData.name,
-              ean_code: eanCode,
-              participant_id: participantData.id
-            }
-          }
         });
 
         if (error) {
@@ -114,7 +107,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           if (error.message.includes('User already registered')) {
             toast.error('Un compte existe déjà avec cette adresse email. Si c\'est votre compte, utilisez la connexion. Sinon, contactez-nous.');
           } else if (error.message.includes('Database error saving new user')) {
-            toast.error('Erreur lors de la création du compte. Veuillez contacter le support pour résoudre ce problème.');
+            toast.error('Erreur de configuration de la base de données. Veuillez contacter le support technique.');
           } else {
             toast.error(`Erreur lors de la création du compte: ${error.message}. Contactez-nous si le problème persiste.`);
           }
