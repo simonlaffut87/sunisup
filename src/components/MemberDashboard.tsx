@@ -363,7 +363,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           consumption: volumeResiduelValue, // Volume résiduel (complémentaire)
           shared_energy: volumePartageValue, // Volume partagé
           injection_partagee: injectionPartageeValue, // Injection partagée
-          injection_residuelle: injectionResiduelleValue, // Injection résiduelle
+          injection_complementaire: injectionResiduelleValue, // Injection résiduelle
           created_at: new Date().toISOString(),
           month: month,
           monthName: format(pointDate, 'MMM', { locale: fr })
@@ -414,7 +414,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       shared_energy: Number(item.shared_energy),
       production: Number(item.production || 0),
       injection_partagee: Number(item.injection_partagee || 0),
-      injection_residuelle: Number(item.injection_residuelle || 0)
+      injection_complementaire: Number(item.injection_complementaire || 0)
     }));
   };
 
