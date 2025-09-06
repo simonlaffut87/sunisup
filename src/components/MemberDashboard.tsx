@@ -100,9 +100,35 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     const fetchUserProfileEffect = async () => {
       try {
         console.log('🔍 Recherche du profil utilisateur pour:', user.email);
+        console.log('📋 User ID:', user.id);
         console.log('📋 Métadonnées utilisateur:', user.user_metadata);
         
-        // Chercher d'abord par participant_id dans les métadonnées utilisateur
+        // PRIORITÉ 1: Si on a un participant_id spécifique passé en props, l'utiliser
+        if (user.participant_id) {
+          console.log('🎯 PRIORITÉ: Utilisation du participant_id spécifique:', user.participant_id);
+          const { data, error } = await supabase
+            .from('participants')
+            .select('*')
+            .eq('id', user.participant_id)
+            .single();
+          
+          if (!error && data) {
+            console.log('✅ Participant spécifique trouvé:', data.name);
+            setUserProfile({
+              id: data.id,
+              email: data.email || user.email,
+              name: data.name || user.name,
+              member_type: data.type,
+              monthly_data: data.monthly_data
+            });
+
+            const monthlyDataLoaded = await loadMonthlyDataFromParticipant(data.id);
+            setMonthlyData(monthlyDataLoaded);
+            return;
+          }
+        }
+        
+        // PRIORITÉ 2: Chercher par participant_id dans les métadonnées utilisateur
         let participantData = null;
         
         if (user.user_metadata?.participant_id) {
@@ -121,7 +147,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           }
         }
         
-        // Si pas trouvé par participant_id, chercher par email
+        // PRIORITÉ 3: Si pas trouvé par participant_id, chercher par email
         if (!participantData) {
           console.log('🔍 Recherche par email:', user.email);
           const { data, error } = await supabase
@@ -138,7 +164,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           }
         }
         
-        // Si pas trouvé par email, chercher par EAN dans les métadonnées
+        // PRIORITÉ 4: Si pas trouvé par email, chercher par EAN dans les métadonnées
         if (!participantData && user.user_metadata?.ean_code) {
           console.log('🔍 Recherche par EAN code:', user.user_metadata.ean_code);
           const { data, error } = await supabase
