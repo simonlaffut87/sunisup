@@ -109,10 +109,49 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
         if (error) {
           console.error('Erreur création compte:', error);
+          
+          // Gestion spécifique des erreurs
           if (error.message.includes('User already registered')) {
             toast.error('Un compte existe déjà avec cette adresse email. Si c\'est votre compte, utilisez la connexion. Sinon, contactez-nous.');
           } else if (error.message.includes('Database error saving new user')) {
-            toast.error('Erreur de configuration de la base de données. Contactez-nous pour résoudre ce problème.');
+            // Cette erreur peut survenir à cause de triggers - on continue quand même
+            console.warn('Erreur Database error saving new user - tentative de récupération...');
+            
+            // Essayer de récupérer l'utilisateur qui pourrait avoir été créé malgré l'erreur
+            try {
+              const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
+              
+              if (!sessionError && sessionData.user) {
+                console.log('✅ Utilisateur créé malgré l\'erreur - connexion réussie');
+                
+                // Mettre à jour l'email du participant
+                const { error: updateError } = await supabase
+                  .from('participants')
+                  .update({ email })
+                  .eq('id', participantData.id);
+
+                if (updateError) {
+                  console.error('Error updating participant email:', updateError);
+                  toast.error('Compte créé mais erreur lors de l\'association avec le participant. Contactez-nous.');
+                  setLoading(false);
+                  return;
+                }
+                
+                console.log('✅ Email du participant mis à jour avec succès');
+                toast.success('Compte créé avec succès ! Connexion automatique...');
+                onLoginSuccess(sessionData.user);
+                onClose();
+                return;
+              } else {
+                throw new Error('Impossible de se connecter après création');
+              }
+            } catch (recoveryError) {
+              console.error('Erreur de récupération:', recoveryError);
+              toast.error('Erreur lors de la création du compte. Le compte pourrait exister - essayez de vous connecter ou contactez-nous.');
+            }
           } else {
             toast.error(`Erreur lors de la création du compte: ${error.message}. Contactez-nous si le problème persiste.`);
           }
@@ -121,10 +160,10 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         }
 
         console.log('Compte créé avec succès:', data);
-        // Only update participant email if signup was successful and we have a user
+        
+        // Étape 2: Mettre à jour l'email du participant
         if (data.user) {
           console.log('Mise à jour de l\'email du participant...');
-          // Update participant email with the new email
           const { error: updateError } = await supabase
             .from('participants')
             .update({ email })
@@ -138,11 +177,15 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           }
           
           console.log('Email du participant mis à jour avec succès');
+          
+          // Étape 3: Connexion automatique et fermeture
+          toast.success('Compte créé avec succès ! Connexion automatique...');
+          onLoginSuccess(data.user);
+          onClose();
+        } else {
+          toast.error('Compte créé mais données utilisateur manquantes. Essayez de vous connecter.');
         }
 
-        toast.success('Compte créé avec succès ! Connexion automatique...');
-        onLoginSuccess(data.user);
-        onClose();
       } else {
         // Mode login
         const { data, error } = await supabase.auth.signInWithPassword({
