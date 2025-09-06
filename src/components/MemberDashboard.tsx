@@ -414,7 +414,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       shared_energy: Number(item.shared_energy),
       production: Number(item.production || 0),
       injection_partagee: Number(item.injection_partagee || 0),
-      injection_residuelle: Number(item.injection_residuelle || 0)
+      injection_complementaire: Number(item.injection_complementaire || 0)
     }));
   };
 
@@ -736,9 +736,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-gray-900">{(injectionResiduelle / 1000).toFixed(3)}</p>
                 <p className="text-sm text-gray-500">MWh</p>
-                {currentMonthData && currentMonthData.injection_complementaire > 0 && (
+                {currentMonthData && (
                   <p className="text-xs text-purple-600">
-                    Ce mois: {(currentMonthData.injection_complementaire / 1000).toFixed(3)} MWh
+                    Total période: {(injectionResiduelle / 1000).toFixed(3)} MWh
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
