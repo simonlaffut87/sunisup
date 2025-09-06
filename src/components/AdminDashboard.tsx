@@ -174,23 +174,30 @@ export function AdminDashboard() {
     setIsLoggingOut(true);
     
     try {
+      // Sign out from Supabase with global scope to invalidate server session
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear all Supabase-related keys from localStorage
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('supabase.auth.')) {
+        if (key && (key.startsWith('supabase.auth.') || key.startsWith('sb-'))) {
           keysToRemove.push(key);
         }
       }
       keysToRemove.forEach(key => localStorage.removeItem(key));
       
+      // Clear session storage
       sessionStorage.clear();
       
-      supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-      
+      // Force full page reload to ensure clean state
       window.location.href = '/';
       
     } catch (error) {
       console.error('Error logging out:', error);
+      // Even if logout fails, clear storage and redirect
+      localStorage.clear();
+      sessionStorage.clear();
       window.location.href = '/';
     }
   };
