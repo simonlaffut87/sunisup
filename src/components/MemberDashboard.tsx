@@ -739,14 +739,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 transition-opacity duration-300 ${dataLoading ? 'opacity-60' : 'opacity-100'}`}>
           {/* Injection partagée */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center">
                   <div className="p-2 bg-amber-100 rounded-lg">
                     <Zap className="h-5 w-5 text-amber-600" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Injection partagée</p>
+                  <div className="ml-2">
+                    <p className="text-xs font-medium text-gray-600 leading-tight">Injection partagée</p>
                   </div>
                 </div>
               </div>
@@ -767,14 +767,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
           {/* Injection résiduelle */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center">
                   <div className="p-2 bg-purple-100 rounded-lg">
                     <Zap className="h-5 w-5 text-purple-600" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Injection réseau</p>
+                  <div className="ml-2">
+                    <p className="text-xs font-medium text-gray-600 leading-tight">Injection réseau</p>
                   </div>
                 </div>
               </div>
@@ -794,14 +794,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           </div>
           {/* Volume partagé */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center">
                   <div className="p-2 bg-green-100 rounded-lg">
                     <Leaf className="h-5 w-5 text-green-600" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Consommation partagée</p>
+                  <div className="ml-2">
+                    <p className="text-xs font-medium text-gray-600 leading-tight">Consommation partagée</p>
                   </div>
                 </div>
               </div>
@@ -822,14 +822,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
           {/* Volume résiduel */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center">
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-blue-600" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Consommation réseau</p>
+                  <div className="ml-2">
+                    <p className="text-xs font-medium text-gray-600 leading-tight">Consommation réseau</p>
                   </div>
                 </div>
               </div>
@@ -850,14 +850,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
           {/* Taux de partage */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center">
                   <div className="p-2 bg-purple-100 rounded-lg">
                     <BarChart4 className="h-5 w-5 text-purple-600" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-600">Taux de partage</p>
+                  <div className="ml-2">
+                    <p className="text-xs font-medium text-gray-600 leading-tight">Taux de partage</p>
                   </div>
                 </div>
               </div>
