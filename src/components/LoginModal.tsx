@@ -114,44 +114,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           if (error.message.includes('User already registered')) {
             toast.error('Un compte existe déjà avec cette adresse email. Si c\'est votre compte, utilisez la connexion. Sinon, contactez-nous.');
           } else if (error.message.includes('Database error saving new user')) {
-            // Cette erreur peut survenir à cause de triggers - on continue quand même
-            console.warn('Erreur Database error saving new user - tentative de récupération...');
-            
-            // Essayer de récupérer l'utilisateur qui pourrait avoir été créé malgré l'erreur
-            try {
-              const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
-                email,
-                password
-              });
-              
-              if (!sessionError && sessionData.user) {
-                console.log('✅ Utilisateur créé malgré l\'erreur - connexion réussie');
-                
-                // Mettre à jour l'email du participant
-                const { error: updateError } = await supabase
-                  .from('participants')
-                  .update({ email })
-                  .eq('id', participantData.id);
-
-                if (updateError) {
-                  console.error('Error updating participant email:', updateError);
-                  toast.error('Compte créé mais erreur lors de l\'association avec le participant. Contactez-nous.');
-                  setLoading(false);
-                  return;
-                }
-                
-                console.log('✅ Email du participant mis à jour avec succès');
-                toast.success('Compte créé avec succès ! Connexion automatique...');
-                onLoginSuccess(sessionData.user);
-                onClose();
-                return;
-              } else {
-                throw new Error('Impossible de se connecter après création');
-              }
-            } catch (recoveryError) {
-              console.error('Erreur de récupération:', recoveryError);
-              toast.error('Erreur lors de la création du compte. Le compte pourrait exister - essayez de vous connecter ou contactez-nous.');
-            }
+            toast.error('Erreur lors de la création du compte. Veuillez contacter le support pour résoudre ce problème.');
           } else {
             toast.error(`Erreur lors de la création du compte: ${error.message}. Contactez-nous si le problème persiste.`);
           }
