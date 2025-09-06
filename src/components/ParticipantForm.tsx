@@ -66,10 +66,10 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         break;
 
       case 'email':
-        if (!value.trim()) {
-          newErrors.email = 'L\'adresse email est requise';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        if (value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           newErrors.email = 'Format d\'email invalide';
+        } else {
+          delete newErrors.email;
         } else {
           delete newErrors.email;
         }
@@ -137,7 +137,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
   };
 
   const validateAllFields = () => {
-    const requiredFields = ['name', 'address', 'email', 'ean_code', 'commodity_rate', 'shared_energy_price', 'entry_date'];
+    const requiredFields = ['name', 'address', 'ean_code', 'commodity_rate', 'shared_energy_price', 'entry_date'];
     const newErrors: Record<string, string> = {};
 
     requiredFields.forEach(field => {
@@ -149,13 +149,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
           break;
         case 'address':
           if (!value.trim()) newErrors.address = 'L\'adresse est requise';
-          break;
-        case 'email':
-          if (!value.trim()) {
-            newErrors.email = 'L\'adresse email est requise';
-          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-            newErrors.email = 'Format d\'email invalide';
-          }
           break;
         case 'ean_code':
           if (!value.trim()) {
@@ -195,6 +188,11 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
       }
     });
 
+    // Validation séparée pour l'email (optionnel mais doit être valide si fourni)
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Format d\'email invalide';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -214,7 +212,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         name: formData.name.trim(),
         address: formData.address.trim(),
         type: formData.type,
-        email: formData.email.trim(),
+        email: formData.email.trim() || null,
         ean_code: formData.ean_code.trim(),
         commodity_rate: parseFloat(formData.commodity_rate),
         entry_date: formData.entry_date,
@@ -417,7 +415,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 <Mail className="w-4 h-4 inline mr-2" />
-                Adresse email *
+                Adresse email
               </label>
               <input
                 type="email"
@@ -427,9 +425,11 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                   errors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-amber-500'
                 }`}
                 placeholder="Ex: contact@boulangerie-martin.be"
-                required
               />
               {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
+              <p className="text-xs text-gray-500 mt-1">
+                Laissez vide si le participant n'a pas encore de compte membre
+              </p>
             </div>
           </div>
 

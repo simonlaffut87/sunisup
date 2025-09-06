@@ -74,6 +74,13 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
         const participantData = participant[0];
 
+        // Vérifier si le participant a déjà un email associé
+        if (participantData.email && participantData.email.trim()) {
+          toast.error(`Ce code EAN est déjà associé à l'adresse email: ${participantData.email}. Utilisez la connexion ou contactez-nous.`);
+          setLoading(false);
+          return;
+        }
+
 
         // Créer le compte utilisateur
         const { data, error } = await supabase.auth.signUp({
@@ -90,9 +97,9 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
         if (error) {
           if (error.message.includes('User already registered')) {
-            toast.error('Un compte existe déjà avec cette adresse email. Utilisez la connexion.');
+            toast.error('Un compte existe déjà avec cette adresse email. Si c\'est votre compte, utilisez la connexion. Sinon, contactez-nous.');
           } else {
-            toast.error(error.message || 'Erreur lors de la création du compte');
+            toast.error(`Erreur lors de la création du compte: ${error.message}. Contactez-nous si le problème persiste.`);
           }
           setLoading(false);
           return;
@@ -100,21 +107,6 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
         // Only update participant email if signup was successful and we have a user
         if (data.user) {
-          // Insert user profile into public.users table
-          const { error: userInsertError } = await supabase
-            .from('users')
-            .insert({
-              id: data.user.id,
-              email: email,
-              name: participantData.name,
-              member_type: 'member'
-            });
-
-          if (userInsertError) {
-            console.error('Error inserting user profile:', userInsertError);
-            // Continue with participant email update even if user profile insert fails
-          }
-
           // Update participant email with the new email
           const { error: updateError } = await supabase
             .from('participants')
@@ -123,8 +115,9 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
           if (updateError) {
             console.error('Error updating participant email:', updateError);
-            // Don't throw here as the user was created successfully
-            // Just log the error and continue
+            toast.error('Compte créé mais erreur lors de l\'association avec le participant. Contactez-nous.');
+            setLoading(false);
+            return;
           }
         }
 
