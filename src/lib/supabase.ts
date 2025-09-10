@@ -37,9 +37,18 @@ export const supabase = createClient<Database>(
         'x-application-name': 'sun-is-up'
       },
       fetch: (url, options = {}) => {
-        return fetch(url, options).catch(error => {
+        return fetch(url, {
+          ...options,
+          signal: AbortSignal.timeout(8000) // 8 second timeout
+        }).catch(error => {
           console.warn('Supabase fetch error:', error.message);
-          throw new Error('Connection to database failed. Please check your internet connection and try again.');
+          if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+            throw new Error('Connection timeout - using fallback data');
+          }
+          if (error.message?.includes('Failed to fetch')) {
+            throw new Error('Network connection failed - using fallback data');
+          }
+          throw new Error('Connection to database failed - using fallback data');
         });
       }
     },
@@ -60,20 +69,31 @@ const testConnection = async () => {
   console.log('Connecting to:', supabaseUrl);
   
   try {
-    // Test with a simple auth check first
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    // Test with a simple auth check first with timeout
+    const authPromise = supabase.auth.getSession();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Auth check timeout')), 5000)
+    );
     
-    if (authError) {
+    const { data: { session }, error: authError } = await Promise.race([authPromise, timeoutPromise]) as any;
+    
+    if (authError && !authError.message?.includes('Failed to fetch')) {
       console.warn('Auth check failed:', authError.message);
     }
     
-    // Try a simple participants query, but don't fail if RLS blocks it
+    // Try a simple participants query with timeout
     try {
-      const { data, error } = await supabase
+      const queryPromise = supabase
         .from('participants')
         .select('count')
         .limit(1)
         .maybeSingle();
+      
+      const queryTimeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout')), 3000)
+      );
+      
+      const { data, error } = await Promise.race([queryPromise, queryTimeoutPromise]) as any;
       
       if (error && error.code === '42501') {
         console.warn('⚠️ RLS policies restrict anonymous access to participants table');
@@ -83,6 +103,9 @@ const testConnection = async () => {
       }
       
       if (error && !['PGRST116', 'PGRST301'].includes(error.code)) {
+        if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+          throw new Error('Network connection failed');
+        }
         throw error;
       }
     } catch (tableError: any) {
@@ -90,6 +113,10 @@ const testConnection = async () => {
         console.warn('⚠️ RLS policies restrict anonymous access - using fallback data');
         console.log('✅ Supabase connection established (with RLS restrictions)');
         return true;
+      }
+      if (tableError.message?.includes('timeout') || tableError.message?.includes('Failed to fetch')) {
+        console.warn('⚠️ Connection timeout or network error - using fallback data');
+        return false;
       }
       throw tableError;
     }

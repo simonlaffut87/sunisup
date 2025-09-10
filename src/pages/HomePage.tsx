@@ -197,17 +197,17 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
-      // First, try to load from Supabase with a timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 5000)
-      );
+      // Try to load from Supabase with improved timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-      const supabasePromise = supabase
+      const { data, error } = await supabase
         .from('participants')
         .select('*')
-        .order('name');
-
-      const { data, error } = await Promise.race([supabasePromise, timeoutPromise]) as any;
+        .order('name')
+        .abortSignal(controller.signal);
+      
+      clearTimeout(timeoutId);
       
       if (error) {
         throw error;
@@ -234,19 +234,21 @@ export default function HomePage() {
       // Set a user-friendly error message
       if (error.code === '42501' || error.message?.includes('permission denied')) {
         setError('Database access restricted by security policies. Showing demo data.');
-      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.name === 'AbortError') {
         setError('Unable to connect to the database. Showing demo data.');
-      } else if (error.message?.includes('timeout')) {
+      } else if (error.message?.includes('timeout') || error.name === 'TimeoutError') {
         setError('Database connection timeout. Showing demo data.');
       } else {
         setError('Database temporarily unavailable. Showing demo data.');
       }
       
-      // Show a less alarming toast since we have fallback data and this is expected
-      toast.error('Using demo data - database access restricted', {
-        duration: 4000,
-        icon: '💡'
-      });
+      // Only show toast for unexpected errors, not RLS restrictions
+      if (error.code !== '42501' && !error.message?.includes('permission denied')) {
+        toast.error('Using demo data - connection issue', {
+          duration: 3000,
+          icon: '💡'
+        });
+      }
     } finally {
       setLoading(false);
     }
