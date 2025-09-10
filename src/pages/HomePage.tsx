@@ -197,19 +197,22 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
-      // First, try to load from Supabase with a timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 5000)
-      );
-
-      const supabasePromise = supabase
+      // Try to load from Supabase
+      const { data, error } = await supabase
         .from('participants')
         .select('*')
         .order('name');
-
-      const { data, error } = await Promise.race([supabasePromise, timeoutPromise]) as any;
       
       if (error) {
+        // Handle permission errors gracefully
+        if (error.code === '42501' || error.message?.includes('permission denied')) {
+          console.warn('⚠️ No permission to access participants table, using demo data');
+          const staticParticipants = getStaticParticipants();
+          setParticipants(staticParticipants);
+          setUsingFallbackData(true);
+          setError('Using demonstration data - please log in to see real data');
+          return;
+        }
         throw error;
       }
 
@@ -232,19 +235,21 @@ export default function HomePage() {
       setUsingFallbackData(true);
       
       // Set a user-friendly error message
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+      if (error.code === '42501' || error.message?.includes('permission denied')) {
+        setError('Please log in to access real participant data. Showing demo data.');
+      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
         setError('Unable to connect to the database. Showing demo data.');
-      } else if (error.message?.includes('timeout')) {
-        setError('Database connection timeout. Showing demo data.');
       } else {
         setError('Database temporarily unavailable. Showing demo data.');
       }
       
-      // Show a less alarming toast since we have fallback data
-      toast.error('Using demo data - database connection issue', {
-        duration: 4000,
-        icon: '⚠️'
-      });
+      // Only show toast for non-permission errors
+      if (!(error.code === '42501' || error.message?.includes('permission denied'))) {
+        toast.error('Using demo data - database connection issue', {
+          duration: 4000,
+          icon: '⚠️'
+        });
+      }
     } finally {
       setLoading(false);
     }
