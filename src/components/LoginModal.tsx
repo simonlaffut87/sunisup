@@ -150,24 +150,27 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         });
 
         if (error) {
+          console.error('Login error:', error);
           if (error.message.includes('Invalid login credentials')) {
             toast.error('Email ou mot de passe incorrect. Contactez-nous si vous n\'avez pas encore de compte membre.');
           } else if (error.message.includes('Email not confirmed')) {
             toast.error('Veuillez confirmer votre email avant de vous connecter.');
+          } else if (error.message.includes('invalid_credentials')) {
+            toast.error('Email ou mot de passe incorrect. Vérifiez vos identifiants ou créez un compte.');
           } else {
-            toast.error(error.message || 'Erreur de connexion');
+            toast.error(`Erreur de connexion: ${error.message}`);
           }
-          setLoading(false);
-          return;
+        } else if (data?.user) {
+          toast.success('Connexion réussie !');
+          onLoginSuccess(data.user);
+          onClose();
+        } else {
+          toast.error('Erreur de connexion: aucune donnée utilisateur reçue');
         }
-
-        toast.success('Connexion réussie !');
-        onLoginSuccess(data.user);
-        onClose();
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      toast.error('Une erreur inattendue s\'est produite. Veuillez réessayer.');
+      toast.error(`Une erreur inattendue s'est produite: ${error.message || 'Erreur inconnue'}`);
     } finally {
       setLoading(false);
     }
