@@ -39,11 +39,15 @@ export default function SimulationPage() {
 
   const loadParticipants = async () => {
     try {
-      // Use empty participants array for simulation page
-      setParticipants([]);
+      const { data, error } = await supabase
+        .from('participants')
+        .select('*');
+      
+      if (error) throw error;
+      setParticipants(data || []);
     } catch (error) {
-      console.warn('Using empty participants array for simulation');
-      setParticipants([]);
+      console.error('Error loading participants:', error);
+      toast.error('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
     }

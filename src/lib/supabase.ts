@@ -60,11 +60,14 @@ const testConnection = async () => {
   console.log('Connecting to:', supabaseUrl);
   
   try {
-    // Test connection without querying protected tables
-    // Just verify the Supabase client can connect
-    const { data, error } = await supabase.auth.getSession();
+    // Test with a simple query that should work even with basic permissions
+    const { data, error } = await supabase
+      .from('participants')
+      .select('count')
+      .limit(1)
+      .maybeSingle();
     
-    if (error) {
+    if (error && !['PGRST116', 'PGRST301'].includes(error.code)) { // Allow "no rows" and "multiple rows" errors
       throw error;
     }
     
@@ -88,6 +91,8 @@ const testConnection = async () => {
       console.error('4. Go to Project Settings > API > CORS and add the URL');
     } else if (error.code === '3000' || error.status === 401) {
       console.error('🔑 API key issue - check your VITE_SUPABASE_ANON_KEY');
+    } else if (error.code === '42501' || error.status === 403) {
+      console.error('🔒 Permission denied - check RLS policies');
     }
     
     return false;

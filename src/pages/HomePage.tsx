@@ -197,17 +197,54 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
-      // Use static participants data
-      const staticParticipants = getStaticParticipants();
-      setParticipants(staticParticipants);
+      // First, try to load from Supabase with a timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 5000)
+      );
+
+      const supabasePromise = supabase
+        .from('participants')
+        .select('*')
+        .order('name');
+
+      const { data, error } = await Promise.race([supabasePromise, timeoutPromise]) as any;
       
-      console.log('✅ Successfully loaded static participants');
+      if (error) {
+        throw error;
+      }
+
+      // Use database data if available, otherwise use static participants
+      const staticParticipants = getStaticParticipants();
+      setParticipants(data && data.length > 0 ? data : staticParticipants);
+      
+      if (!data || data.length === 0) {
+        setUsingFallbackData(true);
+        setError('Using demonstration data - database connection issue');
+      }
+      
+      console.log('✅ Successfully loaded participants');
     } catch (error: any) {
-      console.warn('⚠️ Using static participants data');
+      console.warn('⚠️ Failed to load participants from database, using fallback data:', error.message);
       
       // Use static participants as fallback
       const staticParticipants = getStaticParticipants();
       setParticipants(staticParticipants);
+      setUsingFallbackData(true);
+      
+      // Set a user-friendly error message
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        setError('Unable to connect to the database. Showing demo data.');
+      } else if (error.message?.includes('timeout')) {
+        setError('Database connection timeout. Showing demo data.');
+      } else {
+        setError('Database temporarily unavailable. Showing demo data.');
+      }
+      
+      // Show a less alarming toast since we have fallback data
+      toast.error('Using demo data - database connection issue', {
+        duration: 4000,
+        icon: '⚠️'
+      });
     } finally {
       setLoading(false);
     }
@@ -256,6 +293,27 @@ export default function HomePage() {
 
   return (
     <div className="space-y-0">
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <ExternalLink className="h-5 w-5 text-amber-400" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-amber-700">
+                {error}
+                {usingFallbackData && (
+                  <span className="ml-2 font-medium">
+                    The map and statistics below show demonstration data.
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 overflow-hidden">
         <div className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f59e0b" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50`}></div>

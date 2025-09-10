@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { ArrowRight, Menu, X, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Toaster, toast } from 'react-hot-toast';
 import HomePage from './pages/HomePage';
 import AdminPage from './pages/AdminPage';
 import SimulationPage from './pages/SimulationPage';
@@ -157,6 +158,52 @@ function App() {
     setCurrentLanguage(initialLang);
     i18n.changeLanguage(initialLang);
 
+    // Helper: Link participant email on first login
+    const linkParticipantEmailIfNeeded = async (authUser: any) => {
+      try {
+        if (!authUser?.email) return;
+        const linkFlagKey = `participant-linked:${authUser.id}`;
+        if (sessionStorage.getItem(linkFlagKey)) return;
+
+        const participantId = authUser.user_metadata?.participant_id;
+        const eanCode = authUser.user_metadata?.ean_code;
+        let participantRow: any = null;
+
+        if (participantId) {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('id, email')
+            .eq('id', participantId)
+            .maybeSingle();
+          if (!error) participantRow = data;
+        } else if (eanCode) {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('id, email')
+            .eq('ean_code', eanCode)
+            .maybeSingle();
+          if (!error) participantRow = data;
+        }
+
+        if (!participantRow) return;
+        if (participantRow.email && participantRow.email.trim()) {
+          sessionStorage.setItem(linkFlagKey, '1');
+          return;
+        }
+
+        const { error: updateError } = await supabase
+          .from('participants')
+          .update({ email: authUser.email })
+          .eq('id', participantRow.id)
+          .is('email', null);
+
+        if (!updateError) {
+          sessionStorage.setItem(linkFlagKey, '1');
+          toast.success('Votre compte a été lié à votre participant.');
+        }
+      } catch {}
+    };
+
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
@@ -165,6 +212,7 @@ function App() {
       } else if (session) {
         setUser(session.user);
         checkIsAdmin(session.user.email);
+        linkParticipantEmailIfNeeded(session.user);
       }
     }).catch((error) => {
       console.error('Failed to get session:', error);
@@ -183,13 +231,14 @@ function App() {
       } else if (session?.user) {
         setUser(session.user);
         checkIsAdmin(session.user.email);
+        linkParticipantEmailIfNeeded(session.user);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [i18n]);
 
-  const checkIsAdmin = (email: string) => {
+  const checkIsAdmin = (email?: string) => {
     // Check if user is admin (info@sunisup.be)
     const isAdminUser = email === 'info@sunisup.be';
     setIsAdmin(isAdminUser);
@@ -378,6 +427,8 @@ function App() {
             </div>
           </div>
         </footer>
+
+        <Toaster position="top-right" />
 
         <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
         <LoginModal 
