@@ -39,27 +39,10 @@ export default function SimulationPage() {
 
   const loadParticipants = async () => {
     try {
-      const { data, error } = await supabase
-        .from('participants')
-        .select('*');
-      
-      if (error) {
-        // Handle permission errors gracefully
-        if (error.code === '42501' || error.message?.includes('permission denied')) {
-          console.warn('⚠️ No permission to access participants table');
-          setParticipants([]);
-          return;
-        }
-        throw error;
-      }
-      
-      setParticipants(data || []);
+      // Use empty participants array for simulation page
+      setParticipants([]);
     } catch (error) {
-      console.error('Error loading participants:', error);
-      // Only show error toast for non-permission errors
-      if (!(error.code === '42501' || error.message?.includes('permission denied'))) {
-        toast.error('Erreur lors du chargement des données');
-      }
+      console.warn('Using empty participants array for simulation');
       setParticipants([]);
     } finally {
       setLoading(false);
