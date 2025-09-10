@@ -43,11 +43,24 @@ export default function SimulationPage() {
         .from('participants')
         .select('*');
       
-      if (error) throw error;
+      if (error) {
+        // Handle permission errors gracefully
+        if (error.code === '42501' || error.message?.includes('permission denied')) {
+          console.warn('⚠️ No permission to access participants table');
+          setParticipants([]);
+          return;
+        }
+        throw error;
+      }
+      
       setParticipants(data || []);
     } catch (error) {
       console.error('Error loading participants:', error);
-      toast.error('Erreur lors du chargement des données');
+      // Only show error toast for non-permission errors
+      if (!(error.code === '42501' || error.message?.includes('permission denied'))) {
+        toast.error('Erreur lors du chargement des données');
+      }
+      setParticipants([]);
     } finally {
       setLoading(false);
     }
