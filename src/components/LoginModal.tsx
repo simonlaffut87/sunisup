@@ -59,12 +59,9 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
-        // Vérifier que l'EAN existe dans la table participants
-        const { data: participant, error: participantError } = await supabase
-          .from('participants')
-          .select('*')
-          .eq('ean_code', eanCode)
-          .limit(1);
+        // Vérifier que l'EAN existe via RPC (accessible en rôle anon)
+        const { data: eanCheck, error: participantError } = await supabase
+          .rpc('check_ean_exists', { p_ean: eanCode });
 
         if (participantError) {
           console.error('Erreur lors de la recherche du participant:', participantError);
@@ -73,31 +70,36 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
-        if (!participant || participant.length === 0) {
+        if (!eanCheck || eanCheck.exists !== true) {
           toast.error('Code EAN non trouvé dans notre système. Contactez-nous pour être ajouté à la communauté.');
           setLoading(false);
           return;
         }
-
-        const participantData = participant[0];
-        console.log('Participant trouvé:', participantData);
-        // Vérifier si le participant a déjà un email associé
-        if (participantData.email && participantData.email.trim()) {
-          toast.error(`Ce code EAN est déjà associé à l'adresse email: ${participantData.email}. Utilisez la connexion ou contactez-nous.`);
+        if (eanCheck.link_available !== true) {
+          toast.error('Ce code EAN est déjà associé à un compte. Utilisez la connexion ou contactez-nous.');
           setLoading(false);
           return;
         }
+        const participantId = eanCheck.participant_id as string | undefined;
+        const participantName = (eanCheck.name as string | undefined) || '';
+        console.log('Participant trouvé:', participantId, participantName, eanCode);
+        // Vérifier si le participant a déjà un email associé
+        // La vérification "email déjà associé" est gérée côté DB par le trigger/RLS
 
-        console.log('Tentative de création de compte pour:', {
-          email,
-          participantName: participantData.name,
-          eanCode
-        });
+        console.log('Tentative de création de compte pour:', { email, participantName, eanCode, participantId });
 
-        // Créer le compte utilisateur
+        // Créer le compte utilisateur (avec métadonnées et redirection)
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}`,
+            data: {
+              ean_code: eanCode,
+              participant_id: participantId,
+              name: participantName || undefined
+            }
+          }
         });
 
         if (error) {
@@ -116,31 +118,33 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         }
 
         console.log('Compte créé avec succès:', data);
-        
-        // Étape 2: Mettre à jour l'email du participant
-        if (data.user) {
-          console.log('Mise à jour de l\'email du participant...');
-          const { error: updateError } = await supabase
-            .from('participants')
-            .update({ email })
-            .eq('id', participantData.id);
 
-          if (updateError) {
-            console.error('Error updating participant email:', updateError);
-            toast.error('Compte créé mais erreur lors de l\'association avec le participant. Contactez-nous.');
-            setLoading(false);
-            return;
-          }
-          
-          console.log('Email du participant mis à jour avec succès');
-          
-          // Étape 3: Connexion automatique et fermeture
-          toast.success('Compte créé avec succès ! Connexion automatique...');
-          onLoginSuccess(data.user);
-          onClose();
-        } else {
-          toast.error('Compte créé mais données utilisateur manquantes. Essayez de vous connecter.');
+        // Si l'email doit être confirmé, il n'y aura pas de session immédiate
+        if (!data.session) {
+          toast.success('Compte créé ! Veuillez confirmer votre email pour finaliser l\'inscription.');
+          // La liaison de l'email participant sera effectuée automatiquement à la première connexion
+          return;
         }
+
+        // Si session active, lier immédiatement l'email du participant
+        console.log('Mise à jour de l\'email du participant...');
+        const { error: updateError } = await supabase
+          .from('participants')
+          .update({ email })
+          .eq('id', participantId || '')
+          .is('email', null);
+
+        if (updateError) {
+          console.error('Error updating participant email:', updateError);
+          toast.error('Compte créé mais erreur lors de l\'association avec le participant. Contactez-nous.');
+          setLoading(false);
+          return;
+        }
+        
+        console.log('Email du participant mis à jour avec succès');
+        toast.success('Compte créé et associé au participant.');
+        onLoginSuccess(data.user);
+        onClose();
 
       } else {
         // Mode login
@@ -173,14 +177,14 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     }
   };
 
-  const resetForm = () => {
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setEanCode('');
-    setShowPassword(false);
-    setShowConfirmPassword(false);
-  };
+  // const resetForm = () => {
+  //   setEmail('');
+  //   setPassword('');
+  //   setConfirmPassword('');
+  //   setEanCode('');
+  //   setShowPassword(false);
+  //   setShowConfirmPassword(false);
+  // };
 
   const switchMode = (newMode: 'login' | 'register' | 'reset') => {
     setMode(newMode);

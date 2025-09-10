@@ -155,21 +155,54 @@ export function MonthlyFileUploadModal({
     try {
       console.log('🔍 Chargement des participants membres...');
       
-      // Return static demo mapping
-      return {
-        '541448000000000001': { name: 'Boulangerie Saint-Gilles', type: 'consumer', id: 'demo1' },
-        '541448000000000002': { name: 'Installation Solaire Molenbeek', type: 'producer', id: 'demo2' },
-        '541448000000000003': { name: 'Café Forest', type: 'consumer', id: 'demo3' },
-        '541448000000000004': { name: 'Toiture Solaire Ixelles', type: 'producer', id: 'demo4' },
-        '541448000000000005': { name: 'Ouzerie', type: 'consumer', id: 'demo5' },
-        '541448000000000006': { name: 'Bureau Avenue Georges Henry', type: 'consumer', id: 'demo6' },
-        '541448000000000007': { name: 'Énergie Verte Schaerbeek', type: 'producer', id: 'demo7' },
-        '541448000000000008': { name: 'Commerce Herman Debroux', type: 'consumer', id: 'demo8' },
-        '541448000000000009': { name: 'Solaire Communautaire Uccle', type: 'producer', id: 'demo9' },
-        '541448000000000010': { name: 'Atelier Anderlecht', type: 'consumer', id: 'demo10' }
-      };
+      // Charger les participants depuis Supabase
+      const { data: participantsData, error: participantsError } = await supabase
+        .from('participants')
+        .select('*');
+
+      if (participantsError) {
+        console.warn('⚠️ Erreur chargement participants:', participantsError);
+        throw participantsError;
+      }
+
+      // Créer le mapping EAN -> participant
+      const mapping: { [ean_code: string]: { name: string; type: 'producer' | 'consumer'; id: string } } = {};
+      
+      // Ajouter les participants avec codes EAN
+      participantsData.forEach(participant => {
+        if (participant.ean_code) {
+          mapping[participant.ean_code] = {
+            name: participant.name,
+            type: participant.type,
+            id: participant.id
+          };
+          console.log(`✅ Participant mappé: ${participant.ean_code} -> ${participant.name} (${participant.type})`);
+        } else {
+          console.log(`⚠️ Participant sans EAN: ${participant.name}`);
+        }
+      });
+
+      console.log(`🎯 Mapping final: ${Object.keys(mapping).length} participants avec codes EAN`);
+      
+      // Si aucun mapping, créer des exemples pour la démonstration
+      if (Object.keys(mapping).length === 0) {
+        console.log('⚠️ Aucun participant avec EAN trouvé, création d\'exemples...');
+        mapping['541448000000000001'] = { name: 'Boulangerie Saint-Gilles', type: 'consumer', id: 'demo1' };
+        mapping['541448000000000002'] = { name: 'Installation Solaire Molenbeek', type: 'producer', id: 'demo2' };
+        mapping['541448000000000003'] = { name: 'Café Forest', type: 'consumer', id: 'demo3' };
+        mapping['541448000000000004'] = { name: 'Toiture Solaire Ixelles', type: 'producer', id: 'demo4' };
+        mapping['541448000000000005'] = { name: 'Ouzerie', type: 'consumer', id: 'demo5' };
+        mapping['541448000000000006'] = { name: 'Bureau Avenue Georges Henry', type: 'consumer', id: 'demo6' };
+        mapping['541448000000000007'] = { name: 'Énergie Verte Schaerbeek', type: 'producer', id: 'demo7' };
+        mapping['541448000000000008'] = { name: 'Commerce Herman Debroux', type: 'consumer', id: 'demo8' };
+        mapping['541448000000000009'] = { name: 'Solaire Communautaire Uccle', type: 'producer', id: 'demo9' };
+        mapping['541448000000000010'] = { name: 'Atelier Anderlecht', type: 'consumer', id: 'demo10' };
+      }
+
+      return mapping;
     } catch (error) {
-      console.warn('Using static demo mapping');
+      console.error('❌ Erreur lors du chargement du mapping:', error);
+      // Fallback avec des données de démonstration
       return {
         '541448000000000001': { name: 'Boulangerie Saint-Gilles', type: 'consumer', id: 'demo1' },
         '541448000000000002': { name: 'Installation Solaire Molenbeek', type: 'producer', id: 'demo2' },
