@@ -158,6 +158,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           } else if (error.message.includes('invalid_credentials')) {
             toast.error('Email ou mot de passe incorrect. Vérifiez vos identifiants ou créez un compte.');
           } else {
+            toast.error(`Erreur de connexion: ${error.message}`);
+          }
         } else if (data?.user) {
           toast.success('Connexion réussie !');
           onLoginSuccess(data.user);
