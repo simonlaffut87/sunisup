@@ -62,7 +62,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         // Vérifier que l'EAN existe dans la table participants
         const { data: participant, error: participantError } = await supabase
           .from('participants')
-          .select('*')
+          .select('id, name, email')
           .eq('ean_code', eanCode)
           .limit(1);
 
