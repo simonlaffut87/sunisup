@@ -294,7 +294,6 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     return Object.keys(errors).length === 0 &&
            formData.name.trim() &&
            formData.address.trim() &&
-           formData.email.trim() &&
            formData.ean_code.trim() &&
            formData.commodity_rate.trim() &&
            formData.shared_energy_price.trim() &&
@@ -413,7 +412,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 <Mail className="w-4 h-4 inline mr-2" />
-                Adresse email
+                Adresse email (optionnel)
               </label>
               <input
                 type="email"
@@ -426,7 +425,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               />
               {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
               <p className="text-xs text-gray-500 mt-1">
-                Laissez vide si le participant n'a pas encore de compte membre
+                Optionnel - Laissez vide si le participant n'a pas encore de compte membre
               </p>
             </div>
           </div>
