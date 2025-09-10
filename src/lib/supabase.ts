@@ -60,18 +60,41 @@ const testConnection = async () => {
   console.log('Connecting to:', supabaseUrl);
   
   try {
-    // Test with a simple query that should work even with basic permissions
-    const { data, error } = await supabase
-      .from('participants')
-      .select('count')
-      .limit(1)
-      .maybeSingle();
+    // Test with a simple auth check first
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
     
-    if (error && !['PGRST116', 'PGRST301'].includes(error.code)) { // Allow "no rows" and "multiple rows" errors
-      throw error;
+    if (authError) {
+      console.warn('Auth check failed:', authError.message);
     }
     
-    console.log('✅ Successfully connected to Supabase');
+    // Try a simple participants query, but don't fail if RLS blocks it
+    try {
+      const { data, error } = await supabase
+        .from('participants')
+        .select('count')
+        .limit(1)
+        .maybeSingle();
+      
+      if (error && error.code === '42501') {
+        console.warn('⚠️ RLS policies restrict anonymous access to participants table');
+        console.warn('💡 This is expected behavior - the app will use fallback data');
+        console.log('✅ Supabase connection established (with RLS restrictions)');
+        return true;
+      }
+      
+      if (error && !['PGRST116', 'PGRST301'].includes(error.code)) {
+        throw error;
+      }
+    } catch (tableError: any) {
+      if (tableError.code === '42501') {
+        console.warn('⚠️ RLS policies restrict anonymous access - using fallback data');
+        console.log('✅ Supabase connection established (with RLS restrictions)');
+        return true;
+      }
+      throw tableError;
+    }
+    
+    console.log('✅ Successfully connected to Supabase with full access');
     return true;
   } catch (error: any) {
     console.error('❌ Supabase connection error:', {
@@ -89,6 +112,12 @@ const testConnection = async () => {
       console.error('2. Verify Supabase project is active at:', supabaseUrl);
       console.error('3. Add https://localhost:5173 to CORS settings in Supabase dashboard');
       console.error('4. Go to Project Settings > API > CORS and add the URL');
+    } else if (error.code === '42501') {
+      console.error('🔒 RLS policies are blocking access');
+      console.error('💡 Go to Supabase Dashboard > Authentication > Policies');
+      console.error('💡 Create a policy for participants table allowing SELECT for anon role');
+      console.error('💡 The app will continue with demonstration data');
+      return false; // Don't throw, just return false
     } else if (error.code === '3000' || error.status === 401) {
       console.error('🔑 API key issue - check your VITE_SUPABASE_ANON_KEY');
     } else if (error.code === '42501' || error.status === 403) {

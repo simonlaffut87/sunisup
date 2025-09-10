@@ -219,12 +219,12 @@ export default function HomePage() {
       
       if (!data || data.length === 0) {
         setUsingFallbackData(true);
-        setError('Using demonstration data - database connection issue');
+        setError('Using demonstration data - database access restricted');
       }
       
       console.log('✅ Successfully loaded participants');
     } catch (error: any) {
-      console.warn('⚠️ Failed to load participants from database, using fallback data:', error.message);
+      console.warn('⚠️ Database access restricted, using demonstration data:', error.message);
       
       // Use static participants as fallback
       const staticParticipants = getStaticParticipants();
@@ -232,7 +232,9 @@ export default function HomePage() {
       setUsingFallbackData(true);
       
       // Set a user-friendly error message
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+      if (error.code === '42501' || error.message?.includes('permission denied')) {
+        setError('Database access restricted by security policies. Showing demo data.');
+      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
         setError('Unable to connect to the database. Showing demo data.');
       } else if (error.message?.includes('timeout')) {
         setError('Database connection timeout. Showing demo data.');
@@ -240,10 +242,10 @@ export default function HomePage() {
         setError('Database temporarily unavailable. Showing demo data.');
       }
       
-      // Show a less alarming toast since we have fallback data
-      toast.error('Using demo data - database connection issue', {
+      // Show a less alarming toast since we have fallback data and this is expected
+      toast.error('Using demo data - database access restricted', {
         duration: 4000,
-        icon: '⚠️'
+        icon: '💡'
       });
     } finally {
       setLoading(false);
