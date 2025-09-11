@@ -451,7 +451,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Injection partagée</p>
-                <p className="text-2xl font-semibold text-gray-900">
+                <p className="text-xl font-semibold text-gray-900">
                   {(yearlyTotals.injection_partagee / 1000).toFixed(1)} MWh
                 </p>
               </div>
@@ -467,7 +467,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Injection réseau</p>
-                <p className="text-2xl font-semibold text-gray-900">
+                <p className="text-xl font-semibold text-gray-900">
                   {(yearlyTotals.injection_complementaire / 1000).toFixed(1)} MWh
                 </p>
               </div>
@@ -483,7 +483,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">% Injection partagée</p>
-                <p className="text-2xl font-semibold text-gray-900">
+                <p className="text-xl font-semibold text-gray-900">
                   {injectionSharedPercentage.toFixed(1)}%
                 </p>
               </div>
@@ -501,7 +501,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <p className="text-sm font-medium text-gray-500">
                   {isGroupDashboard ? 'Participants' : 'Statut'}
                 </p>
-                <p className="text-2xl font-semibold text-gray-900">
+                <p className="text-xl font-semibold text-gray-900">
                   {isGroupDashboard ? groupParticipants.length : 'Individuel'}
                 </p>
               </div>
