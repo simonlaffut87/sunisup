@@ -428,9 +428,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
       const participantData = participant[0];
       console.log('📋 Participant chargé:', {
-        console.log('📊 Données finales du groupe:', groupParticipantsData);
-        console.log('📅 Données mensuelles du groupe:', groupYearlyData);
-        
         name: participantData.name,
         ean_code: participantData.ean_code,
         hasMonthlyData: !!participantData.monthly_data
