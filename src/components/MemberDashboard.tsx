@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { 
   BarChart4, TrendingUp, Zap, LogOut, Calendar, Clock, Battery, ArrowLeft,
-  Leaf, ChevronLeft, ChevronRight, Loader2, Database
+  Leaf, ChevronLeft, ChevronRight, Loader2, Database, Users, Building2
 } from 'lucide-react';
 import { format, parseISO, subDays, startOfDay, endOfDay, addDays, 
   addWeeks, addMonths, subWeeks, subMonths } from 'date-fns';
@@ -52,6 +52,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [monthlyData, setMonthlyData] = useState<any>({});
+  const [groupData, setGroupData] = useState<any>({});
+  const [groupParticipants, setGroupParticipants] = useState<any[]>([]);
 
   // Fonction pour charger les données mensuelles depuis la colonne monthly_data
   const loadMonthlyDataFromParticipant = useCallback(async (participantId: string) => {
@@ -102,6 +104,79 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     }
   }, []);
 
+  // Fonction pour charger les données du groupe
+  const loadGroupData = useCallback(async (groupe: string, selectedYear: number) => {
+    if (!groupe) {
+      setGroupData({});
+      setGroupParticipants([]);
+      return;
+    }
+
+    try {
+      console.log('📊 Chargement des données du groupe:', groupe);
+      
+      // Charger tous les participants du même groupe
+      const { data: participants, error } = await supabase
+        .from('participants')
+        .select('*')
+        .eq('groupe', groupe)
+        .not('monthly_data', 'is', null);
+
+      if (error) {
+        console.error('❌ Erreur chargement participants du groupe:', error);
+        return;
+      }
+
+      console.log('✅ Participants du groupe trouvés:', participants?.length || 0);
+      setGroupParticipants(participants || []);
+
+      // Agréger les données mensuelles de tous les participants du groupe
+      const groupMonthlyData: any = {};
+      
+      participants?.forEach(participant => {
+        if (participant.monthly_data) {
+          try {
+            const participantMonthlyData = typeof participant.monthly_data === 'string' 
+              ? JSON.parse(participant.monthly_data)
+              : participant.monthly_data;
+            
+            // Pour chaque mois dans les données du participant
+            Object.entries(participantMonthlyData).forEach(([month, data]: [string, any]) => {
+              if (month.startsWith(selectedYear.toString())) {
+                if (!groupMonthlyData[month]) {
+                  groupMonthlyData[month] = {
+                    volume_partage: 0,
+                    volume_complementaire: 0,
+                    injection_partagee: 0,
+                    injection_complementaire: 0,
+                    participants: []
+                  };
+                }
+                
+                groupMonthlyData[month].volume_partage += data.volume_partage || 0;
+                groupMonthlyData[month].volume_complementaire += data.volume_complementaire || 0;
+                groupMonthlyData[month].injection_partagee += data.injection_partagee || 0;
+                groupMonthlyData[month].injection_complementaire += data.injection_complementaire || 0;
+                groupMonthlyData[month].participants.push({
+                  name: participant.name,
+                  type: participant.type,
+                  data: data
+                });
+              }
+            });
+          } catch (e) {
+            console.warn(`⚠️ Erreur parsing monthly_data pour ${participant.name}:`, e);
+          }
+        }
+      });
+
+      console.log('📊 Données agrégées du groupe:', groupMonthlyData);
+      setGroupData(groupMonthlyData);
+
+    } catch (error) {
+      console.error('❌ Erreur chargement données du groupe:', error);
+    }
+  }, []);
   useEffect(() => {
     const fetchUserProfileEffect = async () => {
       try {
@@ -244,6 +319,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     fetchUserProfileEffect();
   }, [user, loadMonthlyDataFromParticipant]);
 
+  // Charger les données du groupe quand le profil utilisateur change
+  useEffect(() => {
+    if (userProfile?.groupe) {
+      loadGroupData(userProfile.groupe, selectedYear);
+    }
+  }, [userProfile?.groupe, selectedYear, loadGroupData]);
   // Fonction pour charger les données d'énergie depuis energy_data (ancienne méthode)
   const fetchEnergyDataOld = useCallback(async (year: number, isInitial = false) => {
     if (isInitial) {
@@ -623,6 +704,32 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return totalWeight > 0 ? totalWeightedPercentage / totalWeight : 0;
   }, [availableDataPeriod, volumeTotal]);
 
+  // Calculer les totaux du groupe
+  const groupTotals = React.useMemo(() => {
+    if (!userProfile?.groupe || Object.keys(groupData).length === 0) {
+      return null;
+    }
+
+    let totalVolumePartage = 0;
+    let totalVolumeComplementaire = 0;
+    let totalInjectionPartagee = 0;
+    let totalInjectionComplementaire = 0;
+
+    Object.values(groupData).forEach((monthData: any) => {
+      totalVolumePartage += monthData.volume_partage || 0;
+      totalVolumeComplementaire += monthData.volume_complementaire || 0;
+      totalInjectionPartagee += monthData.injection_partagee || 0;
+      totalInjectionComplementaire += monthData.injection_complementaire || 0;
+    });
+
+    return {
+      volumePartage: totalVolumePartage,
+      volumeComplementaire: totalVolumeComplementaire,
+      injectionPartagee: totalInjectionPartagee,
+      injectionComplementaire: totalInjectionComplementaire,
+      participantCount: groupParticipants.length
+    };
+  }, [groupData, groupParticipants, userProfile?.groupe]);
   // Période d'affichage
   const displayPeriod = React.useMemo(() => {
     if (availableDataPeriod) {
@@ -686,6 +793,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <p className="text-sm text-gray-600">
                   {isProducer ? 'Producteur' : 'Consommateur'} - Sun Is Up
                 </p>
+                {userProfile?.groupe && (
+                  <p className="text-xs text-amber-600 flex items-center">
+                    <Users className="w-3 h-3 mr-1" />
+                    Groupe: {userProfile.groupe}
+                  </p>
+                )}
                 <p className="text-xs text-gray-500">
                   Données pour l'année {selectedYear}
                 </p>
@@ -749,6 +862,151 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           </div>
         )}
 
+        {/* Données du groupe si applicable */}
+        {userProfile?.groupe && groupTotals && (
+          <div className="mb-8 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <Users className="w-6 h-6 text-purple-600 mr-3" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Données du groupe "{userProfile.groupe}" - {selectedYear}
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="bg-white p-4 rounded-lg border border-purple-100">
+                <div className="text-sm text-purple-600">Consommation Partagée</div>
+                <div className="text-xl font-bold text-purple-900">
+                  {(groupTotals.volumePartage / 1000).toFixed(3)} MWh
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-indigo-100">
+                <div className="text-sm text-indigo-600">Consommation Réseau</div>
+                <div className="text-xl font-bold text-indigo-900">
+                  {(groupTotals.volumeComplementaire / 1000).toFixed(3)} MWh
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-amber-100">
+                <div className="text-sm text-amber-600">Injection Partagée</div>
+                <div className="text-xl font-bold text-amber-900">
+                  {(groupTotals.injectionPartagee / 1000).toFixed(3)} MWh
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-green-100">
+                <div className="text-sm text-green-600">Injection Réseau</div>
+                <div className="text-xl font-bold text-green-900">
+                  {(groupTotals.injectionComplementaire / 1000).toFixed(3)} MWh
+                </div>
+              </div>
+            </div>
+
+            {/* Détail par participant du groupe */}
+            <div className="bg-white rounded-lg border border-purple-100 overflow-hidden">
+              <div className="px-4 py-3 bg-purple-50 border-b border-purple-100">
+                <h4 className="font-medium text-purple-900 flex items-center">
+                  <Building2 className="w-4 h-4 mr-2" />
+                  Participants du groupe ({groupTotals.participantCount})
+                </h4>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Participant
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Cons. Partagée
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Cons. Réseau
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Inj. Partagée
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Inj. Réseau
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {groupParticipants.map((participant) => {
+                      // Calculer les totaux pour ce participant sur l'année
+                      let participantTotals = {
+                        volumePartage: 0,
+                        volumeComplementaire: 0,
+                        injectionPartagee: 0,
+                        injectionComplementaire: 0
+                      };
+
+                      if (participant.monthly_data) {
+                        try {
+                          const monthlyData = typeof participant.monthly_data === 'string' 
+                            ? JSON.parse(participant.monthly_data)
+                            : participant.monthly_data;
+                          
+                          Object.entries(monthlyData).forEach(([month, data]: [string, any]) => {
+                            if (month.startsWith(selectedYear.toString())) {
+                              participantTotals.volumePartage += data.volume_partage || 0;
+                              participantTotals.volumeComplementaire += data.volume_complementaire || 0;
+                              participantTotals.injectionPartagee += data.injection_partagee || 0;
+                              participantTotals.injectionComplementaire += data.injection_complementaire || 0;
+                            }
+                          });
+                        } catch (e) {
+                          console.warn(`Erreur parsing données pour ${participant.name}:`, e);
+                        }
+                      }
+
+                      return (
+                        <tr key={participant.id} className={`hover:bg-purple-50 ${participant.id === userProfile?.id ? 'bg-purple-100' : ''}`}>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="text-sm font-medium text-gray-900">
+                                {participant.name}
+                                {participant.id === userProfile?.id && (
+                                  <span className="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                                    Vous
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              participant.type === 'producer' 
+                                ? 'bg-amber-100 text-amber-800' 
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {(participantTotals.volumePartage / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {(participantTotals.volumeComplementaire / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {(participantTotals.injectionPartagee / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {(participantTotals.injectionComplementaire / 1000).toFixed(3)} MWh
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Stats Cards with smooth transition */}
         <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 transition-opacity duration-300 ${dataLoading ? 'opacity-60' : 'opacity-100'}`}>
           {/* Injection partagée */}
@@ -952,7 +1210,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
             <Clock className="w-5 h-5 mr-2 text-amber-500" />
-            Données énergétiques mensuelles
+            Données énergétiques mensuelles - {userProfile?.name}
           </h3>
           
           {/* Loading overlay */}
@@ -1020,6 +1278,75 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* Graphique du groupe si applicable */}
+        {userProfile?.groupe && Object.keys(groupData).length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <Users className="w-5 h-5 mr-2 text-purple-500" />
+              Données énergétiques du groupe "{userProfile.groupe}"
+            </h3>
+            
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={Object.entries(groupData).map(([month, data]: [string, any]) => ({
+                    month: format(new Date(month + '-01'), 'MMM', { locale: fr }),
+                    'Consommation Partagée': (data.volume_partage / 1000),
+                    'Consommation Réseau': (data.volume_complementaire / 1000),
+                    'Injection Partagée': (data.injection_partagee / 1000),
+                    'Injection Réseau': (data.injection_complementaire / 1000)
+                  })).sort((a, b) => a.month.localeCompare(b.month))}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="month"
+                    stroke="#6B7280"
+                    tick={{ fontSize: 12 }}
+                    tickMargin={5}
+                  />
+                  <YAxis 
+                    stroke="#6B7280"
+                    tick={{ fontSize: 12 }}
+                    tickMargin={5}
+                    label={{ value: 'MWh', angle: -90, position: 'insideLeft' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
+                    formatter={(value: number) => [`${value.toFixed(3)} MWh`, '']}
+                  />
+                  <Legend />
+                  
+                  <Bar 
+                    dataKey="Consommation Partagée" 
+                    name="Consommation Partagée (Groupe)" 
+                    fill="#8B5CF6"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="Consommation Réseau" 
+                    name="Consommation Réseau (Groupe)" 
+                    fill="#6366F1"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="Injection Partagée"
+                    name="Injection Partagée (Groupe)" 
+                    fill="#F59E0B"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="Injection Réseau"
+                    name="Injection Réseau (Groupe)" 
+                    fill="#10B981"
+                    radius={[2, 2, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
       </main>
       <footer className="bg-gray-100 py-4 text-center text-sm text-gray-500">
         <p>Dernière mise à jour: {format(new Date(), 'dd/MM/yyyy HH:mm', { locale: fr })}</p>
