@@ -14,7 +14,8 @@ import {
   Hash,
   MapPin,
   Building2,
-  Sun
+  Sun,
+  ArrowLeft
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -395,6 +396,14 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <option value="2026">2026</option>
                 </select>
               </div>
+              
+              <button
+                onClick={onLogout}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Retour admin
+              </button>
               
               <button
                 onClick={handleRefresh}
