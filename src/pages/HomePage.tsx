@@ -297,27 +297,6 @@ export default function HomePage() {
 
   return (
     <div className="space-y-0">
-      {/* Error Banner */}
-      {error && (
-        <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <ExternalLink className="h-5 w-5 text-amber-400" />
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-amber-700">
-                {error}
-                {usingFallbackData && (
-                  <span className="ml-2 font-medium">
-                    The map and statistics below show demonstration data.
-                  </span>
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 overflow-hidden">
         <div className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f59e0b" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50`}></div>
