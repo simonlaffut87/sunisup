@@ -126,23 +126,61 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
-        // Si session active, lier immédiatement l'email du participant
-        console.log('Mise à jour de l\'email du participant...');
-        const { error: updateError } = await supabase
+        // Si session active, lier immédiatement l'email du participant et de son groupe
+        console.log('Mise à jour de l\'email du participant et de son groupe...');
+        
+        // D'abord, récupérer les informations du participant pour connaître son groupe
+        const { data: participantInfo, error: participantError } = await supabase
           .from('participants')
-          .update({ email })
+          .select('groupe')
           .eq('id', participantId || '')
-          .is('email', null);
+          .single();
 
-        if (updateError) {
-          console.error('Error updating participant email:', updateError);
-          toast.error('Compte créé mais erreur lors de l\'association avec le participant. Contactez-nous.');
+        if (participantError) {
+          console.error('Error fetching participant info:', participantError);
+          toast.error('Compte créé mais erreur lors de la récupération des informations du participant.');
           setLoading(false);
           return;
         }
+
+        // Si le participant fait partie d'un groupe, mettre à jour l'email pour tous les participants du groupe
+        if (participantInfo.groupe) {
+          console.log(`Mise à jour de l'email pour tous les participants du groupe: "${participantInfo.groupe}"`);
+          
+          const { error: groupUpdateError } = await supabase
+            .from('participants')
+            .update({ email })
+            .eq('groupe', participantInfo.groupe)
+            .is('email', null);
+
+          if (groupUpdateError) {
+            console.error('Error updating group participants email:', groupUpdateError);
+            toast.error('Compte créé mais erreur lors de l\'association avec le groupe. Contactez-nous.');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('Email mis à jour pour tous les participants du groupe');
+          toast.success(`Compte créé et associé à tous les participants du groupe "${participantInfo.groupe}".`);
+        } else {
+          // Pas de groupe, mettre à jour seulement ce participant
+          const { error: updateError } = await supabase
+            .from('participants')
+            .update({ email })
+            .eq('id', participantId || '')
+            .is('email', null);
+
+          if (updateError) {
+            console.error('Error updating participant email:', updateError);
+            toast.error('Compte créé mais erreur lors de l\'association avec le participant. Contactez-nous.');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('Email du participant mis à jour avec succès');
+          toast.success('Compte créé et associé au participant.');
+        }
         
-        console.log('Email du participant mis à jour avec succès');
-        toast.success('Compte créé et associé au participant.');
         onLoginSuccess(data.user);
         onClose();
 
