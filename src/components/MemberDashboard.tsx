@@ -119,7 +119,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*')
-        .eq('groupe', groupName);
+        .eq('groupe', groupe);
 
       if (error) {
         console.error('❌ Erreur chargement participants du groupe:', error);
@@ -176,6 +176,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       console.error('❌ Erreur chargement données du groupe:', error);
     }
   }, []);
+  
   useEffect(() => {
     const fetchUserProfileEffect = async () => {
       try {
@@ -324,6 +325,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       loadGroupData(userProfile.groupe, selectedYear);
     }
   }, [userProfile?.groupe, selectedYear, loadGroupData]);
+  
   // Fonction pour charger les données d'énergie depuis energy_data (ancienne méthode)
   const fetchEnergyDataOld = useCallback(async (year: number, isInitial = false) => {
     if (isInitial) {
@@ -402,6 +404,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
       console.log('✅ TOUS les participants du groupe trouvés:', groupParticipants?.length || 0);
       console.log('📋 Liste des participants:', groupParticipants?.map(p => `${p.name} (email: ${p.email ? 'oui' : 'non'})`));
+      
+      if (!participant || participant.length === 0) {
         console.log('❌ Aucun participant trouvé avec cet ID');
         throw new Error('Participant non trouvé');
       }
@@ -628,6 +632,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       return total + (data.injection_complementaire || 0);
     }, 0);
   }, [availableDataPeriod]);
+  
   const volumePartage = React.useMemo(() => {
     if (!availableDataPeriod) return 0;
     
@@ -730,6 +735,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       participantCount: groupParticipants.length
     };
   }, [groupData, groupParticipants, userProfile?.groupe]);
+  
   // Période d'affichage
   const displayPeriod = React.useMemo(() => {
     if (availableDataPeriod) {
@@ -1007,6 +1013,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             </div>
           </div>
         )}
+        
         {/* Stats Cards with smooth transition */}
         <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 transition-opacity duration-300 ${dataLoading ? 'opacity-60' : 'opacity-100'}`}>
           {/* Injection partagée */}
@@ -1064,6 +1071,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </div>
             </div>
           </div>
+          
           {/* Volume partagé */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-4">
