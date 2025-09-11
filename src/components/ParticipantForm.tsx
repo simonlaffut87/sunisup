@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
-import { Save, Trash2, User, MapPin, Calendar, Mail, Hash, Euro, AlertCircle } from 'lucide-react';
+import { Save, Trash2, User, MapPin, Calendar, Mail, Hash, Euro, AlertCircle, Users } from 'lucide-react';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
