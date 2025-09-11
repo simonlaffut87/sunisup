@@ -442,7 +442,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-xs font-medium text-gray-500">
                   {isConsumerGroup ? 'Consommation partagée' : 'Injection partagée'}
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
@@ -463,7 +463,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-xs font-medium text-gray-500">
                   {isConsumerGroup ? 'Consommation réseau' : 'Injection réseau'}
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
@@ -484,7 +484,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-xs font-medium text-gray-500">
                   {isConsumerGroup ? '% Consommation partagée' : '% Injection partagée'}
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
@@ -505,7 +505,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-xs font-medium text-gray-500">
                   {isGroupDashboard ? 'Participants' : 'Statut'}
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
