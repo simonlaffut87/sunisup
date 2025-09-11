@@ -283,8 +283,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             console.log('❌ Participant non trouvé par EAN:', error?.message);
           }
         }
-
-        console.log(`📊 Totaux pour ${participant.name}:`, participantTotals);
         
         if (participantData) {
           console.log('✅ Profil participant final:', {
@@ -984,8 +982,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                           console.warn(`Erreur parsing données pour ${participant.name}:`, e);
                         }
                       }
-
-                      console.log(`📊 Totaux pour ${participant.name}:`, participantTotals);
 
                       return (
                         <tr key={participant.id} className={`hover:bg-purple-50 ${participant.id === userProfile?.id ? 'bg-purple-100' : ''}`}>
