@@ -68,12 +68,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       setLoading(true);
       console.log('🔍 Chargement du participant pour user:', user);
 
-      // Charger le participant principal
+      // Charger le(s) participant(s) avec cet email
       const { data: participantData, error } = await supabase
         .from('participants')
         .select('*')
-        .eq('email', user.email)
-        .single();
+        .eq('email', user.email);
 
       if (error) {
         console.error('❌ Erreur chargement participant:', error);
@@ -81,8 +80,23 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         return;
       }
 
-      console.log('✅ Participant chargé:', participantData);
-      setParticipant(participantData);
+      if (!participantData || participantData.length === 0) {
+        console.error('❌ Aucun participant trouvé pour cet email');
+        toast.error('Aucun participant trouvé pour votre compte');
+        return;
+      }
+
+      if (participantData.length > 1) {
+        console.warn('⚠️ Plusieurs participants trouvés pour cet email:', participantData);
+        toast.error(`Attention: ${participantData.length} participants trouvés pour votre email. Contactez l'administrateur.`);
+        // Prendre le premier participant par défaut
+        setParticipant(participantData[0]);
+        return;
+      }
+
+      // Cas normal: exactement un participant
+      console.log('✅ Participant chargé:', participantData[0]);
+      setParticipant(participantData[0]);
 
     } catch (error) {
       console.error('❌ Erreur:', error);
