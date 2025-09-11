@@ -63,8 +63,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         const { data: eanCheck, error: participantError } = await supabase
           .rpc('check_ean_exists', { p_ean: eanCode });
 
-        if (participantError) {
-          console.error('Erreur lors de la recherche du participant:', participantError);
+        if (eanCheckError) {
+          console.error('Erreur lors de la recherche du participant:', eanCheckError);
           toast.error('Erreur lors de la vérification du code EAN. Veuillez réessayer.');
           setLoading(false);
           return;
@@ -130,14 +130,14 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         console.log('Mise à jour de l\'email du participant et de son groupe...');
         
         // D'abord, récupérer les informations du participant pour connaître son groupe
-        const { data: participantInfo, error: participantError } = await supabase
+        const { data: participantInfo, error: participantInfoError } = await supabase
           .from('participants')
           .select('groupe')
           .eq('id', participantId || '')
           .single();
 
-        if (participantError) {
-          console.error('Error fetching participant info:', participantError);
+        if (participantInfoError) {
+          console.error('Error fetching participant info:', participantInfoError);
           toast.error('Compte créé mais erreur lors de la récupération des informations du participant.');
           setLoading(false);
           return;
