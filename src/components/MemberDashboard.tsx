@@ -141,7 +141,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             
             // Pour chaque mois dans les données du participant
             Object.entries(participantMonthlyData).forEach(([month, data]: [string, any]) => {
+      console.log('🔍 Analyse des participants du groupe:', groupParticipants.length);
+      
               if (month.startsWith(selectedYear.toString())) {
+        console.log(`📊 Participant: ${participant.name}, monthly_data:`, participant.monthly_data);
+        
                 if (!groupMonthlyData[month]) {
                   groupMonthlyData[month] = {
                     volume_partage: 0,
@@ -149,10 +153,13 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     injection_partagee: 0,
                     injection_complementaire: 0,
                     participants: []
-                  };
+        if (participant.monthly_data) {
+          console.log(`📅 Données mensuelles pour ${participant.name}:`, Object.keys(participant.monthly_data));
+          
                 }
-                
-                groupMonthlyData[month].volume_partage += data.volume_partage || 0;
+          Object.entries(participant.monthly_data).forEach(([month, data]: [string, any]) => {
+            if (month.startsWith(selectedYear)) {
+              console.log(`📊 Mois ${month} pour ${participant.name}:`, data);
                 groupMonthlyData[month].volume_complementaire += data.volume_complementaire || 0;
                 groupMonthlyData[month].injection_partagee += data.injection_partagee || 0;
                 groupMonthlyData[month].injection_complementaire += data.injection_complementaire || 0;
@@ -267,9 +274,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             participantData = data[0];
           } else {
             console.log('❌ Participant non trouvé par EAN:', error?.message);
-          }
+          });
         }
 
+        console.log(`📊 Totaux pour ${participant.name}:`, participantTotals);
+        
         if (participantData) {
           console.log('✅ Profil participant final:', {
             id: participantData.id,
@@ -412,6 +421,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
       const participantData = participant[0];
       console.log('📋 Participant chargé:', {
+      console.log('📊 Données finales du groupe:', groupParticipantsData);
+      console.log('📅 Données mensuelles du groupe:', groupYearlyData);
+      
         name: participantData.name,
         ean_code: participantData.ean_code,
         hasMonthlyData: !!participantData.monthly_data
