@@ -464,7 +464,7 @@ export function AdminDashboard() {
                             <FileText className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => participant.email ? handleViewParticipantDashboard(participant) : null}
+                            onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée. Modifiez le participant pour ajouter une adresse email.`)}
                             className="text-blue-600 hover:text-blue-900 transition-colors"
                             title={participant.email ? "Voir le dashboard" : "Email manquant"}
                             disabled={!participant.email}
