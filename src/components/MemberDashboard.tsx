@@ -450,9 +450,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Énergie Partagée</p>
+                <p className="text-sm font-medium text-gray-500">Injection partagée</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {(yearlyTotals.volume_partage / 1000).toFixed(1)} MWh
+                  {(yearlyTotals.injection_partagee / 1000).toFixed(1)} MWh
                 </p>
               </div>
             </div>
