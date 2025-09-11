@@ -22,11 +22,14 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
     commodity_rate: '',
     company_number: '',
     type: 'consumer',
-    shared_energy_price: ''
+    shared_energy_price: '',
+    groupe: ''
   });
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [availableGroups, setAvailableGroups] = useState<string[]>([]);
+  const [showGroupSuggestions, setShowGroupSuggestions] = useState(false);
 
   // Charger les données du participant lors de l'édition
   useEffect(() => {
@@ -40,10 +43,36 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         commodity_rate: participant.commodity_rate?.toString() || '',
         company_number: participant.company_number || '',
         type: participant.type || 'consumer',
-        shared_energy_price: participant.shared_energy_price?.toString() || ''
+        shared_energy_price: participant.shared_energy_price?.toString() || '',
+        groupe: participant.groupe || ''
       });
     }
   }, [participant]);
+
+  // Charger les groupes existants
+  useEffect(() => {
+    loadAvailableGroups();
+  }, []);
+
+  const loadAvailableGroups = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('participants')
+        .select('groupe')
+        .not('groupe', 'is', null)
+        .not('groupe', 'eq', '');
+
+      if (error) {
+        console.warn('Could not load groups:', error);
+        return;
+      }
+
+      const uniqueGroups = [...new Set(data.map(p => p.groupe).filter(Boolean))];
+      setAvailableGroups(uniqueGroups);
+    } catch (error) {
+      console.warn('Error loading groups:', error);
+    }
+  };
 
   const validateField = (name: string, value: string) => {
     const newErrors = { ...errors };
@@ -216,6 +245,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         entry_date: formData.entry_date,
         company_number: formData.company_number.trim() || null,
         shared_energy_price: parseFloat(formData.shared_energy_price),
+        groupe: formData.groupe.trim() || null,
         lat: 50.8503,
         lng: 4.3517,
         peak_power: 0,
@@ -506,6 +536,57 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               </div>
               {errors.shared_energy_price && <p className="text-sm text-red-600 mt-1">{errors.shared_energy_price}</p>}
             </div>
+          </div>
+
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              <Users className="w-4 h-4 inline mr-2" />
+              Groupe (optionnel)
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={formData.groupe}
+                onChange={(e) => {
+                  handleInputChange('groupe', e.target.value);
+                  setShowGroupSuggestions(e.target.value.length > 0 && availableGroups.length > 0);
+                }}
+                onFocus={() => setShowGroupSuggestions(formData.groupe.length > 0 && availableGroups.length > 0)}
+                onBlur={() => setTimeout(() => setShowGroupSuggestions(false), 200)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                placeholder="Ex: Quartier Européen, Zone Nord, etc."
+              />
+              
+              {/* Suggestions dropdown */}
+              {showGroupSuggestions && availableGroups.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                  {availableGroups
+                    .filter(group => 
+                      group.toLowerCase().includes(formData.groupe.toLowerCase())
+                    )
+                    .map((group, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => {
+                          handleInputChange('groupe', group);
+                          setShowGroupSuggestions(false);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-amber-50 transition-colors border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Users className="w-4 h-4 text-amber-600" />
+                          <span className="text-gray-900">{group}</span>
+                        </div>
+                      </button>
+                    ))
+                  }
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Optionnel - Permet de regrouper les participants par zone géographique ou thématique
+            </p>
           </div>
 
           <div className="mt-6">
