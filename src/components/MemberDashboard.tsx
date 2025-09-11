@@ -379,27 +379,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <h1 className="text-2xl font-bold text-gray-900">
                   {dashboardTitle}
                 </h1>
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <User className="w-4 h-4 mr-1" />
-                    <span>{participant.name}</span>
-                  </div>
-                  {participant.groupe && (
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-1" />
-                      <span>Groupe {participant.groupe}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      participant.type === 'producer' 
-                        ? 'bg-amber-100 text-amber-800' 
-                        : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
             
