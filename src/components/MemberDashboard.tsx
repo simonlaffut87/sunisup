@@ -115,12 +115,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     try {
       console.log('📊 Chargement des données du groupe:', groupe);
       
-      // Charger tous les participants du même groupe
+      // Charger TOUS les participants du groupe, qu'ils aient un email ou non
       const { data: participants, error } = await supabase
         .from('participants')
         .select('*')
-        .eq('groupe', groupe)
-        .not('monthly_data', 'is', null);
+        .eq('groupe', groupName);
 
       if (error) {
         console.error('❌ Erreur chargement participants du groupe:', error);
@@ -401,7 +400,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         throw error;
       }
 
-      if (!participant || participant.length === 0) {
+      console.log('✅ TOUS les participants du groupe trouvés:', groupParticipants?.length || 0);
+      console.log('📋 Liste des participants:', groupParticipants?.map(p => `${p.name} (email: ${p.email ? 'oui' : 'non'})`));
         console.log('❌ Aucun participant trouvé avec cet ID');
         throw new Error('Participant non trouvé');
       }
