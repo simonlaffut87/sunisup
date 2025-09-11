@@ -336,7 +336,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
   const totalConsumption = yearlyTotals.volume_partage + yearlyTotals.volume_complementaire;
   const totalInjection = yearlyTotals.injection_partagee + yearlyTotals.injection_complementaire;
-  const sharedPercentage = totalConsumption > 0 ? (yearlyTotals.volume_partage / totalConsumption) * 100 : 0;
+  const injectionSharedPercentage = totalInjection > 0 ? (yearlyTotals.injection_partagee / totalInjection) * 100 : 0;
 
   if (loading) {
     return (
@@ -482,9 +482,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">% Partagé</p>
+                <p className="text-sm font-medium text-gray-500">% Injection partagée</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {sharedPercentage.toFixed(1)}%
+                  {injectionSharedPercentage.toFixed(1)}%
                 </p>
               </div>
             </div>
