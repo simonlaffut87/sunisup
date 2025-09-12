@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:netlify": "npm run build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve": "vite preview --host"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

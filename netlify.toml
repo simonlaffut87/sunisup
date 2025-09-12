@@ -4,13 +4,15 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  NPM_VERSION = "9"
 
+# Redirections pour SPA React Router
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Redirections pour forcer HTTPS et www
+# Forcer HTTPS
 [[redirects]]
   from = "http://sunisup.be/*"
   to = "https://sunisup.be/:splat"
@@ -32,8 +34,9 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
 
-# Cache pour les assets statiques
+# Cache pour les assets
 [[headers]]
   for = "/assets/*"
   [headers.values]
@@ -42,5 +45,11 @@
 # Cache pour les images
 [[headers]]
   for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+# Cache pour les polices
+[[headers]]
+  for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000"
