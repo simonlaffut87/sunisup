@@ -73,7 +73,22 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         .not('monthly_data', 'eq', '{}');
 
       if (error) {
-        console.error('❌ Erreur chargement participants:', error);
+        console.warn('Erreur chargement participants, utilisation localStorage:', error);
+        // Charger depuis localStorage en cas d'erreur
+        const monthlyData = localStorage.getItem('monthly_data');
+        if (monthlyData) {
+          const data = JSON.parse(monthlyData);
+          const chartDataArray = Object.entries(data).map(([month, fileData]: [string, any]) => ({
+            month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
+            monthKey: month,
+            'Volume Partagé': Math.round((fileData.totals?.total_volume_partage || 0) / 1000 * 1000) / 1000,
+            'Volume Complémentaire': Math.round((fileData.totals?.total_volume_complementaire || 0) / 1000 * 1000) / 1000,
+            'Injection Partagée': Math.round((fileData.totals?.total_injection_partagee || 0) / 1000 * 1000) / 1000,
+            'Injection Résiduelle': Math.round((fileData.totals?.total_injection_complementaire || 0) / 1000 * 1000) / 1000,
+            participants: Object.keys(fileData.participants || {}).length
+          })).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+          setChartData(chartDataArray);
+        }
         return;
       }
 
