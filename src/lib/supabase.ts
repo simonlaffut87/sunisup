@@ -34,42 +34,15 @@ export const supabase = createClient<Database>(
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
-      flowType: 'pkce',
-      storage: {
-        getItem: (key: string) => {
-          if (typeof window !== 'undefined') {
-            return window.localStorage.getItem(key);
-          }
-          return null;
-        },
-        setItem: (key: string, value: string) => {
-          if (typeof window !== 'undefined') {
-            window.localStorage.setItem(key, value);
-          }
-        },
-        removeItem: (key: string) => {
-          if (typeof window !== 'undefined') {
-            window.localStorage.removeItem(key);
-          }
-        }
-      }
+      flowType: 'pkce'
     },
     global: {
       headers: {
-        'x-application-name': 'sun-is-up',
-        'x-client-info': 'sun-is-up-admin'
+        'x-application-name': 'sun-is-up'
       },
       fetch: (url, options = {}) => {
-        // S'assurer que le token d'auth est inclus dans toutes les requêtes
-        const authToken = localStorage.getItem('supabase.auth.token');
-        const headers = {
-          ...options.headers,
-          ...(authToken && { 'Authorization': `Bearer ${authToken}` })
-        };
-        
         return fetch(url, {
           ...options,
-          headers,
           signal: AbortSignal.timeout(8000) // 8 second timeout
         }).catch(error => {
           console.warn('Supabase fetch error:', error.message);
