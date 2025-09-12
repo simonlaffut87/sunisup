@@ -36,12 +36,10 @@ export const supabase = createClient<Database>(
       detectSessionInUrl: true,
       flowType: 'pkce',
       debug: true
-      debug: true
     },
     global: {
       headers: {
         'x-application-name': 'sun-is-up',
-        'x-client-info': 'supabase-js-web'
         'x-client-info': 'supabase-js-web'
       },
       fetch: (url, options = {}) => {
