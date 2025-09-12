@@ -71,7 +71,7 @@ export const supabase = createClient<Database>(
       params: {
         eventsPerSecond: 2
       }
-    }
+    },
   }
 );
 
