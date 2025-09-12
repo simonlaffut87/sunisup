@@ -8,11 +8,16 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 console.log('Environment check:', {
   url: supabaseUrl ? 'Present' : 'Missing',
   key: supabaseAnonKey ? 'Present' : 'Missing',
-  actualUrl: supabaseUrl
+  actualUrl: supabaseUrl,
+  environment: import.meta.env.MODE
 });
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+  console.error('Missing Supabase environment variables:', {
+    VITE_SUPABASE_URL: supabaseUrl,
+    VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? 'Present' : 'Missing'
+  });
+  // Ne pas faire planter l'app, utiliser des valeurs par défaut pour la démo
 }
 
 // Validate URL format
