@@ -40,6 +40,29 @@ export function AdminDashboard() {
   const loadParticipants = async () => {
     setLoading(true);
     try {
+      // Vérifier d'abord la session utilisateur
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('❌ Erreur session:', sessionError);
+        throw new Error('Session invalide');
+      }
+      
+      if (!session?.user) {
+        console.error('❌ Aucune session utilisateur');
+        throw new Error('Non authentifié');
+      }
+      
+      console.log('✅ Session utilisateur valide:', session.user.email);
+      
+      // Vérifier que c'est bien l'admin
+      if (session.user.email !== 'info@sunisup.be') {
+        console.error('❌ Accès refusé - pas admin:', session.user.email);
+        throw new Error('Accès administrateur requis');
+      }
+      
+      console.log('✅ Utilisateur admin confirmé, chargement des participants...');
+      
       // Charger les participants avec gestion d'erreur robuste
       const { data, error } = await supabase
         .from('participants')
@@ -47,65 +70,32 @@ export function AdminDashboard() {
         .order(sortBy, { ascending: sortOrder === 'asc' });
 
       if (error) {
-        console.warn('Erreur chargement participants:', error);
-        // Utiliser des données de démonstration en cas d'erreur
-        const demoParticipants = [
-          {
-            id: 'demo1',
-            name: 'Boulangerie Saint-Gilles',
-            address: 'Chaussée de Waterloo 95, 1060 Saint-Gilles',
-            type: 'consumer',
-            email: 'demo@example.com',
-            ean_code: '541448000000000001',
-            commodity_rate: 85.5,
-            entry_date: '2024-01-01',
-            company_number: null,
-            shared_energy_price: 100,
-            groupe: 'Demo Group',
-            annual_consumption: 45000,
-            annual_production: 0,
-            peak_power: 0,
-            lat: 50.8289,
-            lng: 4.3451,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            monthly_data: null,
-            billing_data: null
-          }
-        ];
-        setParticipants(demoParticipants);
+        console.error('❌ Erreur chargement participants:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // Afficher l'erreur à l'utilisateur
+        if (error.code === '42501') {
+          toast.error('❌ Accès refusé par les politiques RLS. Vérifiez vos permissions Supabase.');
+        } else if (error.code === 'PGRST116') {
+          toast.error('❌ Table participants non trouvée. Vérifiez votre base de données.');
+        } else {
+          toast.error(`❌ Erreur base de données: ${error.message}`);
+        }
+        
+        setParticipants([]);
         return;
       }
 
+      console.log('✅ Participants chargés avec succès:', data?.length || 0);
       setParticipants(data || []);
     } catch (error) {
-      console.error('Error loading participants:', error);
-      // Utiliser des données de démonstration en cas d'erreur
-      const demoParticipants = [
-        {
-          id: 'demo1',
-          name: 'Boulangerie Saint-Gilles',
-          address: 'Chaussée de Waterloo 95, 1060 Saint-Gilles',
-          type: 'consumer',
-          email: 'demo@example.com',
-          ean_code: '541448000000000001',
-          commodity_rate: 85.5,
-          entry_date: '2024-01-01',
-          company_number: null,
-          shared_energy_price: 100,
-          groupe: 'Demo Group',
-          annual_consumption: 45000,
-          annual_production: 0,
-          peak_power: 0,
-          lat: 50.8289,
-          lng: 4.3451,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          monthly_data: null,
-          billing_data: null
-        }
-      ];
-      setParticipants(demoParticipants);
+      console.error('❌ Erreur générale:', error);
+      toast.error(`❌ Erreur: ${error.message}`);
+      setParticipants([]);
     } finally {
       setLoading(false);
     }
