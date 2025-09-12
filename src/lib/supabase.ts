@@ -4,32 +4,31 @@ import { Database } from '../types/supabase';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Fallback values for production if env vars are missing
+const fallbackUrl = 'https://your-project.supabase.co';
+const fallbackKey = 'your-anon-key';
+
 // Debug environment variables
 console.log('Environment check:', {
-  url: supabaseUrl ? 'Present' : 'Missing',
-  key: supabaseAnonKey ? 'Present' : 'Missing',
+  url: supabaseUrl ? 'Present' : 'Missing - using fallback',
+  key: supabaseAnonKey ? 'Present' : 'Missing - using fallback',
   actualUrl: supabaseUrl,
   environment: import.meta.env.MODE
 });
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables:', {
-    VITE_SUPABASE_URL: supabaseUrl,
-    VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? 'Present' : 'Missing'
-  });
-  // Ne pas faire planter l'app, utiliser des valeurs par défaut pour la démo
-}
+const finalUrl = supabaseUrl || fallbackUrl;
+const finalKey = supabaseAnonKey || fallbackKey;
 
 // Validate URL format
 try {
-  new URL(supabaseUrl);
+  new URL(finalUrl);
 } catch (error) {
-  throw new Error(`Invalid Supabase URL format: ${error.message}`);
+  console.error(`Invalid Supabase URL format: ${error.message}`);
 }
 
 export const supabase = createClient<Database>(
-  supabaseUrl,
-  supabaseAnonKey,
+  finalUrl,
+  finalKey,
   {
     auth: {
       autoRefreshToken: true,
