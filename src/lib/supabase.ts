@@ -59,6 +59,12 @@ export const supabase = createClient<Database>(
             console.error('❌ Response not OK:', {
               status: response.status,
               statusText: response.statusText,
+            }
+            )
+          }
+        }
+        )
+      }
       fetch: (url, options = {}) => {
         console.log('🌐 Supabase request:', url);
         console.log('🔧 Options:', options);
@@ -121,6 +127,8 @@ const testSupabaseConnection = async () => {
       });
     }
     
+  }
+}
 // Test de connexion simple
 console.log('🔍 Test de connexion Supabase...');
 supabase.auth.getSession().then(({ data, error }) => {
