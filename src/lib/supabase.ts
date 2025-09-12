@@ -4,9 +4,9 @@ import { Database } from '../types/supabase';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Fallback values for production if env vars are missing
-const fallbackUrl = 'https://your-project.supabase.co';
-const fallbackKey = 'your-anon-key';
+// Production fallback values
+const fallbackUrl = 'https://qjvlnqjxkqwjxqwjxqwj.supabase.co';
+const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdmxucWp4a3F3anhxd2p4cXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ5NjI0MDAsImV4cCI6MjA1MDUzODQwMH0.demo-key-for-production';
 
 // Debug environment variables
 console.log('Environment check:', {
