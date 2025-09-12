@@ -61,38 +61,6 @@ export const supabase = createClient<Database>(
             )
           }
         }
-        )
-      }
-      fetch: (url, options = {}) => {
-        console.log('🌐 Supabase request:', url);
-        console.log('🔧 Options:', options);
-        
-        return fetch(url, {
-          ...options,
-          signal: AbortSignal.timeout(10000)
-        }).then(response => {
-          console.log('📡 Response status:', response.status);
-          console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
-          
-          if (!response.ok) {
-            console.error('❌ Response not OK:', {
-              status: response.status,
-              statusText: response.statusText,
-              url: response.url
-            });
-          }
-          
-          return response;
-        }).catch(error => {
-          console.error('❌ Fetch error détaillé:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-            url: url
-          });
-          throw error;
-        });
-      }
     },
     db: {
       schema: 'public'
