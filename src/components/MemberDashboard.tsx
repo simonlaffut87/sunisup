@@ -69,171 +69,43 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       setLoading(true);
       console.log('🔍 Chargement du participant pour user:', user);
 
-      // Charger le(s) participant(s) avec cet email avec gestion d'erreur
+      console.log('🔍 Member: Recherche participant avec email:', user.email);
+      
       const { data: participantData, error } = await supabase
         .from('participants')
         .select('*')
         .eq('email', user.email);
 
+      console.log('📊 Member: Résultat recherche:', { data: participantData?.length, error });
+
       if (error) {
-        console.warn('Erreur chargement participant:', error);
-        // Utiliser des données de démonstration
-        const demoParticipant = {
-          id: 'demo1',
-          name: user.name || 'Participant Demo',
-          address: 'Adresse de démonstration, 1000 Bruxelles',
-          type: 'consumer',
-          email: user.email,
-          ean_code: '541448000000000001',
-          commodity_rate: 85.5,
-          entry_date: '2024-01-01',
-          company_number: null,
-          shared_energy_price: 100,
-          groupe: 'Demo Group',
-          annual_consumption: 45000,
-          annual_production: 0,
-          peak_power: 0,
-          lat: 50.8289,
-          lng: 4.3451,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          monthly_data: {
-            '2024-12': {
-              volume_partage: 1500,
-              volume_complementaire: 2500,
-              injection_partagee: 0,
-              injection_complementaire: 0,
-              updated_at: new Date().toISOString()
-            }
-          },
-          billing_data: {
-            '2024-12': {
-              networkCosts: {
-                utilisationReseau: 45.50,
-                surcharges: 12.30,
-                tarifCapacitaire: 8.75,
-                tarifMesure: 5.20,
-                tarifOSP: 3.40,
-                transportELIA: 15.60,
-                redevanceVoirie: 2.80,
-                totalFraisReseau: 93.55
-              },
-              updated_at: new Date().toISOString()
-            }
-          }
-        };
-        setParticipant(demoParticipant);
+        console.warn('⚠️ Member: Erreur chargement participant:', error);
+        toast.error(`Erreur de chargement: ${error.message}`);
+        setParticipant(null);
         return;
       }
 
       if (!participantData || participantData.length === 0) {
-        // Utiliser des données de démonstration
-        const demoParticipant = {
-          id: 'demo1',
-          name: user.name || 'Participant Demo',
-          address: 'Adresse de démonstration, 1000 Bruxelles',
-          type: 'consumer',
-          email: user.email,
-          ean_code: '541448000000000001',
-          commodity_rate: 85.5,
-          entry_date: '2024-01-01',
-          company_number: null,
-          shared_energy_price: 100,
-          groupe: 'Demo Group',
-          annual_consumption: 45000,
-          annual_production: 0,
-          peak_power: 0,
-          lat: 50.8289,
-          lng: 4.3451,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          monthly_data: {
-            '2024-12': {
-              volume_partage: 1500,
-              volume_complementaire: 2500,
-              injection_partagee: 0,
-              injection_complementaire: 0,
-              updated_at: new Date().toISOString()
-            }
-          },
-          billing_data: {
-            '2024-12': {
-              networkCosts: {
-                utilisationReseau: 45.50,
-                surcharges: 12.30,
-                tarifCapacitaire: 8.75,
-                tarifMesure: 5.20,
-                tarifOSP: 3.40,
-                transportELIA: 15.60,
-                redevanceVoirie: 2.80,
-                totalFraisReseau: 93.55
-              },
-              updated_at: new Date().toISOString()
-            }
-          }
-        };
-        setParticipant(demoParticipant);
+        console.log('ℹ️ Member: Aucun participant trouvé pour cet email');
+        toast.error('Aucun participant trouvé pour votre email. Contactez l\'administrateur.');
+        setParticipant(null);
         return;
       }
 
       if (participantData.length > 1) {
         console.warn('⚠️ Plusieurs participants trouvés pour cet email:', participantData);
-        // Prendre le premier participant par défaut
+        toast.info(`${participantData.length} participants trouvés pour votre email`);
         setParticipant(participantData[0]);
         return;
       }
 
-      // Cas normal: exactement un participant
       console.log('✅ Participant chargé:', participantData[0]);
       setParticipant(participantData[0]);
+      
     } catch (error) {
-      console.error('❌ Erreur:', error);
-      // Utiliser des données de démonstration en cas d'erreur
-      const demoParticipant = {
-        id: 'demo1',
-        name: user.name || 'Participant Demo',
-        address: 'Adresse de démonstration, 1000 Bruxelles',
-        type: 'consumer',
-        email: user.email,
-        ean_code: '541448000000000001',
-        commodity_rate: 85.5,
-        entry_date: '2024-01-01',
-        company_number: null,
-        shared_energy_price: 100,
-        groupe: 'Demo Group',
-        annual_consumption: 45000,
-        annual_production: 0,
-        peak_power: 0,
-        lat: 50.8289,
-        lng: 4.3451,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        monthly_data: {
-          '2024-12': {
-            volume_partage: 1500,
-            volume_complementaire: 2500,
-            injection_partagee: 0,
-            injection_complementaire: 0,
-            updated_at: new Date().toISOString()
-          }
-        },
-        billing_data: {
-          '2024-12': {
-            networkCosts: {
-              utilisationReseau: 45.50,
-              surcharges: 12.30,
-              tarifCapacitaire: 8.75,
-              tarifMesure: 5.20,
-              tarifOSP: 3.40,
-              transportELIA: 15.60,
-              redevanceVoirie: 2.80,
-              totalFraisReseau: 93.55
-            },
-            updated_at: new Date().toISOString()
-          }
-        }
-      };
-      setParticipant(demoParticipant);
+      console.error('❌ Member: Erreur critique:', error);
+      toast.error(`Erreur critique: ${error.message}`);
+      setParticipant(null);
     } finally {
       setLoading(false);
     }

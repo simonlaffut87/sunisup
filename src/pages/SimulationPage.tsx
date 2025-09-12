@@ -39,22 +39,26 @@ export default function SimulationPage() {
 
   const loadParticipants = async () => {
     try {
+      console.log('🔍 Simulation: Chargement participants...');
+      
       const { data, error } = await supabase
         .from('participants')
         .select('*');
       
+      console.log('📊 Simulation: Résultat:', { data: data?.length, error });
+      
       if (error) {
-        // Handle RLS permission denied gracefully
-        if (error.code === '42501') {
-          console.log('Using demo data for simulation (database access restricted)');
-          setParticipants(demoParticipants);
-          return;
-        }
+        console.warn('⚠️ Simulation: Erreur Supabase:', error);
+        setParticipants([]);
+        return;
       }
+      
+      console.log('✅ Simulation: Participants chargés:', data?.length || 0);
       setParticipants(data || []);
+      
     } catch (error) {
-      // Use demo data for any error
-      setParticipants(demoParticipants);
+      console.error('❌ Simulation: Erreur critique:', error);
+      setParticipants([]);
     } finally {
       setLoading(false);
     }
