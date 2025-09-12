@@ -210,6 +210,15 @@ export default function HomePage() {
       clearTimeout(timeoutId);
       
       if (error) {
+        // Handle RLS permission denied errors gracefully
+        if (error.code === '42501' || error.message?.includes('permission denied')) {
+          console.log('ℹ️ Database access restricted by RLS policies - using demo data');
+          const staticParticipants = getStaticParticipants();
+          setParticipants(staticParticipants);
+          setUsingFallbackData(true);
+          setError('Using demonstration data - database access restricted by security policies');
+          return;
+        }
         throw error;
       }
 
