@@ -67,6 +67,19 @@ export const supabase = createClient<Database>(
   }
 );
 
+// Helper function to handle RLS permission errors silently
+export const handleSupabaseError = (error: any) => {
+  // Check if it's a RLS permission denied error (code 42501)
+  if (error?.code === '42501' || 
+      (error?.message && error.message.includes('permission denied')) ||
+      (error?.body && typeof error.body === 'string' && error.body.includes('42501'))) {
+    // Silently handle RLS errors - return null to indicate fallback should be used
+    return null;
+  }
+  // For other errors, re-throw them
+  throw error;
+};
+
 // Enhanced connection test with better error handling
 const testConnection = async () => {
   console.log('Testing Supabase connection...');
