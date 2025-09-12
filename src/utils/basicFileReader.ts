@@ -131,6 +131,47 @@ export class BasicFileReader {
     );
     onLog?.(`🔍 Index colonne EAN: ${eanIndex} (${eanIndex >= 0 ? headers[eanIndex] : 'NON TROUVÉE'})`);
     
+    // Recherche des colonnes de coûts réseau
+    const networkCostColumns = {
+      utilisationReseau: headers.findIndex(h => {
+        const header = String(h).toLowerCase();
+        return header.includes('utilisation') && header.includes('réseau') && header.includes('htva');
+      }),
+      surcharges: headers.findIndex(h => {
+        const header = String(h).toLowerCase();
+        return header.includes('surcharges') && header.includes('htva');
+      }),
+      tarifCapacitaire: headers.findIndex(h => {
+        const header = String(h).toLowerCase();
+        return header.includes('tarif') && header.includes('capac') && header.includes('htva');
+      }),
+      tarifMesure: headers.findIndex(h => {
+        const header = String(h).toLowerCase();
+        return header.includes('tarif') && header.includes('mesure') && header.includes('comptage') && header.includes('htva');
+      }),
+      tarifOSP: headers.findIndex(h => {
+        const header = String(h).toLowerCase();
+        return header.includes('tarif') && header.includes('osp') && header.includes('htva');
+      }),
+      transportELIA: headers.findIndex(h => {
+        const header = String(h).toLowerCase();
+        return header.includes('transport') && header.includes('elia') && header.includes('htva');
+      }),
+      redevanceVoirie: headers.findIndex(h => {
+        const header = String(h).toLowerCase();
+        return header.includes('redevance') && header.includes('voirie') && header.includes('htva');
+      }),
+      totalFraisReseau: headers.findIndex(h => {
+        const header = String(h).toLowerCase();
+        return header.includes('total') && header.includes('frais') && header.includes('réseau') && header.includes('htva');
+      })
+    };
+    
+    onLog?.(`🔍 Colonnes coûts réseau trouvées:`);
+    Object.entries(networkCostColumns).forEach(([key, index]) => {
+      onLog?.(`  ${key}: ${index >= 0 ? `${headers[index]} (index ${index})` : 'NON TROUVÉE'}`);
+    });
+    
     // Recherche plus flexible des colonnes
     const registreIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
@@ -198,6 +239,16 @@ export class BasicFileReader {
     // Structure pour grouper les données par EAN (HIGH + LOW)
     const eanGroups: { [ean: string]: {
       info: any;
+      networkCosts: {
+        utilisationReseau: number;
+        surcharges: number;
+        tarifCapacitaire: number;
+        tarifMesure: number;
+        tarifOSP: number;
+        transportELIA: number;
+        redevanceVoirie: number;
+        totalFraisReseau: number;
+      };
       high: {
         volume_partage: number;
         volume_complementaire: number;
@@ -242,6 +293,16 @@ export class BasicFileReader {
         if (!eanGroups[eanCode]) {
           eanGroups[eanCode] = {
             info: participantMapping[eanCode],
+            networkCosts: {
+              utilisationReseau: 0,
+              surcharges: 0,
+              tarifCapacitaire: 0,
+              tarifMesure: 0,
+              tarifOSP: 0,
+              transportELIA: 0,
+              redevanceVoirie: 0,
+              totalFraisReseau: 0
+            },
             high: {
               volume_partage: 0,
               volume_complementaire: 0,
@@ -255,6 +316,24 @@ export class BasicFileReader {
               injection_complementaire: 0
             }
           };
+        }
+        
+        // Extraire les coûts réseau (une seule fois par EAN, pas par registre)
+        if (registre === 'HI' || registre === 'HIGH') {
+          const parseNetworkCost = (value: any) => {
+            if (!value) return 0;
+            const cleaned = String(value).replace(',', '.').replace(/[^\d.-]/g, '');
+            return parseFloat(cleaned) || 0;
+          };
+          
+          eanGroups[eanCode].networkCosts.utilisationReseau = parseNetworkCost(row[networkCostColumns.utilisationReseau]);
+          eanGroups[eanCode].networkCosts.surcharges = parseNetworkCost(row[networkCostColumns.surcharges]);
+          eanGroups[eanCode].networkCosts.tarifCapacitaire = parseNetworkCost(row[networkCostColumns.tarifCapacitaire]);
+          eanGroups[eanCode].networkCosts.tarifMesure = parseNetworkCost(row[networkCostColumns.tarifMesure]);
+          eanGroups[eanCode].networkCosts.tarifOSP = parseNetworkCost(row[networkCostColumns.tarifOSP]);
+          eanGroups[eanCode].networkCosts.transportELIA = parseNetworkCost(row[networkCostColumns.transportELIA]);
+          eanGroups[eanCode].networkCosts.redevanceVoirie = parseNetworkCost(row[networkCostColumns.redevanceVoirie]);
+          eanGroups[eanCode].networkCosts.totalFraisReseau = parseNetworkCost(row[networkCostColumns.totalFraisReseau]);
         }
         
         // Extraire les valeurs de la ligne
@@ -336,10 +415,12 @@ export class BasicFileReader {
           volume_partage: group.high.volume_partage + group.low.volume_partage,
           injection_complementaire: group.high.injection_complementaire + group.low.injection_complementaire,
           injection_partagee: group.high.injection_partagee + group.low.injection_partagee
-        }
+        },
+        networkCosts: group.networkCosts
       };
       
       console.log(`✅ EAN ${eanCode} - Total: VP=${participantData[eanCode].data.volume_partage.toFixed(2)}, VC=${participantData[eanCode].data.volume_complementaire.toFixed(2)}`);
+      console.log(`💰 EAN ${eanCode} - Coûts réseau: Total=${group.networkCosts.totalFraisReseau.toFixed(2)}€`);
     });
     
     console.log('✅ Données accumulées par EAN:', Object.keys(participantData).length, 'participants');
@@ -384,11 +465,153 @@ export class BasicFileReader {
       // Mettre à jour la colonne monthly_data de chaque participant
       await this.updateParticipantsMonthlyData(result.participants, month);
       
+      // Mettre à jour la colonne billing_data avec les coûts réseau
+      await this.updateParticipantsBillingData(result.participants, month);
+      
     } catch (error) {
       console.warn('⚠️ Erreur sauvegarde:', error);
     }
     
     return result;
+  }
+
+  /**
+   * Met à jour la colonne billing_data des participants avec les coûts réseau
+   */
+  private static async updateParticipantsBillingData(participants: any, month: string) {
+    console.log('💰 Mise à jour billing_data pour', Object.keys(participants).length, 'participants...');
+    
+    try {
+      // Import dynamique de supabase
+      const { supabase } = await import('../lib/supabase');
+      
+      let successCount = 0;
+      let errorCount = 0;
+    
+      for (const [eanCode, participantData] of Object.entries(participants)) {
+        try {
+          // Vérifier si ce participant a des coûts réseau
+          if (!participantData.networkCosts) {
+            console.log(`⚠️ Pas de coûts réseau pour EAN: ${eanCode}`);
+            continue;
+          }
+          
+          console.log(`💰 Traitement coûts réseau EAN: ${eanCode}`);
+          
+          // Trouver le participant par son EAN
+          const { data: participant, error: findError } = await supabase
+            .from('participants')
+            .select('id, billing_data, name')
+            .eq('ean_code', eanCode)
+            .single();
+          
+          if (findError || !participant) {
+            console.warn(`⚠️ Participant avec EAN ${eanCode} non trouvé:`, findError);
+            errorCount++;
+            continue;
+          }
+          
+          console.log(`✅ Participant trouvé: ${participant.name} (ID: ${participant.id})`);
+          
+          // Parser les données de facturation existantes
+          let existingBillingData = {};
+          if (participant.billing_data) {
+            try {
+              if (typeof participant.billing_data === 'string') {
+                existingBillingData = JSON.parse(participant.billing_data);
+              } else {
+                existingBillingData = participant.billing_data;
+              }
+              console.log(`💰 Données billing existantes pour ${participant.name}:`, Object.keys(existingBillingData));
+            } catch (e) {
+              console.warn(`⚠️ Erreur parsing billing_data existant pour ${eanCode}:`, e);
+              existingBillingData = {};
+            }
+          }
+          
+          // Préparer les nouvelles données de coûts réseau pour ce mois
+          const newBillingData = {
+            networkCosts: {
+              utilisationReseau: participantData.networkCosts.utilisationReseau,
+              surcharges: participantData.networkCosts.surcharges,
+              tarifCapacitaire: participantData.networkCosts.tarifCapacitaire,
+              tarifMesure: participantData.networkCosts.tarifMesure,
+              tarifOSP: participantData.networkCosts.tarifOSP,
+              transportELIA: participantData.networkCosts.transportELIA,
+              redevanceVoirie: participantData.networkCosts.redevanceVoirie,
+              totalFraisReseau: participantData.networkCosts.totalFraisReseau
+            },
+            updated_at: new Date().toISOString()
+          };
+          
+          console.log(`💰 Nouvelles données billing pour ${month}:`, newBillingData);
+          
+          // Ajouter/mettre à jour les données pour ce mois
+          const updatedBillingData = {
+            ...existingBillingData,
+            [month]: newBillingData
+          };
+          
+          console.log(`💾 Données billing complètes à sauvegarder:`, updatedBillingData);
+          
+          // Mettre à jour dans la base de données
+          console.log(`💾 DÉBUT SAUVEGARDE billing_data pour participant ID: ${participant.id}`);
+          const { data: updateResult, error: updateError } = await supabase
+            .from('participants')
+            .update({ 
+              billing_data: updatedBillingData
+            })
+            .eq('id', participant.id)
+            .select('billing_data');
+          
+          if (updateError) {
+            console.error(`❌ ERREUR mise à jour billing_data pour ${eanCode}:`, {
+              error: updateError,
+              participantId: participant.id,
+              eanCode: eanCode,
+              dataToSave: updatedBillingData
+            });
+            errorCount++;
+          } else {
+            console.log(`✅ SAUVEGARDE billing_data RÉUSSIE pour ${participant.name} (${eanCode}) - mois ${month}`);
+            console.log(`💰 Données billing retournées par la base:`, updateResult);
+            successCount++;
+            
+            // Vérification immédiate
+            console.log(`🔍 VÉRIFICATION billing_data pour ${participant.name}...`);
+            const { data: verifyData, error: verifyError } = await supabase
+              .from('participants')
+              .select('billing_data')
+              .eq('id', participant.id)
+              .single();
+            
+            if (!verifyError && verifyData) {
+              console.log(`🔍 VÉRIFICATION billing_data RÉUSSIE pour ${participant.name}:`);
+              console.log(`💰 billing_data en base:`, verifyData.billing_data);
+              
+              if (verifyData.billing_data && verifyData.billing_data[month]) {
+                console.log(`✅ CONFIRMATION: Données billing du mois ${month} bien présentes en base !`);
+                console.log(`💰 Coûts réseau confirmés:`, verifyData.billing_data[month].networkCosts);
+              } else {
+                console.error(`❌ PROBLÈME: Données billing du mois ${month} NON trouvées en base après sauvegarde !`);
+              }
+            } else {
+              console.error(`❌ ERREUR VÉRIFICATION billing_data pour ${participant.name}:`, verifyError);
+            }
+          }
+          
+        } catch (error) {
+          console.error(`❌ ERREUR traitement billing_data participant ${eanCode}:`, error);
+          errorCount++;
+        }
+      }
+      
+      console.log(`💰 RÉSUMÉ billing_data: ${successCount} succès, ${errorCount} erreurs`);
+      
+    } catch (error) {
+      console.error('❌ ERREUR GÉNÉRALE lors de la mise à jour billing_data:', error);
+      throw error;
+    }
   }
 
   /**
