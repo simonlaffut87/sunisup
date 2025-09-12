@@ -405,7 +405,7 @@ export class BasicFileReader {
       }
     }
     
-    // Étape 2: Sommer HIGH + LOW pour chaque EAN
+    // Étape 2: Sommer HIGH + LOW pour chaque EAN et préparer les données finales
     const participantData: { [ean: string]: any } = {};
     Object.entries(eanGroups).forEach(([eanCode, group]) => {
       participantData[eanCode] = {
@@ -416,11 +416,13 @@ export class BasicFileReader {
           injection_complementaire: group.high.injection_complementaire + group.low.injection_complementaire,
           injection_partagee: group.high.injection_partagee + group.low.injection_partagee
         },
+        // IMPORTANT: Inclure les coûts réseau dans les données finales
         networkCosts: group.networkCosts
       };
       
       console.log(`✅ EAN ${eanCode} - Total: VP=${participantData[eanCode].data.volume_partage.toFixed(2)}, VC=${participantData[eanCode].data.volume_complementaire.toFixed(2)}`);
-      console.log(`💰 EAN ${eanCode} - Coûts réseau: Total=${group.networkCosts.totalFraisReseau.toFixed(2)}€`);
+      console.log(`💰 EAN ${eanCode} - Coûts réseau inclus: Total=${group.networkCosts.totalFraisReseau.toFixed(2)}€`);
+      console.log(`💰 EAN ${eanCode} - Structure networkCosts:`, Object.keys(group.networkCosts));
     });
     
     console.log('✅ Données accumulées par EAN:', Object.keys(participantData).length, 'participants');
