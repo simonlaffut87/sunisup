@@ -1,1 +1,6 @@
+# Redirections pour SPA React
 /*    /index.html   200
+
+# Redirections HTTPS (optionnel)
+http://sunisup.be/* https://sunisup.be/:splat 301!
+http://www.sunisup.be/* https://sunisup.be/:splat 301!
