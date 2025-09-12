@@ -95,6 +95,8 @@ const testSupabaseConnection = async () => {
       });
     }
     
+  } catch (error) {
+    console.error('❌ Erreur test connexion:', error);
   }
 }
 // Test de connexion simple
