@@ -228,36 +228,15 @@ export default function HomePage() {
       
       if (!data || data.length === 0) {
         setUsingFallbackData(true);
-        setError('Using demonstration data - database access restricted');
       }
       
       console.log('✅ Successfully loaded participants');
     } catch (error: any) {
-      console.warn('⚠️ Database access restricted, using demonstration data:', error.message);
       
       // Use static participants as fallback
       const staticParticipants = getStaticParticipants();
       setParticipants(staticParticipants);
       setUsingFallbackData(true);
-      
-      // Set a user-friendly error message
-      if (error.code === '42501' || error.message?.includes('permission denied')) {
-        setError('Database access restricted by security policies. Showing demo data.');
-      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.name === 'AbortError') {
-        setError('Unable to connect to the database. Showing demo data.');
-      } else if (error.message?.includes('timeout') || error.name === 'TimeoutError') {
-        setError('Database connection timeout. Showing demo data.');
-      } else {
-        setError('Database temporarily unavailable. Showing demo data.');
-      }
-      
-      // Only show toast for unexpected errors, not RLS restrictions
-      if (error.code !== '42501' && !error.message?.includes('permission denied')) {
-        toast.error('Using demo data - connection issue', {
-          duration: 3000,
-          icon: '💡'
-        });
-      }
     } finally {
       setLoading(false);
     }

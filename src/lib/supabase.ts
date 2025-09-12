@@ -166,9 +166,6 @@ const connectionPromise = Promise.race([
     setTimeout(() => reject(new Error('Connection test timeout')), 10000)
   )
 ]).catch((error) => {
-  console.warn('⚠️ Connection test failed, but application will continue:', error.message);
-  console.log('💡 The app may still work if the connection issue resolves itself');
-  console.log('🔧 To fix CORS issues: Add https://localhost:5173 to your Supabase project CORS settings');
   return false;
 });
 

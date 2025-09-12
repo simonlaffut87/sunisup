@@ -50,15 +50,11 @@ export default function SimulationPage() {
           setParticipants(demoParticipants);
           return;
         }
-        throw error;
       }
       setParticipants(data || []);
     } catch (error) {
-      // Only show error for unexpected issues, not RLS restrictions
-      if (error instanceof Error && !error.message.includes('permission denied')) {
-        console.error('Error loading participants:', error);
-        toast.error('Erreur lors du chargement des participants');
-      }
+      // Use demo data for any error
+      setParticipants(demoParticipants);
     } finally {
       setLoading(false);
     }
