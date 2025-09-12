@@ -63,7 +63,7 @@ export const supabase = createClient<Database>(
         }
         )
           },
-    }
+    },
     db: {
       schema: 'public'
     },
