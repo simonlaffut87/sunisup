@@ -19,7 +19,7 @@ console.log('Environment check:', {
 });
 
 // Only create client if we have valid credentials
-let supabase: any = null;
+export let supabase: any = null;
 
 if (hasValidCredentials) {
   // Validate URL format
@@ -105,7 +105,7 @@ const createMockClient = () => ({
 });
 
 // Export the client (real or mock)
-export const supabase = supabase || createMockClient();
+supabase = supabase || createMockClient();
 
 // Helper function to handle RLS permission errors silently
 export const handleSupabaseError = (error: any) => {
