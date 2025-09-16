@@ -1,353 +1,467 @@
-import React, { useState } from 'react';
-import { FileText, Download, X, Save, AlertTriangle } from 'lucide-react';
-import { format } from 'date-fns';
+import React, { useState, useEffect } from 'react';
+import { X, Download, FileText, Calendar, User, MapPin, Hash, Euro, Printer } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
+import { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
+
+type Participant = Database['public']['Tables']['participants']['Row'];
 
 interface InvoiceTemplateProps {
   isOpen: boolean;
   onClose: () => void;
-  participant: {
-    id: string;
-    name: string;
-    address: string;
-    email: string;
-    ean_code: string;
-    type: 'producer' | 'consumer';
-    commodity_rate: number;
-    entry_date: string;
-    monthly_data?: string;
-    billing_data?: string;
-  };
+  participant: Participant;
   selectedPeriod: {
     startMonth: string;
     endMonth: string;
   };
 }
 
+interface MonthlyData {
+  volume_partage: number;
+  volume_complementaire: number;
+  injection_partagee: number;
+  injection_complementaire: number;
+  updated_at: string;
+}
+
+interface NetworkCosts {
+  utilisationReseau: number;
+  surcharges: number;
+  tarifCapacitaire: number;
+  tarifMesure: number;
+  tarifOSP: number;
+  transportELIA: number;
+  redevanceVoirie: number;
+  totalFraisReseau: number;
+}
+
+interface BillingData {
+  networkCosts: NetworkCosts;
+  updated_at: string;
+}
+
+interface InvoiceData {
+  participant: Participant;
+  period: {
+    startMonth: string;
+    endMonth: string;
+    startDate: string;
+    endDate: string;
+  };
+  monthlyData: { [month: string]: MonthlyData };
+  billingData: { [month: string]: BillingData };
+  totals: {
+    volume_partage: number;
+    volume_complementaire: number;
+    injection_partagee: number;
+    injection_complementaire: number;
+    networkCosts: NetworkCosts;
+  };
+  calculations: {
+    energySharedCost: number;
+    energyComplementaryCost: number;
+    networkCostTotal: number;
+    totalCost: number;
+    injectionRevenue: number;
+    netAmount: number;
+  };
+}
+
 export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }: InvoiceTemplateProps) {
-  const [isSaved, setIsSaved] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen && participant) {
+      loadInvoiceData();
+    }
+  }, [isOpen, participant, selectedPeriod]);
 
-  // Calculer les vraies données de facturation
-  const calculateBillingData = React.useMemo(() => {
+  const loadInvoiceData = async () => {
     try {
-      console.log('💰 Calcul des données de facturation pour:', participant.name);
+      setLoading(true);
+      setError(null);
+
+      console.log('🧾 DÉBUT GÉNÉRATION FACTURE');
+      console.log('👤 Participant:', participant.name, participant.ean_code);
       console.log('📅 Période:', selectedPeriod);
 
-      // Charger les données mensuelles du participant
-      let monthlyData = {};
-      if (participant.monthly_data) {
+      // Récupérer les données du participant depuis la base
+      const { data: participantData, error: participantError } = await supabase
+        .from('participants')
+        .select('*')
+        .eq('id', participant.id)
+        .single();
+
+      if (participantError) {
+        console.error('❌ Erreur chargement participant:', participantError);
+        throw new Error('Impossible de charger les données du participant');
+      }
+
+      console.log('✅ Données participant chargées');
+      console.log('📊 monthly_data présent:', !!participantData.monthly_data);
+      console.log('💰 billing_data présent:', !!participantData.billing_data);
+
+      // Parser les données mensuelles
+      let monthlyData: { [month: string]: MonthlyData } = {};
+      if (participantData.monthly_data) {
         try {
-          monthlyData = typeof participant.monthly_data === 'string' 
-            ? JSON.parse(participant.monthly_data)
-            : participant.monthly_data;
-        } catch (e) {
-          console.warn('Erreur parsing monthly_data:', e);
+          if (typeof participantData.monthly_data === 'string') {
+            monthlyData = JSON.parse(participantData.monthly_data);
+          } else {
+            monthlyData = participantData.monthly_data;
+          }
+          console.log('✅ monthly_data parsé:', Object.keys(monthlyData));
+        } catch (error) {
+          console.warn('⚠️ Erreur parsing monthly_data:', error);
+          monthlyData = {};
         }
       }
 
-      // Générer la liste des mois dans la période
-      const startDate = new Date(selectedPeriod.startMonth + '-01');
-      const endDate = new Date(selectedPeriod.endMonth + '-01');
-      const months = [];
-      
-      for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        months.push(monthKey);
+      // Parser les données de facturation (NOUVEAU)
+      let billingData: { [month: string]: BillingData } = {};
+      if (participantData.billing_data) {
+        try {
+          if (typeof participantData.billing_data === 'string') {
+            billingData = JSON.parse(participantData.billing_data);
+          } else {
+            billingData = participantData.billing_data;
+          }
+          console.log('✅ billing_data parsé:', Object.keys(billingData));
+          console.log('💰 Exemple billing_data:', Object.values(billingData)[0]);
+        } catch (error) {
+          console.warn('⚠️ Erreur parsing billing_data:', error);
+          billingData = {};
+        }
+      } else {
+        console.warn('⚠️ Aucune billing_data trouvée pour ce participant');
       }
 
-      console.log('📅 Mois à traiter:', months);
+      // Générer la liste des mois dans la période
+      const months = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+      console.log('📅 Mois dans la période:', months);
 
-      // Calculer les totaux pour la période
-      let totalVolumePartage = 0;
-      let totalVolumeComplementaire = 0;
-      let totalInjectionPartagee = 0;
-      let totalInjectionComplementaire = 0;
-      const monthlyDetails = [];
+      // Filtrer les données pour la période sélectionnée
+      const periodMonthlyData: { [month: string]: MonthlyData } = {};
+      const periodBillingData: { [month: string]: BillingData } = {};
 
-      months.forEach(monthKey => {
-        const monthData = monthlyData[monthKey];
-        if (monthData) {
-          const volumePartage = monthData.volume_partage || 0;
-          const volumeComplementaire = monthData.volume_complementaire || 0;
-          const injectionPartagee = monthData.injection_partagee || 0;
-          const injectionComplementaire = monthData.injection_complementaire || 0;
+      months.forEach(month => {
+        if (monthlyData[month]) {
+          periodMonthlyData[month] = monthlyData[month];
+          console.log(`📊 Données mensuelles ${month}:`, monthlyData[month]);
+        } else {
+          console.warn(`⚠️ Aucune donnée mensuelle pour ${month}`);
+        }
 
-          totalVolumePartage += volumePartage;
-          totalVolumeComplementaire += volumeComplementaire;
-          totalInjectionPartagee += injectionPartagee;
-          totalInjectionComplementaire += injectionComplementaire;
-
-          monthlyDetails.push({
-            month: monthKey,
-            monthName: format(new Date(monthKey + '-01'), 'MMMM yyyy', { locale: fr }),
-            volumePartage,
-            volumeComplementaire,
-            injectionPartagee,
-            injectionComplementaire
-          });
+        if (billingData[month]) {
+          periodBillingData[month] = billingData[month];
+          console.log(`💰 Données billing ${month}:`, billingData[month]);
+        } else {
+          console.warn(`⚠️ Aucune donnée billing pour ${month}`);
         }
       });
 
+      // Calculer les totaux
+      const totals = calculateTotals(periodMonthlyData, periodBillingData);
+      console.log('📊 Totaux calculés:', totals);
+
       // Calculer les montants financiers
-      const commodityRate = participant.commodity_rate || 100; // €/MWh
-      const networkRate = 150; // €/MWh (prix réseau estimé)
-      const injectionNetworkRate = 50; // €/MWh (prix injection réseau)
+      const calculations = calculateFinancialAmounts(totals, participantData);
+      console.log('💰 Calculs financiers:', calculations);
 
-      // Montants pour consommateur
-      const montantVolumePartage = (totalVolumePartage / 1000) * commodityRate;
-      const montantVolumeComplementaire = (totalVolumeComplementaire / 1000) * networkRate;
-      
-      // Montants pour producteur
-      const montantInjectionPartagee = (totalInjectionPartagee / 1000) * commodityRate;
-      const montantInjectionComplementaire = (totalInjectionComplementaire / 1000) * injectionNetworkRate;
-
-      // Calcul du total selon le type
-      let sousTotal = 0;
-      if (participant.type === 'consumer') {
-        sousTotal = montantVolumePartage + montantVolumeComplementaire;
-      } else {
-        sousTotal = montantInjectionPartagee + montantInjectionComplementaire;
-      }
-
-      const tva = sousTotal * 0.21;
-      const totalFinal = sousTotal + tva;
-
-      return {
-        energy: {
-          totalVolumePartage,
-          totalVolumeComplementaire,
-          totalInjectionPartagee,
-          totalInjectionComplementaire,
-          volumeTotal: totalVolumePartage + totalVolumeComplementaire,
-          injectionTotale: totalInjectionPartagee + totalInjectionComplementaire
-        },
-        amounts: {
-          montantVolumePartage: Math.round(montantVolumePartage * 100) / 100,
-          montantVolumeComplementaire: Math.round(montantVolumeComplementaire * 100) / 100,
-          montantInjectionPartagee: Math.round(montantInjectionPartagee * 100) / 100,
-          montantInjectionComplementaire: Math.round(montantInjectionComplementaire * 100) / 100,
-          sousTotal: Math.round(sousTotal * 100) / 100,
-          tva: Math.round(tva * 100) / 100,
-          totalFinal: Math.round(totalFinal * 100) / 100
-        },
-        rates: {
-          commodityRate,
-          networkRate,
-          injectionNetworkRate
-        },
-        statistics: {
-          pourcentageLocal: totalVolumePartage + totalVolumeComplementaire > 0 
-            ? Math.round((totalVolumePartage / (totalVolumePartage + totalVolumeComplementaire)) * 100)
-            : 0,
-          pourcentagePartage: totalInjectionPartagee + totalInjectionComplementaire > 0
-            ? Math.round((totalInjectionPartagee / (totalInjectionPartagee + totalInjectionComplementaire)) * 100)
-            : 0,
-          economieRealisee: participant.type === 'consumer' 
-            ? Math.round(((totalVolumePartage / 1000) * (networkRate - commodityRate)) * 100) / 100
-            : 0,
-          revenusSup: participant.type === 'producer'
-            ? Math.round(((totalInjectionPartagee / 1000) * (commodityRate - injectionNetworkRate)) * 100) / 100
-            : 0
-        }
-      };
-
-    } catch (error) {
-      console.error('❌ Erreur calcul facturation:', error);
-      return {
-        energy: { totalVolumePartage: 0, totalVolumeComplementaire: 0, totalInjectionPartagee: 0, totalInjectionComplementaire: 0, volumeTotal: 0, injectionTotale: 0 },
-        amounts: { montantVolumePartage: 0, montantVolumeComplementaire: 0, montantInjectionPartagee: 0, montantInjectionComplementaire: 0, sousTotal: 0, tva: 0, totalFinal: 0 },
-        rates: { commodityRate: 100, networkRate: 150, injectionNetworkRate: 50 },
-        statistics: { pourcentageLocal: 0, pourcentagePartage: 0, economieRealisee: 0, revenusSup: 0 }
-      };
-    }
-  }, [participant, selectedPeriod]);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      console.log('💾 Sauvegarde des données de facturation...');
-      
-      // Générer la liste des mois dans la période
-      const startDate = new Date(selectedPeriod.startMonth + '-01');
-      const endDate = new Date(selectedPeriod.endMonth + '-01');
-      const months = [];
-      
-      for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        months.push(monthKey);
-      }
-
-      // Créer l'objet de données de facturation complet
-      const billingData = {
-        // Informations de la facture
-        invoiceNumber: `SIU-${format(new Date(), 'yyyy-MM')}-${participant.id.slice(-6).toUpperCase()}`,
-        invoiceDate: format(new Date(), 'dd/MM/yyyy'),
-        dueDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'dd/MM/yyyy'),
-        
-        // Période de facturation
+      const invoiceData: InvoiceData = {
+        participant: participantData,
         period: {
           startMonth: selectedPeriod.startMonth,
           endMonth: selectedPeriod.endMonth,
-          startDate: format(new Date(selectedPeriod.startMonth + '-01'), 'dd/MM/yyyy'),
-          endDate: format(new Date(selectedPeriod.endMonth + '-01'), 'dd/MM/yyyy'),
-          periodText: months.length === 1 
-            ? format(new Date(months[0] + '-01'), 'MMMM yyyy', { locale: fr })
-            : `${format(new Date(months[0] + '-01'), 'MMMM yyyy', { locale: fr })} à ${format(new Date(months[months.length - 1] + '-01'), 'MMMM yyyy', { locale: fr })}`
+          startDate: selectedPeriod.startMonth + '-01',
+          endDate: getLastDayOfMonth(selectedPeriod.endMonth)
         },
-        
-        // Données énergétiques totales (en kWh)
-        energy: calculateBillingData.energy,
-        
-        // Tarifs appliqués
-        rates: calculateBillingData.rates,
-        
-        // Montants financiers
-        amounts: calculateBillingData.amounts,
-        
-        // Pourcentages et statistiques
-        statistics: calculateBillingData.statistics,
-        
-        // Métadonnées
-        metadata: {
-          generatedAt: new Date().toISOString(),
-          participantType: participant.type,
-          participantName: participant.name,
-          participantEan: participant.ean_code,
-          monthsIncluded: months.length,
-          dataSource: 'monthly_data',
-          period: selectedPeriod
-        }
+        monthlyData: periodMonthlyData,
+        billingData: periodBillingData,
+        totals,
+        calculations
       };
 
-      // Sauvegarder dans la colonne billing_data
-      const { error } = await supabase
-        .from('participants')
-        .update({ 
-          billing_data: JSON.stringify(billingData)
-        })
-        .eq('id', participant.id);
-
-      if (error) {
-        console.error('❌ Erreur sauvegarde billing_data:', error);
-        toast.error('Erreur lors de la sauvegarde des données de facturation');
-      } else {
-        console.log('✅ Données de facturation sauvegardées dans billing_data');
-        toast.success('Données de facturation sauvegardées');
-        setIsSaved(true);
-      }
+      setInvoiceData(invoiceData);
+      console.log('🧾 Facture générée avec succès');
 
     } catch (error) {
-      console.error('❌ Erreur calcul facturation:', error);
-      toast.error('Erreur lors du calcul des données de facturation');
+      console.error('❌ Erreur génération facture:', error);
+      setError(error.message || 'Erreur lors de la génération de la facture');
+      toast.error('Erreur lors de la génération de la facture');
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  const handleClose = async () => {
-    // Si pas sauvegardé, supprimer les données de billing_data
-    if (!isSaved) {
-      try {
-        console.log('🗑️ Suppression des données de facturation non sauvegardées...');
-        
-        // Supprimer les billing_data du participant
-        const { error } = await supabase
-          .from('participants')
-          .update({ 
-            billing_data: null
-          })
-          .eq('id', participant.id);
+  const generateMonthsInPeriod = (startMonth: string, endMonth: string): string[] => {
+    const months: string[] = [];
+    const start = new Date(startMonth + '-01');
+    const end = new Date(endMonth + '-01');
 
-        if (error) {
-          console.error('❌ Erreur suppression billing_data:', error);
-        } else {
-          console.log('✅ Données de facturation supprimées');
-        }
-      } catch (error) {
-        console.error('❌ Erreur lors de la suppression:', error);
+    let current = new Date(start);
+    while (current <= end) {
+      const monthStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+      months.push(monthStr);
+      current.setMonth(current.getMonth() + 1);
+    }
+
+    return months;
+  };
+
+  const getLastDayOfMonth = (monthStr: string): string => {
+    const [year, month] = monthStr.split('-').map(Number);
+    const lastDay = new Date(year, month, 0).getDate();
+    return `${monthStr}-${String(lastDay).padStart(2, '0')}`;
+  };
+
+  const calculateTotals = (
+    monthlyData: { [month: string]: MonthlyData },
+    billingData: { [month: string]: BillingData }
+  ) => {
+    console.log('🧮 CALCUL DES TOTAUX');
+    console.log('📊 Données mensuelles à traiter:', Object.keys(monthlyData));
+    console.log('💰 Données billing à traiter:', Object.keys(billingData));
+
+    const totals = {
+      volume_partage: 0,
+      volume_complementaire: 0,
+      injection_partagee: 0,
+      injection_complementaire: 0,
+      networkCosts: {
+        utilisationReseau: 0,
+        surcharges: 0,
+        tarifCapacitaire: 0,
+        tarifMesure: 0,
+        tarifOSP: 0,
+        transportELIA: 0,
+        redevanceVoirie: 0,
+        totalFraisReseau: 0
       }
-    }
-    
-    // Reset des états
-    setIsSaved(false);
-    onClose();
+    };
+
+    // Sommer les données mensuelles
+    Object.entries(monthlyData).forEach(([month, data]) => {
+      console.log(`📊 Ajout données ${month}:`, data);
+      totals.volume_partage += Number(data.volume_partage || 0);
+      totals.volume_complementaire += Number(data.volume_complementaire || 0);
+      totals.injection_partagee += Number(data.injection_partagee || 0);
+      totals.injection_complementaire += Number(data.injection_complementaire || 0);
+    });
+
+    // Sommer les coûts réseau (NOUVEAU)
+    Object.entries(billingData).forEach(([month, data]) => {
+      console.log(`💰 Ajout coûts réseau ${month}:`, data.networkCosts);
+      if (data.networkCosts) {
+        totals.networkCosts.utilisationReseau += Number(data.networkCosts.utilisationReseau || 0);
+        totals.networkCosts.surcharges += Number(data.networkCosts.surcharges || 0);
+        totals.networkCosts.tarifCapacitaire += Number(data.networkCosts.tarifCapacitaire || 0);
+        totals.networkCosts.tarifMesure += Number(data.networkCosts.tarifMesure || 0);
+        totals.networkCosts.tarifOSP += Number(data.networkCosts.tarifOSP || 0);
+        totals.networkCosts.transportELIA += Number(data.networkCosts.transportELIA || 0);
+        totals.networkCosts.redevanceVoirie += Number(data.networkCosts.redevanceVoirie || 0);
+        totals.networkCosts.totalFraisReseau += Number(data.networkCosts.totalFraisReseau || 0);
+      }
+    });
+
+    console.log('📊 Totaux finaux:', totals);
+    return totals;
   };
 
-  const invoiceNumber = `SIU-${format(new Date(), 'yyyy-MM')}-${participant.id.slice(-6).toUpperCase()}`;
-  const invoiceDate = format(new Date(), 'dd/MM/yyyy');
-  const dueDate = format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'dd/MM/yyyy');
+  const calculateFinancialAmounts = (totals: any, participant: Participant) => {
+    console.log('💰 CALCUL DES MONTANTS FINANCIERS');
+    console.log('📊 Totaux reçus:', totals);
+    console.log('👤 Participant:', { 
+      name: participant.name, 
+      shared_energy_price: participant.shared_energy_price,
+      commodity_rate: participant.commodity_rate 
+    });
+
+    // Prix de l'énergie partagée (€/MWh)
+    const sharedEnergyPrice = Number(participant.shared_energy_price || 100);
+    // Tarif de commodité (€/MWh)
+    const commodityRate = Number(participant.commodity_rate || 85);
+
+    console.log('💰 Prix utilisés:', { sharedEnergyPrice, commodityRate });
+
+    // Convertir kWh en MWh pour les calculs
+    const volumePartageInMWh = totals.volume_partage / 1000;
+    const volumeComplementaireInMWh = totals.volume_complementaire / 1000;
+    const injectionPartageeInMWh = totals.injection_partagee / 1000;
+    const injectionComplementaireInMWh = totals.injection_complementaire / 1000;
+
+    console.log('📊 Volumes en MWh:', {
+      volumePartageInMWh,
+      volumeComplementaireInMWh,
+      injectionPartageeInMWh,
+      injectionComplementaireInMWh
+    });
+
+    // Calculs des coûts
+    const energySharedCost = volumePartageInMWh * sharedEnergyPrice;
+    const energyComplementaryCost = volumeComplementaireInMWh * commodityRate;
+    
+    // IMPORTANT: Utiliser les coûts réseau réels depuis billing_data
+    const networkCostTotal = totals.networkCosts.totalFraisReseau || 0;
+    
+    console.log('💰 Coûts calculés:', {
+      energySharedCost,
+      energyComplementaryCost,
+      networkCostTotal: `${networkCostTotal}€ (depuis billing_data)`
+    });
+
+    // Revenus d'injection
+    const injectionRevenue = (injectionPartageeInMWh + injectionComplementaireInMWh) * commodityRate;
+
+    // Total
+    const totalCost = energySharedCost + energyComplementaryCost + networkCostTotal;
+    const netAmount = totalCost - injectionRevenue;
+
+    const calculations = {
+      energySharedCost: Math.round(energySharedCost * 100) / 100,
+      energyComplementaryCost: Math.round(energyComplementaryCost * 100) / 100,
+      networkCostTotal: Math.round(networkCostTotal * 100) / 100,
+      totalCost: Math.round(totalCost * 100) / 100,
+      injectionRevenue: Math.round(injectionRevenue * 100) / 100,
+      netAmount: Math.round(netAmount * 100) / 100
+    };
+
+    console.log('💰 Calculs finaux:', calculations);
+    return calculations;
+  };
 
   const handlePrint = () => {
-    window.print();
+    const printContent = document.getElementById('invoice-content');
+    if (printContent) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Facture ${participant.name}</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .no-print { display: none !important; }
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f5f5f5; }
+                .text-right { text-align: right; }
+                .font-bold { font-weight: bold; }
+                .text-lg { font-size: 1.125rem; }
+                .text-xl { font-size: 1.25rem; }
+                .text-2xl { font-size: 1.5rem; }
+                .mb-4 { margin-bottom: 1rem; }
+                .mb-6 { margin-bottom: 1.5rem; }
+                .mb-8 { margin-bottom: 2rem; }
+                .mt-4 { margin-top: 1rem; }
+                .p-4 { padding: 1rem; }
+                .bg-gray-50 { background-color: #f9fafb; }
+                .border { border: 1px solid #e5e7eb; }
+                .rounded { border-radius: 0.375rem; }
+              </style>
+            </head>
+            <body>
+              ${printContent.innerHTML}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
   };
 
   const handleDownload = () => {
-    // Logique pour télécharger le PDF
-    console.log('Téléchargement de la facture pour:', participant.name);
+    handlePrint();
   };
+
+  if (!isOpen) return null;
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl shadow-xl p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Génération de la facture...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl shadow-xl p-8 text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-red-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-red-900 mb-2">Erreur</h3>
+          <p className="text-red-700 mb-4">{error}</p>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!invoiceData) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl shadow-xl p-8 text-center max-w-md">
+          <p className="text-gray-600">Aucune donnée disponible pour cette période</p>
+          <button
+            onClick={onClose}
+            className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header avec boutons d'action */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 print:hidden">
+        <div className="no-print flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center space-x-3">
             <FileText className="w-6 h-6 text-amber-600" />
-            <h2 className="text-xl font-semibold text-gray-900">
-              Facture - {participant.name}
-            </h2>
-            {!isSaved && (
-              <div className="flex items-center space-x-2 bg-orange-50 border border-orange-200 rounded-lg px-3 py-1">
-                <AlertTriangle className="w-4 h-4 text-orange-600" />
-                <span className="text-sm text-orange-700 font-medium">Non sauvegardée</span>
-              </div>
-            )}
-            {isSaved && (
-              <div className="flex items-center space-x-2 bg-green-50 border border-green-200 rounded-lg px-3 py-1">
-                <Save className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-700 font-medium">Sauvegardée</span>
-              </div>
-            )}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Facture énergétique</h2>
+              <p className="text-sm text-gray-600">
+                {format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}
+                {invoiceData.period.startMonth !== invoiceData.period.endMonth && 
+                  ` - ${format(parseISO(invoiceData.period.endDate), 'MMMM yyyy', { locale: fr })}`
+                }
+              </p>
+            </div>
           </div>
           <div className="flex items-center space-x-3">
             <button
-              onClick={handleSave}
-              disabled={saving || isSaved}
-              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? (
-                <>
-                  <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin mr-2"></div>
-                  Sauvegarde...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4 mr-2" />
-                  {isSaved ? 'Sauvegardé' : 'Sauvegarder'}
-                </>
-              )}
-            </button>
-            <button
               onClick={handlePrint}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
-              <FileText className="w-4 h-4 mr-2" />
-              Imprimer
+              <Printer className="w-4 h-4" />
+              <span>Imprimer</span>
             </button>
             <button
               onClick={handleDownload}
-              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
             >
-              <Download className="w-4 h-4 mr-2" />
-              Télécharger PDF
+              <Download className="w-4 h-4" />
+              <span>Télécharger</span>
             </button>
             <button
-              onClick={handleClose}
+              onClick={onClose}
               className="text-gray-500 hover:text-gray-700 transition-colors p-2"
             >
               <X className="w-6 h-6" />
@@ -356,667 +470,424 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         </div>
 
         {/* Contenu de la facture */}
-        <div className="p-8 bg-white" id="invoice-content">
+        <div id="invoice-content" className="p-8">
           {/* En-tête de la facture */}
           <div className="flex justify-between items-start mb-8">
-            <div className="flex items-center space-x-4">
-              <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-16 h-16" />
+            <div>
+              <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-16 w-16 mb-4" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
-                <p className="text-gray-600">Communauté d'énergie locale</p>
-                <div className="text-sm text-gray-500 mt-2">
-                  <p>235 chaussée d'ixelles</p>
-                  <p>1050 Bruxelles</p>
-                  <p>TVA: BE 1022108004</p>
+                <p className="text-gray-600">Communauté d'énergie bruxelloise</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  info@sunisup.be • +32 471 31 71 48
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">FACTURE ÉNERGÉTIQUE</h2>
+              <div className="text-sm text-gray-600 space-y-1">
+                <div className="flex items-center justify-end space-x-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>
+                    {format(parseISO(invoiceData.period.startDate), 'dd MMMM yyyy', { locale: fr })}
+                    {invoiceData.period.startMonth !== invoiceData.period.endMonth && 
+                      ` - ${format(parseISO(invoiceData.period.endDate), 'dd MMMM yyyy', { locale: fr })}`
+                    }
+                  </span>
+                </div>
+                <div>Facture N° {invoiceData.participant.id.slice(-8).toUpperCase()}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Informations du participant */}
+          <div className="mb-8 p-6 bg-gray-50 rounded-lg border">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <User className="w-5 h-5 mr-2" />
+              Informations du participant
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="space-y-2">
+                  <div><strong>Nom :</strong> {invoiceData.participant.name}</div>
+                  <div className="flex items-center">
+                    <MapPin className="w-4 h-4 mr-1 text-gray-500" />
+                    <span><strong>Adresse :</strong> {invoiceData.participant.address}</span>
+                  </div>
+                  {invoiceData.participant.email && (
+                    <div><strong>Email :</strong> {invoiceData.participant.email}</div>
+                  )}
+                </div>
+              </div>
+              <div>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <Hash className="w-4 h-4 mr-1 text-gray-500" />
+                    <span><strong>Code EAN :</strong> {invoiceData.participant.ean_code}</span>
+                  </div>
+                  <div>
+                    <strong>Type :</strong> 
+                    <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                      invoiceData.participant.type === 'producer' 
+                        ? 'bg-amber-100 text-amber-800' 
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {invoiceData.participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
+                    </span>
+                  </div>
+                  {invoiceData.participant.company_number && (
+                    <div><strong>N° entreprise :</strong> {invoiceData.participant.company_number}</div>
+                  )}
                 </div>
               </div>
             </div>
-            
-            <div className="text-right">
-              <h2 className="text-xl font-bold text-amber-600 mb-2">
-                {participant.type === 'producer' ? 'Facture de production' : 'Facture d\'électricité locale'}
-              </h2>
-              <div className="text-sm text-gray-600">
-                <p><strong>N° Facture:</strong> {invoiceNumber}</p>
-                <p><strong>Date:</strong> {invoiceDate}</p>
-                <p><strong>Échéance:</strong> {dueDate}</p>
-              </div>
-            </div>
           </div>
 
-          {/* Informations client */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Facturé à :</h3>
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <p className="font-medium text-gray-900">{participant.name}</p>
-                <p className="text-gray-600">{participant.address}</p>
-                {participant.company_number && (
-                  <p className="text-gray-600 mt-2">
-                    <strong>N° entreprise:</strong> {participant.company_number}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Période de facturation :</h3>
-              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                <p className="text-amber-800">
-                  <strong>Du:</strong> {format(new Date(selectedPeriod.startMonth + '-01'), 'dd MMMM yyyy', { locale: fr })}
-                </p>
-                <p className="text-amber-800">
-                  <strong>Au:</strong> {format(new Date(new Date(selectedPeriod.endMonth + '-01').getFullYear(), new Date(selectedPeriod.endMonth + '-01').getMonth() + 1, 0), 'dd MMMM yyyy', { locale: fr })}
-                </p>
-                <p className="text-sm text-amber-600 mt-2">
-                  Type: {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Détail de la consommation d'électricité locale */}
+          {/* Détail des coûts réseau - SECTION MISE À JOUR */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Détail de la consommation d'électricité locale
-            </h3>
-            
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail des coûts réseau pour la consommation locale</h3>
             <div className="overflow-x-auto">
-              <table className="min-w-full border border-gray-200 rounded-lg">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+              <table className="min-w-full border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 border-b border-gray-300">
                       Description
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                      Quantité
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                      Prix unitaire
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    <th className="px-4 py-3 text-center text-sm font-medium text-gray-900 border-b border-gray-300">
                       Taux TVA
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
                       Montant HTVA
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
                       Montant TVAC
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {participant.type === 'consumer' ? (
-                    <>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          Électricité locale consommée
-                          <div className="text-xs text-gray-500">Énergie partagée de la communauté</div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          {(calculateBillingData.energy.totalVolumePartage / 1000).toFixed(3)} MWh
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          {participant.commodity_rate} €/MWh
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          21%
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {calculateBillingData.amounts.montantVolumePartage.toFixed(2)} €
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {(calculateBillingData.amounts.montantVolumePartage * 1.21).toFixed(2)} €
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          Frais réseaux
-                          <div className="text-xs text-gray-400">Frais versés à Sibelga pour l'énergie partagée</div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          {(calculateBillingData.energy.totalVolumePartage / 1000).toFixed(3)} MWh
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          -
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          21%
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {(() => {
-                            // Calculer le montant des frais réseau depuis monthly_data
-                            try {
-                              let monthlyData = {};
-                              if (participant.monthly_data) {
-                                monthlyData = typeof participant.monthly_data === 'string' 
-                                  ? JSON.parse(participant.monthly_data)
-                                  : participant.monthly_data;
-                              }
-                              
-                              const startDate = new Date(selectedPeriod.startMonth + '-01');
-                              const endDate = new Date(selectedPeriod.endMonth + '-01');
-                              let totalNetworkFees = 0;
-                              
-                              for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-                                const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                                const monthData = monthlyData[monthKey];
-                                
-                                if (monthData && monthData.allColumns) {
-                                  Object.values(monthData.allColumns).forEach((rowData: any) => {
-                                    // Toutes les colonnes de frais réseau à additionner
-                                    const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
-                                    
-                                    console.log('🔍 Frais réseau détaillés:', {
-                                      utilisationReseau,
-                                      surcharges,
-                                      tarifCapac,
-                                      tarifMesure,
-                                      tarifOSP,
-                                      transportElia,
-                                      redevanceVoirie,
-                                      gridfee
-                                    });
-                                    
-                                    totalNetworkFees += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
-                                  });
-                                }
-                              }
-                              
-                              console.log('💰 Total frais réseau calculé:', totalNetworkFees);
-                              return totalNetworkFees.toFixed(2);
-                            } catch (error) {
-                              console.error('Erreur calcul frais réseau:', error);
-                              return '0.00';
-                            }
-                          })()} €
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {(() => {
-                            try {
-                              let monthlyData = {};
-                              if (participant.monthly_data) {
-                                monthlyData = typeof participant.monthly_data === 'string' 
-                                  ? JSON.parse(participant.monthly_data)
-                                  : participant.monthly_data;
-                              }
-                              
-                              const startDate = new Date(selectedPeriod.startMonth + '-01');
-                              const endDate = new Date(selectedPeriod.endMonth + '-01');
-                              let totalNetworkFees = 0;
-                              
-                              for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-                                const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                                const monthData = monthlyData[monthKey];
-                                
-                                if (monthData && monthData.allColumns) {
-                                  Object.values(monthData.allColumns).forEach((rowData: any) => {
-                                    const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
-                                    const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
-                                    
-                                    totalNetworkFees += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
-                                  });
-                                }
-                              }
-                              
-                              return (totalNetworkFees * 1.21).toFixed(2);
-                            } catch (error) {
-                              console.error('Erreur calcul frais réseau TVAC:', error);
-                              return '0.00';
-                            }
-                          })()} €
-                        </td>
-                      </tr>
-                    </>
-                  ) : (
-                    <>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          Injection locale
-                          <div className="text-xs text-gray-500">Énergie vendue à la communauté</div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          {(calculateBillingData.energy.totalInjectionPartagee / 1000).toFixed(3)} MWh
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          {participant.commodity_rate} €/MWh
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          21%
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {(calculateBillingData.amounts.montantInjectionPartagee * 1.21).toFixed(2)} €
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          Injection réseau
-                          <div className="text-xs text-gray-500">Énergie vendue au réseau</div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          {(calculateBillingData.energy.totalInjectionComplementaire / 1000).toFixed(3)} MWh
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          {calculateBillingData.rates.injectionNetworkRate} €/MWh
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                          21%
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {calculateBillingData.amounts.montantInjectionComplementaire.toFixed(2)} €
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                          {(calculateBillingData.amounts.montantInjectionComplementaire * 1.21).toFixed(2)} €
-                        </td>
-                      </tr>
-                    </>
-                  )}
+                <tbody className="bg-white">
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div>
+                        <div className="font-medium">Utilisation du réseau</div>
+                        <div className="text-xs text-gray-500">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">21%</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.totals.networkCosts.utilisationReseau.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.networkCosts.utilisationReseau * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div>
+                        <div className="font-medium">Surcharges</div>
+                        <div className="text-xs text-gray-500">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">21%</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.totals.networkCosts.surcharges.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.networkCosts.surcharges * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div>
+                        <div className="font-medium">Tarif capacitaire</div>
+                        <div className="text-xs text-gray-500">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">21%</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.totals.networkCosts.tarifCapacitaire.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.networkCosts.tarifCapacitaire * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div>
+                        <div className="font-medium">Tarif mesure & comptage</div>
+                        <div className="text-xs text-gray-500">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">21%</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.totals.networkCosts.tarifMesure.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.networkCosts.tarifMesure * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div>
+                        <div className="font-medium">Tarif OSP</div>
+                        <div className="text-xs text-gray-500">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">21%</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.totals.networkCosts.tarifOSP.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.networkCosts.tarifOSP * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div>
+                        <div className="font-medium">Transport ELIA</div>
+                        <div className="text-xs text-gray-500">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">21%</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.totals.networkCosts.transportELIA.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.networkCosts.transportELIA * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div>
+                        <div className="font-medium">Redevance de voirie</div>
+                        <div className="text-xs text-gray-500">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">21%</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.totals.networkCosts.redevanceVoirie.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.networkCosts.redevanceVoirie * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div>
+                        <div className="font-medium">Gridface</div>
+                        <div className="text-xs text-gray-500">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">21%</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">0.00 €</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">0.00 €</td>
+                  </tr>
+                  <tr className="bg-gray-100 border-b-2 border-gray-400">
+                    <td className="px-4 py-3 text-sm font-bold text-gray-900">
+                      Total frais réseau
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                      {invoiceData.totals.networkCosts.totalFraisReseau.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                      {(invoiceData.totals.networkCosts.totalFraisReseau * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* Tableau détaillé des frais Sibelga HTVA */}
-          {participant.type === 'consumer' && (
+          {/* Détail énergétique */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail énergétique</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Consommation */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h4 className="font-medium text-blue-900 mb-3">📥 Consommation</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Énergie partagée :</span>
+                    <span className="font-medium">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Énergie réseau :</span>
+                    <span className="font-medium">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="flex justify-between border-t border-blue-200 pt-2 font-semibold">
+                    <span>Total consommation :</span>
+                    <span>{((invoiceData.totals.volume_partage + invoiceData.totals.volume_complementaire) / 1000).toFixed(3)} MWh</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Injection */}
+              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <h4 className="font-medium text-amber-900 mb-3">📤 Injection</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Injection partagée :</span>
+                    <span className="font-medium">{(invoiceData.totals.injection_partagee / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Injection réseau :</span>
+                    <span className="font-medium">{(invoiceData.totals.injection_complementaire / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="flex justify-between border-t border-amber-200 pt-2 font-semibold">
+                    <span>Total injection :</span>
+                    <span>{((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Calculs financiers */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Calculs financiers</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 border-b border-gray-300">
+                      Description
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
+                      Quantité
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
+                      Prix unitaire
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
+                      Montant
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">Énergie partagée</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.participant.shared_energy_price} €/MWh
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.calculations.energySharedCost.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">Énergie complémentaire</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.participant.commodity_rate} €/MWh
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.calculations.energyComplementaryCost.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-sm text-gray-900">Frais de réseau (HTVA)</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">-</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">-</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      {invoiceData.calculations.networkCostTotal.toFixed(2)} €
+                    </td>
+                  </tr>
+                  {(invoiceData.totals.injection_partagee > 0 || invoiceData.totals.injection_complementaire > 0) && (
+                    <tr className="border-b border-gray-200 bg-green-50">
+                      <td className="px-4 py-3 text-sm text-green-900">Revenus injection</td>
+                      <td className="px-4 py-3 text-right text-sm text-green-900">
+                        {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm text-green-900">
+                        {invoiceData.participant.commodity_rate} €/MWh
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm text-green-900">
+                        -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
+                      </td>
+                    </tr>
+                  )}
+                  <tr className="bg-gray-100 border-t-2 border-gray-400">
+                    <td className="px-4 py-4 text-lg font-bold text-gray-900" colSpan={3}>
+                      Montant net à payer
+                    </td>
+                    <td className="px-4 py-4 text-right text-lg font-bold text-gray-900">
+                      {invoiceData.calculations.netAmount.toFixed(2)} €
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Détail mensuel */}
+          {Object.keys(invoiceData.monthlyData).length > 1 && (
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Détail des coûts réseaux pour la consommation locale
-              </h3>
-              
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail mensuel</h3>
               <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-200 rounded-lg">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">
-                        Description
+                <table className="min-w-full border border-gray-300">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 border-b border-gray-300">
+                        Mois
                       </th>
-                      <th className="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">
-                        Taux TVA
+                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
+                        Vol. Partagé (kWh)
                       </th>
-                      <th className="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">
-                        Montant HTVA
+                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
+                        Vol. Complémentaire (kWh)
                       </th>
-                      <th className="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">
-                        Montant TVAC
+                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
+                        Inj. Partagée (kWh)
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-b border-gray-300">
+                        Inj. Réseau (kWh)
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {(() => {
-                      try {
-                        // Charger les données mensuelles du participant
-                        let monthlyData = {};
-                        if (participant.monthly_data) {
-                          try {
-                            monthlyData = typeof participant.monthly_data === 'string' 
-                              ? JSON.parse(participant.monthly_data)
-                              : participant.monthly_data;
-                          } catch (e) {
-                            console.warn('Erreur parsing monthly_data:', e);
-                          }
-                        }
-
-                        // Générer la liste des mois dans la période
-                        const startDate = new Date(selectedPeriod.startMonth + '-01');
-                        const endDate = new Date(selectedPeriod.endMonth + '-01');
-                        const months = [];
-                        
-                        for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-                          const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                          months.push(monthKey);
-                        }
-
-                        // Calculer les totaux pour chaque type de frais
-                        const fraisDetails = {
-                          'Utilisation du réseau': 0,
-                          'Surcharges': 0,
-                          'Tarif capacitaire': 0,
-                          'Tarif mesure & comptage': 0,
-                          'Tarif OSP': 0,
-                          'Transport ELIA': 0,
-                          'Redevance de voirie': 0,
-                          'Gridfee': 0
-                        };
-
-                        months.forEach(monthKey => {
-                          const monthData = monthlyData[monthKey];
-                          if (monthData && monthData.allColumns) {
-                            Object.values(monthData.allColumns).forEach((rowData: any) => {
-                              fraisDetails['Utilisation du réseau'] += parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
-                              fraisDetails['Surcharges'] += parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
-                              fraisDetails['Tarif capacitaire'] += parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
-                              fraisDetails['Tarif mesure & comptage'] += parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
-                              fraisDetails['Tarif OSP'] += parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
-                              fraisDetails['Transport ELIA'] += parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
-                              fraisDetails['Redevance de voirie'] += parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
-                              fraisDetails['Gridfee'] += parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
-                            });
-                          }
-                        });
-
-                        const totalFrais = Object.values(fraisDetails).reduce((sum, value) => sum + value, 0);
-
-                        return (
-                          <>
-                            {Object.entries(fraisDetails).map(([description, montant]) => (
-                              <tr key={description}>
-                                <td className="px-6 py-3 text-sm text-gray-900">
-                                  {description}
-                                  <div className="text-xs text-gray-500">Consommation</div>
-                                </td>
-                                <td className="px-6 py-3 text-sm text-gray-900 text-right">
-                                  21%
-                                </td>
-                                <td className="px-6 py-3 text-sm text-gray-900 text-right font-medium">
-                                  {montant.toFixed(2)} €
-                                </td>
-                                <td className="px-6 py-3 text-sm text-gray-900 text-right font-medium">
-                                  {(montant * 1.21).toFixed(2)} €
-                                </td>
-                              </tr>
-                            ))}
-                            <tr className="bg-gray-50 font-medium">
-                              <td className="px-6 py-3 text-sm text-gray-900 font-bold">
-                                Total frais réseau
-                              </td>
-                              <td className="px-6 py-3 text-sm text-gray-900 text-right">
-                                -
-                              </td>
-                              <td className="px-6 py-3 text-sm text-gray-900 text-right font-bold">
-                                {totalFrais.toFixed(2)} €
-                              </td>
-                              <td className="px-6 py-3 text-sm text-gray-900 text-right font-bold">
-                                {(totalFrais * 1.21).toFixed(2)} €
-                              </td>
-                            </tr>
-                          </>
-                        );
-                      } catch (error) {
-                        console.error('Erreur calcul frais Sibelga détaillés:', error);
-                        return (
-                          <tr>
-                            <td colSpan={4} className="px-6 py-3 text-center text-red-600">
-                              Erreur lors du calcul des frais détaillés
-                            </td>
-                          </tr>
-                        );
-                      }
-                    })()}
+                  <tbody className="bg-white">
+                    {Object.entries(invoiceData.monthlyData)
+                      .sort(([a], [b]) => a.localeCompare(b))
+                      .map(([month, data]) => (
+                        <tr key={month} className="border-b border-gray-200">
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {format(parseISO(month + '-01'), 'MMMM yyyy', { locale: fr })}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            {data.volume_partage.toFixed(0)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            {data.volume_complementaire.toFixed(0)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            {data.injection_partagee.toFixed(0)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            {data.injection_complementaire.toFixed(0)}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
             </div>
           )}
 
-          {/* Résumé des rémunérations liées à l'injection locale (pour producteurs) */}
-          {participant.type === 'producer' && (
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Résumé des rémunérations liées à l'injection locale
-              </h3>
-              
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">{(calculateBillingData.energy.injectionTotale / 1000).toFixed(3)} MWh</div>
-                    <div className="text-sm text-amber-700">Injection totale</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">{calculateBillingData.statistics.pourcentagePartage}%</div>
-                    <div className="text-sm text-amber-700">Part vendue localement</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">{calculateBillingData.amounts.montantInjectionPartagee.toFixed(2)} €</div>
-                    <div className="text-sm text-amber-700">Revenus totaux</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Résumé de la facture finale */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Résumé de la facture finale
-            </h3>
-            
-            <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">Résumé de la facture</h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                  <span className="text-gray-700 font-medium">Sous-total HTVA</span>
-                  <span className="font-semibold text-gray-900">{(() => {
-                  const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
-                  
-                  let fraisReseau = 0;
-                  try {
-                    let monthlyData = {};
-                    if (participant.monthly_data) {
-                      monthlyData = typeof participant.monthly_data === 'string' 
-                        ? JSON.parse(participant.monthly_data)
-                        : participant.monthly_data;
-                    }
-                    
-                    const startDate = new Date(selectedPeriod.startMonth + '-01');
-                    const endDate = new Date(selectedPeriod.endMonth + '-01');
-                    
-                    for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-                      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                      const monthData = monthlyData[monthKey];
-                      
-                      if (monthData && monthData.allColumns) {
-                        Object.values(monthData.allColumns).forEach((rowData: any) => {
-                          const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
-                          const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
-                          const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
-                          const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
-                          const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
-                          const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
-                          const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
-                          const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
-                          
-                          fraisReseau += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
-                        });
-                      }
-                    }
-                  } catch (error) {
-                    console.error('Erreur calcul frais réseau:', error);
-                  }
-                  
-                  const sousTotal = electriciteLocale + fraisReseau;
-                  return sousTotal.toFixed(2);
-                  })()} €</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                  <span className="text-gray-700 font-medium">Total TVA (21%)</span>
-                  <span className="font-semibold text-gray-900">{(() => {
-                  // Calculer le total TVA
-                  const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
-                  
-                  let fraisReseau = 0;
-                  try {
-                    let monthlyData = {};
-                    if (participant.monthly_data) {
-                      monthlyData = typeof participant.monthly_data === 'string' 
-                        ? JSON.parse(participant.monthly_data)
-                        : participant.monthly_data;
-                    }
-                    
-                    const startDate = new Date(selectedPeriod.startMonth + '-01');
-                    const endDate = new Date(selectedPeriod.endMonth + '-01');
-                    
-                    for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-                      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                      const monthData = monthlyData[monthKey];
-                      
-                      if (monthData && monthData.allColumns) {
-                        Object.values(monthData.allColumns).forEach((rowData: any) => {
-                          const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
-                          const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
-                          const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
-                          const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
-                          const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
-                          const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
-                          const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
-                          const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
-                          
-                          fraisReseau += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
-                        });
-                      }
-                    }
-                  } catch (error) {
-                    console.error('Erreur calcul frais réseau:', error);
-                  }
-                  
-                  const sousTotal = electriciteLocale + fraisReseau;
-                  const totalTVA = sousTotal * 0.21;
-                  return totalTVA.toFixed(2);
-                  })()} €</span>
-                </div>
-                <div className="flex justify-between items-center py-4 bg-amber-50 rounded-lg px-4 border-2 border-amber-200">
-                  <span className="text-lg font-bold text-gray-900">Total à {participant.type === 'producer' ? 'recevoir' : 'payer'} TVAC</span>
-                  <span className="text-2xl font-bold text-amber-600">{(() => {
-                    // Calculer le total TVAC
-                    const electriciteLocale = calculateBillingData.amounts.montantVolumePartage;
-                    
-                    let fraisReseau = 0;
-                    try {
-                      let monthlyData = {};
-                      if (participant.monthly_data) {
-                        monthlyData = typeof participant.monthly_data === 'string' 
-                          ? JSON.parse(participant.monthly_data)
-                          : participant.monthly_data;
-                      }
-                      
-                      const startDate = new Date(selectedPeriod.startMonth + '-01');
-                      const endDate = new Date(selectedPeriod.endMonth + '-01');
-                      
-                      for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-                        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                        const monthData = monthlyData[monthKey];
-                        
-                        if (monthData && monthData.allColumns) {
-                          Object.values(monthData.allColumns).forEach((rowData: any) => {
-                            const utilisationReseau = parseFloat(String(rowData['Utilisation du réseau € HTVA'] || '0').replace(',', '.')) || 0;
-                            const surcharges = parseFloat(String(rowData['Surcharges € HTVA'] || '0').replace(',', '.')) || 0;
-                            const tarifCapac = parseFloat(String(rowData['Tarif capac. (>2020) € HTVA'] || '0').replace(',', '.')) || 0;
-                            const tarifMesure = parseFloat(String(rowData['Tarif mesure & comptage € HTVA'] || '0').replace(',', '.')) || 0;
-                            const tarifOSP = parseFloat(String(rowData['Tarif OSP € HTVA'] || '0').replace(',', '.')) || 0;
-                            const transportElia = parseFloat(String(rowData['Transport - coût ELIA € HTVA'] || '0').replace(',', '.')) || 0;
-                            const redevanceVoirie = parseFloat(String(rowData['Redevance de voirie € HTVA'] || '0').replace(',', '.')) || 0;
-                            const gridfee = parseFloat(String(rowData['Gridfee € HTVA'] || '0').replace(',', '.')) || 0;
-                            
-                            fraisReseau += utilisationReseau + surcharges + tarifCapac + tarifMesure + tarifOSP + transportElia + redevanceVoirie + gridfee;
-                          });
-                        }
-                      }
-                    } catch (error) {
-                      console.error('Erreur calcul frais réseau:', error);
-                    }
-                    
-                    const sousTotal = electriciteLocale + fraisReseau;
-                    const totalTVAC = sousTotal * 1.21;
-                    return totalTVAC.toFixed(2);
-                  })()} €</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Informations de paiement */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Informations de paiement</h3>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="text-sm text-blue-800 space-y-1">
-                  <p><strong>Bénéficiaire:</strong> Sun Is Up ASBL</p>
-                  <p><strong>IBAN:</strong> BE96 0020 1192 6005</p>
-                  <p><strong>BIC:</strong> GEBABEBB</p>
-                  <p><strong>Communication:</strong> {participant.name} - {(() => {
-                    const startDate = new Date(selectedPeriod.startMonth + '-01');
-                    const endDate = new Date(selectedPeriod.endMonth + '-01');
-                    const months = [];
-                    
-                    for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
-                      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                      months.push(monthKey);
-                    }
-                    
-                    if (months.length === 1) {
-                      return format(new Date(months[0] + '-01'), 'MMMM yyyy', { locale: fr });
-                    } else {
-                      return `${format(new Date(months[0] + '-01'), 'MMMM yyyy', { locale: fr })} à ${format(new Date(months[months.length - 1] + '-01'), 'MMMM yyyy', { locale: fr })}`;
-                    }
-                  })()}</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Conditions de paiement</h3>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <div className="text-sm text-gray-700 space-y-1">
-                  <p><strong>Échéance:</strong> {(() => {
-                    // Calculer 2 mois après la fin de la période de facturation
-                    const endOfPeriod = new Date(selectedPeriod.endMonth + '-01');
-                    endOfPeriod.setMonth(endOfPeriod.getMonth() + 1); // Fin du mois
-                    endOfPeriod.setDate(0); // Dernier jour du mois
-                    endOfPeriod.setMonth(endOfPeriod.getMonth() + 2); // + 2 mois
-                    return format(endOfPeriod, 'dd/MM/yyyy');
-                  })()}</p>
-                  <p><strong>Délai:</strong> 2 mois après la fin de la période</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Notes et conditions */}
-          <div className="border-t border-gray-200 pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Notes et conditions</h3>
-            <div className="text-sm text-gray-600 space-y-2">
-              <p>
-                • Cette facture concerne {participant.type === 'producer' ? 'la rémunération de votre production' : 'votre consommation'} 
-                d'électricité dans le cadre de la communauté d'énergie Sun Is Up.
-              </p>
-              <p>
-                • Les tarifs appliqués sont conformes aux accords de la communauté d'énergie.
-              </p>
-              <p>
-                • Pour toute question concernant cette facture, contactez-nous à info@sunisup.be ou +32 471 31 71 48.
-              </p>
-              {participant.type === 'producer' && (
-                <p>
-                  • Merci de contribuer à l'approvisionnement en énergie locale de notre communauté.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Pied de page */}
-          <div className="mt-8 pt-6 border-t border-gray-200 text-center text-xs text-gray-500">
-            <p>
-              Sun Is Up ASBL - Communauté d'énergie bruxelloise | 
-              info@sunisup.be | +32 471 31 71 48 | 
-              TVA: BE 1022108004
+          {/* Informations légales */}
+          <div className="text-xs text-gray-500 border-t border-gray-200 pt-4">
+            <p className="mb-2">
+              <strong>Sun Is Up ASBL</strong> - Communauté d'énergie citoyenne
             </p>
-            <p className="mt-1">
-              Facture générée automatiquement le {format(new Date(), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+            <p className="mb-2">
+              Cette facture détaille votre participation à la communauté d'énergie pour la période du{' '}
+              {format(parseISO(invoiceData.period.startDate), 'dd MMMM yyyy', { locale: fr })} au{' '}
+              {format(parseISO(invoiceData.period.endDate), 'dd MMMM yyyy', { locale: fr })}.
+            </p>
+            <p>
+              Les coûts réseau sont calculés selon les tarifs officiels de Sibelga et incluent tous les frais de distribution, transport et taxes réglementaires.
             </p>
           </div>
         </div>
