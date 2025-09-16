@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, Hash, UserPlus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseAvailable } from '../lib/supabase';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -24,6 +24,13 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Check if Supabase is available
+    if (!isSupabaseAvailable()) {
+      toast.error('Mode hors ligne - la connexion nécessite une configuration Supabase valide');
+      setLoading(false);
+      return;
+    }
 
     try {
       if (mode === 'reset') {
@@ -212,7 +219,11 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      toast.error(`Une erreur inattendue s'est produite: ${error.message || 'Erreur inconnue'}`);
+      if (error.message?.includes('No Supabase connection available')) {
+        toast.error('Mode hors ligne - la connexion nécessite une configuration Supabase valide');
+      } else {
+        toast.error(`Une erreur inattendue s'est produite: ${error.message || 'Erreur inconnue'}`);
+      }
     } finally {
       setLoading(false);
     }

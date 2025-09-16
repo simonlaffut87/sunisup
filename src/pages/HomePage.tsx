@@ -22,7 +22,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { divIcon } from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseAvailable } from '../lib/supabase';
 import { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
@@ -49,6 +49,15 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
+      // Check if Supabase is available
+      if (!isSupabaseAvailable()) {
+        console.log('ℹ️ Supabase not available - using empty data');
+        setParticipants([]);
+        setError('Mode hors ligne - données de démonstration non disponibles');
+        setUsingFallbackData(true);
+        return;
+      }
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000);
 
@@ -61,6 +70,13 @@ export default function HomePage() {
       clearTimeout(timeoutId);
       
       if (error) {
+        if (error.code === 'OFFLINE') {
+          console.log('ℹ️ Running in offline mode');
+          setParticipants([]);
+          setError('Mode hors ligne - connectez-vous à Supabase pour voir les données');
+          setUsingFallbackData(true);
+          return;
+        }
         if (error.code === '42501' || error.message?.includes('permission denied')) {
           console.log('ℹ️ Database access restricted by RLS policies - using demo data');
           setParticipants([]);
@@ -76,7 +92,12 @@ export default function HomePage() {
     } catch (error: any) {
       console.error('❌ Erreur chargement participants:', error);
       setParticipants([]);
-      setError('Erreur de connexion à la base de données');
+      if (error.message?.includes('No Supabase connection available')) {
+        setError('Mode hors ligne - connectez-vous à Supabase pour voir les données');
+        setUsingFallbackData(true);
+      } else {
+        setError('Erreur de connexion à la base de données');
+      }
     } finally {
       setLoading(false);
     }

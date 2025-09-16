@@ -4,71 +4,116 @@ import { Database } from '../types/supabase';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Production fallback values
-const fallbackUrl = 'https://qjvlnqjxkqwjxqwjxqwj.supabase.co';
-const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdmxucWp4a3F3anhxd2p4cXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ5NjI0MDAsImV4cCI6MjA1MDUzODQwMH0.demo-key-for-production';
+// Check if we have valid Supabase credentials
+const hasValidCredentials = supabaseUrl && supabaseAnonKey && 
+  supabaseUrl.includes('supabase.co') && 
+  supabaseAnonKey.startsWith('eyJ');
 
 // Debug environment variables
 console.log('Environment check:', {
-  url: supabaseUrl ? 'Present' : 'Missing - using fallback',
-  key: supabaseAnonKey ? 'Present' : 'Missing - using fallback',
+  url: supabaseUrl ? 'Present' : 'Missing',
+  key: supabaseAnonKey ? 'Present' : 'Missing',
+  hasValidCredentials,
   actualUrl: supabaseUrl,
   environment: import.meta.env.MODE
 });
 
-const finalUrl = supabaseUrl || fallbackUrl;
-const finalKey = supabaseAnonKey || fallbackKey;
+// Only create client if we have valid credentials
+let supabase: any = null;
 
-// Validate URL format
-try {
-  new URL(finalUrl);
-} catch (error) {
-  console.error(`Invalid Supabase URL format: ${error.message}`);
+if (hasValidCredentials) {
+  // Validate URL format
+  try {
+    new URL(supabaseUrl);
+    
+    supabase = createClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce'
+        },
+        global: {
+          headers: {
+            'x-application-name': 'sun-is-up'
+          },
+          fetch: (url, options = {}) => {
+            return fetch(url, {
+              ...options,
+              signal: AbortSignal.timeout(8000) // 8 second timeout
+            }).catch(error => {
+              console.warn('Supabase fetch error:', error.message);
+              if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+                throw new Error('Connection timeout - using fallback data');
+              }
+              if (error.message?.includes('Failed to fetch')) {
+                throw new Error('Network connection failed - using fallback data');
+              }
+              throw new Error('Connection to database failed - using fallback data');
+            });
+          }
+        },
+        db: {
+          schema: 'public'
+        },
+        realtime: {
+          params: {
+            eventsPerSecond: 2
+          }
+        }
+      }
+    );
+  } catch (error) {
+    console.error(`Invalid Supabase URL format: ${error.message}`);
+    supabase = null;
+  }
+} else {
+  console.warn('⚠️ No valid Supabase credentials found. Running in offline mode.');
+  console.warn('💡 To connect to Supabase, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
 }
 
-export const supabase = createClient<Database>(
-  finalUrl,
-  finalKey,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce'
-    },
-    global: {
-      headers: {
-        'x-application-name': 'sun-is-up'
-      },
-      fetch: (url, options = {}) => {
-        return fetch(url, {
-          ...options,
-          signal: AbortSignal.timeout(8000) // 8 second timeout
-        }).catch(error => {
-          console.warn('Supabase fetch error:', error.message);
-          if (error.name === 'AbortError' || error.name === 'TimeoutError') {
-            throw new Error('Connection timeout - using fallback data');
-          }
-          if (error.message?.includes('Failed to fetch')) {
-            throw new Error('Network connection failed - using fallback data');
-          }
-          throw new Error('Connection to database failed - using fallback data');
-        });
-      }
-    },
-    db: {
-      schema: 'public'
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 2
-      }
-    }
-  }
-);
+// Create a mock client for offline mode
+const createMockClient = () => ({
+  from: () => ({
+    select: () => ({
+      order: () => ({
+        abortSignal: () => Promise.resolve({ data: [], error: { code: 'OFFLINE', message: 'No Supabase connection available' } })
+      })
+    })
+  }),
+  auth: {
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    signInWithPassword: () => Promise.resolve({ 
+      data: null, 
+      error: { message: 'No Supabase connection available - running in offline mode' } 
+    }),
+    signUp: () => Promise.resolve({ 
+      data: null, 
+      error: { message: 'No Supabase connection available - running in offline mode' } 
+    }),
+    resetPasswordForEmail: () => Promise.resolve({ 
+      error: { message: 'No Supabase connection available - running in offline mode' } 
+    })
+  },
+  rpc: () => Promise.resolve({ 
+    data: null, 
+    error: { message: 'No Supabase connection available - running in offline mode' } 
+  })
+});
+
+// Export the client (real or mock)
+export { supabase: supabase || createMockClient() };
 
 // Helper function to handle RLS permission errors silently
 export const handleSupabaseError = (error: any) => {
+  // Check if we're in offline mode
+  if (error?.code === 'OFFLINE') {
+    return null;
+  }
+  
   // Check if it's a RLS permission denied error (code 42501)
   if (error?.code === '42501' || 
       (error?.message && error.message.includes('permission denied')) ||
@@ -80,8 +125,18 @@ export const handleSupabaseError = (error: any) => {
   throw error;
 };
 
+// Helper function to check if Supabase is available
+export const isSupabaseAvailable = () => {
+  return hasValidCredentials && supabase !== null;
+};
+
 // Enhanced connection test with better error handling
 const testConnection = async () => {
+  if (!hasValidCredentials) {
+    console.log('ℹ️ No Supabase credentials - running in offline mode');
+    return false;
+  }
+  
   console.log('Testing Supabase connection...');
   console.log('Connecting to:', supabaseUrl);
   
@@ -173,16 +228,18 @@ const testConnection = async () => {
 };
 
 // Test connection with timeout
-const connectionPromise = Promise.race([
-  testConnection(),
-  new Promise((_, reject) => 
-    setTimeout(() => reject(new Error('Connection test timeout')), 10000)
-  )
-]).catch((error) => {
-  return false;
-});
+const connectionPromise = hasValidCredentials ? 
+  Promise.race([
+    testConnection(),
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Connection test timeout')), 10000)
+    )
+  ]).catch((error) => {
+    return false;
+  }) : 
+  Promise.resolve(false);
 
 // Initialize connection test
 connectionPromise;
 
-export default supabase;
+export default supabase || createMockClient();
