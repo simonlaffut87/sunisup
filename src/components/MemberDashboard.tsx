@@ -314,17 +314,28 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   };
 
   // Calculer les totaux annuels
-  const yearlyTotals = monthlyData.reduce((totals, month) => ({
-    volume_partage: totals.volume_partage + month.volume_partage,
-    volume_complementaire: totals.volume_complementaire + month.volume_complementaire,
-    injection_partagee: totals.injection_partagee + month.injection_partagee,
-    injection_complementaire: totals.injection_complementaire + month.injection_complementaire
-  }), {
+  const yearlyTotals = monthlyData.reduce((totals, month) => {
+    console.log(`📊 Ajout mois ${month.month}:`, {
+      volume_partage: month.volume_partage,
+      volume_complementaire: month.volume_complementaire,
+      injection_partagee: month.injection_partagee,
+      injection_complementaire: month.injection_complementaire
+    });
+    
+    return {
+      volume_partage: totals.volume_partage + (month.volume_partage || 0),
+      volume_complementaire: totals.volume_complementaire + (month.volume_complementaire || 0),
+      injection_partagee: totals.injection_partagee + (month.injection_partagee || 0),
+      injection_complementaire: totals.injection_complementaire + (month.injection_complementaire || 0)
+    };
+  }, {
     volume_partage: 0,
     volume_complementaire: 0,
     injection_partagee: 0,
     injection_complementaire: 0
   });
+
+  console.log('📊 TOTAUX ANNUELS CALCULÉS:', yearlyTotals);
 
   const totalConsumption = yearlyTotals.volume_partage + yearlyTotals.volume_complementaire;
   const totalInjection = yearlyTotals.injection_partagee + yearlyTotals.injection_complementaire;
@@ -438,9 +449,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
                   {isConsumerGroup 
-                    ? (yearlyTotals.volume_partage / 1000).toFixed(1) 
-                    : (yearlyTotals.injection_partagee / 1000).toFixed(1)
-                  } MWh
+                    ? `${(yearlyTotals.volume_partage / 1000).toFixed(1)} MWh`
+                    : `${(yearlyTotals.injection_partagee / 1000).toFixed(1)} MWh`
+                  }
                 </p>
               </div>
             </div>
@@ -459,9 +470,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
                   {isConsumerGroup 
-                    ? (yearlyTotals.volume_complementaire / 1000).toFixed(1) 
-                    : (yearlyTotals.injection_complementaire / 1000).toFixed(1)
-                  } MWh
+                    ? `${(yearlyTotals.volume_complementaire / 1000).toFixed(1)} MWh`
+                    : `${(yearlyTotals.injection_complementaire / 1000).toFixed(1)} MWh`
+                  }
                 </p>
               </div>
             </div>
@@ -480,9 +491,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
                   {isConsumerGroup 
-                    ? consumptionSharedPercentage.toFixed(1)
-                    : injectionSharedPercentage.toFixed(1)
-                  }%
+                    ? `${consumptionSharedPercentage.toFixed(1)}%`
+                    : `${injectionSharedPercentage.toFixed(1)}%`
+                  }
                 </p>
               </div>
             </div>
