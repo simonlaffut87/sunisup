@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Users, Calculator, UserPlus, Globe2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
@@ -17,6 +18,7 @@ function Navigation() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { t, i18n } = useTranslation();
   const { t, i18n } = useTranslation();
   const location = useLocation();
 
@@ -235,6 +237,7 @@ function App() {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Check for existing session
