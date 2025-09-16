@@ -449,8 +449,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
                   {isConsumerGroup 
-                    ? `${(yearlyTotals.volume_partage / 1000).toFixed(1)} MWh`
-                    : `${(yearlyTotals.injection_partagee / 1000).toFixed(1)} MWh`
+                    ? `${(yearlyTotals.volume_partage / 1000).toFixed(2)} MWh`
+                    : `${(yearlyTotals.injection_partagee / 1000).toFixed(2)} MWh`
                   }
                 </p>
               </div>
@@ -470,8 +470,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </p>
                 <p className="text-xl font-semibold text-gray-900">
                   {isConsumerGroup 
-                    ? `${(yearlyTotals.volume_complementaire / 1000).toFixed(1)} MWh`
-                    : `${(yearlyTotals.injection_complementaire / 1000).toFixed(1)} MWh`
+                    ? `${(yearlyTotals.volume_complementaire / 1000).toFixed(2)} MWh`
+                    : `${(yearlyTotals.injection_complementaire / 1000).toFixed(2)} MWh`
                   }
                 </p>
               </div>
