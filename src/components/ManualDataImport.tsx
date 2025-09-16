@@ -117,6 +117,47 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                (header.includes('reseau') || header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel'));
       });
       
+      // Recherche des colonnes de coûts réseau
+      const networkCostColumns = {
+        utilisationReseau: headers.findIndex(h => {
+          const header = String(h).toLowerCase();
+          return header.includes('utilisation') && header.includes('réseau') && header.includes('htva');
+        }),
+        surcharges: headers.findIndex(h => {
+          const header = String(h).toLowerCase();
+          return header.includes('surcharges') && header.includes('htva');
+        }),
+        tarifCapacitaire: headers.findIndex(h => {
+          const header = String(h).toLowerCase();
+          return header.includes('tarif') && header.includes('capac') && header.includes('htva');
+        }),
+        tarifMesure: headers.findIndex(h => {
+          const header = String(h).toLowerCase();
+          return header.includes('tarif') && header.includes('mesure') && header.includes('comptage') && header.includes('htva');
+        }),
+        tarifOSP: headers.findIndex(h => {
+          const header = String(h).toLowerCase();
+          return header.includes('tarif') && header.includes('osp') && header.includes('htva');
+        }),
+        transportELIA: headers.findIndex(h => {
+          const header = String(h).toLowerCase();
+          return header.includes('transport') && header.includes('elia') && header.includes('htva');
+        }),
+        redevanceVoirie: headers.findIndex(h => {
+          const header = String(h).toLowerCase();
+          return header.includes('redevance') && header.includes('voirie') && header.includes('htva');
+        }),
+        totalFraisReseau: headers.findIndex(h => {
+          const header = String(h).toLowerCase();
+          return header.includes('total') && header.includes('frais') && header.includes('réseau') && header.includes('htva');
+        })
+      };
+      
+      addLog('🔍 COLONNES COÛTS RÉSEAU DÉTECTÉES:');
+      Object.entries(networkCostColumns).forEach(([key, index]) => {
+        addLog(`  ${key}: ${index >= 0 ? `✅ "${headers[index]}" (index ${index})` : '❌ NON TROUVÉE'}`);
+      });
+      
       addSubSection('MAPPING DES COLONNES');
       
       if (eanIndex >= 0) {
@@ -223,6 +264,16 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                 volume_complementaire: 0,
                 injection_partagee: 0,
                 injection_complementaire: 0
+              },
+              networkCosts: {
+                utilisationReseau: 0,
+                surcharges: 0,
+                tarifCapacitaire: 0,
+                tarifMesure: 0,
+                tarifOSP: 0,
+                transportELIA: 0,
+                redevanceVoirie: 0,
+                totalFraisReseau: 0
               }
             };
             addLog(`✅ Participant initialisé: ${mappedParticipant.name} (${finalEan})`);
@@ -243,6 +294,50 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const volumeComplementaire = parseValue(row[volumeComplementaireIndex]);
           const injectionPartage = parseValue(row[injectionPartageIndex]);
           const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
+          
+          // Extraire les coûts réseau (une seule fois par EAN, sur la ligne HIGH)
+          const registre = String(row[headers.findIndex(h => h.toLowerCase().includes('registre'))] || '').trim().toUpperCase();
+          if ((registre === 'HI' || registre === 'HIGH') && networkCostColumns.totalFraisReseau >= 0) {
+            const parseNetworkCost = (value: any) => {
+              if (!value) return 0;
+              const cleaned = String(value)
+                .replace(/,/g, '.') // Virgule -> point
+                .replace(/\s/g, '') // Supprimer espaces
+                .replace(/[^\d.-]/g, ''); // Garder seulement chiffres, point et tiret
+              const parsed = parseFloat(cleaned);
+              return isNaN(parsed) ? 0 : Math.abs(parsed);
+            };
+            
+            // Extraire tous les coûts réseau
+            const networkCosts = {
+              utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau]) : 0,
+              surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges]) : 0,
+              tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire]) : 0,
+              tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure]) : 0,
+              tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP]) : 0,
+              transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA]) : 0,
+              redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie]) : 0,
+              totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau]) : 0
+            };
+            
+            // Assigner aux données du participant
+            Object.assign(participantData[finalEan].networkCosts, networkCosts);
+            
+            // Log pour les premières lignes
+            if (i <= 5) {
+              addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - COÛTS RÉSEAU:`);
+              Object.entries(networkCosts).forEach(([key, value]) => {
+                if (Number(value) > 0) {
+                  addLog(`  ✅ ${key}: ${value}€`);
+                }
+              });
+              
+              const nonZeroCosts = Object.entries(networkCosts).filter(([, value]) => Number(value) > 0);
+              if (nonZeroCosts.length === 0) {
+                addLog(`  ⚠️ ATTENTION: Tous les coûts réseau sont à 0 pour ${finalEan}`);
+              }
+            }
+          }
           
           // Log détaillé seulement pour les 3 premières lignes avec des valeurs
           if (i <= 3 && (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0)) {
@@ -290,7 +385,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         
         const { data: participant, error: findError } = await supabase
           .from('participants')
-          .select('id, monthly_data, name')
+          .select('id, monthly_data, billing_data, name')
           .eq('ean_code', eanCode)
           .limit(1);
 
@@ -336,9 +431,44 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           updated_at: new Date().toISOString()
         };
         
+        // Préparer les données de facturation avec les coûts réseau
+        const newBillingData = {
+          month: month,
+          networkCosts: (data as any).networkCosts || {
+            utilisationReseau: 0,
+            surcharges: 0,
+            tarifCapacitaire: 0,
+            tarifMesure: 0,
+            tarifOSP: 0,
+            transportELIA: 0,
+            redevanceVoirie: 0,
+            totalFraisReseau: 0
+          },
+          updated_at: new Date().toISOString()
+        };
+        
         const updatedData = {
           ...existingData,
           [month]: newMonthData
+        };
+        
+        // Mettre à jour billing_data aussi
+        let existingBillingData = {};
+        if (participantData.billing_data) {
+          try {
+            if (typeof participantData.billing_data === 'string') {
+              existingBillingData = JSON.parse(participantData.billing_data);
+            } else {
+              existingBillingData = participantData.billing_data;
+            }
+          } catch (e) {
+            existingBillingData = {};
+          }
+        }
+        
+        const updatedBillingData = {
+          ...existingBillingData,
+          [month]: newBillingData
         };
         
         // Log détaillé seulement pour les 2 premiers participants
@@ -348,15 +478,17 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           addInfo(`  Volume Complémentaire: ${newMonthData.volume_complementaire} kWh`);
           addInfo(`  Injection Partagée: ${newMonthData.injection_partagee} kWh`);
           addInfo(`  Injection Complémentaire: ${newMonthData.injection_complementaire} kWh`);
+          addInfo(`  Coûts réseau: Total=${newBillingData.networkCosts.totalFraisReseau}€`);
         }
 
         const { data: updateResult, error: updateError } = await supabase
           .from('participants')
           .update({ 
-            monthly_data: updatedData
+            monthly_data: updatedData,
+            billing_data: updatedBillingData
           })
           .eq('id', participantData.id)
-          .select('monthly_data');
+          .select('monthly_data, billing_data');
 
         if (updateError) {
           addError(`Échec sauvegarde ${participantData.name}: ${updateError.message}`);
@@ -372,9 +504,42 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           
           const { data: verifyData, error: verifyError } = await supabase
             .from('participants')
-            .select('monthly_data')
+            .select('monthly_data, billing_data, name')
             .eq('id', participantData.id)
-            .limit(1);
+            .single();
+          
+          if (!verifyError && verifyData) {
+            console.log(`🔍 VÉRIFICATION RÉUSSIE pour ${verifyData.name}:`);
+            console.log(`📊 monthly_data en base:`, verifyData.monthly_data);
+            console.log(`💰 billing_data en base:`, verifyData.billing_data);
+            
+            if (verifyData.monthly_data && verifyData.monthly_data[month]) {
+              console.log(`✅ CONFIRMATION monthly_data: Données du mois ${month} bien présentes en base !`);
+              console.log(`📊 Valeurs confirmées:`, verifyData.monthly_data[month]);
+            } else {
+              console.error(`❌ PROBLÈME monthly_data: Données du mois ${month} NON trouvées en base après sauvegarde !`);
+              console.log(`📊 Structure monthly_data actuelle:`, verifyData.monthly_data);
+            }
+            
+            if (verifyData.billing_data && verifyData.billing_data[month]) {
+              console.log(`✅ CONFIRMATION billing_data: Données du mois ${month} bien présentes en base !`);
+              console.log(`💰 Coûts réseau confirmés:`, verifyData.billing_data[month].networkCosts);
+              
+              // Vérifier que les coûts ne sont pas tous à 0
+              const costs = verifyData.billing_data[month].networkCosts;
+              const nonZeroCosts = Object.entries(costs).filter(([, value]) => Number(value) > 0);
+              if (nonZeroCosts.length > 0) {
+                console.log(`✅ ${nonZeroCosts.length} coûts réseau non-nuls confirmés`);
+              } else {
+                console.warn(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 - vérifiez les données source`);
+              }
+            } else {
+              console.error(`❌ PROBLÈME billing_data: Données du mois ${month} NON trouvées en base après sauvegarde !`);
+              console.log(`💰 Structure billing_data actuelle:`, verifyData.billing_data);
+            }
+          } else {
+            console.error(`❌ ERREUR VÉRIFICATION pour ${participantData.name}:`, verifyError);
+          }
           
           if (verifyError) {
             addWarning(`Erreur vérification ${participantData.name}: ${verifyError.message}`);
