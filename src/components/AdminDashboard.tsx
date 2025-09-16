@@ -264,6 +264,7 @@ export function AdminDashboard() {
     }
 
     // Créer un objet utilisateur pour afficher le dashboard
+    const userObj = {
       id: participant.id,
       participant_id: participant.id, // Ajouter l'ID spécifique du participant
       email: participant.email,
@@ -277,6 +278,7 @@ export function AdminDashboard() {
     };
     
     setViewingMemberDashboard(userObj);
+  };
 
   const handleCloseMemberDashboard = () => {
     setViewingMemberDashboard(null);
@@ -315,8 +317,29 @@ export function AdminDashboard() {
     setShowInvoice(true);
   };
 
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    
+    try {
+      console.log('🚪 Déconnexion admin...');
+      
+      // Clear all state
+      setParticipants([]);
+      setLoading(false);
+      setShowForm(false);
+      setEditingParticipant(null);
+      setViewingMemberDashboard(null);
+      setRefreshing(false);
+      setShowInvoice(false);
+      setSelectedParticipantForInvoice(null);
+      setShowPeriodSelection(false);
+      setSelectedPeriod({ startMonth: '', endMonth: '' });
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
         console.error('Erreur chargement participants:', error);
-        setChartData([]);
       }
       
       // Clear session storage
@@ -331,7 +354,6 @@ export function AdminDashboard() {
       localStorage.clear();
       sessionStorage.clear();
       window.location.href = '/';
-      setChartData([]);
     }
   };
 
