@@ -133,43 +133,59 @@ export class BasicFileReader {
     
     // Recherche des colonnes de coûts réseau
     const networkCostColumns = {
-      utilisationReseau: headers.findIndex(h => {
+      utilisationReseau: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        return header.includes('utilisation') && header.includes('réseau') && header.includes('htva');
+        const result = header.includes('utilisation') && header.includes('réseau') && header.includes('htva');
+        if (result) onLog?.(`🔍 Utilisation réseau trouvée: "${h}" (index ${index})`);
+        return result;
       }),
-      surcharges: headers.findIndex(h => {
+      surcharges: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        return header.includes('surcharges') && header.includes('htva');
+        const result = header.includes('surcharges') && header.includes('htva');
+        if (result) onLog?.(`🔍 Surcharges trouvée: "${h}" (index ${index})`);
+        return result;
       }),
-      tarifCapacitaire: headers.findIndex(h => {
+      tarifCapacitaire: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        return header.includes('tarif') && header.includes('capac') && header.includes('htva');
+        const result = header.includes('tarif') && header.includes('capac') && header.includes('htva');
+        if (result) onLog?.(`🔍 Tarif capacitaire trouvé: "${h}" (index ${index})`);
+        return result;
       }),
-      tarifMesure: headers.findIndex(h => {
+      tarifMesure: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        return header.includes('tarif') && header.includes('mesure') && header.includes('comptage') && header.includes('htva');
+        const result = header.includes('tarif') && header.includes('mesure') && header.includes('comptage') && header.includes('htva');
+        if (result) onLog?.(`🔍 Tarif mesure trouvé: "${h}" (index ${index})`);
+        return result;
       }),
-      tarifOSP: headers.findIndex(h => {
+      tarifOSP: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        return header.includes('tarif') && header.includes('osp') && header.includes('htva');
+        const result = header.includes('tarif') && header.includes('osp') && header.includes('htva');
+        if (result) onLog?.(`🔍 Tarif OSP trouvé: "${h}" (index ${index})`);
+        return result;
       }),
-      transportELIA: headers.findIndex(h => {
+      transportELIA: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        return header.includes('transport') && header.includes('elia') && header.includes('htva');
+        const result = header.includes('transport') && header.includes('elia') && header.includes('htva');
+        if (result) onLog?.(`🔍 Transport ELIA trouvé: "${h}" (index ${index})`);
+        return result;
       }),
-      redevanceVoirie: headers.findIndex(h => {
+      redevanceVoirie: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        return header.includes('redevance') && header.includes('voirie') && header.includes('htva');
+        const result = header.includes('redevance') && header.includes('voirie') && header.includes('htva');
+        if (result) onLog?.(`🔍 Redevance voirie trouvée: "${h}" (index ${index})`);
+        return result;
       }),
-      totalFraisReseau: headers.findIndex(h => {
+      totalFraisReseau: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        return header.includes('total') && header.includes('frais') && header.includes('réseau') && header.includes('htva');
+        const result = header.includes('total') && header.includes('frais') && header.includes('réseau') && header.includes('htva');
+        if (result) onLog?.(`🔍 Total frais réseau trouvé: "${h}" (index ${index})`);
+        return result;
       })
     };
     
-    onLog?.(`🔍 Colonnes coûts réseau trouvées:`);
+    onLog?.(`🔍 RÉSUMÉ COLONNES COÛTS RÉSEAU:`);
     Object.entries(networkCostColumns).forEach(([key, index]) => {
-      onLog?.(`  ${key}: ${index >= 0 ? `${headers[index]} (index ${index})` : 'NON TROUVÉE'}`);
+      onLog?.(`  ${key}: ${index >= 0 ? `✅ "${headers[index]}" (index ${index})` : '❌ NON TROUVÉE'}`);
     });
     
     // Recherche plus flexible des colonnes
@@ -319,21 +335,61 @@ export class BasicFileReader {
         }
         
         // Extraire les coûts réseau (une seule fois par EAN, pas par registre)
-        if (registre === 'HI' || registre === 'HIGH') {
+        if ((registre === 'HI' || registre === 'HIGH') && networkCostColumns.totalFraisReseau >= 0) {
           const parseNetworkCost = (value: any) => {
             if (!value) return 0;
-            const cleaned = String(value).replace(',', '.').replace(/[^\d.-]/g, '');
-            return parseFloat(cleaned) || 0;
+            const cleaned = String(value)
+              .replace(/,/g, '.') // Virgule -> point
+              .replace(/\s/g, '') // Supprimer espaces
+              .replace(/[^\d.-]/g, ''); // Garder seulement chiffres, point et tiret
+            const parsed = parseFloat(cleaned);
+            return isNaN(parsed) ? 0 : Math.abs(parsed); // Valeur absolue pour éviter les négatifs
           };
           
-          eanGroups[eanCode].networkCosts.utilisationReseau = parseNetworkCost(row[networkCostColumns.utilisationReseau]);
-          eanGroups[eanCode].networkCosts.surcharges = parseNetworkCost(row[networkCostColumns.surcharges]);
-          eanGroups[eanCode].networkCosts.tarifCapacitaire = parseNetworkCost(row[networkCostColumns.tarifCapacitaire]);
-          eanGroups[eanCode].networkCosts.tarifMesure = parseNetworkCost(row[networkCostColumns.tarifMesure]);
-          eanGroups[eanCode].networkCosts.tarifOSP = parseNetworkCost(row[networkCostColumns.tarifOSP]);
-          eanGroups[eanCode].networkCosts.transportELIA = parseNetworkCost(row[networkCostColumns.transportELIA]);
-          eanGroups[eanCode].networkCosts.redevanceVoirie = parseNetworkCost(row[networkCostColumns.redevanceVoirie]);
-          eanGroups[eanCode].networkCosts.totalFraisReseau = parseNetworkCost(row[networkCostColumns.totalFraisReseau]);
+          // Extraire chaque coût réseau avec logging détaillé
+          const networkCosts = {
+            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau]) : 0,
+            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges]) : 0,
+            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire]) : 0,
+            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure]) : 0,
+            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP]) : 0,
+            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA]) : 0,
+            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie]) : 0,
+            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau]) : 0,
+            // Stocker aussi les valeurs brutes pour debug
+            utilisationReseauRaw: networkCostColumns.utilisationReseau >= 0 ? String(row[networkCostColumns.utilisationReseau] || '') : '',
+            surchargesRaw: networkCostColumns.surcharges >= 0 ? String(row[networkCostColumns.surcharges] || '') : '',
+            tarifCapacitaireRaw: networkCostColumns.tarifCapacitaire >= 0 ? String(row[networkCostColumns.tarifCapacitaire] || '') : '',
+            tarifMesureRaw: networkCostColumns.tarifMesure >= 0 ? String(row[networkCostColumns.tarifMesure] || '') : '',
+            tarifOSPRaw: networkCostColumns.tarifOSP >= 0 ? String(row[networkCostColumns.tarifOSP] || '') : '',
+            transportELIARaw: networkCostColumns.transportELIA >= 0 ? String(row[networkCostColumns.transportELIA] || '') : '',
+            redevanceVoirieRaw: networkCostColumns.redevanceVoirie >= 0 ? String(row[networkCostColumns.redevanceVoirie] || '') : '',
+            totalFraisReseauRaw: networkCostColumns.totalFraisReseau >= 0 ? String(row[networkCostColumns.totalFraisReseau] || '') : ''
+          };
+          
+          // Assigner aux données du groupe
+          Object.assign(eanGroups[eanCode].networkCosts, networkCosts);
+          
+          // Log détaillé pour les premières lignes
+          if (i < 5) {
+            onLog?.(`💰 LIGNE ${i} - EAN ${eanCode} (${registre}) - COÛTS RÉSEAU EXTRAITS:`);
+            Object.entries(networkCosts).forEach(([key, value]) => {
+              if (!key.endsWith('Raw')) {
+                const rawKey = key + 'Raw';
+                const rawValue = networkCosts[rawKey as keyof typeof networkCosts];
+                onLog?.(`  ${key}: ${value}€ (valeur brute: "${rawValue}")`);
+              }
+            });
+            
+            // Vérifier si au moins un coût est non-nul
+            const nonZeroCosts = Object.entries(networkCosts)
+              .filter(([key, value]) => !key.endsWith('Raw') && Number(value) > 0);
+            if (nonZeroCosts.length > 0) {
+              onLog?.(`✅ ${nonZeroCosts.length} coûts réseau non-nuls trouvés pour ${eanCode}`);
+            } else {
+              onLog?.(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 pour ${eanCode} - vérifiez les données source`);
+            }
+          }
         }
         
         // Extraire les valeurs de la ligne
@@ -421,8 +477,15 @@ export class BasicFileReader {
       };
       
       console.log(`✅ EAN ${eanCode} - Total: VP=${participantData[eanCode].data.volume_partage.toFixed(2)}, VC=${participantData[eanCode].data.volume_complementaire.toFixed(2)}`);
-      console.log(`💰 EAN ${eanCode} - Coûts réseau inclus: Total=${group.networkCosts.totalFraisReseau.toFixed(2)}€`);
-      console.log(`💰 EAN ${eanCode} - Structure networkCosts:`, Object.keys(group.networkCosts));
+      console.log(`💰 EAN ${eanCode} - Coûts réseau inclus:`);
+      console.log(`  Utilisation réseau: ${group.networkCosts.utilisationReseau.toFixed(2)}€`);
+      console.log(`  Surcharges: ${group.networkCosts.surcharges.toFixed(2)}€`);
+      console.log(`  Tarif capacitaire: ${group.networkCosts.tarifCapacitaire.toFixed(2)}€`);
+      console.log(`  Tarif mesure: ${group.networkCosts.tarifMesure.toFixed(2)}€`);
+      console.log(`  Tarif OSP: ${group.networkCosts.tarifOSP.toFixed(2)}€`);
+      console.log(`  Transport ELIA: ${group.networkCosts.transportELIA.toFixed(2)}€`);
+      console.log(`  Redevance voirie: ${group.networkCosts.redevanceVoirie.toFixed(2)}€`);
+      console.log(`  TOTAL: ${group.networkCosts.totalFraisReseau.toFixed(2)}€`);
     });
     
     console.log('✅ Données accumulées par EAN:', Object.keys(participantData).length, 'participants');
@@ -533,6 +596,7 @@ export class BasicFileReader {
           
           // Préparer les nouvelles données de coûts réseau pour ce mois
           const newBillingData = {
+            month: month,
             networkCosts: {
               utilisationReseau: participantData.networkCosts.utilisationReseau,
               surcharges: participantData.networkCosts.surcharges,
@@ -543,10 +607,22 @@ export class BasicFileReader {
               redevanceVoirie: participantData.networkCosts.redevanceVoirie,
               totalFraisReseau: participantData.networkCosts.totalFraisReseau
             },
+            rawData: {
+              // Stocker aussi les valeurs brutes pour debug
+              utilisationReseauRaw: participantData.networkCosts.utilisationReseauRaw || '',
+              surchargesRaw: participantData.networkCosts.surchargesRaw || '',
+              tarifCapacitaireRaw: participantData.networkCosts.tarifCapacitaireRaw || '',
+              tarifMesureRaw: participantData.networkCosts.tarifMesureRaw || '',
+              tarifOSPRaw: participantData.networkCosts.tarifOSPRaw || '',
+              transportELIARaw: participantData.networkCosts.transportELIARaw || '',
+              redevanceVoirieRaw: participantData.networkCosts.redevanceVoirieRaw || '',
+              totalFraisReseauRaw: participantData.networkCosts.totalFraisReseauRaw || ''
+            },
             updated_at: new Date().toISOString()
           };
           
-          console.log(`💰 Nouvelles données billing pour ${month}:`, newBillingData);
+          console.log(`💰 NOUVELLES DONNÉES BILLING pour ${participant.name} - ${month}:`);
+          console.log(`💰 Structure complète:`, JSON.stringify(newBillingData, null, 2));
           
           // Ajouter/mettre à jour les données pour ce mois
           const updatedBillingData = {
@@ -557,7 +633,9 @@ export class BasicFileReader {
           console.log(`💾 Données billing complètes à sauvegarder:`, updatedBillingData);
           
           // Mettre à jour dans la base de données
-          console.log(`💾 DÉBUT SAUVEGARDE billing_data pour participant ID: ${participant.id}`);
+          console.log(`💾 DÉBUT SAUVEGARDE billing_data pour ${participant.name} (ID: ${participant.id})`);
+          console.log(`💰 Données à sauvegarder:`, JSON.stringify(updatedBillingData, null, 2));
+          
           const { data: updateResult, error: updateError } = await supabase
             .from('participants')
             .update({ 
@@ -583,19 +661,29 @@ export class BasicFileReader {
             console.log(`🔍 VÉRIFICATION billing_data pour ${participant.name}...`);
             const { data: verifyData, error: verifyError } = await supabase
               .from('participants')
-              .select('billing_data')
+              .select('billing_data, name')
               .eq('id', participant.id)
               .single();
             
             if (!verifyError && verifyData) {
-              console.log(`🔍 VÉRIFICATION billing_data RÉUSSIE pour ${participant.name}:`);
-              console.log(`💰 billing_data en base:`, verifyData.billing_data);
+              console.log(`🔍 VÉRIFICATION billing_data RÉUSSIE pour ${verifyData.name}:`);
+              console.log(`💰 billing_data complet en base:`, JSON.stringify(verifyData.billing_data, null, 2));
               
               if (verifyData.billing_data && verifyData.billing_data[month]) {
-                console.log(`✅ CONFIRMATION: Données billing du mois ${month} bien présentes en base !`);
-                console.log(`💰 Coûts réseau confirmés:`, verifyData.billing_data[month].networkCosts);
+                console.log(`✅ CONFIRMATION: Données billing du mois ${month} bien présentes en base pour ${verifyData.name} !`);
+                console.log(`💰 Coûts réseau confirmés pour ${month}:`, JSON.stringify(verifyData.billing_data[month].networkCosts, null, 2));
+                
+                // Vérifier que les valeurs ne sont pas toutes à 0
+                const costs = verifyData.billing_data[month].networkCosts;
+                const totalNonZero = Object.values(costs).filter((v: any) => Number(v) > 0).length;
+                if (totalNonZero > 0) {
+                  console.log(`✅ ${totalNonZero} coûts réseau non-nuls confirmés pour ${verifyData.name}`);
+                } else {
+                  console.warn(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 pour ${verifyData.name} - vérifiez les données source`);
+                }
               } else {
-                console.error(`❌ PROBLÈME: Données billing du mois ${month} NON trouvées en base après sauvegarde !`);
+                console.error(`❌ PROBLÈME: Données billing du mois ${month} NON trouvées en base après sauvegarde pour ${verifyData.name} !`);
+                console.log(`📊 Structure billing_data actuelle:`, verifyData.billing_data);
               }
             } else {
               console.error(`❌ ERREUR VÉRIFICATION billing_data pour ${participant.name}:`, verifyError);
