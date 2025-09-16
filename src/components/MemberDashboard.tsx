@@ -210,8 +210,36 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         updated_at: new Date().toISOString(),
         monthly_data: {
           '2024-12': {
-            volume_partage: 1500,
-            volume_complementaire: 2500,
+            volume_partage: 3500,
+            volume_complementaire: 4200,
+            injection_partagee: 0,
+            injection_complementaire: 0,
+            updated_at: new Date().toISOString()
+          },
+          '2024-11': {
+            volume_partage: 3200,
+            volume_complementaire: 3800,
+            injection_partagee: 0,
+            injection_complementaire: 0,
+            updated_at: new Date().toISOString()
+          },
+          '2024-10': {
+            volume_partage: 2800,
+            volume_complementaire: 3500,
+            injection_partagee: 0,
+            injection_complementaire: 0,
+            updated_at: new Date().toISOString()
+          },
+          '2024-11': {
+            volume_partage: 3200,
+            volume_complementaire: 3800,
+            injection_partagee: 0,
+            injection_complementaire: 0,
+            updated_at: new Date().toISOString()
+          },
+          '2024-10': {
+            volume_partage: 2800,
+            volume_complementaire: 3500,
             injection_partagee: 0,
             injection_complementaire: 0,
             updated_at: new Date().toISOString()
