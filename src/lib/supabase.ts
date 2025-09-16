@@ -105,7 +105,7 @@ const createMockClient = () => ({
 });
 
 // Export the client (real or mock)
-export { supabase: supabase || createMockClient() };
+export const supabase = supabase || createMockClient();
 
 // Helper function to handle RLS permission errors silently
 export const handleSupabaseError = (error: any) => {
