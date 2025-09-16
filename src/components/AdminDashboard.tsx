@@ -242,7 +242,6 @@ export function AdminDashboard() {
 
   const handleEdit = (participant: Participant) => {
     setEditingParticipant(participant);
-    setShowForm(true);
   };
 
   const handleAdd = () => {
@@ -265,7 +264,6 @@ export function AdminDashboard() {
     }
 
     // Créer un objet utilisateur pour afficher le dashboard
-    const userObj = {
       id: participant.id,
       participant_id: participant.id, // Ajouter l'ID spécifique du participant
       email: participant.email,
@@ -279,7 +277,6 @@ export function AdminDashboard() {
     };
     
     setViewingMemberDashboard(userObj);
-  };
 
   const handleCloseMemberDashboard = () => {
     setViewingMemberDashboard(null);
@@ -309,7 +306,6 @@ export function AdminDashboard() {
       toast.error('Veuillez sélectionner une période valide');
       return;
     }
-    
     if (selectedPeriod.startMonth > selectedPeriod.endMonth) {
       toast.error('Le mois de début doit être antérieur ou égal au mois de fin');
       return;
@@ -319,24 +315,9 @@ export function AdminDashboard() {
     setShowInvoice(true);
   };
 
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
-    
-    setIsLoggingOut(true);
-    
-    try {
-      // Sign out from Supabase with global scope to invalidate server session
-      await supabase.auth.signOut({ scope: 'global' });
-      
-      // Clear all Supabase-related keys from localStorage
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.startsWith('supabase.auth.') || key.startsWith('sb-'))) {
-          keysToRemove.push(key);
-        }
+        console.error('Erreur chargement participants:', error);
+        setChartData([]);
       }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
       
       // Clear session storage
       sessionStorage.clear();
@@ -350,6 +331,7 @@ export function AdminDashboard() {
       localStorage.clear();
       sessionStorage.clear();
       window.location.href = '/';
+      setChartData([]);
     }
   };
 

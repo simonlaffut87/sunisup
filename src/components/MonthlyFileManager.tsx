@@ -194,33 +194,69 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
   const loadFiles = () => {
     try {
       setLoading(true);
-      const monthlyData = localStorage.getItem('monthly_data');
-      console.log('🔍 Données localStorage brutes:', monthlyData);
+      console.log('🔍 Chargement des fichiers depuis Supabase participants...');
       
-      if (monthlyData) {
-        const data = JSON.parse(monthlyData);
-        console.log('📊 Données parsées:', data);
-        const fileRecords = Object.entries(data).map(([month, fileData]: [string, any]) => ({
-          id: month,
-          month,
-          filename: fileData.filename || `${month}.xlsx`,
-          upload_date: fileData.upload_date || new Date().toISOString(),
-          file_size: 0,
-          status: 'processed',
-          data_points: fileData.stats?.validRowsImported || 0,
-          participant_count: Object.keys(fileData.participants || {}).length,
-          unknown_eans: fileData.stats?.unknownEansSkipped || [],
-          mesures_count: fileData.stats?.mesuresCount || fileData.mesures?.length || 0
-        }));
-        setFiles(fileRecords.sort((a, b) => b.month.localeCompare(a.month)));
-      } else {
-        setFiles([]);
-        setChartData([]);
-      }
+      // Charger directement depuis les participants Supabase
+      supabase
+        .from('participants')
+        .select('monthly_data')
+        .not('monthly_data', 'is', null)
+        .then(({ data: participants, error }) => {
+          if (error) {
+            console.error('Erreur chargement participants:', error);
+            setFiles([]);
+            return;
+          }
+
+          // Extraire tous les mois disponibles
+          const monthsSet = new Set<string>();
+          participants?.forEach(participant => {
+            if (participant.monthly_data) {
+              try {
+                let monthlyData;
+                if (typeof participant.monthly_data === 'string') {
+                  monthlyData = JSON.parse(participant.monthly_data);
+                } else {
+                  monthlyData = participant.monthly_data;
+                }
+                Object.keys(monthlyData).forEach(month => monthsSet.add(month));
+              } catch (error) {
+                console.warn('Erreur parsing monthly_data:', error);
+              }
+            }
+          });
+
+          const fileRecords = Array.from(monthsSet).map(month => ({
+            id: month,
+            month,
+            filename: `${month}.xlsx`,
+            upload_date: new Date().toISOString(),
+            file_size: 0,
+            status: 'processed',
+            data_points: 0,
+            participant_count: participants?.filter(p => {
+              if (!p.monthly_data) return false;
+              try {
+                let monthlyData;
+                if (typeof p.monthly_data === 'string') {
+                  monthlyData = JSON.parse(p.monthly_data);
+                } else {
+                  monthlyData = p.monthly_data;
+                }
+                return monthlyData[month] !== undefined;
+              } catch {
+                return false;
+              }
+            }).length || 0,
+            unknown_eans: [],
+            mesures_count: 0
+          }));
+
+          setFiles(fileRecords.sort((a, b) => b.month.localeCompare(a.month)));
+        });
     } catch (error) {
       console.error('Erreur chargement fichiers:', error);
       setFiles([]);
-      setChartData([]);
     } finally {
       setLoading(false);
     }

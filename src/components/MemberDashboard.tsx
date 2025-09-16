@@ -176,7 +176,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const processGroupMonthlyData = (participants: any[], year: string) => {
     console.log(`📊 Traitement des données du groupe pour l'année ${year}`);
     
-    // Créer un objet pour accumuler les données par mois
     const monthlyTotals: { [month: string]: {
       volume_partage: number;
       volume_complementaire: number;
@@ -185,7 +184,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       participantCount: number;
     } } = {};
 
-    // Parcourir tous les participants du groupe
     participants.forEach(participant => {
       console.log(`🔍 Traitement participant: ${participant.name} (${participant.ean_code})`);
       
@@ -208,9 +206,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
       console.log(`📅 Mois disponibles pour ${participant.name}:`, Object.keys(monthlyData));
 
-      // Parcourir tous les mois de ce participant
       Object.entries(monthlyData).forEach(([month, data]: [string, any]) => {
-        // Filtrer par année
         if (!month.startsWith(year)) {
           return;
         }
@@ -227,7 +223,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           };
         }
 
-        // Additionner les valeurs
         monthlyTotals[month].volume_partage += Number(data.volume_partage || 0);
         monthlyTotals[month].volume_complementaire += Number(data.volume_complementaire || 0);
         monthlyTotals[month].injection_partagee += Number(data.injection_partagee || 0);
@@ -238,7 +233,6 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
     console.log('📊 Totaux mensuels calculés:', monthlyTotals);
 
-    // Convertir en format pour le graphique
     const monthlyDataArray = Object.entries(monthlyTotals).map(([month, totals]) => ({
       month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
       monthKey: month,

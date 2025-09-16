@@ -44,17 +44,16 @@ export default function SimulationPage() {
         .select('*');
       
       if (error) {
-        // Handle RLS permission denied gracefully
         if (error.code === '42501') {
           console.log('Using demo data for simulation (database access restricted)');
-          setParticipants(demoParticipants);
+          setParticipants([]);
           return;
         }
       }
       setParticipants(data || []);
     } catch (error) {
-      // Use demo data for any error
-      setParticipants(demoParticipants);
+      console.error('Erreur chargement participants:', error);
+      setParticipants([]);
     } finally {
       setLoading(false);
     }

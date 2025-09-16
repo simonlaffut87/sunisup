@@ -29,154 +29,6 @@ import { ContactModal } from '../components/ContactModal';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
-// Static participants data as fallback - EXACTLY 4 producers and 7 consumers
-const getStaticParticipants = () => [
-  // 4 Producers
-  {
-    id: 'p1',
-    name: 'Installation Solaire Molenbeek',
-    type: 'producer' as const,
-    address: 'Rue de la Fonderie 27, 1080 Molenbeek-Saint-Jean',
-    peak_power: 15.2,
-    annual_production: 14440,
-    annual_consumption: 2500,
-    lat: 50.8558,
-    lng: 4.3369,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'p2',
-    name: 'Toiture Solaire Ixelles',
-    type: 'producer' as const,
-    address: 'Avenue Louise 331, 1050 Ixelles',
-    peak_power: 12.8,
-    annual_production: 12160,
-    annual_consumption: 1800,
-    lat: 50.8331,
-    lng: 4.3681,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'p3',
-    name: 'Énergie Verte Schaerbeek',
-    type: 'producer' as const,
-    address: 'Boulevard Lambermont 150, 1030 Schaerbeek',
-    peak_power: 18.5,
-    annual_production: 17575,
-    annual_consumption: 3200,
-    lat: 50.8671,
-    lng: 4.3712,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'p4',
-    name: 'Solaire Communautaire Uccle',
-    type: 'producer' as const,
-    address: 'Chaussée d\'Alsemberg 999, 1180 Uccle',
-    peak_power: 10.4,
-    annual_production: 9880,
-    annual_consumption: 1500,
-    lat: 50.8171,
-    lng: 4.3412,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  // 7 Consumers
-  {
-    id: 'c1',
-    name: 'Boulangerie Saint-Gilles',
-    type: 'consumer' as const,
-    address: 'Chaussée de Waterloo 95, 1060 Saint-Gilles',
-    peak_power: 0,
-    annual_production: 0,
-    annual_consumption: 45000,
-    lat: 50.8289,
-    lng: 4.3451,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'c2',
-    name: 'Café Forest',
-    type: 'consumer' as const,
-    address: 'Avenue Van Volxem 150, 1190 Forest',
-    peak_power: 0,
-    annual_production: 0,
-    annual_consumption: 35000,
-    lat: 50.8179,
-    lng: 4.3302,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'c3',
-    name: 'Ouzerie',
-    type: 'consumer' as const,
-    address: '235 chaussée d\'ixelles, 1050 Ixelles',
-    peak_power: 0,
-    annual_production: 0,
-    annual_consumption: 40000,
-    lat: 50.8333,
-    lng: 4.3687,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'c4',
-    name: 'Café du Square Coghen',
-    type: 'consumer' as const,
-    address: 'Square Coghen 12, 1180 Uccle',
-    peak_power: 0,
-    annual_production: 0,
-    annual_consumption: 28000,
-    lat: 50.8089,
-    lng: 4.3456,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'c5',
-    name: 'Bureau Avenue Georges Henry',
-    type: 'consumer' as const,
-    address: 'Avenue Georges Henry 85, 1200 Woluwe-Saint-Lambert',
-    peak_power: 0,
-    annual_production: 0,
-    annual_consumption: 32000,
-    lat: 50.8456,
-    lng: 4.4123,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'c6',
-    name: 'Commerce Herman Debroux',
-    type: 'consumer' as const,
-    address: 'Boulevard du Souverain 280, 1160 Auderghem',
-    peak_power: 0,
-    annual_production: 0,
-    annual_consumption: 38000,
-    lat: 50.8156,
-    lng: 4.4089,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'c7',
-    name: 'Atelier Anderlecht',
-    type: 'consumer' as const,
-    address: 'Rue de Birmingham 45, 1070 Anderlecht',
-    peak_power: 0,
-    annual_production: 0,
-    annual_consumption: 42000,
-    lat: 50.8367,
-    lng: 4.3089,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
-];
 
 export default function HomePage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -197,7 +49,6 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
-      // Try to load from Supabase with improved timeout handling
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000);
 
@@ -210,33 +61,22 @@ export default function HomePage() {
       clearTimeout(timeoutId);
       
       if (error) {
-        // Handle RLS permission denied errors gracefully
         if (error.code === '42501' || error.message?.includes('permission denied')) {
           console.log('ℹ️ Database access restricted by RLS policies - using demo data');
-          const staticParticipants = getStaticParticipants();
-          setParticipants(staticParticipants);
-          setUsingFallbackData(true);
-          setError('Using demonstration data - database access restricted by security policies');
+          setParticipants([]);
+          setError('Accès à la base de données restreint par les politiques de sécurité');
           return;
         }
         throw error;
       }
 
-      // Use database data if available, otherwise use static participants
-      const staticParticipants = getStaticParticipants();
-      setParticipants(data && data.length > 0 ? data : staticParticipants);
-      
-      if (!data || data.length === 0) {
-        setUsingFallbackData(true);
-      }
+      setParticipants(data || []);
       
       console.log('✅ Successfully loaded participants');
     } catch (error: any) {
-      
-      // Use static participants as fallback
-      const staticParticipants = getStaticParticipants();
-      setParticipants(staticParticipants);
-      setUsingFallbackData(true);
+      console.error('❌ Erreur chargement participants:', error);
+      setParticipants([]);
+      setError('Erreur de connexion à la base de données');
     } finally {
       setLoading(false);
     }
