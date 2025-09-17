@@ -915,7 +915,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
             <div className="text-sm text-gray-700 space-y-1">
               <p>• Paiement à 30 jours</p>
-              <p>• Virement bancaire : BE XX XXXX XXXX XXXX</p>
+              <p>• Virement bancaire : BE96 0020 1192 6005</p>
               <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
             </div>
           </div>
