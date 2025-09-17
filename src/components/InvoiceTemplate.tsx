@@ -243,6 +243,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
     const totals = {
       volume_partage: 0,
+      volume_complementaire: 0,
       injection_partagee: 0,
       injection_complementaire: 0,
       networkCosts: {
@@ -261,6 +262,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     Object.entries(monthlyData).forEach(([month, data]) => {
       console.log(`📊 Ajout données ${month}:`, data);
       totals.volume_partage += Number(data.volume_partage || 0);
+      totals.volume_complementaire += Number(data.volume_complementaire || 0);
       totals.injection_partagee += Number(data.injection_partagee || 0);
       totals.injection_complementaire += Number(data.injection_complementaire || 0);
     });
@@ -602,6 +604,13 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   <div className="flex justify-between">
                     <span>Énergie partagée :</span>
                     <span className="font-medium">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="flex justify-between border-t border-blue-200 pt-2">
+                    <span>Énergie réseau (achat au fournisseur) :</span>
+                    <span className="font-medium text-blue-600">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="text-xs text-blue-600 italic mt-1">
+                    * Énergie réseau : indicatif, non facturée par Sun Is Up
                   </div>
                 </div>
               </div>
