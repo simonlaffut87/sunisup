@@ -134,50 +134,66 @@ export class BasicFileReader {
     // Recherche des colonnes de coûts réseau
     const networkCostColumns = {
       utilisationReseau: headers.findIndex((h, index) => {
-        const header = String(h).toLowerCase();
-        const result = header.includes('utilisation') && (header.includes('réseau') || header.includes('reseau')) && header.includes('htva');
+        const header = String(h).toLowerCase().trim();
+        const result = header === 'utilisation du réseau € htva' || 
+                      header === 'utilisation du reseau € htva' ||
+                      (header.includes('utilisation') && header.includes('réseau') && header.includes('htva'));
         if (result) onLog?.(`🔍 Utilisation réseau trouvée: "${h}" (index ${index})`);
         return result;
       }),
       surcharges: headers.findIndex((h, index) => {
-        const header = String(h).toLowerCase();
-        const result = header.includes('surcharges') && header.includes('htva');
+        const header = String(h).toLowerCase().trim();
+        const result = header === 'surcharges € htva' ||
+                      (header.includes('surcharges') && header.includes('htva'));
         if (result) onLog?.(`🔍 Surcharges trouvée: "${h}" (index ${index})`);
         return result;
       }),
       tarifCapacitaire: headers.findIndex((h, index) => {
-        const header = String(h).toLowerCase();
-        const result = header.includes('tarif') && (header.includes('capac') || header.includes('capacitaire')) && header.includes('htva');
+        const header = String(h).toLowerCase().trim();
+        const result = header === 'tarif capac. (>2020) € htva' ||
+                      header === 'tarif capacitaire € htva' ||
+                      (header.includes('tarif') && header.includes('capac') && header.includes('htva'));
         if (result) onLog?.(`🔍 Tarif capacitaire trouvé: "${h}" (index ${index})`);
         return result;
       }),
       tarifMesure: headers.findIndex((h, index) => {
-        const header = String(h).toLowerCase();
-        const result = header.includes('tarif') && (header.includes('mesure') || header.includes('comptage')) && header.includes('htva');
+        const header = String(h).toLowerCase().trim();
+        const result = header === 'tarif mesure & comptage € htva' ||
+                      header === 'tarif mesure et comptage € htva' ||
+                      (header.includes('tarif') && header.includes('mesure') && header.includes('htva'));
         if (result) onLog?.(`🔍 Tarif mesure trouvé: "${h}" (index ${index})`);
         return result;
       }),
       tarifOSP: headers.findIndex((h, index) => {
-        const header = String(h).toLowerCase();
-        const result = header.includes('tarif') && header.includes('osp') && header.includes('htva');
+        const header = String(h).toLowerCase().trim();
+        const result = header === 'tarif osp € htva' ||
+                      (header.includes('tarif') && header.includes('osp') && header.includes('htva'));
         if (result) onLog?.(`🔍 Tarif OSP trouvé: "${h}" (index ${index})`);
         return result;
       }),
       transportELIA: headers.findIndex((h, index) => {
-        const header = String(h).toLowerCase();
-        const result = header.includes('transport') && header.includes('elia') && header.includes('htva');
+        const header = String(h).toLowerCase().trim();
+        const result = header === 'transport - coût elia € htva' ||
+                      header === 'transport - cout elia € htva' ||
+                      header === 'transport elia € htva' ||
+                      (header.includes('transport') && header.includes('elia') && header.includes('htva'));
         if (result) onLog?.(`🔍 Transport ELIA trouvé: "${h}" (index ${index})`);
         return result;
       }),
       redevanceVoirie: headers.findIndex((h, index) => {
-        const header = String(h).toLowerCase();
-        const result = header.includes('redevance') && (header.includes('voirie') || header.includes('voirie')) && header.includes('htva');
+        const header = String(h).toLowerCase().trim();
+        const result = header === 'redevance de voirie € htva' ||
+                      header === 'redevance voirie € htva' ||
+                      (header.includes('redevance') && header.includes('voirie') && header.includes('htva'));
         if (result) onLog?.(`🔍 Redevance voirie trouvée: "${h}" (index ${index})`);
         return result;
       }),
       totalFraisReseau: headers.findIndex((h, index) => {
-        const header = String(h).toLowerCase();
-        const result = header.includes('total') && header.includes('frais') && (header.includes('réseau') || header.includes('reseau')) && header.includes('htva');
+        const header = String(h).toLowerCase().trim();
+        const result = header === 'total frais de réseau € htva' ||
+                      header === 'total frais de reseau € htva' ||
+                      header === 'total frais réseau € htva' ||
+                      (header.includes('total') && header.includes('frais') && header.includes('réseau') && header.includes('htva'));
         if (result) onLog?.(`🔍 Total frais réseau trouvé: "${h}" (index ${index})`);
         return result;
       })
