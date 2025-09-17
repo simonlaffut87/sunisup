@@ -731,11 +731,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       }
     } catch (error) {
       addError(`Erreur générale: ${error.message}`);
-    } else if (tarifIndex >= 0) {
-      addInfo(`Registre (via Tarif): "${headers[tarifIndex]}" (position ${tarifIndex})`);
-      setProcessing(false);
-      addWarning('Colonnes Registre ET Tarif non trouvées');
     }
+    
+    setProcessing(false);
   };
 
   if (!isOpen) return null;
