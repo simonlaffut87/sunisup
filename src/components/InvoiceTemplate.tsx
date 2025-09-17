@@ -440,53 +440,325 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       const buttons = document.querySelectorAll('.no-print');
       buttons.forEach(btn => (btn as HTMLElement).style.display = 'none');
 
-      // Générer le canvas à partir du contenu HTML
-      html2canvas(invoiceContent, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        width: invoiceContent.scrollWidth,
-        height: invoiceContent.scrollHeight
-      }).then(canvas => {
-        // Restaurer l'affichage des boutons
-        buttons.forEach(btn => (btn as HTMLElement).style.display = '');
-
-        // Créer le PDF
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 295; // A4 height in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        // Ajouter la première page
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        // Ajouter des pages supplémentaires si nécessaire
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+      // Créer le PDF avec jsPDF directement
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
+      
+      // Configuration des polices et couleurs
+      pdf.setFont('helvetica');
+      
+      // PAGE 1 - En-tête et informations participant
+      let yPosition = margin;
+      
+      // En-tête avec logo (simulé par du texte)
+      pdf.setFontSize(20);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('SUN IS UP ASBL', margin, yPosition);
+      yPosition += 8;
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('Communauté d\'énergie bruxelloise', margin, yPosition);
+      yPosition += 6;
+      pdf.text('info@sunisup.be • +32 471 31 71 48', margin, yPosition);
+      
+      // Titre facture à droite
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      const titleX = pageWidth - margin - 80;
+      pdf.text('FACTURE ÉNERGÉTIQUE', titleX, margin);
+      
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const periodText = format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr });
+      pdf.text(periodText, titleX, margin + 8);
+      
+      const invoiceNumber = `${invoiceData.participant.ean_code?.slice(-6) || '000000'}-${format(parseISO(invoiceData.period.startDate), 'MM-yy')}`;
+      pdf.text(`Facture N° ${invoiceNumber}`, titleX, margin + 14);
+      
+      yPosition += 20;
+      
+      // Ligne de séparation
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 10;
+      
+      // Informations du participant
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Informations du participant', margin, yPosition);
+      yPosition += 10;
+      
+      // Cadre pour les infos participant
+      pdf.setDrawColor(220, 220, 220);
+      pdf.rect(margin, yPosition, contentWidth, 35);
+      yPosition += 8;
+      
+      pdf.setFontSize(10);
+      pdf.text(`Nom : ${invoiceData.participant.name}`, margin + 5, yPosition);
+      yPosition += 6;
+      pdf.text(`Adresse : ${invoiceData.participant.address}`, margin + 5, yPosition);
+      yPosition += 6;
+      if (invoiceData.participant.email) {
+        pdf.text(`Email : ${invoiceData.participant.email}`, margin + 5, yPosition);
+        yPosition += 6;
+      }
+      
+      // Colonne droite
+      const rightColumnX = margin + contentWidth / 2 + 10;
+      yPosition -= 18;
+      pdf.text(`Code EAN : ${invoiceData.participant.ean_code}`, rightColumnX, yPosition);
+      yPosition += 6;
+      const typeText = invoiceData.participant.type === 'producer' ? 'Producteur' : 'Consommateur';
+      pdf.text(`Type : ${typeText}`, rightColumnX, yPosition);
+      yPosition += 6;
+      if (invoiceData.participant.company_number) {
+        pdf.text(`N° entreprise : ${invoiceData.participant.company_number}`, rightColumnX, yPosition);
+      }
+      
+      yPosition += 25;
+      
+      // Détail énergétique
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Détail énergétique', margin, yPosition);
+      yPosition += 10;
+      
+      // Consommation (gauche)
+      const boxWidth = (contentWidth - 10) / 2;
+      pdf.setDrawColor(59, 130, 246);
+      pdf.setFillColor(239, 246, 255);
+      pdf.rect(margin, yPosition, boxWidth, 30, 'FD');
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(30, 64, 175);
+      pdf.text('📥 Consommation', margin + 5, yPosition + 8);
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(55, 65, 81);
+      pdf.text(`Énergie partagée : ${(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh`, margin + 5, yPosition + 16);
+      pdf.text(`Énergie réseau : ${(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh`, margin + 5, yPosition + 22);
+      
+      // Injection (droite)
+      const rightBoxX = margin + boxWidth + 10;
+      pdf.setDrawColor(245, 158, 11);
+      pdf.setFillColor(255, 251, 235);
+      pdf.rect(rightBoxX, yPosition, boxWidth, 30, 'FD');
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(146, 64, 14);
+      pdf.text('📤 Injection', rightBoxX + 5, yPosition + 8);
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(55, 65, 81);
+      pdf.text(`Injection partagée : ${(invoiceData.totals.injection_partagee / 1000).toFixed(3)} MWh`, rightBoxX + 5, yPosition + 16);
+      pdf.text(`Injection réseau : ${(invoiceData.totals.injection_complementaire / 1000).toFixed(3)} MWh`, rightBoxX + 5, yPosition + 22);
+      
+      yPosition += 40;
+      
+      // PAGE 2 - Détail des coûts réseau
+      pdf.addPage();
+      yPosition = margin;
+      
+      // En-tête page 2
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('FACTURE ÉNERGÉTIQUE (suite)', margin, yPosition);
+      yPosition += 8;
+      
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`${invoiceData.participant.name} - ${periodText}`, margin, yPosition);
+      yPosition += 15;
+      
+      // Ligne de séparation
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 10;
+      
+      // Vérification des données billing
+      if (Object.keys(invoiceData.billingData).length === 0) {
+        pdf.setFontSize(12);
+        pdf.setTextColor(220, 38, 38);
+        pdf.text('⚠ Aucune donnée de coûts réseau trouvée', margin, yPosition);
+        yPosition += 8;
+        pdf.setFontSize(10);
+        pdf.text('Les coûts réseau n\'ont pas été importés pour cette période.', margin, yPosition);
+        yPosition += 20;
+      } else {
+        pdf.setFontSize(10);
+        pdf.setTextColor(34, 197, 94);
+        pdf.text(`✓ Données de coûts réseau disponibles pour ${Object.keys(invoiceData.billingData).length} mois`, margin, yPosition);
+        yPosition += 15;
+      }
+      
+      // Détail des coûts réseau
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Détail des coûts réseau', margin, yPosition);
+      yPosition += 10;
+      
+      // Tableau des coûts réseau
+      const tableStartY = yPosition;
+      const rowHeight = 8;
+      const colWidths = [80, 25, 35, 35]; // Description, TVA, HTVA, TVAC
+      let currentX = margin;
+      
+      // En-tête du tableau
+      pdf.setFillColor(245, 245, 245);
+      pdf.rect(margin, yPosition, contentWidth, rowHeight, 'F');
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Description', margin + 2, yPosition + 5);
+      pdf.text('TVA', margin + colWidths[0] + 2, yPosition + 5);
+      pdf.text('HTVA', margin + colWidths[0] + colWidths[1] + 2, yPosition + 5);
+      pdf.text('TVAC', margin + colWidths[0] + colWidths[1] + colWidths[2] + 2, yPosition + 5);
+      
+      yPosition += rowHeight;
+      
+      // Lignes du tableau
+      const networkCostRows = [
+        { label: 'Utilisation du réseau', value: invoiceData.totals.networkCosts.utilisationReseau },
+        { label: 'Surcharges', value: invoiceData.totals.networkCosts.surcharges },
+        { label: 'Tarif capacitaire', value: invoiceData.totals.networkCosts.tarifCapacitaire },
+        { label: 'Tarif mesure & comptage', value: invoiceData.totals.networkCosts.tarifMesure },
+        { label: 'Tarif OSP', value: invoiceData.totals.networkCosts.tarifOSP },
+        { label: 'Transport ELIA', value: invoiceData.totals.networkCosts.transportELIA },
+        { label: 'Redevance voirie', value: invoiceData.totals.networkCosts.redevanceVoirie }
+      ];
+      
+      networkCostRows.forEach((row, index) => {
+        // Alternance de couleur
+        if (index % 2 === 0) {
+          pdf.setFillColor(250, 250, 250);
+          pdf.rect(margin, yPosition, contentWidth, rowHeight, 'F');
         }
-
-        // Télécharger le PDF
-        const fileName = `Facture_${invoiceData.participant.name.replace(/[^a-zA-Z0-9]/g, '_')}_${invoiceData.period.startMonth}${invoiceData.period.startMonth !== invoiceData.period.endMonth ? '_' + invoiceData.period.endMonth : ''}.pdf`;
-        pdf.save(fileName);
         
-        toast.success('Facture PDF téléchargée avec succès');
-        setSaving(false);
-      }).catch(error => {
-        // Restaurer l'affichage des boutons en cas d'erreur
-        buttons.forEach(btn => (btn as HTMLElement).style.display = '');
-        console.error('Erreur génération PDF:', error);
-        toast.error('Erreur lors de la génération du PDF');
-        setSaving(false);
+        pdf.setFontSize(8);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(row.label, margin + 2, yPosition + 5);
+        pdf.text('21%', margin + colWidths[0] + 8, yPosition + 5);
+        pdf.text(`${row.value.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + 15, yPosition + 5);
+        pdf.text(`${(row.value * 1.21).toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + colWidths[2] + 15, yPosition + 5);
+        
+        yPosition += rowHeight;
       });
+      
+      // Total des coûts réseau
+      pdf.setFillColor(229, 231, 235);
+      pdf.rect(margin, yPosition, contentWidth, rowHeight, 'F');
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('TOTAL COÛTS RÉSEAU', margin + 2, yPosition + 5);
+      pdf.text('21%', margin + colWidths[0] + 8, yPosition + 5);
+      pdf.text(`${invoiceData.totals.networkCosts.totalFraisReseau.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + 15, yPosition + 5);
+      pdf.text(`${(invoiceData.totals.networkCosts.totalFraisReseau * 1.21).toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + colWidths[2] + 15, yPosition + 5);
+      
+      yPosition += 15;
+      
+      // Récapitulatif financier
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Récapitulatif financier', margin, yPosition);
+      yPosition += 10;
+      
+      // Tableau récapitulatif
+      pdf.setFillColor(245, 245, 245);
+      pdf.rect(margin, yPosition, contentWidth, rowHeight, 'F');
+      
+      pdf.setFontSize(9);
+      pdf.text('Description', margin + 2, yPosition + 5);
+      pdf.text('TVA', margin + colWidths[0] + 2, yPosition + 5);
+      pdf.text('HTVA', margin + colWidths[0] + colWidths[1] + 2, yPosition + 5);
+      pdf.text('TVAC', margin + colWidths[0] + colWidths[1] + colWidths[2] + 2, yPosition + 5);
+      
+      yPosition += rowHeight;
+      
+      // Énergie partagée
+      pdf.setFontSize(8);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Énergie partagée', margin + 2, yPosition + 3);
+      pdf.text(`${(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × ${invoiceData.participant.shared_energy_price}€/MWh`, margin + 2, yPosition + 7);
+      pdf.text(`${(invoiceData.calculations.vatRate * 100).toFixed(0)}%`, margin + colWidths[0] + 8, yPosition + 5);
+      pdf.text(`${invoiceData.calculations.energySharedCostHTVA.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + 15, yPosition + 5);
+      pdf.text(`${invoiceData.calculations.energySharedCostTVAC.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + colWidths[2] + 15, yPosition + 5);
+      
+      yPosition += rowHeight + 2;
+      
+      // Coûts réseau
+      pdf.text('Coûts réseau', margin + 2, yPosition + 3);
+      pdf.text('Frais de distribution et transport', margin + 2, yPosition + 7);
+      pdf.text('21%', margin + colWidths[0] + 8, yPosition + 5);
+      pdf.text(`${invoiceData.calculations.networkCostTotal.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + 15, yPosition + 5);
+      pdf.text(`${invoiceData.calculations.networkCostTVAC.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + colWidths[2] + 15, yPosition + 5);
+      
+      yPosition += rowHeight + 2;
+      
+      // Sous-total
+      pdf.setFillColor(239, 246, 255);
+      pdf.rect(margin, yPosition, contentWidth, rowHeight, 'F');
+      pdf.setFontSize(9);
+      pdf.setTextColor(30, 64, 175);
+      pdf.text('SOUS-TOTAL COÛTS', margin + 2, yPosition + 5);
+      pdf.text(`${invoiceData.calculations.totalCostTVAC.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + colWidths[2] + 15, yPosition + 5);
+      
+      yPosition += rowHeight + 2;
+      
+      // Revenus injection
+      pdf.setFontSize(8);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Revenus injection', margin + 2, yPosition + 3);
+      const totalInjection = (invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000;
+      pdf.text(`${totalInjection.toFixed(3)} MWh × ${invoiceData.participant.shared_energy_price}€/MWh`, margin + 2, yPosition + 7);
+      pdf.text('-', margin + colWidths[0] + 8, yPosition + 5);
+      pdf.setTextColor(34, 197, 94);
+      pdf.text(`-${invoiceData.calculations.injectionRevenue.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + 15, yPosition + 5);
+      pdf.text(`-${invoiceData.calculations.injectionRevenue.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + colWidths[2] + 15, yPosition + 5);
+      
+      yPosition += rowHeight + 5;
+      
+      // Montant net à payer
+      pdf.setFillColor(255, 243, 199);
+      pdf.rect(margin, yPosition, contentWidth, rowHeight + 2, 'F');
+      pdf.setFontSize(12);
+      pdf.setTextColor(146, 64, 14);
+      pdf.text('MONTANT NET À PAYER', margin + 2, yPosition + 6);
+      pdf.setFontSize(14);
+      pdf.text(`${invoiceData.calculations.netAmount.toFixed(2)} €`, margin + colWidths[0] + colWidths[1] + colWidths[2] + 15, yPosition + 6);
+      
+      yPosition += 25;
+      
+      // Conditions de paiement
+      pdf.setFillColor(249, 250, 251);
+      pdf.rect(margin, yPosition, contentWidth, 25, 'F');
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Conditions de paiement', margin + 2, yPosition + 8);
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(55, 65, 81);
+      yPosition += 12;
+      pdf.text(`• Paiement à 30 jours, soit au plus tard le ${format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}`, margin + 2, yPosition);
+      yPosition += 5;
+      pdf.text('• Virement bancaire : BE96 0020 1192 6005', margin + 2, yPosition);
+      yPosition += 5;
+      pdf.text(`• Communication : ${invoiceData.participant.ean_code?.slice(-6) || '000000'}-${format(parseISO(invoiceData.period.startDate), 'MM-yy')}`, margin + 2, yPosition);
+      
+      // Télécharger le PDF
+      const fileName = `Facture_${invoiceData.participant.name.replace(/[^a-zA-Z0-9]/g, '_')}_${invoiceData.period.startMonth}${invoiceData.period.startMonth !== invoiceData.period.endMonth ? '_' + invoiceData.period.endMonth : ''}.pdf`;
+      pdf.save(fileName);
+      
+      // Restaurer l'affichage des boutons
+      buttons.forEach(btn => (btn as HTMLElement).style.display = '');
+      
+      toast.success('Facture PDF téléchargée avec succès');
+      setSaving(false);
 
     } catch (error) {
       console.error('Erreur téléchargement:', error);
@@ -1004,93 +1276,4 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   </tr>
                 </thead>
                 <tbody className="bg-white">
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
-                      <div>
-                        <div className="font-medium text-gray-900">Énergie partagée</div>
-                        <div className="text-xs text-gray-600">
-                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh HTVA
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">
-                      {(invoiceData.calculations.vatRate * 100).toFixed(0)}%
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
-                      {invoiceData.calculations.energySharedCostHTVA.toFixed(2)} €
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                      {invoiceData.calculations.energySharedCostTVAC.toFixed(2)} €
-                    </td>
-                  </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
-                      <div>
-                        <div className="font-medium text-gray-900">Coûts réseau</div>
-                        <div className="text-xs text-gray-600">Frais de distribution et transport</div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
-                      {invoiceData.calculations.networkCostTotal.toFixed(2)} €
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                      {invoiceData.calculations.networkCostTVAC.toFixed(2)} €
-                    </td>
-                  </tr>
-                  <tr className="border-b-2 border-gray-400 bg-blue-50">
-                    <td className="px-4 py-3 text-sm font-bold text-blue-900 border-r border-gray-300">
-                      SOUS-TOTAL COÛTS
-                    </td>
-                    <td className="px-4 py-3 text-center text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900">
-                      {invoiceData.calculations.totalCostTVAC.toFixed(2)} €
-                    </td>
-                  </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
-                      <div>
-                        <div className="font-medium text-gray-900">Revenus injection</div>
-                        <div className="text-xs text-gray-600">
-                          {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700 border-r border-gray-300">
-                      -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700">
-                      -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
-                    </td>
-                  </tr>
-                  <tr className="bg-amber-100 border-t-2 border-amber-400">
-                    <td className="px-4 py-3 text-lg font-bold text-amber-900 border-r border-gray-300">
-                      MONTANT NET À PAYER
-                    </td>
-                    <td className="px-4 py-3 text-center text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900">
-                      {invoiceData.calculations.netAmount.toFixed(2)} €
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Conditions de paiement */}
-          <div className="mt-8 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
-            <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
-            <div className="text-sm text-gray-700 space-y-1">
-              <p>• Paiement à 30 jours, soit au plus tard le {format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}</p>
-              <p>• Virement bancaire : BE96 0020 1192 6005</p>
-              <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+                  <tr className="border-b border
