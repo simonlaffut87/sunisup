@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Download, FileText, Calendar, User, MapPin, Hash, Euro, Printer, AlertCircle, Database as DatabaseIcon } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, addDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
 import { Database } from '../types/supabase';
@@ -914,7 +914,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           <div className="mt-8 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
             <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
             <div className="text-sm text-gray-700 space-y-1">
-              <p>• Paiement à 30 jours</p>
+              <p>• Paiement à 30 jours, soit au plus tard le {format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}</p>
               <p>• Virement bancaire : BE96 0020 1192 6005</p>
               <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
             </div>
