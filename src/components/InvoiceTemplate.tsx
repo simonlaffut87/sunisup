@@ -961,7 +961,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   <p className="text-gray-700">Communauté d'énergie bruxelloise</p>
                 </div>
               </div>
-              <div>
+                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-20 w-20 flex-shrink-0" />
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
+                  <p className="text-gray-700">Communauté d'énergie bruxelloise</p>
+                </div>
                 <p className="text-sm text-gray-600 mt-2">
                   info@sunisup.be • +32 471 31 71 48
                 </p>
