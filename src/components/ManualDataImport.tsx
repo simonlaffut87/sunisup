@@ -488,69 +488,70 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             billing_data: updatedBillingData
           })
           .eq('id', participantData.id)
-          .select('monthly_data, billing_data');
+          .select('id, name, monthly_data, billing_data');
 
         if (updateError) {
           addError(`Échec sauvegarde ${participantData.name}: ${updateError.message}`);
           updateErrorCount++;
         } else {
-          addSuccess(`Sauvegarde réussie: ${participantData.name}`);
+          addSuccess(`Sauvegarde réussie: ${participantData.name} (ID: ${participantData.id})`);
           updateSuccessCount++;
           
-          // Vérification seulement pour les 2 premiers
-          if (updateSuccessCount <= 2) {
-            addInfo('Vérification de la sauvegarde...');
-          }
+          // Vérification immédiate après chaque sauvegarde
+          addInfo(`Vérification sauvegarde ${participantData.name}...`);
+          
+          // Attendre un peu pour que la base soit à jour
+          await new Promise(resolve => setTimeout(resolve, 100));
           
           const { data: verifyData, error: verifyError } = await supabase
             .from('participants')
-            .select('monthly_data, billing_data, name')
+            .select('id, name, monthly_data, billing_data')
             .eq('id', participantData.id)
             .single();
           
           if (!verifyError && verifyData) {
-            console.log(`🔍 VÉRIFICATION RÉUSSIE pour ${verifyData.name}:`);
-            console.log(`📊 monthly_data en base:`, verifyData.monthly_data);
-            console.log(`💰 billing_data en base:`, verifyData.billing_data);
+            addInfo(`🔍 VÉRIFICATION ${verifyData.name} (ID: ${verifyData.id}):`);
             
             if (verifyData.monthly_data && verifyData.monthly_data[month]) {
-              console.log(`✅ CONFIRMATION monthly_data: Données du mois ${month} bien présentes en base !`);
-              console.log(`📊 Valeurs confirmées:`, verifyData.monthly_data[month]);
+              addSuccess(`✅ monthly_data ${month} confirmé en base`);
+              const savedMonthlyData = verifyData.monthly_data[month];
+              addInfo(`📊 Valeurs monthly_data: VP=${savedMonthlyData.volume_partage}, VC=${savedMonthlyData.volume_complementaire}, IP=${savedMonthlyData.injection_partagee}, IC=${savedMonthlyData.injection_complementaire}`);
             } else {
-              console.error(`❌ PROBLÈME monthly_data: Données du mois ${month} NON trouvées en base après sauvegarde !`);
-              console.log(`📊 Structure monthly_data actuelle:`, verifyData.monthly_data);
+              addError(`❌ monthly_data ${month} NON trouvé en base après sauvegarde !`);
+              addInfo(`📊 monthly_data actuel: ${JSON.stringify(Object.keys(verifyData.monthly_data || {}))}`);
             }
             
             if (verifyData.billing_data && verifyData.billing_data[month]) {
-              console.log(`✅ CONFIRMATION billing_data: Données du mois ${month} bien présentes en base !`);
-              console.log(`💰 Coûts réseau confirmés:`, verifyData.billing_data[month].networkCosts);
+              addSuccess(`✅ billing_data ${month} confirmé en base`);
+              const savedBillingData = verifyData.billing_data[month];
+              addInfo(`💰 Coûts réseau confirmés: Total=${savedBillingData.networkCosts?.totalFraisReseau || 0}€`);
               
-              // Vérifier que les coûts ne sont pas tous à 0
-              const costs = verifyData.billing_data[month].networkCosts;
-              const nonZeroCosts = Object.entries(costs).filter(([, value]) => Number(value) > 0);
+              // Afficher le détail des coûts pour ce participant
+              if (savedBillingData.networkCosts) {
+                const costs = savedBillingData.networkCosts;
+                addInfo(`💰 DÉTAIL COÛTS ${participantData.name}:`);
+                addInfo(`  Utilisation réseau: ${costs.utilisationReseau || 0}€`);
+                addInfo(`  Surcharges: ${costs.surcharges || 0}€`);
+                addInfo(`  Tarif capacitaire: ${costs.tarifCapacitaire || 0}€`);
+                addInfo(`  Tarif mesure: ${costs.tarifMesure || 0}€`);
+                addInfo(`  Tarif OSP: ${costs.tarifOSP || 0}€`);
+                addInfo(`  Transport ELIA: ${costs.transportELIA || 0}€`);
+                addInfo(`  Redevance voirie: ${costs.redevanceVoirie || 0}€`);
+                addInfo(`  TOTAL: ${costs.totalFraisReseau || 0}€`);
+              }
+              
+              const nonZeroCosts = Object.entries(savedBillingData.networkCosts || {}).filter(([, value]) => Number(value) > 0);
               if (nonZeroCosts.length > 0) {
-                console.log(`✅ ${nonZeroCosts.length} coûts réseau non-nuls confirmés`);
+                addSuccess(`✅ ${nonZeroCosts.length} coûts réseau non-nuls confirmés pour ${participantData.name}`);
               } else {
-                console.warn(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 - vérifiez les données source`);
+                addWarning(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 pour ${participantData.name} - vérifiez les données source`);
               }
             } else {
-              console.error(`❌ PROBLÈME billing_data: Données du mois ${month} NON trouvées en base après sauvegarde !`);
-              console.log(`💰 Structure billing_data actuelle:`, verifyData.billing_data);
+              addError(`❌ billing_data ${month} NON trouvé en base après sauvegarde pour ${participantData.name} !`);
+              addInfo(`💰 billing_data actuel: ${JSON.stringify(Object.keys(verifyData.billing_data || {}))}`);
             }
           } else {
-            console.error(`❌ ERREUR VÉRIFICATION pour ${participantData.name}:`, verifyError);
-          }
-          
-          if (verifyError) {
-            addWarning(`Erreur vérification ${participantData.name}: ${verifyError.message}`);
-          } else {
-            if (verifyData && verifyData.length > 0 && verifyData[0].monthly_data && verifyData[0].monthly_data[month]) {
-              if (updateSuccessCount <= 2) {
-                addSuccess(`Données ${month} confirmées en base pour ${participantData.name}`);
-              }
-            } else {
-              addError(`Données ${month} non trouvées après sauvegarde pour ${participantData.name}`);
-            }
+            addError(`❌ ERREUR VÉRIFICATION ${participantData.name}: ${verifyError?.message || 'Erreur inconnue'}`);
           }
         }
       }
