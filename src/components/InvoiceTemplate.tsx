@@ -5,6 +5,8 @@ import { fr } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
@@ -424,106 +426,144 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
   const handleDownload = () => {
     try {
-      // Créer le contenu HTML de la facture
+      setSaving(true);
+      
+      // Générer le PDF
       const invoiceContent = document.getElementById('invoice-content');
       if (!invoiceContent) {
         toast.error('Impossible de trouver le contenu de la facture');
+        setSaving(false);
         return;
       }
 
-      // Créer un document HTML complet pour le téléchargement
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html lang="fr">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Facture ${invoiceData.participant.name} - ${format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}</title>
-          <style>
-            body { 
-              font-family: Arial, sans-serif; 
-              margin: 20px; 
-              color: #000;
-              background: white;
-              line-height: 1.4;
-            }
-            table { 
-              border-collapse: collapse; 
-              width: 100%; 
-              margin: 10px 0;
-            }
-            th, td { 
-              border: 1px solid #333; 
-              padding: 8px; 
-              text-align: left;
-              color: #000;
-              background: white;
-            }
-            th { 
-              background-color: #f0f0f0;
-              font-weight: bold;
-            }
-            .text-right { text-align: right; }
-            .font-bold { font-weight: bold; }
-            .text-lg { font-size: 1.125rem; }
-            .text-xl { font-size: 1.25rem; }
-            .text-2xl { font-size: 1.5rem; }
-            .mb-4 { margin-bottom: 1rem; }
-            .mb-6 { margin-bottom: 1.5rem; }
-            .mb-8 { margin-bottom: 2rem; }
-            .mt-4 { margin-top: 1rem; }
-            .p-4 { padding: 1rem; }
-            .bg-gray-50 { background-color: #f9fafb; }
-            .border { border: 1px solid #333; }
-            .rounded { border-radius: 0.375rem; }
-            .total-row {
-              background-color: #e5e7eb;
-              font-weight: bold;
-            }
-            .grid { display: grid; }
-            .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .gap-4 { gap: 1rem; }
-            .gap-6 { gap: 1.5rem; }
-            .space-y-1 > * + * { margin-top: 0.25rem; }
-            .space-y-2 > * + * { margin-top: 0.5rem; }
-            .flex { display: flex; }
-            .items-center { align-items: center; }
-            .justify-between { justify-content: space-between; }
-            .text-center { text-align: center; }
-            @media print {
-              body { margin: 0; }
-              .no-print { display: none !important; }
-            }
-          </style>
-        </head>
-        <body>
-          ${invoiceContent.innerHTML}
-        </body>
-        </html>
-      `;
+      // Masquer temporairement les boutons pour la capture
+      const buttons = document.querySelectorAll('.no-print');
+      buttons.forEach(btn => (btn as HTMLElement).style.display = 'none');
 
-      // Créer et télécharger le fichier
-      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      
-      const fileName = `Facture_${invoiceData.participant.name.replace(/[^a-zA-Z0-9]/g, '_')}_${invoiceData.period.startMonth}${invoiceData.period.startMonth !== invoiceData.period.endMonth ? '_' + invoiceData.period.endMonth : ''}.html`;
-      
-      link.href = url;
-      link.download = fileName;
-      link.style.display = 'none';
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Nettoyer l'URL
-      setTimeout(() => URL.revokeObjectURL(url), 100);
-      
-      toast.success('Facture téléchargée avec succès');
+      // Générer le canvas à partir du contenu HTML
+      html2canvas(invoiceContent, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: invoiceContent.scrollWidth,
+        height: invoiceContent.scrollHeight
+      }).then(canvas => {
+        // Restaurer l'affichage des boutons
+        buttons.forEach(btn => (btn as HTMLElement).style.display = '');
+
+        // Créer le PDF
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 295; // A4 height in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        // Ajouter la première page
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        // Ajouter des pages supplémentaires si nécessaire
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        // Télécharger le PDF
+        const fileName = `Facture_${invoiceData.participant.name.replace(/[^a-zA-Z0-9]/g, '_')}_${invoiceData.period.startMonth}${invoiceData.period.startMonth !== invoiceData.period.endMonth ? '_' + invoiceData.period.endMonth : ''}.pdf`;
+        pdf.save(fileName);
+        
+        toast.success('Facture PDF téléchargée avec succès');
+        setSaving(false);
+      }).catch(error => {
+        // Restaurer l'affichage des boutons en cas d'erreur
+        buttons.forEach(btn => (btn as HTMLElement).style.display = '');
+        console.error('Erreur génération PDF:', error);
+        toast.error('Erreur lors de la génération du PDF');
+        setSaving(false);
+      });
+
     } catch (error) {
       console.error('Erreur téléchargement:', error);
       toast.error('Erreur lors du téléchargement de la facture');
+      setSaving(false);
+    }
+  };
+
+  const handleSaveInvoice = async () => {
+    try {
+      setSaving(true);
+      
+      // Créer les données de la facture à sauvegarder
+      const invoiceRecord = {
+        id: `invoice_${invoiceData.participant.id}_${invoiceData.period.startMonth}_${invoiceData.period.endMonth}`,
+        participant_id: invoiceData.participant.id,
+        participant_name: invoiceData.participant.name,
+        period_start: invoiceData.period.startMonth,
+        period_end: invoiceData.period.endMonth,
+        generated_date: new Date().toISOString(),
+        totals: invoiceData.totals,
+        calculations: invoiceData.calculations,
+        status: 'generated'
+      };
+
+      // Récupérer les données billing actuelles
+      const { data: currentParticipant, error: fetchError } = await supabase
+        .from('participants')
+        .select('billing_data')
+        .eq('id', invoiceData.participant.id)
+        .single();
+
+      if (fetchError) {
+        throw new Error(`Erreur lors de la récupération des données: ${fetchError.message}`);
+      }
+
+      // Parser les données billing existantes
+      let billingData = {};
+      if (currentParticipant.billing_data) {
+        try {
+          if (typeof currentParticipant.billing_data === 'string') {
+            billingData = JSON.parse(currentParticipant.billing_data);
+          } else {
+            billingData = currentParticipant.billing_data;
+          }
+        } catch (error) {
+          console.warn('Erreur parsing billing_data existant:', error);
+          billingData = {};
+        }
+      }
+
+      // Ajouter la facture aux données billing
+      const updatedBillingData = {
+        ...billingData,
+        invoices: {
+          ...(billingData.invoices || {}),
+          [invoiceRecord.id]: invoiceRecord
+        }
+      };
+
+      // Sauvegarder en base
+      const { error: updateError } = await supabase
+        .from('participants')
+        .update({ billing_data: updatedBillingData })
+        .eq('id', invoiceData.participant.id);
+
+      if (updateError) {
+        throw new Error(`Erreur lors de la sauvegarde: ${updateError.message}`);
+      }
+
+      toast.success('Facture enregistrée avec succès dans le dashboard du participant');
+      
+    } catch (error) {
+      console.error('Erreur sauvegarde facture:', error);
+      toast.error(`Erreur lors de l'enregistrement: ${error.message}`);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -596,6 +636,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           <div className="flex items-center space-x-3">
             <button
               onClick={handlePrint}
+              disabled={saving}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <Printer className="w-4 h-4" />
@@ -603,10 +644,37 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             </button>
             <button
               onClick={handleDownload}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              disabled={saving}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download className="w-4 h-4" />
-              <span>Télécharger</span>
+              {saving ? (
+                <>
+                  <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin" />
+                  <span>Génération...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <span>Télécharger PDF</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={handleSaveInvoice}
+              disabled={saving}
+              className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? (
+                <>
+                  <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin" />
+                  <span>Enregistrement...</span>
+                </>
+              ) : (
+                <>
+                  <FileText className="w-4 h-4" />
+                  <span>Enregistrer</span>
+                </>
+              )}
             </button>
             <button
               onClick={onClose}
