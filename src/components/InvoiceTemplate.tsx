@@ -423,7 +423,108 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
   };
 
   const handleDownload = () => {
-    handlePrint();
+    try {
+      // Créer le contenu HTML de la facture
+      const invoiceContent = document.getElementById('invoice-content');
+      if (!invoiceContent) {
+        toast.error('Impossible de trouver le contenu de la facture');
+        return;
+      }
+
+      // Créer un document HTML complet pour le téléchargement
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Facture ${invoiceData.participant.name} - ${format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              margin: 20px; 
+              color: #000;
+              background: white;
+              line-height: 1.4;
+            }
+            table { 
+              border-collapse: collapse; 
+              width: 100%; 
+              margin: 10px 0;
+            }
+            th, td { 
+              border: 1px solid #333; 
+              padding: 8px; 
+              text-align: left;
+              color: #000;
+              background: white;
+            }
+            th { 
+              background-color: #f0f0f0;
+              font-weight: bold;
+            }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+            .text-lg { font-size: 1.125rem; }
+            .text-xl { font-size: 1.25rem; }
+            .text-2xl { font-size: 1.5rem; }
+            .mb-4 { margin-bottom: 1rem; }
+            .mb-6 { margin-bottom: 1.5rem; }
+            .mb-8 { margin-bottom: 2rem; }
+            .mt-4 { margin-top: 1rem; }
+            .p-4 { padding: 1rem; }
+            .bg-gray-50 { background-color: #f9fafb; }
+            .border { border: 1px solid #333; }
+            .rounded { border-radius: 0.375rem; }
+            .total-row {
+              background-color: #e5e7eb;
+              font-weight: bold;
+            }
+            .grid { display: grid; }
+            .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .gap-4 { gap: 1rem; }
+            .gap-6 { gap: 1.5rem; }
+            .space-y-1 > * + * { margin-top: 0.25rem; }
+            .space-y-2 > * + * { margin-top: 0.5rem; }
+            .flex { display: flex; }
+            .items-center { align-items: center; }
+            .justify-between { justify-content: space-between; }
+            .text-center { text-align: center; }
+            @media print {
+              body { margin: 0; }
+              .no-print { display: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          ${invoiceContent.innerHTML}
+        </body>
+        </html>
+      `;
+
+      // Créer et télécharger le fichier
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      const fileName = `Facture_${invoiceData.participant.name.replace(/[^a-zA-Z0-9]/g, '_')}_${invoiceData.period.startMonth}${invoiceData.period.startMonth !== invoiceData.period.endMonth ? '_' + invoiceData.period.endMonth : ''}.html`;
+      
+      link.href = url;
+      link.download = fileName;
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Nettoyer l'URL
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+      
+      toast.success('Facture téléchargée avec succès');
+    } catch (error) {
+      console.error('Erreur téléchargement:', error);
+      toast.error('Erreur lors du téléchargement de la facture');
+    }
   };
 
   if (!isOpen) return null;
