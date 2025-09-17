@@ -54,18 +54,19 @@ interface InvoiceData {
   billingData: { [month: string]: BillingData };
   totals: {
     volume_partage: number;
-    volume_complementaire: number;
     injection_partagee: number;
     injection_complementaire: number;
     networkCosts: NetworkCosts;
   };
   calculations: {
-    energySharedCost: number;
-    energyComplementaryCost: number;
+    energySharedCostHTVA: number;
+    energySharedCostTVAC: number;
     networkCostTotal: number;
-    totalCost: number;
+    networkCostTVAC: number;
+    totalCostTVAC: number;
     injectionRevenue: number;
     netAmount: number;
+    vatRate: number;
   };
 }
 
@@ -242,7 +243,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
     const totals = {
       volume_partage: 0,
-      volume_complementaire: 0,
       injection_partagee: 0,
       injection_complementaire: 0,
       networkCosts: {
@@ -261,7 +261,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     Object.entries(monthlyData).forEach(([month, data]) => {
       console.log(`📊 Ajout données ${month}:`, data);
       totals.volume_partage += Number(data.volume_partage || 0);
-      totals.volume_complementaire += Number(data.volume_complementaire || 0);
       totals.injection_partagee += Number(data.injection_partagee || 0);
       totals.injection_complementaire += Number(data.injection_complementaire || 0);
     });
@@ -291,56 +290,64 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     console.log('👤 Participant:', { 
       name: participant.name, 
       shared_energy_price: participant.shared_energy_price,
-      commodity_rate: participant.commodity_rate 
+      commodity_rate: participant.commodity_rate,
+      company_number: participant.company_number
     });
 
     // Prix de l'énergie partagée (€/MWh)
     const sharedEnergyPrice = Number(participant.shared_energy_price || 100);
-    // Tarif de commodité (€/MWh)
-    const commodityRate = Number(participant.commodity_rate || 85);
 
-    console.log('💰 Prix utilisés:', { sharedEnergyPrice, commodityRate });
+    // Déterminer le taux de TVA selon le type de participant
+    const vatRate = participant.company_number ? 0.21 : 0.06; // 21% pour entreprises, 6% pour autres
+    
+    console.log('💰 Prix utilisés:', { 
+      sharedEnergyPrice, 
+      vatRate: `${(vatRate * 100)}%`,
+      hasCompanyNumber: !!participant.company_number
+    });
 
     // Convertir kWh en MWh pour les calculs
     const volumePartageInMWh = totals.volume_partage / 1000;
-    const volumeComplementaireInMWh = totals.volume_complementaire / 1000;
     const injectionPartageeInMWh = totals.injection_partagee / 1000;
     const injectionComplementaireInMWh = totals.injection_complementaire / 1000;
 
     console.log('📊 Volumes en MWh:', {
       volumePartageInMWh,
-      volumeComplementaireInMWh,
       injectionPartageeInMWh,
       injectionComplementaireInMWh
     });
 
     // Calculs des coûts
-    const energySharedCost = volumePartageInMWh * sharedEnergyPrice;
-    const energyComplementaryCost = volumeComplementaireInMWh * commodityRate;
+    const energySharedCostHTVA = volumePartageInMWh * sharedEnergyPrice;
+    const energySharedCostTVAC = energySharedCostHTVA * (1 + vatRate);
     
     // Utiliser les coûts réseau réels depuis billing_data
     const networkCostTotal = totals.networkCosts.totalFraisReseau || 0;
+    const networkCostTVAC = networkCostTotal * 1.21; // Coûts réseau toujours à 21%
     
     console.log('💰 Coûts calculés:', {
-      energySharedCost,
-      energyComplementaryCost,
-      networkCostTotal: `${networkCostTotal}€ (depuis billing_data)`
+      energySharedCostHTVA,
+      energySharedCostTVAC,
+      networkCostTotal: `${networkCostTotal}€ HTVA`,
+      networkCostTVAC: `${networkCostTVAC}€ TVAC`
     });
 
     // Revenus d'injection
-    const injectionRevenue = (injectionPartageeInMWh + injectionComplementaireInMWh) * commodityRate;
+    const injectionRevenue = (injectionPartageeInMWh + injectionComplementaireInMWh) * sharedEnergyPrice;
 
     // Total
-    const totalCost = energySharedCost + energyComplementaryCost + networkCostTotal;
-    const netAmount = totalCost - injectionRevenue;
+    const totalCostTVAC = energySharedCostTVAC + networkCostTVAC;
+    const netAmount = totalCostTVAC - injectionRevenue;
 
     const calculations = {
-      energySharedCost: Math.round(energySharedCost * 100) / 100,
-      energyComplementaryCost: Math.round(energyComplementaryCost * 100) / 100,
+      energySharedCostHTVA: Math.round(energySharedCostHTVA * 100) / 100,
+      energySharedCostTVAC: Math.round(energySharedCostTVAC * 100) / 100,
       networkCostTotal: Math.round(networkCostTotal * 100) / 100,
-      totalCost: Math.round(totalCost * 100) / 100,
+      networkCostTVAC: Math.round(networkCostTVAC * 100) / 100,
+      totalCostTVAC: Math.round(totalCostTVAC * 100) / 100,
       injectionRevenue: Math.round(injectionRevenue * 100) / 100,
-      netAmount: Math.round(netAmount * 100) / 100
+      netAmount: Math.round(netAmount * 100) / 100,
+      vatRate: vatRate
     };
 
     console.log('💰 Calculs finaux:', calculations);
@@ -596,14 +603,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <span>Énergie partagée :</span>
                     <span className="font-medium">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Énergie réseau :</span>
-                    <span className="font-medium">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
-                  </div>
-                  <div className="flex justify-between border-t-2 border-blue-300 pt-2 font-semibold text-blue-900">
-                    <span>Total consommation :</span>
-                    <span>{((invoiceData.totals.volume_partage + invoiceData.totals.volume_complementaire) / 1000).toFixed(3)} MWh</span>
-                  </div>
                 </div>
               </div>
 
@@ -814,47 +813,74 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-b-2 border-gray-400">
                       Description
                     </th>
+                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                      Taux TVA
+                    </th>
                     <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
-                      Montant
+                      Montant HTVA
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                      Montant TVAC
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white">
                   <tr className="border-b border-gray-300">
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
-                      Coût énergie partagée ({(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh)
+                      <div>
+                        <div className="font-medium text-gray-900">Énergie partagée</div>
+                        <div className="text-xs text-gray-600">
+                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh HTVA
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">
+                      {(invoiceData.calculations.vatRate * 100).toFixed(0)}%
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.calculations.energySharedCostHTVA.toFixed(2)} €
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                      {invoiceData.calculations.energySharedCost.toFixed(2)} €
+                      {invoiceData.calculations.energySharedCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-b border-gray-300">
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
-                      Coût énergie réseau ({(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh × {invoiceData.participant.commodity_rate}€/MWh)
+                      <div>
+                        <div className="font-medium text-gray-900">Coûts réseau</div>
+                        <div className="text-xs text-gray-600">Frais de distribution et transport</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.calculations.networkCostTotal.toFixed(2)} €
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                      {invoiceData.calculations.energyComplementaryCost.toFixed(2)} €
+                      {invoiceData.calculations.networkCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
-                      Coûts réseau (TVAC)
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                      {(invoiceData.calculations.networkCostTotal * 1.21).toFixed(2)} €
-                    </td>
-                  </tr>
-                  <tr className="border-b-2 border-gray-400 bg-blue-100">
+                  <tr className="border-b-2 border-gray-400 bg-blue-50">
                     <td className="px-4 py-3 text-sm font-bold text-blue-900 border-r border-gray-300">
                       SOUS-TOTAL COÛTS
                     </td>
+                    <td className="px-4 py-3 text-center text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
                     <td className="px-4 py-3 text-right text-sm font-bold text-blue-900">
-                      {(invoiceData.calculations.totalCost + (invoiceData.calculations.networkCostTotal * 0.21)).toFixed(2)} €
+                      {invoiceData.calculations.totalCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-b border-gray-300">
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
-                      Revenus injection ({((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.commodity_rate}€/MWh)
+                      <div>
+                        <div className="font-medium text-gray-900">Revenus injection</div>
+                        <div className="text-xs text-gray-600">
+                          {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700 border-r border-gray-300">
+                      -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-medium text-green-700">
                       -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
@@ -864,8 +890,10 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-lg font-bold text-amber-900 border-r border-gray-300">
                       MONTANT NET À PAYER
                     </td>
+                    <td className="px-4 py-3 text-center text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
                     <td className="px-4 py-3 text-right text-lg font-bold text-amber-900">
-                      {(invoiceData.calculations.netAmount + (invoiceData.calculations.networkCostTotal * 0.21)).toFixed(2)} €
+                      {invoiceData.calculations.netAmount.toFixed(2)} €
                     </td>
                   </tr>
                 </tbody>
