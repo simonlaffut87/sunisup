@@ -530,4 +530,24 @@ export class BasicFileReader {
       console.log(`  TOTAL: ${group.networkCosts.totalFraisReseau.toFixed(2)}€`);
     });
     
-    console.log('✅ Données accumulées par
+    console.log('✅ Données accumulées par EAN:', Object.keys(participantData).length);
+    onLog?.(`✅ ${Object.keys(participantData).length} participants traités avec succès`);
+    
+    if (unknownEans.size > 0) {
+      console.warn('⚠️ EANs non reconnus:', Array.from(unknownEans).slice(0, 10));
+      onLog?.(`⚠️ ${unknownEans.size} EANs non reconnus (premiers: ${Array.from(unknownEans).slice(0, 5).join(', ')})`);
+    }
+    
+    return {
+      success: true,
+      data: participantData,
+      stats: {
+        totalRows: rows.length,
+        processedRows,
+        participantsFound: Object.keys(participantData).length,
+        unknownEans: unknownEans.size,
+        filename
+      }
+    };
+  }
+}
