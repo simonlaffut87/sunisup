@@ -4,7 +4,7 @@ import { Database } from 'lucide-react';
 import { format, parseISO, addDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
-import { Database } from '../types/supabase';
+import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 
 type Participant = Database['public']['Tables']['participants']['Row'];

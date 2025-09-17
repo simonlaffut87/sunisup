@@ -6,7 +6,7 @@ import { Users, Plus, Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail
   Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye, FileText, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Database as DB } from '../types/supabase';
+import type { Database as DB } from '../types/supabase';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { ParticipantForm } from './ParticipantForm';
 import { MonthlyFileManager } from './MonthlyFileManager';

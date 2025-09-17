@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Database } from '../types/supabase';
+import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { Save, Trash2, User, MapPin, Calendar, Mail, Hash, Euro, AlertCircle, Users } from 'lucide-react';
 

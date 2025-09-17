@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
-import { Database } from '../types/supabase';
+import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
 

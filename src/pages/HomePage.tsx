@@ -23,7 +23,7 @@ import { divIcon } from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
 import { supabase, isSupabaseAvailable } from '../lib/supabase';
-import { Database } from '../types/supabase';
+import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
 
