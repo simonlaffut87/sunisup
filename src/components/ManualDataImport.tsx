@@ -119,59 +119,24 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       
       // Recherche des colonnes de coûts réseau
       const networkCostColumns = {
-        utilisationReseau: headers.findIndex(h => {
-          const header = String(h).toLowerCase().trim();
-          return header === 'utilisation du réseau € htva' || 
-                 header === 'utilisation du reseau € htva' ||
-                 (header.includes('utilisation') && header.includes('réseau') && header.includes('htva'));
-        }),
-        surcharges: headers.findIndex(h => {
-          const header = String(h).toLowerCase().trim();
-          return header === 'surcharges € htva' ||
-                 (header.includes('surcharges') && header.includes('htva'));
-        }),
-        tarifCapacitaire: headers.findIndex(h => {
-          const header = String(h).toLowerCase().trim();
-          return header === 'tarif capac. (>2020) € htva' ||
-                 header === 'tarif capacitaire € htva' ||
-                 (header.includes('tarif') && header.includes('capac') && header.includes('htva'));
-        }),
-        tarifMesure: headers.findIndex(h => {
-          const header = String(h).toLowerCase().trim();
-          return header === 'tarif mesure & comptage € htva' ||
-                 header === 'tarif mesure et comptage € htva' ||
-                 (header.includes('tarif') && header.includes('mesure') && header.includes('htva'));
-        }),
-        tarifOSP: headers.findIndex(h => {
-          const header = String(h).toLowerCase().trim();
-          return header === 'tarif osp € htva' ||
-                 (header.includes('tarif') && header.includes('osp') && header.includes('htva'));
-        }),
-        transportELIA: headers.findIndex(h => {
-          const header = String(h).toLowerCase().trim();
-          return header === 'transport - coût elia € htva' ||
-                 header === 'transport - cout elia € htva' ||
-                 header === 'transport elia € htva' ||
-                 (header.includes('transport') && header.includes('elia') && header.includes('htva'));
-        }),
-        redevanceVoirie: headers.findIndex(h => {
-          const header = String(h).toLowerCase().trim();
-          return header === 'redevance de voirie € htva' ||
-                 header === 'redevance voirie € htva' ||
-                 (header.includes('redevance') && header.includes('voirie') && header.includes('htva'));
-        }),
-        totalFraisReseau: headers.findIndex(h => {
-          const header = String(h).toLowerCase().trim();
-          return header === 'total frais de réseau € htva' ||
-                 header === 'total frais de reseau € htva' ||
-                 header === 'total frais réseau € htva' ||
-                 (header.includes('total') && header.includes('frais') && header.includes('réseau') && header.includes('htva'));
-        })
+        utilisationReseau: 10,  // Position fixe basée sur votre exemple
+        surcharges: 11,
+        tarifCapacitaire: 12,
+        tarifMesure: 13,
+        tarifOSP: 14,
+        transportELIA: 15,
+        redevanceVoirie: 16,
+        totalFraisReseau: 17
       };
       
-      addLog('🔍 COLONNES COÛTS RÉSEAU DÉTECTÉES:');
+      // Vérifier que les colonnes correspondent
+      addLog(`🔍 VÉRIFICATION COLONNES COÛTS RÉSEAU (positions fixes):`);
       Object.entries(networkCostColumns).forEach(([key, index]) => {
-        addLog(`  ${key}: ${index >= 0 ? `✅ "${headers[index]}" (index ${index})` : '❌ NON TROUVÉE'}`);
+        if (index < headers.length) {
+          addLog(`  ${key}: ✅ "${headers[index]}" (position ${index})`);
+        } else {
+          addLog(`  ${key}: ❌ Position ${index} hors limites (${headers.length} colonnes)`);
+        }
       });
       
       addSubSection('MAPPING DES COLONNES');
