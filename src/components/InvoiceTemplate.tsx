@@ -428,7 +428,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     try {
       setSaving(true);
       
-      // Générer le PDF
       const invoiceContent = document.getElementById('invoice-content');
       if (!invoiceContent) {
         toast.error('Impossible de trouver le contenu de la facture');
@@ -436,42 +435,54 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         return;
       }
 
-      // Masquer temporairement les boutons pour la capture
+      // Masquer les éléments non imprimables
       const buttons = document.querySelectorAll('.no-print');
       buttons.forEach(btn => (btn as HTMLElement).style.display = 'none');
 
-      // Générer le canvas à partir du contenu HTML
+      // Attendre un peu pour que le DOM se stabilise
+      setTimeout(() => {
       html2canvas(invoiceContent, {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        width: invoiceContent.scrollWidth,
-        height: invoiceContent.scrollHeight
+        width: Math.min(invoiceContent.scrollWidth, 800),
+        height: invoiceContent.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 800,
+        windowHeight: invoiceContent.scrollHeight
       }).then(canvas => {
         // Restaurer l'affichage des boutons
         buttons.forEach(btn => (btn as HTMLElement).style.display = '');
 
         // Créer le PDF
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true
+        });
         
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 295; // A4 height in mm
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pdfWidth - 20; // Marges de 10mm de chaque côté
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
         let heightLeft = imgHeight;
-        let position = 0;
+        let position = 10; // Marge du haut
 
         // Ajouter la première page
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, Math.min(imgHeight, pdfHeight - 20));
+        heightLeft -= (pdfHeight - 20);
 
         // Ajouter des pages supplémentaires si nécessaire
         while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
+          position = -(pdfHeight - 20) + 10;
           pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+          heightLeft -= (pdfHeight - 20);
         }
 
         // Télécharger le PDF
@@ -479,14 +490,15 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         pdf.save(fileName);
         
         toast.success('Facture PDF téléchargée avec succès');
-        setSaving(false);
       }).catch(error => {
         // Restaurer l'affichage des boutons en cas d'erreur
         buttons.forEach(btn => (btn as HTMLElement).style.display = '');
         console.error('Erreur génération PDF:', error);
         toast.error('Erreur lors de la génération du PDF');
+      }).finally(() => {
         setSaving(false);
       });
+      }, 100); // Délai pour stabiliser le DOM
 
     } catch (error) {
       console.error('Erreur téléchargement:', error);
@@ -688,23 +700,30 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         {/* Debug Info - Visible seulement en développement */}
 
         {/* Contenu de la facture */}
-        <div id="invoice-content" className="p-8 bg-white text-gray-900">
+        <div id="invoice-content" className="p-8 bg-white text-gray-900 max-w-4xl mx-auto" style={{ minWidth: '750px' }}>
           {/* En-tête de la facture */}
-          <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-gray-300">
+          <div className="flex flex-col lg:flex-row justify-between items-start mb-8 pb-6 border-b-2 border-gray-300 gap-6">
             <div>
-              <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-16 w-16 mb-4" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
-                <p className="text-gray-700">Communauté d'énergie bruxelloise</p>
-                <p className="text-sm text-gray-600 mt-2">
-                  info@sunisup.be • +32 471 31 71 48
-                </p>
+              <div className="flex items-start space-x-4 mb-4">
+                <img 
+                  src="/images/logo-v2.png" 
+                  alt="Sun Is Up Logo" 
+                  className="h-16 w-16 flex-shrink-0 object-contain"
+                  style={{ maxWidth: '64px', maxHeight: '64px' }}
+                />
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 leading-tight">Sun Is Up ASBL</h1>
+                  <p className="text-sm text-gray-700">Communauté d'énergie bruxelloise</p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    info@sunisup.be • +32 471 31 71 48
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="text-right">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">FACTURE ÉNERGÉTIQUE</h2>
-              <div className="text-sm text-gray-700 space-y-1">
-                <div className="flex items-center justify-end space-x-2">
+            <div className="text-left lg:text-right flex-shrink-0">
+              <h2 className="text-lg font-bold text-gray-900 mb-3">FACTURE ÉNERGÉTIQUE</h2>
+              <div className="text-sm text-gray-700 space-y-2">
+                <div className="flex items-center justify-start lg:justify-end space-x-2">
                   <Calendar className="w-4 h-4 text-gray-600" />
                   <span>
                     {format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}
@@ -713,7 +732,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     }
                   </span>
                 </div>
-                <div className="text-gray-600">
+                <div className="text-xs text-gray-600 font-mono">
                   Facture N° {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}
                 </div>
               </div>
@@ -721,18 +740,21 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           </div>
 
           {/* Informations du participant */}
-          <div className="mb-8 p-6 bg-gray-100 rounded-lg border-2 border-gray-300">
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-300">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <User className="w-5 h-5 mr-2 text-gray-700" />
               Informations du participant
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm text-gray-800">
               <div>
                 <div className="space-y-2">
                   <div><strong className="text-gray-900">Nom :</strong> {invoiceData.participant.name}</div>
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-1 text-gray-600" />
-                    <span><strong className="text-gray-900">Adresse :</strong> {invoiceData.participant.address}</span>
+                  <div className="flex items-start">
+                    <MapPin className="w-4 h-4 mr-1 text-gray-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-gray-900">Adresse :</strong>
+                      <div className="text-gray-700 break-words">{invoiceData.participant.address}</div>
+                    </div>
                   </div>
                   {invoiceData.participant.email && (
                     <div><strong className="text-gray-900">Email :</strong> {invoiceData.participant.email}</div>
@@ -741,9 +763,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               </div>
               <div>
                 <div className="space-y-2">
-                  <div className="flex items-center">
+                  <div className="flex items-start">
                     <Hash className="w-4 h-4 mr-1 text-gray-600" />
-                    <span><strong className="text-gray-900">Code EAN :</strong> {invoiceData.participant.ean_code}</span>
+                    <div>
+                      <strong className="text-gray-900">Code EAN :</strong>
+                      <div className="font-mono text-xs text-gray-700 break-all">{invoiceData.participant.ean_code}</div>
+                    </div>
                   </div>
                   <div>
                     <strong className="text-gray-900">Type :</strong> 
@@ -764,11 +789,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           </div>
 
           {/* Détail énergétique */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail énergétique</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Consommation */}
-              <div className="bg-blue-100 p-4 rounded-lg border-2 border-blue-300">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h4 className="font-medium text-blue-900 mb-3">📥 Consommation</h4>
                 <div className="space-y-2 text-sm text-blue-800">
                   <div className="flex justify-between">
@@ -786,7 +811,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               </div>
 
               {/* Injection */}
-              <div className="bg-amber-100 p-4 rounded-lg border-2 border-amber-300">
+              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
                 <h4 className="font-medium text-amber-900 mb-3">📤 Injection</h4>
                 <div className="space-y-2 text-sm text-amber-800">
                   <div className="flex justify-between">
@@ -807,7 +832,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           </div>
 
           {/* Détail des coûts réseau - AMÉLIORÉ */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail des coûts réseau</h3>
             
             {/* Vérification des données billing */}
@@ -838,139 +863,139 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               </div>
             )}
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-2 border-gray-400">
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
+              <table className="w-full table-fixed">
                 <thead>
-                  <tr className="bg-gray-200">
-                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                  <tr className="bg-gray-100 border-b border-gray-300">
+                    <th className="w-2/5 px-3 py-2 text-left text-xs font-bold text-gray-900 border-r border-gray-300">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="w-1/6 px-3 py-2 text-center text-xs font-bold text-gray-900 border-r border-gray-300">
                       Taux TVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="w-1/4 px-3 py-2 text-right text-xs font-bold text-gray-900 border-r border-gray-300">
                       Montant HTVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="w-1/4 px-3 py-2 text-right text-xs font-bold text-gray-900">
                       Montant TVAC
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white">
+                <tbody className="bg-white divide-y divide-gray-200">
                   <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Utilisation du réseau</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600 truncate">Consommation</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
                       {invoiceData.totals.networkCosts.utilisationReseau.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
                       {(invoiceData.totals.networkCosts.utilisationReseau * 1.21).toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Surcharges</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600 truncate">Consommation</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
                       {invoiceData.totals.networkCosts.surcharges.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
                       {(invoiceData.totals.networkCosts.surcharges * 1.21).toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Tarif capacitaire</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600 truncate">Consommation</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
                       {invoiceData.totals.networkCosts.tarifCapacitaire.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
                       {(invoiceData.totals.networkCosts.tarifCapacitaire * 1.21).toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Tarif mesure & comptage</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600 truncate">Consommation</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
                       {invoiceData.totals.networkCosts.tarifMesure.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
                       {(invoiceData.totals.networkCosts.tarifMesure * 1.21).toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Tarif OSP</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600 truncate">Consommation</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
                       {invoiceData.totals.networkCosts.tarifOSP.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
                       {(invoiceData.totals.networkCosts.tarifOSP * 1.21).toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Transport ELIA</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600 truncate">Consommation</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
                       {invoiceData.totals.networkCosts.transportELIA.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
                       {(invoiceData.totals.networkCosts.transportELIA * 1.21).toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Redevance voirie</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600 truncate">Consommation</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
                       {invoiceData.totals.networkCosts.redevanceVoirie.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
                       {(invoiceData.totals.networkCosts.redevanceVoirie * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="bg-gray-200 border-t-2 border-gray-400 total-row">
-                    <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-300">
+                  <tr className="bg-gray-100 border-t-2 border-gray-400">
+                    <td className="px-3 py-2 text-xs font-bold text-gray-900 border-r border-gray-300">
                       TOTAL COÛTS RÉSEAU
                     </td>
-                    <td className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
+                    <td className="px-3 py-2 text-center text-xs font-bold text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-bold text-gray-900 border-r border-gray-300">
                       {invoiceData.totals.networkCosts.totalFraisReseau.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                    <td className="px-3 py-2 text-right text-xs font-bold text-gray-900">
                       {(invoiceData.totals.networkCosts.totalFraisReseau * 1.21).toFixed(2)} €
                     </td>
                   </tr>
@@ -980,28 +1005,117 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           </div>
 
           {/* Récapitulatif financier */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <Euro className="w-5 h-5 mr-2 text-gray-700" />
               Récapitulatif financier
             </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-2 border-gray-400">
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
+              <table className="w-full table-fixed">
                 <thead>
-                  <tr className="bg-gray-200">
-                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                  <tr className="bg-gray-100 border-b border-gray-300">
+                    <th className="w-2/5 px-3 py-2 text-left text-xs font-bold text-gray-900 border-r border-gray-300">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="w-1/6 px-3 py-2 text-center text-xs font-bold text-gray-900 border-r border-gray-300">
                       Taux TVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="w-1/4 px-3 py-2 text-right text-xs font-bold text-gray-900 border-r border-gray-300">
                       Montant HTVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="w-1/4 px-3 py-2 text-right text-xs font-bold text-gray-900">
                       Montant TVAC
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white">
-                  <tr className="border-b border
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Énergie partagée</div>
+                        <div className="text-xs text-gray-600 break-words">
+                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh HTVA
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">
+                      {(invoiceData.calculations.vatRate * 100).toFixed(0)}%
+                    </td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.calculations.energySharedCostHTVA.toFixed(2)} €
+                    </td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
+                      {invoiceData.calculations.energySharedCostTVAC.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Coûts réseau</div>
+                        <div className="text-xs text-gray-600 truncate">Frais de distribution et transport</div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.calculations.networkCostTotal.toFixed(2)} €
+                    </td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900">
+                      {invoiceData.calculations.networkCostTVAC.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b-2 border-gray-400 bg-blue-50 font-semibold">
+                    <td className="px-3 py-2 text-xs font-bold text-blue-900 border-r border-gray-300">
+                      SOUS-TOTAL COÛTS
+                    </td>
+                    <td className="px-3 py-2 text-center text-xs font-bold text-blue-900 border-r border-gray-300">-</td>
+                    <td className="px-3 py-2 text-right text-xs font-bold text-blue-900 border-r border-gray-300">-</td>
+                    <td className="px-3 py-2 text-right text-xs font-bold text-blue-900">
+                      {invoiceData.calculations.totalCostTVAC.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Revenus injection</div>
+                        <div className="text-xs text-gray-600 break-words">
+                          {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-center text-xs text-gray-900 border-r border-gray-300">-</td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-green-700 border-r border-gray-300">
+                      -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
+                    </td>
+                    <td className="px-3 py-2 text-right text-xs font-medium text-green-700">
+                      -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-amber-100 border-t-2 border-amber-400">
+                    <td className="px-3 py-2 text-sm font-bold text-amber-900 border-r border-gray-300">
+                      MONTANT NET À PAYER
+                    </td>
+                    <td className="px-3 py-2 text-center text-sm font-bold text-amber-900 border-r border-gray-300">-</td>
+                    <td className="px-3 py-2 text-right text-sm font-bold text-amber-900 border-r border-gray-300">-</td>
+                    <td className="px-3 py-2 text-right text-sm font-bold text-amber-900">
+                      {invoiceData.calculations.netAmount.toFixed(2)} €
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Conditions de paiement */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-300">
+            <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>• Paiement à 30 jours, soit au plus tard le {format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}</p>
+              <p>• Virement bancaire : BE96 0020 1192 6005</p>
+              <p className="font-mono text-xs">• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
