@@ -409,11 +409,11 @@ export function AdminDashboard() {
                 }`}></div>
                 <div className="flex-1">
                   <h3 className={`font-medium ${
-                    connectionStatus.canAccessParticipants ? 'text-green-900' : 'text-red-900'
+                    connectionStatus.canAccessParticipants ? 'text-gray-900' : 'text-red-900'
                   }`}>
                     Status Connexion Admin
                   </h3>
-                  <div className="text-sm space-y-1 mt-2">
+                  <div className="text-sm space-y-1 mt-2 text-gray-800">
                     <div>📧 Email: {connectionStatus.userEmail || 'Non connecté'}</div>
                     <div>🔐 Session: {connectionStatus.hasValidSession ? '✅ Valide' : '❌ Invalide'}</div>
                     <div>🗄️ Accès participants: {connectionStatus.canAccessParticipants ? '✅ Autorisé' : '❌ Refusé'}</div>
