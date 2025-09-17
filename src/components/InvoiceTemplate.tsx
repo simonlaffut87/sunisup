@@ -796,4 +796,118 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   <tr className="border-b border-gray-300">
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-gray-900">Redevance voirie</div>
+                        <div className="text-xs text-gray-600">Consommation</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.redevanceVoirie.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.totals.networkCosts.redevanceVoirie * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-gray-200 border-t-2 border-gray-400 total-row">
+                    <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-300">
+                      TOTAL COÛTS RÉSEAU
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.totalFraisReseau.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                      {(invoiceData.totals.networkCosts.totalFraisReseau * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Récapitulatif financier */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <Euro className="w-5 h-5 mr-2 text-gray-700" />
+              Récapitulatif financier
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-2 border-gray-400">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                      Description
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                      Montant
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      Coût énergie partagée ({(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh)
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {invoiceData.calculations.energySharedCost.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      Coût énergie réseau ({(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh × {invoiceData.participant.commodity_rate}€/MWh)
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {invoiceData.calculations.energyComplementaryCost.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      Coûts réseau (TVAC)
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.calculations.networkCostTotal * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b-2 border-gray-400 bg-blue-100">
+                    <td className="px-4 py-3 text-sm font-bold text-blue-900 border-r border-gray-300">
+                      SOUS-TOTAL COÛTS
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900">
+                      {(invoiceData.calculations.totalCost + (invoiceData.calculations.networkCostTotal * 0.21)).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      Revenus injection ({((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.commodity_rate}€/MWh)
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700">
+                      -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-amber-100 border-t-2 border-amber-400">
+                    <td className="px-4 py-3 text-lg font-bold text-amber-900 border-r border-gray-300">
+                      MONTANT NET À PAYER
+                    </td>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900">
+                      {(invoiceData.calculations.netAmount + (invoiceData.calculations.networkCostTotal * 0.21)).toFixed(2)} €
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Conditions de paiement */}
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
+            <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>• Paiement à 30 jours</p>
+              <p>• Virement bancaire : BE XX XXXX XXXX XXXX</p>
+              <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
