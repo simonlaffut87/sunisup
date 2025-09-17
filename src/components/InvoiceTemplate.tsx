@@ -507,30 +507,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         </div>
 
         {/* Debug Info - Visible seulement en développement */}
-        {debugInfo && (
-          <div className="no-print bg-yellow-50 border-l-4 border-yellow-400 p-4 m-6">
-            <div className="flex items-center mb-2">
-              <DatabaseIcon className="w-5 h-5 text-yellow-600 mr-2" />
-              <h3 className="font-medium text-yellow-900">Debug - Données disponibles</h3>
-            </div>
-            <div className="text-sm text-yellow-800 space-y-1">
-              <div>Participant: {debugInfo.participantName}</div>
-              <div>Monthly Data: {debugInfo.hasMonthlyData ? '✅ Présent' : '❌ Absent'}</div>
-              <div>Billing Data: {debugInfo.hasBillingData ? '✅ Présent' : '❌ Absent'}</div>
-              {debugInfo.hasBillingData && (
-                <div className="mt-2 p-2 bg-yellow-100 rounded text-xs">
-                  <div>Type billing_data: {debugInfo.billingDataType}</div>
-                  <div>Mois disponibles: {
-                    debugInfo.billingDataRaw ? 
-                    Object.keys(typeof debugInfo.billingDataRaw === 'string' ? 
-                      JSON.parse(debugInfo.billingDataRaw) : debugInfo.billingDataRaw).join(', ') : 
-                    'Aucun'
-                  }</div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Contenu de la facture */}
         <div id="invoice-content" className="p-8 bg-white text-gray-900">
