@@ -75,6 +75,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (isOpen && participant) {
