@@ -688,23 +688,27 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         {/* Debug Info - Visible seulement en développement */}
 
         {/* Contenu de la facture */}
-        <div id="invoice-content" className="p-8 bg-white text-gray-900">
+        <div id="invoice-content" className="p-8 bg-white text-gray-900 max-w-none">
           {/* En-tête de la facture */}
-          <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-gray-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-6 border-b-2 border-gray-300">
             <div>
-              <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-16 w-16 mb-4" />
+              <div className="flex items-center space-x-4 mb-4">
+                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-20 w-20 flex-shrink-0" />
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
+                  <p className="text-gray-700">Communauté d'énergie bruxelloise</p>
+                </div>
+              </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
-                <p className="text-gray-700">Communauté d'énergie bruxelloise</p>
                 <p className="text-sm text-gray-600 mt-2">
                   info@sunisup.be • +32 471 31 71 48
                 </p>
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-left md:text-right">
               <h2 className="text-xl font-bold text-gray-900 mb-2">FACTURE ÉNERGÉTIQUE</h2>
               <div className="text-sm text-gray-700 space-y-1">
-                <div className="flex items-center justify-end space-x-2">
+                <div className="flex items-center justify-start md:justify-end space-x-2">
                   <Calendar className="w-4 h-4 text-gray-600" />
                   <span>
                     {format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}
@@ -721,12 +725,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           </div>
 
           {/* Informations du participant */}
-          <div className="mb-8 p-6 bg-gray-100 rounded-lg border-2 border-gray-300">
+          <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-300">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <User className="w-5 h-5 mr-2 text-gray-700" />
               Informations du participant
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-800">
               <div>
                 <div className="space-y-2">
                   <div><strong className="text-gray-900">Nom :</strong> {invoiceData.participant.name}</div>
@@ -766,27 +770,27 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           {/* Détail énergétique */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail énergétique</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Consommation */}
-              <div className="bg-blue-100 p-4 rounded-lg border-2 border-blue-300">
+              <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
                 <h4 className="font-medium text-blue-900 mb-3">📥 Consommation</h4>
                 <div className="space-y-2 text-sm text-blue-800">
                   <div className="flex justify-between">
                     <span>Énergie partagée :</span>
                     <span className="font-medium">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh</span>
                   </div>
-                  <div className="flex justify-between border-t border-blue-200 pt-2">
+                  <div className="flex justify-between border-t border-blue-200 pt-2 mt-2">
                     <span>Énergie réseau (achat au fournisseur) :</span>
                     <span className="font-medium text-blue-600">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
                   </div>
-                  <div className="text-xs text-blue-600 italic mt-1">
+                  <div className="text-xs text-blue-600 italic mt-2 p-2 bg-blue-100 rounded">
                     * Énergie réseau : indicatif, non facturée par Sun Is Up
                   </div>
                 </div>
               </div>
 
               {/* Injection */}
-              <div className="bg-amber-100 p-4 rounded-lg border-2 border-amber-300">
+              <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
                 <h4 className="font-medium text-amber-900 mb-3">📤 Injection</h4>
                 <div className="space-y-2 text-sm text-amber-800">
                   <div className="flex justify-between">
@@ -797,7 +801,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <span>Injection réseau :</span>
                     <span className="font-medium">{(invoiceData.totals.injection_complementaire / 1000).toFixed(3)} MWh</span>
                   </div>
-                  <div className="flex justify-between border-t-2 border-amber-300 pt-2 font-semibold text-amber-900">
+                  <div className="flex justify-between border-t border-amber-300 pt-2 mt-2 font-semibold text-amber-900 bg-amber-100 p-2 rounded">
                     <span>Total injection :</span>
                     <span>{((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh</span>
                   </div>
@@ -812,7 +816,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             
             {/* Vérification des données billing */}
             {Object.keys(invoiceData.billingData).length === 0 ? (
-              <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4 mb-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center">
                   <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
                   <span className="font-medium text-red-900">Aucune donnée de coûts réseau trouvée</span>
@@ -823,7 +827,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 </p>
               </div>
             ) : (
-              <div className="bg-green-100 border-2 border-green-300 rounded-lg p-4 mb-4">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center">
                   <DatabaseIcon className="w-5 h-5 text-green-600 mr-2" />
                   <span className="font-medium text-green-900">
@@ -838,25 +842,25 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               </div>
             )}
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-2 border-gray-400">
+            <div className="overflow-x-auto border border-gray-300 rounded-lg">
+              <table className="min-w-full">
                 <thead>
-                  <tr className="bg-gray-200">
-                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                  <tr className="bg-gray-100 border-b border-gray-300">
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-r border-gray-300">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">
                       Taux TVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
                       Montant HTVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900">
                       Montant TVAC
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white">
+                <tbody className="bg-white divide-y divide-gray-200">
                   <tr className="border-b border-gray-300">
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
@@ -962,7 +966,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       {(invoiceData.totals.networkCosts.redevanceVoirie * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="bg-gray-200 border-t-2 border-gray-400 total-row">
+                  <tr className="bg-gray-100 border-t-2 border-gray-400">
                     <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-300">
                       TOTAL COÛTS RÉSEAU
                     </td>
@@ -985,30 +989,32 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <Euro className="w-5 h-5 mr-2 text-gray-700" />
               Récapitulatif financier
             </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-2 border-gray-400">
+            <div className="overflow-x-auto border border-gray-300 rounded-lg">
+              <table className="min-w-full">
                 <thead>
-                  <tr className="bg-gray-200">
-                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                  <tr className="bg-gray-100 border-b border-gray-300">
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-r border-gray-300">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">
                       Taux TVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
                       Montant HTVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-b-2 border-gray-400">
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900">
                       Montant TVAC
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white">
+                <tbody className="bg-white divide-y divide-gray-200">
                   <tr className="border-b border-gray-300">
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Énergie partagée</div>
-                        <div className="text-xs text-gray-600">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price || 100}€/MWh</div>
+                        <div className="text-xs text-gray-600">
+                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh HTVA
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">
@@ -1025,7 +1031,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Coûts réseau</div>
-                        <div className="text-xs text-gray-600">Utilisation du réseau de distribution</div>
+                        <div className="text-xs text-gray-600">Frais de distribution et transport</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
@@ -1036,45 +1042,41 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       {invoiceData.calculations.networkCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b-2 border-gray-400 bg-blue-50">
+                  <tr className="border-b-2 border-gray-400 bg-blue-50 font-semibold">
                     <td className="px-4 py-3 text-sm font-bold text-blue-900 border-r border-gray-300">
                       SOUS-TOTAL COÛTS
                     </td>
                     <td className="px-4 py-3 text-center text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900 border-r border-gray-300">
-                      {(invoiceData.calculations.energySharedCostHTVA + invoiceData.calculations.networkCostTotal).toFixed(2)} €
-                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
                     <td className="px-4 py-3 text-right text-sm font-bold text-blue-900">
                       {invoiceData.calculations.totalCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300 bg-green-50">
-                    <td className="px-4 py-3 text-sm text-green-900 border-r border-gray-300">
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
-                        <div className="font-medium text-green-900">Revenus injection</div>
-                        <div className="text-xs text-green-700">
-                          {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price || 100}€/MWh
+                        <div className="font-medium text-gray-900">Revenus injection</div>
+                        <div className="text-xs text-gray-600">
+                          {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-green-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-green-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700 border-r border-gray-300">
                       -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-green-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700">
                       -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className={`bg-gray-200 border-t-2 border-gray-400 total-row ${invoiceData.calculations.netAmount < 0 ? 'bg-green-200' : 'bg-red-200'}`}>
-                    <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-300">
-                      {invoiceData.calculations.netAmount < 0 ? 'CRÉDIT À VERSER' : 'MONTANT À PAYER'}
+                  <tr className="bg-amber-100 border-t-2 border-amber-400">
+                    <td className="px-4 py-3 text-lg font-bold text-amber-900 border-r border-gray-300">
+                      MONTANT NET À PAYER
                     </td>
-                    <td className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
-                      {Math.abs(invoiceData.calculations.netAmount).toFixed(2)} €
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                      {Math.abs(invoiceData.calculations.netAmount).toFixed(2)} €
+                    <td className="px-4 py-3 text-center text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900">
+                      {invoiceData.calculations.netAmount.toFixed(2)} €
                     </td>
                   </tr>
                 </tbody>
@@ -1082,25 +1084,13 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             </div>
           </div>
 
-          {/* Notes et conditions */}
-          <div className="mt-8 pt-6 border-t-2 border-gray-300">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-700">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
-                <ul className="space-y-1 text-xs">
-                  <li>• Paiement à 30 jours</li>
-                  <li>• Virement bancaire uniquement</li>
-                  <li>• Mentionner le numéro de facture</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Informations légales</h4>
-                <div className="text-xs space-y-1">
-                  <div>Sun Is Up ASBL</div>
-                  <div>N° entreprise: 0123.456.789</div>
-                  <div>TVA: BE0123.456.789</div>
-                </div>
-              </div>
+          {/* Conditions de paiement */}
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
+            <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>• Paiement à 30 jours, soit au plus tard le {format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}</p>
+              <p>• Virement bancaire : BE96 0020 1192 6005</p>
+              <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
             </div>
           </div>
         </div>
