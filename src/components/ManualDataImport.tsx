@@ -298,10 +298,13 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           // Fonction pour nettoyer et parser les valeurs numériques
           const parseValue = (value: any) => {
             if (!value) return 0;
-            const cleaned = String(value)
+            const stringValue = String(value).trim();
+            if (!stringValue || stringValue === '') return 0;
+            
+            const cleaned = stringValue
               .replace(/,/g, '.') // Virgule -> point
               .replace(/\s/g, '') // Supprimer espaces
-              .replace(/[^\d.-]/g, ''); // Garder seulement chiffres, point et tiret
+              .replace(/[^\d.]/g, ''); // Garder seulement chiffres et point
             const parsed = parseFloat(cleaned);
             return isNaN(parsed) ? 0 : parsed;
           };
@@ -341,23 +344,23 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             
             // Extraire tous les coûts réseau
             const networkCosts = {
-              utilisationReseau: parseNetworkCost(row[10], 'Utilisation réseau'),
-              surcharges: parseNetworkCost(row[11], 'Surcharges'),
-              tarifCapacitaire: parseNetworkCost(row[12], 'Tarif capacitaire'),
-              tarifMesure: parseNetworkCost(row[13], 'Tarif mesure'),
-              tarifOSP: parseNetworkCost(row[14], 'Tarif OSP'),
-              transportELIA: parseNetworkCost(row[15], 'Transport ELIA'),
-              redevanceVoirie: parseNetworkCost(row[16], 'Redevance voirie'),
-              totalFraisReseau: parseNetworkCost(row[17], 'Total frais réseau'),
+              utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau], 'Utilisation réseau') : 0,
+              surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges], 'Surcharges') : 0,
+              tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire], 'Tarif capacitaire') : 0,
+              tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure], 'Tarif mesure') : 0,
+              tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP], 'Tarif OSP') : 0,
+              transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA], 'Transport ELIA') : 0,
+              redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie], 'Redevance voirie') : 0,
+              totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau], 'Total frais réseau') : 0,
               // Stocker aussi les valeurs brutes pour debug
-              utilisationReseauRaw: String(row[10] || ''),
-              surchargesRaw: String(row[11] || ''),
-              tarifCapacitaireRaw: String(row[12] || ''),
-              tarifMesureRaw: String(row[13] || ''),
-              tarifOSPRaw: String(row[14] || ''),
-              transportELIARaw: String(row[15] || ''),
-              redevanceVoirieRaw: String(row[16] || ''),
-              totalFraisReseauRaw: String(row[17] || '')
+              utilisationReseauRaw: networkCostColumns.utilisationReseau >= 0 ? String(row[networkCostColumns.utilisationReseau] || '') : '',
+              surchargesRaw: networkCostColumns.surcharges >= 0 ? String(row[networkCostColumns.surcharges] || '') : '',
+              tarifCapacitaireRaw: networkCostColumns.tarifCapacitaire >= 0 ? String(row[networkCostColumns.tarifCapacitaire] || '') : '',
+              tarifMesureRaw: networkCostColumns.tarifMesure >= 0 ? String(row[networkCostColumns.tarifMesure] || '') : '',
+              tarifOSPRaw: networkCostColumns.tarifOSP >= 0 ? String(row[networkCostColumns.tarifOSP] || '') : '',
+              transportELIARaw: networkCostColumns.transportELIA >= 0 ? String(row[networkCostColumns.transportELIA] || '') : '',
+              redevanceVoirieRaw: networkCostColumns.redevanceVoirie >= 0 ? String(row[networkCostColumns.redevanceVoirie] || '') : '',
+              totalFraisReseauRaw: networkCostColumns.totalFraisReseau >= 0 ? String(row[networkCostColumns.totalFraisReseau] || '') : ''
             };
             
             // ADDITIONNER aux coûts existants (pour sommer HIGH + LOW)
