@@ -119,24 +119,59 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       
       // Recherche des colonnes de coûts réseau
       const networkCostColumns = {
-        utilisationReseau: 10,  // Position fixe basée sur votre exemple
-        surcharges: 11,
-        tarifCapacitaire: 12,
-        tarifMesure: 13,
-        tarifOSP: 14,
-        transportELIA: 15,
-        redevanceVoirie: 16,
-        totalFraisReseau: 17
+        utilisationReseau: headers.findIndex(h => {
+          const header = String(h).toLowerCase().trim();
+          return header === 'utilisation du réseau € htva' || 
+                 header === 'utilisation du reseau € htva' ||
+                 (header.includes('utilisation') && header.includes('réseau') && header.includes('htva'));
+        }),
+        surcharges: headers.findIndex(h => {
+          const header = String(h).toLowerCase().trim();
+          return header === 'surcharges € htva' ||
+                 (header.includes('surcharges') && header.includes('htva'));
+        }),
+        tarifCapacitaire: headers.findIndex(h => {
+          const header = String(h).toLowerCase().trim();
+          return header === 'tarif capac. (>2020) € htva' ||
+                 header === 'tarif capacitaire € htva' ||
+                 (header.includes('tarif') && header.includes('capac') && header.includes('htva'));
+        }),
+        tarifMesure: headers.findIndex(h => {
+          const header = String(h).toLowerCase().trim();
+          return header === 'tarif mesure & comptage € htva' ||
+                 header === 'tarif mesure et comptage € htva' ||
+                 (header.includes('tarif') && header.includes('mesure') && header.includes('htva'));
+        }),
+        tarifOSP: headers.findIndex(h => {
+          const header = String(h).toLowerCase().trim();
+          return header === 'tarif osp € htva' ||
+                 (header.includes('tarif') && header.includes('osp') && header.includes('htva'));
+        }),
+        transportELIA: headers.findIndex(h => {
+          const header = String(h).toLowerCase().trim();
+          return header === 'transport - coût elia € htva' ||
+                 header === 'transport - cout elia € htva' ||
+                 header === 'transport elia € htva' ||
+                 (header.includes('transport') && header.includes('elia') && header.includes('htva'));
+        }),
+        redevanceVoirie: headers.findIndex(h => {
+          const header = String(h).toLowerCase().trim();
+          return header === 'redevance de voirie € htva' ||
+                 header === 'redevance voirie € htva' ||
+                 (header.includes('redevance') && header.includes('voirie') && header.includes('htva'));
+        }),
+        totalFraisReseau: headers.findIndex(h => {
+          const header = String(h).toLowerCase().trim();
+          return header === 'total frais de réseau € htva' ||
+                 header === 'total frais de reseau € htva' ||
+                 header === 'total frais réseau € htva' ||
+                 (header.includes('total') && header.includes('frais') && header.includes('réseau') && header.includes('htva'));
+        })
       };
       
-      // Vérifier que les colonnes correspondent
-      addLog(`🔍 VÉRIFICATION COLONNES COÛTS RÉSEAU (positions fixes):`);
+      addLog('🔍 COLONNES COÛTS RÉSEAU DÉTECTÉES:');
       Object.entries(networkCostColumns).forEach(([key, index]) => {
-        if (index < headers.length) {
-          addLog(`  ${key}: ✅ "${headers[index]}" (position ${index})`);
-        } else {
-          addLog(`  ${key}: ❌ Position ${index} hors limites (${headers.length} colonnes)`);
-        }
+        addLog(`  ${key}: ${index >= 0 ? `✅ "${headers[index]}" (index ${index})` : '❌ NON TROUVÉE'}`);
       });
       
       addSubSection('MAPPING DES COLONNES');
@@ -278,7 +313,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           
           // Extraire les coûts réseau (une seule fois par EAN, sur la ligne HIGH)
           const registre = String(row[headers.findIndex(h => h.toLowerCase().includes('registre'))] || '').trim().toUpperCase();
-          if ((registre === 'HI' || registre === 'HIGH') && networkCostColumns.totalFraisReseau >= 0) {
+          if (registre === 'TH' || registre === 'HI' || registre === 'HIGH') {
             const parseNetworkCost = (value: any, columnName?: string) => {
               if (!value || value === '' || value === null || value === undefined) {
                 if (columnName) addLog(`  ${columnName}: valeur vide -> 0€`);
@@ -294,11 +329,11 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
               if (columnName) addLog(`  ${columnName}: après virgule->point = "${withDot}"`);
               
               // Extraire seulement les chiffres, points et tirets
-              const cleaned = withDot.replace(/[^\d.-]/g, '');
+              const cleaned = withDot.replace(/[^\d.]/g, '');
               if (columnName) addLog(`  ${columnName}: après nettoyage = "${cleaned}"`);
               
               const parsed = parseFloat(cleaned);
-              const result = isNaN(parsed) ? 0 : Math.abs(parsed);
+              const result = isNaN(parsed) ? 0 : parsed;
               if (columnName) addLog(`  ${columnName}: résultat final = ${result}€`);
               
               return result;
@@ -306,18 +341,34 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             
             // Extraire tous les coûts réseau
             const networkCosts = {
-              utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau], 'Utilisation réseau') : 0,
-              surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges], 'Surcharges') : 0,
-              tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire], 'Tarif capacitaire') : 0,
-              tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure], 'Tarif mesure') : 0,
-              tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP], 'Tarif OSP') : 0,
-              transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA], 'Transport ELIA') : 0,
-              redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie], 'Redevance voirie') : 0,
-              totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau], 'Total frais réseau') : 0
+              utilisationReseau: parseNetworkCost(row[10], 'Utilisation réseau'),
+              surcharges: parseNetworkCost(row[11], 'Surcharges'),
+              tarifCapacitaire: parseNetworkCost(row[12], 'Tarif capacitaire'),
+              tarifMesure: parseNetworkCost(row[13], 'Tarif mesure'),
+              tarifOSP: parseNetworkCost(row[14], 'Tarif OSP'),
+              transportELIA: parseNetworkCost(row[15], 'Transport ELIA'),
+              redevanceVoirie: parseNetworkCost(row[16], 'Redevance voirie'),
+              totalFraisReseau: parseNetworkCost(row[17], 'Total frais réseau'),
+              // Stocker aussi les valeurs brutes pour debug
+              utilisationReseauRaw: String(row[10] || ''),
+              surchargesRaw: String(row[11] || ''),
+              tarifCapacitaireRaw: String(row[12] || ''),
+              tarifMesureRaw: String(row[13] || ''),
+              tarifOSPRaw: String(row[14] || ''),
+              transportELIARaw: String(row[15] || ''),
+              redevanceVoirieRaw: String(row[16] || ''),
+              totalFraisReseauRaw: String(row[17] || '')
             };
             
-            // Assigner aux données du participant
-            Object.assign(participantData[finalEan].networkCosts, networkCosts);
+            // ADDITIONNER aux coûts existants (pour sommer HIGH + LOW)
+            participantData[finalEan].networkCosts.utilisationReseau += networkCosts.utilisationReseau;
+            participantData[finalEan].networkCosts.surcharges += networkCosts.surcharges;
+            participantData[finalEan].networkCosts.tarifCapacitaire += networkCosts.tarifCapacitaire;
+            participantData[finalEan].networkCosts.tarifMesure += networkCosts.tarifMesure;
+            participantData[finalEan].networkCosts.tarifOSP += networkCosts.tarifOSP;
+            participantData[finalEan].networkCosts.transportELIA += networkCosts.transportELIA;
+            participantData[finalEan].networkCosts.redevanceVoirie += networkCosts.redevanceVoirie;
+            participantData[finalEan].networkCosts.totalFraisReseau += networkCosts.totalFraisReseau;
             
             // Log pour les premières lignes
             if (i <= 5) {
