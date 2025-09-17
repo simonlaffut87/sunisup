@@ -62,6 +62,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
     setResults(null);
     setDebugLogs([]);
     
+    // Recherche de la colonne Tarif (fallback pour registre)
+    const tarifIndex = headers.findIndex(h => {
+      const header = String(h).toLowerCase().trim();
+      return header === 'tarif' || header.includes('tarif');
+    });
+    
     addSection('DÉBUT DU TRAITEMENT MANUEL');
     addInfo(`Mois sélectionné: ${month}`);
     addInfo(`Taille des données: ${textData.length} caractères`);
@@ -262,8 +268,19 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         const eanCode = eanCodeRaw?.replace(/[^0-9]/g, ''); // Nettoyer l'EAN
         if (!eanCode) continue;
         
-        // Récupérer le registre seulement s'il existe
-        const registre = registreIndex >= 0 ? String(row[registreIndex] || '').trim().toUpperCase() : '';
+        // Récupérer le registre depuis la colonne Registre ou Tarif
+        let registre = '';
+        if (registreIndex >= 0) {
+          registre = String(row[registreIndex] || '').trim().toUpperCase();
+        } else if (tarifIndex >= 0) {
+          registre = String(row[tarifIndex] || '').trim().toUpperCase();
+        }
+        
+        // Log détaillé pour les premières lignes
+        if (i <= 5) {
+          addLog(`🔍 LIGNE ${i} - EAN: ${eanCode}, Registre/Tarif: "${registre}"`);
+          addLog(`📋 Ligne complète: [${row.join(' | ')}]`);
+        }
 
 
         // Essayer d'abord avec l'EAN nettoyé, puis avec l'EAN brut
@@ -314,86 +331,72 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const injectionPartage = parseValue(row[injectionPartageIndex]);
           const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
           
-          // Extraire les coûts réseau (une seule fois par EAN, sur la ligne HIGH)
-          const registre = String(row[headers.findIndex(h => h.toLowerCase().includes('registre'))] || '').trim().toUpperCase();
-          if (registre === 'TH' || registre === 'HI' || registre === 'HIGH') {
-            // PARSING ULTRA-SIMPLE ET DEBUG DÉTAILLÉ
-            const parseNetworkCost = (value: any, columnName: string, columnIndex: number) => {
+          // Fonction de parsing ultra-simple pour les coûts réseau
+          const parseNetworkCost = (value: any, columnName: string, columnIndex: number) => {
+            if (i <= 3) { // Debug détaillé pour les 3 premières lignes
               addLog(`🔍 PARSING ${columnName} (index ${columnIndex}):`);
-              addLog(`  📋 Ligne complète: [${row.join(' | ')}]`);
-              addLog(`  📍 Valeur à l'index ${columnIndex}: "${value}" (type: ${typeof value})`);
-              
-              if (value === undefined || value === null) {
-                addLog(`  ❌ Valeur undefined/null -> 0€`);
-                return 0;
-              }
-              
-              const stringValue = String(value);
-              addLog(`  📝 Conversion en string: "${stringValue}"`);
-              
-              if (stringValue === '' || stringValue.trim() === '') {
-                addLog(`  ❌ String vide -> 0€`);
-                return 0;
-              }
-              
-              // Conversion virgule -> point
-              const withDot = stringValue.replace(',', '.');
-              addLog(`  🔄 Après virgule->point: "${withDot}"`);
-              
-              const parsed = parseFloat(withDot);
-              addLog(`  🔢 parseFloat("${withDot}") = ${parsed}`);
-              
-              if (isNaN(parsed)) {
-                addLog(`  ❌ NaN détecté -> 0€`);
-                return 0;
-              }
-              
-              addLog(`  ✅ RÉSULTAT FINAL: ${parsed}€`);
-              return parsed;
-            };
-            
-            // Extraire tous les coûts réseau
-            const networkCosts = {
-              utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau], 'Utilisation réseau') : 0,
-              surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges], 'Surcharges') : 0,
-              tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire], 'Tarif capacitaire') : 0,
-              tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure], 'Tarif mesure') : 0,
-              tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP], 'Tarif OSP') : 0,
-              transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA], 'Transport ELIA') : 0,
-              redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie], 'Redevance voirie') : 0,
-              totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau], 'Total frais réseau') : 0,
-              // Stocker aussi les valeurs brutes pour debug
-              utilisationReseauRaw: networkCostColumns.utilisationReseau >= 0 ? String(row[networkCostColumns.utilisationReseau] || '') : '',
-              utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau], 'Utilisation du réseau', networkCostColumns.utilisationReseau) : 0,
-              surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges], 'Surcharges', networkCostColumns.surcharges) : 0,
-              tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire], 'Tarif capacitaire', networkCostColumns.tarifCapacitaire) : 0,
-              tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure], 'Tarif mesure', networkCostColumns.tarifMesure) : 0,
-              tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP], 'Tarif OSP', networkCostColumns.tarifOSP) : 0,
-              transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA], 'Transport ELIA', networkCostColumns.transportELIA) : 0,
-              redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie], 'Redevance voirie', networkCostColumns.redevanceVoirie) : 0,
-              totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau], 'Total frais réseau', networkCostColumns.totalFraisReseau) : 0
-            };
-            
-            addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - RÉSUMÉ COÛTS:`);
-            addLog(`  Utilisation réseau: ${networkCosts.utilisationReseau}€`);
-            addLog(`  Surcharges: ${networkCosts.surcharges}€`);
-            addLog(`  Total frais réseau: ${networkCosts.totalFraisReseau}€`);
-            
-            // ADDITIONNER aux coûts existants (pour sommer HIGH + LOW)
-            participantData[finalEan].networkCosts.utilisationReseau += networkCosts.utilisationReseau;
-            participantData[finalEan].networkCosts.surcharges += networkCosts.surcharges;
-            participantData[finalEan].networkCosts.tarifCapacitaire += networkCosts.tarifCapacitaire;
-            participantData[finalEan].networkCosts.tarifMesure += networkCosts.tarifMesure;
-            participantData[finalEan].networkCosts.tarifOSP += networkCosts.tarifOSP;
-            participantData[finalEan].networkCosts.transportELIA += networkCosts.transportELIA;
-            participantData[finalEan].networkCosts.redevanceVoirie += networkCosts.redevanceVoirie;
-            participantData[finalEan].networkCosts.totalFraisReseau += networkCosts.totalFraisReseau;
-            
-            // Log pour les premières lignes
-            if (i <= 5) {
-              addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - COÛTS RÉSEAU DÉTAILLÉS:`);
-              addLog(`📋 Ligne complète: ${JSON.stringify(row)}`);
+              addLog(`  📍 Valeur brute: "${value}" (type: ${typeof value})`);
             }
+            
+            if (!value || value === '') {
+              if (i <= 3) addLog(`  ❌ Valeur vide -> 0€`);
+              return 0;
+            }
+            
+            const stringValue = String(value).trim();
+            if (i <= 3) addLog(`  📝 String: "${stringValue}"`);
+            
+            if (stringValue === '') {
+              if (i <= 3) addLog(`  ❌ String vide après trim -> 0€`);
+              return 0;
+            }
+            
+            // Conversion virgule -> point
+            const withDot = stringValue.replace(',', '.');
+            if (i <= 3) addLog(`  🔄 Après virgule->point: "${withDot}"`);
+            
+            const parsed = parseFloat(withDot);
+            if (i <= 3) addLog(`  🔢 parseFloat("${withDot}") = ${parsed}`);
+            
+            if (isNaN(parsed)) {
+              if (i <= 3) addLog(`  ❌ NaN -> 0€`);
+              return 0;
+            }
+            
+            if (i <= 3) addLog(`  ✅ RÉSULTAT: ${parsed}€`);
+            return parsed;
+          };
+          
+          // Extraire les coûts réseau pour toutes les lignes (pas seulement HIGH)
+          if (i <= 3) {
+            addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - EXTRACTION COÛTS RÉSEAU:`);
+          }
+          
+          const networkCosts = {
+            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau], 'Utilisation réseau', networkCostColumns.utilisationReseau) : 0,
+            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges], 'Surcharges', networkCostColumns.surcharges) : 0,
+            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire], 'Tarif capacitaire', networkCostColumns.tarifCapacitaire) : 0,
+            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure], 'Tarif mesure', networkCostColumns.tarifMesure) : 0,
+            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP], 'Tarif OSP', networkCostColumns.tarifOSP) : 0,
+            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA], 'Transport ELIA', networkCostColumns.transportELIA) : 0,
+            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie], 'Redevance voirie', networkCostColumns.redevanceVoirie) : 0,
+            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau], 'Total frais réseau', networkCostColumns.totalFraisReseau) : 0
+          };
+          
+          // ADDITIONNER aux coûts existants (pour sommer HIGH + LOW + TH)
+          participantData[finalEan].networkCosts.utilisationReseau += networkCosts.utilisationReseau;
+          participantData[finalEan].networkCosts.surcharges += networkCosts.surcharges;
+          participantData[finalEan].networkCosts.tarifCapacitaire += networkCosts.tarifCapacitaire;
+          participantData[finalEan].networkCosts.tarifMesure += networkCosts.tarifMesure;
+          participantData[finalEan].networkCosts.tarifOSP += networkCosts.tarifOSP;
+          participantData[finalEan].networkCosts.transportELIA += networkCosts.transportELIA;
+          participantData[finalEan].networkCosts.redevanceVoirie += networkCosts.redevanceVoirie;
+          participantData[finalEan].networkCosts.totalFraisReseau += networkCosts.totalFraisReseau;
+          
+          if (i <= 3) {
+            addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - COÛTS ADDITIONNÉS:`);
+            addLog(`  Utilisation réseau: +${networkCosts.utilisationReseau}€ = ${participantData[finalEan].networkCosts.utilisationReseau}€ total`);
+            addLog(`  Total frais réseau: +${networkCosts.totalFraisReseau}€ = ${participantData[finalEan].networkCosts.totalFraisReseau}€ total`);
           }
           
           // Log détaillé seulement pour les 3 premières lignes avec des valeurs
@@ -728,8 +731,10 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       }
     } catch (error) {
       addError(`Erreur générale: ${error.message}`);
+    } else if (tarifIndex >= 0) {
+      addInfo(`Registre (via Tarif): "${headers[tarifIndex]}" (position ${tarifIndex})`);
       setProcessing(false);
-      addError(`ERREUR GÉNÉRALE: ${error.message}`);
+      addWarning('Colonnes Registre ET Tarif non trouvées');
     }
   };
 
