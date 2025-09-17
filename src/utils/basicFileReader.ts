@@ -135,7 +135,7 @@ export class BasicFileReader {
     const networkCostColumns = {
       utilisationReseau: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        const result = header.includes('utilisation') && header.includes('réseau') && header.includes('htva');
+        const result = header.includes('utilisation') && (header.includes('réseau') || header.includes('reseau')) && header.includes('htva');
         if (result) onLog?.(`🔍 Utilisation réseau trouvée: "${h}" (index ${index})`);
         return result;
       }),
@@ -147,13 +147,13 @@ export class BasicFileReader {
       }),
       tarifCapacitaire: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        const result = header.includes('tarif') && header.includes('capac') && header.includes('htva');
+        const result = header.includes('tarif') && (header.includes('capac') || header.includes('capacitaire')) && header.includes('htva');
         if (result) onLog?.(`🔍 Tarif capacitaire trouvé: "${h}" (index ${index})`);
         return result;
       }),
       tarifMesure: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        const result = header.includes('tarif') && header.includes('mesure') && header.includes('comptage') && header.includes('htva');
+        const result = header.includes('tarif') && (header.includes('mesure') || header.includes('comptage')) && header.includes('htva');
         if (result) onLog?.(`🔍 Tarif mesure trouvé: "${h}" (index ${index})`);
         return result;
       }),
@@ -171,13 +171,13 @@ export class BasicFileReader {
       }),
       redevanceVoirie: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        const result = header.includes('redevance') && header.includes('voirie') && header.includes('htva');
+        const result = header.includes('redevance') && (header.includes('voirie') || header.includes('voirie')) && header.includes('htva');
         if (result) onLog?.(`🔍 Redevance voirie trouvée: "${h}" (index ${index})`);
         return result;
       }),
       totalFraisReseau: headers.findIndex((h, index) => {
         const header = String(h).toLowerCase();
-        const result = header.includes('total') && header.includes('frais') && header.includes('réseau') && header.includes('htva');
+        const result = header.includes('total') && header.includes('frais') && (header.includes('réseau') || header.includes('reseau')) && header.includes('htva');
         if (result) onLog?.(`🔍 Total frais réseau trouvé: "${h}" (index ${index})`);
         return result;
       })
@@ -336,26 +336,45 @@ export class BasicFileReader {
         
         // Extraire les coûts réseau (une seule fois par EAN, pas par registre)
         if ((registre === 'HI' || registre === 'HIGH') && networkCostColumns.totalFraisReseau >= 0) {
-          const parseNetworkCost = (value: any) => {
+          const parseNetworkCost = (value: any, columnName?: string) => {
             if (!value) return 0;
+            
+            // Log de debug pour voir la valeur brute
+            if (columnName && i < 5) {
+              onLog?.(`🔍 Parsing ${columnName}: valeur brute = "${value}"`);
+            }
+            
             const cleaned = String(value)
               .replace(/,/g, '.') // Virgule -> point
               .replace(/\s/g, '') // Supprimer espaces
-              .replace(/[^\d.-]/g, ''); // Garder seulement chiffres, point et tiret
+              .replace(/[^\d.-]/g, '') // Garder seulement chiffres, point et tiret
+              .replace(/^-+/, '') // Supprimer les tirets en début
+              .replace(/-+$/, ''); // Supprimer les tirets en fin
+            
+            if (columnName && i < 5) {
+              onLog?.(`🔍 Parsing ${columnName}: valeur nettoyée = "${cleaned}"`);
+            }
+            
             const parsed = parseFloat(cleaned);
-            return isNaN(parsed) ? 0 : Math.abs(parsed); // Valeur absolue pour éviter les négatifs
+            const result = isNaN(parsed) ? 0 : Math.abs(parsed); // Valeur absolue pour éviter les négatifs
+            
+            if (columnName && i < 5) {
+              onLog?.(`🔍 Parsing ${columnName}: résultat final = ${result}`);
+            }
+            
+            return result;
           };
           
           // Extraire chaque coût réseau avec logging détaillé
           const networkCosts = {
-            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau]) : 0,
-            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges]) : 0,
-            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire]) : 0,
-            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure]) : 0,
-            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP]) : 0,
-            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA]) : 0,
-            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie]) : 0,
-            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau]) : 0,
+            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau], 'utilisationReseau') : 0,
+            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges], 'surcharges') : 0,
+            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire], 'tarifCapacitaire') : 0,
+            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure], 'tarifMesure') : 0,
+            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP], 'tarifOSP') : 0,
+            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA], 'transportELIA') : 0,
+            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie], 'redevanceVoirie') : 0,
+            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau], 'totalFraisReseau') : 0,
             // Stocker aussi les valeurs brutes pour debug
             utilisationReseauRaw: networkCostColumns.utilisationReseau >= 0 ? String(row[networkCostColumns.utilisationReseau] || '') : '',
             surchargesRaw: networkCostColumns.surcharges >= 0 ? String(row[networkCostColumns.surcharges] || '') : '',
@@ -373,11 +392,12 @@ export class BasicFileReader {
           // Log détaillé pour les premières lignes
           if (i < 5) {
             onLog?.(`💰 LIGNE ${i} - EAN ${eanCode} (${registre}) - COÛTS RÉSEAU EXTRAITS:`);
+            onLog?.(`📋 Ligne complète: ${JSON.stringify(row)}`);
             Object.entries(networkCosts).forEach(([key, value]) => {
               if (!key.endsWith('Raw')) {
                 const rawKey = key + 'Raw';
                 const rawValue = networkCosts[rawKey as keyof typeof networkCosts];
-                onLog?.(`  ${key}: ${value}€ (valeur brute: "${rawValue}")`);
+                onLog?.(`  ${key}: ${value}€ (valeur brute: "${rawValue}", index colonne: ${networkCostColumns[key as keyof typeof networkCostColumns]})`);
               }
             });
             
@@ -387,7 +407,13 @@ export class BasicFileReader {
             if (nonZeroCosts.length > 0) {
               onLog?.(`✅ ${nonZeroCosts.length} coûts réseau non-nuls trouvés pour ${eanCode}`);
             } else {
-              onLog?.(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 pour ${eanCode} - vérifiez les données source`);
+              onLog?.(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 pour ${eanCode}`);
+              onLog?.(`🔍 Vérification des index de colonnes pour ${eanCode}:`);
+              Object.entries(networkCostColumns).forEach(([key, index]) => {
+                if (index >= 0) {
+                  onLog?.(`  ${key} (index ${index}): "${row[index]}"`);
+                }
+              });
             }
           }
         }
@@ -488,438 +514,4 @@ export class BasicFileReader {
       console.log(`  TOTAL: ${group.networkCosts.totalFraisReseau.toFixed(2)}€`);
     });
     
-    console.log('✅ Données accumulées par EAN:', Object.keys(participantData).length, 'participants');
-    console.log('📊 Chaque participant a maintenant 4 valeurs (HIGH + LOW sommées)');
-    
-    const month = this.extractMonth(filename);
-    console.log('📅 Mois extrait du fichier:', month, 'depuis:', filename);
-    
-    const result = {
-      month,
-      participants: participantData,
-      stats: {
-        totalRowsProcessed: maxRows,
-        validRowsImported: processedRows,
-        participantsFound: Object.keys(participantData).length,
-        unknownEansSkipped: unknownEans.size,
-        participantsUpdated: Object.keys(participantData).length,
-        mesuresCount: Object.keys(participantData).length * 4 // 4 valeurs par participant
-      },
-      totals: {
-        total_volume_complementaire: Object.values(participantData).reduce((sum: number, p: any) => sum + p.data.volume_complementaire, 0),
-        total_volume_partage: Object.values(participantData).reduce((sum: number, p: any) => sum + p.data.volume_partage, 0),
-        total_injection_complementaire: Object.values(participantData).reduce((sum: number, p: any) => sum + p.data.injection_complementaire, 0),
-        total_injection_partagee: Object.values(participantData).reduce((sum: number, p: any) => sum + p.data.injection_partagee, 0)
-      },
-      upload_date: new Date().toISOString(),
-      filename
-    };
-    
-    console.log('✅ RÉSULTAT FINAL:', result);
-    console.log('📊 Mesures finales:', result.stats.mesuresCount, '(4 par participant)');
-    
-    // Sauvegarder dans localStorage ET mettre à jour la base de données
-    try {
-      const monthlyData = JSON.parse(localStorage.getItem('monthly_data') || '{}');
-      console.log('💾 Données existantes avant sauvegarde:', Object.keys(monthlyData));
-      monthlyData[month] = result;
-      localStorage.setItem('monthly_data', JSON.stringify(monthlyData));
-      console.log('💾 Sauvegardé dans localStorage pour le mois:', month);
-      console.log('💾 Données après sauvegarde:', Object.keys(monthlyData));
-      
-      // Mettre à jour la colonne monthly_data de chaque participant
-      await this.updateParticipantsMonthlyData(result.participants, month);
-      
-      // Mettre à jour la colonne billing_data avec les coûts réseau
-      await this.updateParticipantsBillingData(result.participants, month);
-      
-    } catch (error) {
-      console.warn('⚠️ Erreur sauvegarde:', error);
-    }
-    
-    return result;
-  }
-
-  /**
-   * Met à jour la colonne billing_data des participants avec les coûts réseau
-   */
-  private static async updateParticipantsBillingData(participants: any, month: string) {
-    console.log('💰 Mise à jour billing_data pour', Object.keys(participants).length, 'participants...');
-    
-    try {
-      // Import dynamique de supabase
-      const { supabase } = await import('../lib/supabase');
-      
-      let successCount = 0;
-      let errorCount = 0;
-    
-      for (const [eanCode, participantData] of Object.entries(participants)) {
-        try {
-          // Vérifier si ce participant a des coûts réseau
-          if (!participantData.networkCosts) {
-            console.log(`⚠️ Pas de coûts réseau pour EAN: ${eanCode}`);
-            continue;
-          }
-          
-          console.log(`💰 Traitement coûts réseau EAN: ${eanCode}`);
-          
-          // Trouver le participant par son EAN
-          const { data: participant, error: findError } = await supabase
-            .from('participants')
-            .select('id, billing_data, name')
-            .eq('ean_code', eanCode)
-            .single();
-          
-          if (findError || !participant) {
-            console.warn(`⚠️ Participant avec EAN ${eanCode} non trouvé:`, findError);
-            errorCount++;
-            continue;
-          }
-          
-          console.log(`✅ Participant trouvé: ${participant.name} (ID: ${participant.id})`);
-          
-          // Parser les données de facturation existantes
-          let existingBillingData = {};
-          if (participant.billing_data) {
-            try {
-              if (typeof participant.billing_data === 'string') {
-                existingBillingData = JSON.parse(participant.billing_data);
-              } else {
-                existingBillingData = participant.billing_data;
-              }
-              console.log(`💰 Données billing existantes pour ${participant.name}:`, Object.keys(existingBillingData));
-            } catch (e) {
-              console.warn(`⚠️ Erreur parsing billing_data existant pour ${eanCode}:`, e);
-              existingBillingData = {};
-            }
-          }
-          
-          // Préparer les nouvelles données de coûts réseau pour ce mois
-          const newBillingData = {
-            month: month,
-            networkCosts: {
-              utilisationReseau: participantData.networkCosts.utilisationReseau,
-              surcharges: participantData.networkCosts.surcharges,
-              tarifCapacitaire: participantData.networkCosts.tarifCapacitaire,
-              tarifMesure: participantData.networkCosts.tarifMesure,
-              tarifOSP: participantData.networkCosts.tarifOSP,
-              transportELIA: participantData.networkCosts.transportELIA,
-              redevanceVoirie: participantData.networkCosts.redevanceVoirie,
-              totalFraisReseau: participantData.networkCosts.totalFraisReseau
-            },
-            rawData: {
-              // Stocker aussi les valeurs brutes pour debug
-              utilisationReseauRaw: participantData.networkCosts.utilisationReseauRaw || '',
-              surchargesRaw: participantData.networkCosts.surchargesRaw || '',
-              tarifCapacitaireRaw: participantData.networkCosts.tarifCapacitaireRaw || '',
-              tarifMesureRaw: participantData.networkCosts.tarifMesureRaw || '',
-              tarifOSPRaw: participantData.networkCosts.tarifOSPRaw || '',
-              transportELIARaw: participantData.networkCosts.transportELIARaw || '',
-              redevanceVoirieRaw: participantData.networkCosts.redevanceVoirieRaw || '',
-              totalFraisReseauRaw: participantData.networkCosts.totalFraisReseauRaw || ''
-            },
-            updated_at: new Date().toISOString()
-          };
-          
-          console.log(`💰 NOUVELLES DONNÉES BILLING pour ${participant.name} - ${month}:`);
-          console.log(`💰 Structure complète:`, JSON.stringify(newBillingData, null, 2));
-          
-          // Ajouter/mettre à jour les données pour ce mois
-          const updatedBillingData = {
-            ...existingBillingData,
-            [month]: newBillingData
-          };
-          
-          console.log(`💾 Données billing complètes à sauvegarder:`, updatedBillingData);
-          
-          // Mettre à jour dans la base de données
-          console.log(`💾 DÉBUT SAUVEGARDE billing_data pour ${participant.name} (ID: ${participant.id})`);
-          console.log(`💰 Données à sauvegarder:`, JSON.stringify(updatedBillingData, null, 2));
-          
-          const { data: updateResult, error: updateError } = await supabase
-            .from('participants')
-            .update({ 
-              billing_data: updatedBillingData
-            })
-            .eq('id', participant.id)
-            .select('billing_data');
-          
-          if (updateError) {
-            console.error(`❌ ERREUR mise à jour billing_data pour ${eanCode}:`, {
-              error: updateError,
-              participantId: participant.id,
-              eanCode: eanCode,
-              dataToSave: updatedBillingData
-            });
-            errorCount++;
-          } else {
-            console.log(`✅ SAUVEGARDE billing_data RÉUSSIE pour ${participant.name} (${eanCode}) - mois ${month}`);
-            console.log(`💰 Données billing retournées par la base:`, updateResult);
-            successCount++;
-            
-            // Vérification immédiate
-            console.log(`🔍 VÉRIFICATION billing_data pour ${participant.name}...`);
-            const { data: verifyData, error: verifyError } = await supabase
-              .from('participants')
-              .select('billing_data, name')
-              .eq('id', participant.id)
-              .single();
-            
-            if (!verifyError && verifyData) {
-              console.log(`🔍 VÉRIFICATION billing_data RÉUSSIE pour ${verifyData.name}:`);
-              console.log(`💰 billing_data complet en base:`, JSON.stringify(verifyData.billing_data, null, 2));
-              
-              if (verifyData.billing_data && verifyData.billing_data[month]) {
-                console.log(`✅ CONFIRMATION: Données billing du mois ${month} bien présentes en base pour ${verifyData.name} !`);
-                console.log(`💰 Coûts réseau confirmés pour ${month}:`, JSON.stringify(verifyData.billing_data[month].networkCosts, null, 2));
-                
-                // Vérifier que les valeurs ne sont pas toutes à 0
-                const costs = verifyData.billing_data[month].networkCosts;
-                const totalNonZero = Object.values(costs).filter((v: any) => Number(v) > 0).length;
-                if (totalNonZero > 0) {
-                  console.log(`✅ ${totalNonZero} coûts réseau non-nuls confirmés pour ${verifyData.name}`);
-                } else {
-                  console.warn(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 pour ${verifyData.name} - vérifiez les données source`);
-                }
-              } else {
-                console.error(`❌ PROBLÈME: Données billing du mois ${month} NON trouvées en base après sauvegarde pour ${verifyData.name} !`);
-                console.log(`📊 Structure billing_data actuelle:`, verifyData.billing_data);
-              }
-            } else {
-              console.error(`❌ ERREUR VÉRIFICATION billing_data pour ${participant.name}:`, verifyError);
-            }
-          }
-          
-        } catch (error) {
-          console.error(`❌ ERREUR traitement billing_data participant ${eanCode}:`, error);
-          errorCount++;
-        }
-      }
-      
-      console.log(`💰 RÉSUMÉ billing_data: ${successCount} succès, ${errorCount} erreurs`);
-      
-    } catch (error) {
-      console.error('❌ ERREUR GÉNÉRALE lors de la mise à jour billing_data:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Met à jour la colonne monthly_data des participants dans la base de données
-   */
-  private static async updateParticipantsMonthlyData(participants: any, month: string) {
-    console.log('🔄 Mise à jour monthly_data pour', Object.keys(participants).length, 'participants...');
-    
-    try {
-      // Import dynamique de supabase
-      const { supabase } = await import('../lib/supabase');
-      
-      let successCount = 0;
-      let errorCount = 0;
-    
-      for (const [eanCode, participantData] of Object.entries(participants)) {
-        try {
-          console.log(`🔍 Traitement EAN: ${eanCode}`);
-          
-          // Trouver le participant par son EAN
-          const { data: participant, error: findError } = await supabase
-            .from('participants')
-            .select('id, monthly_data, name')
-            .eq('ean_code', eanCode)
-            .single();
-          
-          if (findError || !participant) {
-            console.warn(`⚠️ Participant avec EAN ${eanCode} non trouvé:`, findError);
-            errorCount++;
-            continue;
-          }
-          
-          console.log(`✅ Participant trouvé: ${participant.name} (ID: ${participant.id})`);
-          
-          // Parser les données mensuelles existantes
-          let existingMonthlyData = {};
-          if (participant.monthly_data) {
-            try {
-              if (typeof participant.monthly_data === 'string') {
-                existingMonthlyData = JSON.parse(participant.monthly_data);
-              } else {
-                existingMonthlyData = participant.monthly_data;
-              }
-              console.log(`📊 Données existantes pour ${participant.name}:`, Object.keys(existingMonthlyData));
-            } catch (e) {
-              console.warn(`⚠️ Erreur parsing monthly_data existant pour ${eanCode}:`, e);
-              existingMonthlyData = {};
-            }
-          }
-          
-          // Préparer les nouvelles données pour ce mois
-          const newMonthData = {
-            volume_partage: (participantData as any).data.volume_partage,
-            volume_complementaire: (participantData as any).data.volume_complementaire,
-            injection_partagee: (participantData as any).data.injection_partagee,
-            injection_complementaire: (participantData as any).data.injection_complementaire,
-            updated_at: new Date().toISOString()
-          };
-          
-          console.log(`📊 Nouvelles données pour ${month}:`, newMonthData);
-          
-          // Ajouter/mettre à jour les données pour ce mois
-          const updatedMonthlyData = {
-            ...existingMonthlyData,
-            [month]: newMonthData
-          };
-          
-          console.log(`💾 Données complètes à sauvegarder:`, updatedMonthlyData);
-          
-          // Mettre à jour dans la base de données - FORCER LA SAUVEGARDE
-          console.log(`💾 DÉBUT SAUVEGARDE pour participant ID: ${participant.id}`);
-          const { data: updateResult, error: updateError } = await supabase
-            .from('participants')
-            .update({ 
-              monthly_data: updatedMonthlyData
-            })
-            .eq('id', participant.id)
-            .select('monthly_data');
-          
-          if (updateError) {
-            console.error(`❌ ERREUR CRITIQUE mise à jour monthly_data pour ${eanCode}:`, {
-              error: updateError,
-              participantId: participant.id,
-              eanCode: eanCode,
-              dataToSave: updatedMonthlyData
-            });
-            errorCount++;
-          } else {
-            console.log(`✅ SAUVEGARDE RÉUSSIE pour ${participant.name} (${eanCode}) - mois ${month}`);
-            console.log(`📊 Données retournées par la base:`, updateResult);
-            successCount++;
-            
-            // Vérification immédiate OBLIGATOIRE
-            console.log(`🔍 VÉRIFICATION IMMÉDIATE pour ${participant.name}...`);
-            const { data: verifyData, error: verifyError } = await supabase
-              .from('participants')
-              .select('monthly_data')
-              .eq('id', participant.id)
-              .single();
-            
-            if (!verifyError && verifyData) {
-              console.log(`🔍 VÉRIFICATION RÉUSSIE pour ${participant.name}:`);
-              console.log(`📊 monthly_data en base:`, verifyData.monthly_data);
-              
-              if (verifyData.monthly_data && verifyData.monthly_data[month]) {
-                console.log(`✅ CONFIRMATION: Données du mois ${month} bien présentes en base !`);
-                console.log(`📊 Valeurs confirmées:`, verifyData.monthly_data[month]);
-              } else {
-                console.error(`❌ PROBLÈME: Données du mois ${month} NON trouvées en base après sauvegarde !`);
-                console.log(`📊 Structure monthly_data actuelle:`, verifyData.monthly_data);
-              }
-            } else {
-              console.error(`❌ ERREUR VÉRIFICATION pour ${participant.name}:`, verifyError);
-            }
-          }
-          
-        } catch (error) {
-          console.error(`❌ ERREUR CRITIQUE traitement participant ${eanCode}:`, {
-            error: error,
-            message: error.message,
-            stack: error.stack
-          });
-          errorCount++;
-        }
-      }
-      
-      console.log(`📊 RÉSUMÉ FINAL mise à jour monthly_data: ${successCount} succès, ${errorCount} erreurs`);
-      
-      if (successCount === 0) {
-        console.error(`❌ AUCUNE SAUVEGARDE RÉUSSIE ! Vérifiez les permissions Supabase et la structure de la table.`);
-        throw new Error(`Aucun participant n'a pu être mis à jour en base de données`);
-      }
-      
-    } catch (error) {
-      console.error('❌ ERREUR GÉNÉRALE lors de la mise à jour monthly_data:', {
-        error: error,
-        message: error.message,
-        stack: error.stack
-      });
-      throw error;
-    }
-  }
-
-  private static extractMonth(filename: string): string {
-    console.log('🔍 Extraction du mois depuis:', filename);
-    
-    try {
-      // Chercher des patterns de mois dans le nom du fichier
-      const patterns = [
-        // Format APR2025, MAY2025, etc.
-        /([A-Z]{3})(\d{4})/i,
-        // Format 04-2025, 05-2025, etc.
-        /(\d{1,2})-(\d{4})/,
-        // Format 2025-04, 2025-05, etc.
-        /(\d{4})-(\d{1,2})/,
-        // Format avril, mai, etc.
-        /(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/i
-      ];
-      
-      // Essayer le pattern APR2025
-      const monthMatch = filename.match(patterns[0]);
-      if (monthMatch) {
-        const [, monthAbbr, year] = monthMatch;
-        const monthMap: { [key: string]: string } = {
-          'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
-          'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
-          'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
-        };
-        const monthNum = monthMap[monthAbbr.toUpperCase()];
-        if (monthNum) {
-          const result = `${year}-${monthNum}`;
-          console.log('✅ Mois extrait:', result, 'depuis pattern APR2025');
-          return result;
-        }
-      }
-      
-      // Si aucun pattern trouvé, utiliser le mois actuel
-      const now = new Date();
-      const result = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      console.log('⚠️ Aucun pattern trouvé, utilisation du mois actuel:', result);
-      return result;
-      
-    } catch (error) {
-      console.error('❌ Erreur extraction mois:', error);
-      const now = new Date();
-      const result = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      console.log('🔄 Fallback vers mois actuel:', result);
-      return result;
-    }
-  }
-  
-  /**
-   * Nettoie les données mensuelles stockées
-   */
-  static clearMonthlyData() {
-    try {
-      localStorage.removeItem('monthly_data');
-      console.log('🧹 Données mensuelles nettoyées');
-      return true;
-    } catch (error) {
-      console.error('❌ Erreur nettoyage:', error);
-      return false;
-    }
-  }
-  
-  /**
-   * Supprime un mois spécifique
-   */
-  static removeMonth(month: string) {
-    try {
-      const monthlyData = JSON.parse(localStorage.getItem('monthly_data') || '{}');
-      delete monthlyData[month];
-      localStorage.setItem('monthly_data', JSON.stringify(monthlyData));
-      console.log('🗑️ Mois supprimé:', month);
-      return true;
-    } catch (error) {
-      console.error('❌ Erreur suppression mois:', error);
-      return false;
-    }
-  }
-}
+    console.log('✅ Données accumulées par
