@@ -242,6 +242,7 @@ export function AdminDashboard() {
 
   const handleEdit = (participant: Participant) => {
     setEditingParticipant(participant);
+    setShowForm(true);
   };
 
   const handleAdd = () => {
@@ -711,6 +712,33 @@ export function AdminDashboard() {
                             title="Modifier"
                           >
                             <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (confirm(`Êtes-vous sûr de vouloir supprimer ${participant.name} ?`)) {
+                                try {
+                                  const { error } = await supabase
+                                    .from('participants')
+                                    .delete()
+                                    .eq('id', participant.id);
+                                  
+                                  if (error) {
+                                    console.error('Error deleting participant:', error);
+                                    toast.error('Erreur lors de la suppression');
+                                  } else {
+                                    toast.success(`Participant "${participant.name}" supprimé avec succès`);
+                                    loadParticipants();
+                                  }
+                                } catch (error) {
+                                  console.error('Error deleting participant:', error);
+                                  toast.error('Erreur lors de la suppression');
+                                }
+                              }
+                            }}
+                            className="text-red-600 hover:text-red-900 transition-colors"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
