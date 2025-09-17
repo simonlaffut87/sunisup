@@ -61,13 +61,6 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
     setProcessing(true);
     setResults(null);
     setDebugLogs([]);
-    
-    // Recherche de la colonne Tarif (fallback pour registre)
-    const tarifIndex = headers.findIndex(h => {
-      const header = String(h).toLowerCase().trim();
-      return header === 'tarif' || header.includes('tarif');
-    });
-    
     addSection('DÉBUT DU TRAITEMENT MANUEL');
     addInfo(`Mois sélectionné: ${month}`);
     addInfo(`Taille des données: ${textData.length} caractères`);
@@ -89,6 +82,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       addInfo(`Headers détectés: ${headers.length} colonnes`);
       addInfo(`Liste des headers: ${headers.join(' | ')}`);
 
+      // Recherche de la colonne Tarif (fallback pour registre)
+      const tarifIndex = headers.findIndex(h => {
+        const header = String(h).toLowerCase().trim();
+        return header === 'tarif' || header.includes('tarif');
+      });
+      
       // Trouver les colonnes importantes
       const eanIndex = headers.findIndex(h => h.toLowerCase().includes('ean'));
       const registreIndex = headers.findIndex(h => {
