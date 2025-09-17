@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Download, FileText, Calendar, User, MapPin, Hash, Euro, Printer, AlertCircle, Database } from 'lucide-react';
+import { X, Download, FileText, Calendar, User, MapPin, Hash, Euro, Printer, AlertCircle, Database as DatabaseIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
@@ -510,7 +510,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         {debugInfo && (
           <div className="no-print bg-yellow-50 border-l-4 border-yellow-400 p-4 m-6">
             <div className="flex items-center mb-2">
-              <Database className="w-5 h-5 text-yellow-600 mr-2" />
+              <DatabaseIcon className="w-5 h-5 text-yellow-600 mr-2" />
               <h3 className="font-medium text-yellow-900">Debug - Données disponibles</h3>
             </div>
             <div className="text-sm text-yellow-800 space-y-1">
@@ -669,7 +669,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             ) : (
               <div className="bg-green-100 border-2 border-green-300 rounded-lg p-4 mb-4">
                 <div className="flex items-center">
-                  <Database className="w-5 h-5 text-green-600 mr-2" />
+                  <DatabaseIcon className="w-5 h-5 text-green-600 mr-2" />
                   <span className="font-medium text-green-900">
                     Données de coûts réseau disponibles pour {Object.keys(invoiceData.billingData).length} mois
                   </span>
@@ -972,7 +972,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           {debugInfo && debugInfo.hasBillingData && (
             <div className="no-print mb-8 bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Database className="w-5 h-5 mr-2 text-yellow-600" />
+                <DatabaseIcon className="w-5 h-5 mr-2 text-yellow-600" />
                 Debug - Données billing_data disponibles
               </h3>
               <div className="text-sm text-gray-800">
