@@ -743,7 +743,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <h2 className="text-xl font-bold text-gray-900 mb-2">FACTURE ÉNERGÉTIQUE</h2>
               <div className="text-sm text-gray-700 space-y-1">
                 <div className="flex items-center justify-start md:justify-end space-x-2">
-                  <Calendar className="w-4 h-4 text-gray-600" />
                   <span>
                     {format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}
                     {invoiceData.period.startMonth !== invoiceData.period.endMonth && 
