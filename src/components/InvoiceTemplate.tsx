@@ -756,11 +756,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   <div><strong className="text-gray-900">Code EAN :</strong> {invoiceData.participant.ean_code}</div>
                   <div>
                     <strong className="text-gray-900">Type :</strong> 
-                    <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
-                      invoiceData.participant.type === 'producer' 
-                        ? 'bg-amber-200 text-amber-900' 
-                        : 'bg-blue-200 text-blue-900'
-                    }`}>
+                    <span className="ml-2">
                       {invoiceData.participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                     </span>
                   </div>
