@@ -78,6 +78,35 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [logoBase64, setLogoBase64] = useState<string>('');
+
+  // Convert logo to base64 for PDF compatibility
+  useEffect(() => {
+    const convertLogoToBase64 = async () => {
+      try {
+        const response = await fetch('/images/logo-v2.png');
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onload = () => {
+          setLogoBase64(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.warn('Could not load logo for PDF:', error);
+        // Fallback: create a simple SVG logo as base64
+        const svgLogo = `<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="40" r="35" fill="#F59E0B"/>
+          <text x="40" y="48" text-anchor="middle" fill="white" font-family="Arial" font-size="24" font-weight="bold">SIU</text>
+        </svg>`;
+        const base64Svg = `data:image/svg+xml;base64,${btoa(svgLogo)}`;
+        setLogoBase64(base64Svg);
+      }
+    };
+    
+    if (isOpen) {
+      convertLogoToBase64();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && participant) {
@@ -694,9 +723,10 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <div>
               <div className="flex items-center space-x-4 mb-4">
                 <img 
-                  src="/images/logo-v2.png" 
+                  src={logoBase64 || '/images/logo-v2.png'} 
                   alt="Sun Is Up Logo" 
                   className="h-20 w-20 flex-shrink-0 bg-amber-100 rounded-lg flex items-center justify-center"
+                  style={{ objectFit: 'contain' }}
                 />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
