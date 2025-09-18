@@ -694,17 +694,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <div>
               <div className="flex items-center space-x-4 mb-4">
                 <img 
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" 
+                  src="/images/logo-v2.png" 
                   alt="Sun Is Up Logo" 
                   className="h-20 w-20 flex-shrink-0 bg-amber-100 rounded-lg flex items-center justify-center"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = '<div class="h-20 w-20 bg-amber-100 rounded-lg flex items-center justify-center"><span class="text-amber-600 font-bold text-lg">SIU</span></div>';
-                    }
-                  }}
                 />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
