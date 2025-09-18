@@ -1361,6 +1361,5 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           </div>
         </div>
       </div>
-    </div>
   );
 }
