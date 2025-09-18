@@ -693,7 +693,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-6 border-b-2 border-gray-300">
             <div>
               <div className="flex items-center space-x-4 mb-4">
-                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-20 w-20 flex-shrink-0" />
+                <img src="/images/logo.png" alt="Sun Is Up Logo" className="h-20 w-20 flex-shrink-0" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
                   <p className="text-gray-700">Communauté d'énergie bruxelloise</p>
