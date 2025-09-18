@@ -734,10 +734,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <div>
                 <div className="space-y-2">
                   <div><strong className="text-gray-900">Nom :</strong> {invoiceData.participant.name}</div>
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-1 text-gray-600" />
-                    <span><strong className="text-gray-900">Adresse :</strong> {invoiceData.participant.address}</span>
-                  </div>
+                  <div><strong className="text-gray-900">Adresse :</strong> {invoiceData.participant.address}</div>
                   {invoiceData.participant.email && (
                     <div><strong className="text-gray-900">Email :</strong> {invoiceData.participant.email}</div>
                   )}
@@ -745,10 +742,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               </div>
               <div>
                 <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Hash className="w-4 h-4 mr-1 text-gray-600" />
-                    <span><strong className="text-gray-900">Code EAN :</strong> {invoiceData.participant.ean_code}</span>
-                  </div>
+                  <div><strong className="text-gray-900">Code EAN :</strong> {invoiceData.participant.ean_code}</div>
                   <div>
                     <strong className="text-gray-900">Type :</strong> 
                     <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
@@ -985,8 +979,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
           {/* Récapitulatif financier */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Euro className="w-5 h-5 mr-2 text-gray-700" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Récapitulatif financier
             </h3>
             <div className="overflow-x-auto border border-gray-300 rounded-lg">
