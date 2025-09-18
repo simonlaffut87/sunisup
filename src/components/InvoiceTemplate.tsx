@@ -727,7 +727,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           {/* Informations du participant */}
           <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-300">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <User className="w-5 h-5 mr-2 text-gray-700" />
               Informations du participant
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-800">
@@ -767,7 +766,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Consommation */}
               <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                <h4 className="font-medium text-blue-900 mb-3">📥 Consommation</h4>
+                <h4 className="font-medium text-blue-900 mb-3">Consommation</h4>
                 <div className="space-y-2 text-sm text-blue-800">
                   <div className="flex justify-between">
                     <span>Énergie partagée :</span>
@@ -785,7 +784,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
               {/* Injection */}
               <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
-                <h4 className="font-medium text-amber-900 mb-3">📤 Injection</h4>
+                <h4 className="font-medium text-amber-900 mb-3">Injection</h4>
                 <div className="space-y-2 text-sm text-amber-800">
                   <div className="flex justify-between">
                     <span>Injection partagée :</span>
@@ -812,7 +811,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             {Object.keys(invoiceData.billingData).length === 0 ? (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center">
-                  <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
                   <span className="font-medium text-red-900">Aucune donnée de coûts réseau trouvée</span>
                 </div>
                 <p className="text-sm text-red-800 mt-2">
@@ -823,7 +821,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             ) : (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center">
-                  <DatabaseIcon className="w-5 h-5 text-green-600 mr-2" />
                   <span className="font-medium text-green-900">
                     Données de coûts réseau disponibles pour {Object.keys(invoiceData.billingData).length} mois
                   </span>
