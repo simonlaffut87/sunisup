@@ -725,7 +725,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 <img 
                   src={logoBase64 || '/images/logo-v2.png'} 
                   alt="Sun Is Up Logo" 
-                  className="h-20 w-20 flex-shrink-0 bg-amber-100 rounded-lg flex items-center justify-center"
+                  className="h-20 w-20 flex-shrink-0 rounded-lg flex items-center justify-center"
                   style={{ objectFit: 'contain' }}
                 />
                 <div>
