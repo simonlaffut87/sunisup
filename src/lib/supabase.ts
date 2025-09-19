@@ -1,14 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types/supabase';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-console.log('🔍 Supabase Environment Check:');
-console.log('URL present:', !!supabaseUrl);
-console.log('Key present:', !!supabaseAnonKey);
+// Enhanced environment check for production debugging
+console.log('🔍 Supabase Environment Check (Production):');
+console.log('URL present:', !!supabaseUrl, supabaseUrl ? `(${supabaseUrl.substring(0, 20)}...)` : '(empty)');
+console.log('Key present:', !!supabaseAnonKey, supabaseAnonKey ? `(${supabaseAnonKey.substring(0, 20)}...)` : '(empty)');
+console.log('Environment mode:', import.meta.env.MODE);
+console.log('All env vars:', Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')));
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
+
+// Show configuration status in production
+if (!isSupabaseConfigured) {
+  console.warn('❌ SUPABASE NOT CONFIGURED IN PRODUCTION');
+  console.warn('Missing environment variables:');
+  if (!supabaseUrl) console.warn('- VITE_SUPABASE_URL is missing or empty');
+  if (!supabaseAnonKey) console.warn('- VITE_SUPABASE_ANON_KEY is missing or empty');
+  console.warn('Please configure these environment variables in your deployment settings');
+}
 
 let supabase: any;
 

@@ -15,6 +15,31 @@ import { LanguageSelector } from './components/LanguageSelector';
 import { useAutoLogout } from './hooks/useAutoLogout';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 
+function SupabaseConnectionBanner() {
+  const [showBanner, setShowBanner] = useState(!isSupabaseConfigured);
+  
+  if (!showBanner) return null;
+  
+  return (
+    <div className="bg-red-50 border-b border-red-200 px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <p className="text-sm text-red-800">
+            <strong>Database not connected:</strong> Please configure Supabase environment variables for full functionality
+          </p>
+        </div>
+        <button
+          onClick={() => setShowBanner(false)}
+          className="text-red-600 hover:text-red-800 text-sm underline"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function NavigationTabs() {
   const location = useLocation();
   const { t } = useTranslation();
@@ -333,6 +358,8 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
+        <SupabaseConnectionBanner />
+        
         {/* Header */}
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
