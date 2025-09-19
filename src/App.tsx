@@ -1,376 +1,444 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { 
-  Sun, 
-  Building2, 
-  Power, 
-  Users, 
-  Play, 
-  Target, 
-  Leaf, 
-  Wallet, 
-  HelpCircle, 
-  ChevronDown, 
-  ChevronUp, 
-  ExternalLink, 
-  Zap,
-  ArrowRight,
-  CheckCircle,
-  TrendingUp
-} from 'lucide-react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { divIcon } from 'leaflet';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { ArrowRight, Menu, X, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import 'leaflet/dist/leaflet.css';
-import { toast } from 'react-hot-toast';
-import { ContactModal } from '../components/ContactModal';
+import { Toaster, toast } from 'react-hot-toast';
+import HomePage from './pages/HomePage';
+import AdminPage from './pages/AdminPage';
+import SimulationPage from './pages/SimulationPage';
+import AboutPage from './pages/AboutPage';
+import { ContactModal } from './components/ContactModal';
+import { LoginModal } from './components/LoginModal';
+import { MemberDashboard } from './components/MemberDashboard';
+import { AdminDashboard } from './components/AdminDashboard';
+import { LanguageSelector } from './components/LanguageSelector';
+import { useAutoLogout } from './hooks/useAutoLogout';
+import { supabase } from './lib/supabase';
 
-// Static data for the site
-const staticParticipants = [
-  {
-    id: '1',
-    name: 'Installation Solaire Tour & Taxis',
-    address: 'Avenue du Port 86C, 1000 Bruxelles',
-    type: 'producer' as const,
-    lat: 50.8667,
-    lng: 4.3589,
-    peak_power: 150,
-    annual_production: 142500,
-    ean_code: '541448000000000001'
-  },
-  {
-    id: '2', 
-    name: 'Boulangerie Saint-Gilles',
-    address: 'Chaussée de Waterloo 123, 1060 Saint-Gilles',
-    type: 'consumer' as const,
-    lat: 50.8322,
-    lng: 4.3389,
-    annual_consumption: 45000,
-    ean_code: '541448000000000002'
-  },
-  {
-    id: '3',
-    name: 'Café Forest',
-    address: 'Avenue Van Volxem 234, 1190 Forest',
-    type: 'consumer' as const,
-    lat: 50.8144,
-    lng: 4.3189,
-    annual_consumption: 15000,
-    ean_code: '541448000000000003'
-  },
-  {
-    id: '4',
-    name: 'Panneaux Solaires Ixelles',
-    address: 'Rue de la Paix 45, 1050 Ixelles',
-    type: 'producer' as const,
-    lat: 50.8244,
-    lng: 4.3689,
-    peak_power: 85,
-    annual_production: 80750,
-    ean_code: '541448000000000004'
-  },
-  {
-    id: '5',
-    name: 'Bureau Quartier Européen',
-    address: 'Rue de la Loi 200, 1000 Bruxelles',
-    type: 'consumer' as const,
-    lat: 50.8444,
-    lng: 4.3789,
-    annual_consumption: 25000,
-    ean_code: '541448000000000005'
-  }
-];
-
-
-export default function HomePage() {
-  const [participants, setParticipants] = useState(staticParticipants);
-  const [loading, setLoading] = useState(true);
-  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
-  const [showContactModal, setShowContactModal] = useState(false);
+function NavigationTabs() {
+  const location = useLocation();
   const { t } = useTranslation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  return (
+    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex space-x-8">
+            <Link
+              to="/"
+              className={`px-3 py-2 text-sm font-medium transition-colors ${
+                location.pathname === '/' 
+                  ? 'text-amber-600 border-b-2 border-amber-600'
+                  : 'text-gray-700 hover:text-amber-600'
+              }`}
+            >
+              {t('nav.home')}
+            </Link>
+            <Link
+              to="/about"
+              className={`px-3 py-2 text-sm font-medium transition-colors ${
+                location.pathname === '/about'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
+                  : 'text-gray-700 hover:text-amber-600'
+              }`}
+            >
+              {t('nav.about')}
+            </Link>
+            <Link
+              to="/simulation"
+              className={`px-3 py-2 text-sm font-medium transition-colors ${
+                location.pathname === '/simulation'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
+                  : 'text-gray-700 hover:text-amber-600'
+              }`}
+            >
+              {t('nav.quickscan')}
+            </Link>
+            <Link
+              to="/admin"
+              className={`px-3 py-2 text-sm font-medium transition-colors ${
+                location.pathname === '/admin'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
+                  : 'text-gray-700 hover:text-amber-600'
+              }`}
+            >
+              {t('nav.howToJoin')}
+            </Link>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-gray-700 hover:text-amber-600 p-2"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 py-4">
+            <div className="space-y-2">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 text-sm font-medium ${
+                  location.pathname === '/' 
+                    ? 'text-amber-600 bg-amber-50'
+                    : 'text-gray-700 hover:text-amber-600'
+                }`}
+              >
+                {t('nav.home')}
+              </Link>
+              <Link
+                to="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 text-sm font-medium ${
+                  location.pathname === '/about'
+                    ? 'text-amber-600 bg-amber-50'
+                    : 'text-gray-700 hover:text-amber-600'
+                }`}
+              >
+                {t('nav.about')}
+              </Link>
+              <Link
+                to="/simulation"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 text-sm font-medium ${
+                  location.pathname === '/simulation'
+                    ? 'text-amber-600 bg-amber-50'
+                    : 'text-gray-700 hover:text-amber-600'
+                }`}
+              >
+                {t('nav.quickscan')}
+              </Link>
+              <Link
+                to="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 text-sm font-medium ${
+                  location.pathname === '/admin'
+                    ? 'text-amber-600 bg-amber-50'
+                    : 'text-gray-700 hover:text-amber-600'
+              }`}
+              >
+                {t('nav.howToJoin')}
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+function App() {
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('fr');
+  const [user, setUser] = useState<any>(null);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
-    // Simulate loading for smooth UX
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-  }, []);
+    // Detect browser language on first load
+    const browserLang = navigator.language.split('-')[0];
+    const supportedLangs = ['fr', 'nl', 'en'];
+    const defaultLang = supportedLangs.includes(browserLang) ? browserLang : 'fr';
+    
+    // Check if language is stored in localStorage
+    const storedLang = localStorage.getItem('language');
+    const initialLang = storedLang || defaultLang;
+    
+    setCurrentLanguage(initialLang);
+    i18n.changeLanguage(initialLang);
 
-  const createCustomIcon = (element: JSX.Element) => {
-    const iconHtml = renderToStaticMarkup(
-      <div className="relative">
-        <div className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center border-2 border-amber-200">
-          {element}
-        </div>
-      </div>
-    );
-    return divIcon({
-      html: iconHtml,
-      className: 'custom-icon',
-      iconSize: [40, 40],
-      iconAnchor: [20, 20],
+    // Helper: Link participant email on first login
+    const linkParticipantEmailIfNeeded = async (authUser: any) => {
+      try {
+        if (!authUser?.email) return;
+        const linkFlagKey = `participant-linked:${authUser.id}`;
+        if (sessionStorage.getItem(linkFlagKey)) return;
+
+        const participantId = authUser.user_metadata?.participant_id;
+        const eanCode = authUser.user_metadata?.ean_code;
+        let participantRow: any = null;
+
+        if (participantId) {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('id, email')
+            .eq('id', participantId)
+            .maybeSingle();
+          if (!error) participantRow = data;
+        } else if (eanCode) {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('id, email')
+            .eq('ean_code', eanCode)
+            .maybeSingle();
+          if (!error) participantRow = data;
+        }
+
+        if (!participantRow) return;
+        if (participantRow.email && participantRow.email.trim()) {
+          sessionStorage.setItem(linkFlagKey, '1');
+          return;
+        }
+
+        const { error: updateError } = await supabase
+          .from('participants')
+          .update({ email: authUser.email })
+          .eq('id', participantRow.id)
+          .is('email', null);
+
+        if (!updateError) {
+          sessionStorage.setItem(linkFlagKey, '1');
+          toast.success('Votre compte a été lié à votre participant.');
+        }
+      } catch {}
+    };
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Session error:', error);
+        handleLogout();
+      } else if (session) {
+        setUser(session.user);
+        checkIsAdmin(session.user.email);
+        linkParticipantEmailIfNeeded(session.user);
+      }
+    }).catch((error) => {
+      console.error('Failed to get session:', error);
+      handleLogout();
     });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'TOKEN_REFRESHED' && !session) {
+        // Token refresh failed, clear everything
+        handleLogout();
+      } else if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+        setShowDashboard(false);
+        setIsAdmin(false);
+      } else if (session?.user) {
+        setUser(session.user);
+        checkIsAdmin(session.user.email);
+        linkParticipantEmailIfNeeded(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [i18n]);
+
+  const checkIsAdmin = (email?: string) => {
+    // Check if user is admin (info@sunisup.be)
+    const isAdminUser = email === 'info@sunisup.be';
+    setIsAdmin(isAdminUser);
   };
 
-  const sunIcon = createCustomIcon(
-    <Sun className="w-5 h-5 text-amber-500" />
-  );
+  const handleLanguageChange = (lang: string) => {
+    setCurrentLanguage(lang);
+    i18n.changeLanguage(lang);
+    localStorage.setItem('language', lang);
+  };
 
-  const buildingIcon = createCustomIcon(
-    <Building2 className="w-5 h-5 text-blue-500" />
-  );
+  const handleLoginSuccess = (userData: any) => {
+    setUser(userData);
+    setShowDashboard(true);
+    // Ne pas vérifier admin ici - sera géré dans le dashboard
+  };
 
-  const producers = participants.filter(p => p.type === 'producer');
-  const consumers = participants.filter(p => p.type === 'consumer');
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    
+    setIsLoggingOut(true);
+    
+    try {
+      // Force complete logout with global scope
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear all Supabase-related data from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth.') || key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Clear sessionStorage
+      sessionStorage.clear();
+      
+      // Reset local state
+      setUser(null);
+      setShowDashboard(false);
+      setIsAdmin(false);
+      
+      // Force page reload to ensure clean state
+      window.location.href = '/';
+      
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Even if logout fails, clear everything and redirect
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth.') || key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      sessionStorage.clear();
+      setUser(null);
+      setShowDashboard(false);
+      setIsAdmin(false);
+      window.location.href = '/';
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
-  const translatedFaqItems = t('home.faq.items', { returnObjects: true });
-  const faqItems = Array.isArray(translatedFaqItems) ? translatedFaqItems : [];
+  // Hook de déconnexion automatique - NOUVEAU
+  useAutoLogout({
+    onLogout: handleLogout,
+    timeoutMinutes: 15, // 15 minutes d'inactivité
+    isLoggedIn: !!user && showDashboard // Actif seulement si l'utilisateur est connecté et sur le dashboard
+  });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
-        </div>
-      </div>
-    );
+  if (showDashboard && user) {
+    // Vérifier si c'est l'admin seulement pour l'email spécifique
+    if (user.email === 'info@sunisup.be') {
+      return <AdminDashboard />;
+    } else {
+      // Tous les autres utilisateurs vont au dashboard membre personnel
+      return <MemberDashboard user={user} onLogout={handleLogout} />;
+    }
   }
 
   return (
-    <div className="space-y-0">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 overflow-hidden">
-        <div className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f59e0b" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50`}></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
-                  <Zap className="w-4 h-4 mr-2" />
-                  {t('home.hero.badge')}
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+                <div className="relative flex-shrink-0">
+                  <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24" />
                 </div>
-                <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  {t('home.hero.title')}
-                </h1>
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  {t('home.hero.intro')}
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
+                    {t('header.title')}
+                  </h1>
+                  <p className="text-gray-600 text-xs sm:text-sm lg:text-base hidden sm:block truncate">
+                    {t('header.subtitle')}
+                  </p>
+                </div>
+              </Link>
+              
+              <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+                <LanguageSelector
+                  currentLanguage={currentLanguage}
+                  onLanguageChange={handleLanguageChange}
+                />
+                
+                {user ? (
+                  <button
+                    onClick={() => setShowDashboard(true)}
+                    disabled={isLoggingOut}
+                    className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base"
+                  >
+                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Dashboard</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowLoginModal(true)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base"
+                  >
+                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">{t('header.memberAccess')}</span>
+                    <span className="sm:hidden">{t('header.member')}</span>
+                  </button>
+                )}
+                
+                <button
+                  onClick={() => setShowContactModal(true)}
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base"
+                >
+                  <span className="hidden sm:inline">{t('header.contact')}</span>
+                  <span className="sm:hidden">Contact</span>
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <NavigationTabs />
+
+        {/* Main Content */}
+        <main>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/simulation" element={<SimulationPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+          </Routes>
+        </main>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white mt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <div className="flex items-center space-x-3 mb-4">
+                  <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-12 h-12" />
+                  <h3 className="text-xl font-bold">Sun Is Up</h3>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  {t('footer.description')}
                 </p>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <Target className="w-5 h-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t('home.hero.features.local.title')}</h3>
-                    <p className="text-gray-600 text-sm">{t('home.hero.features.local.description')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Wallet className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t('home.hero.features.price.title')}</h3>
-                    <p className="text-gray-600 text-sm">{t('home.hero.features.price.description')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Leaf className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t('home.hero.features.transition.title')}</h3>
-                    <p className="text-gray-600 text-sm">{t('home.hero.features.transition.description')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t('home.hero.features.green.title')}</h3>
-                    <p className="text-gray-600 text-sm">{t('home.hero.features.green.description')}</p>
-                  </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-4">{t('footer.contact')}</h3>
+                <div className="space-y-2 text-gray-400 text-sm">
+                  <p>+32 471 31 71 48</p>
+                  <p>info@sunisup.be</p>
                 </div>
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button 
-                  onClick={() => setShowContactModal(true)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-4 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                >
-                  {t('howToJoin.cta.button')}
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-                <a 
-                  href="/simulation"
-                  className="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  {t('simulation.title')}
-                  <TrendingUp className="w-5 h-5" />
-                </a>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-                <img
-                  src="/images/pv.png"
-                  alt="Panneaux solaires"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">724 MWh/an</p>
-                    <p className="text-gray-600 text-sm">{t('home.stats.production.title')}</p>
-                  </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-4">{t('footer.followUs')}</h3>
+                <div className="flex space-x-4">
+                  <a href="#" className="text-gray-400 hover:text-amber-400 transition-colors text-sm">
+                    LinkedIn
+                  </a>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Power className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">724 MWh/an</h3>
-              <p className="text-gray-600">{t('home.stats.production.subtitle')}</p>
             </div>
             
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">11</h3>
-              <p className="text-gray-600">{t('home.stats.participants.subtitle')}</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">10%</h3>
-              <p className="text-gray-600">{t('home.stats.savings.subtitle')}</p>
+            <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
+              {t('footer.copyright')}
             </div>
           </div>
-        </div>
-      </section>
+        </footer>
 
-      {/* How it works Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              {t('home.howItWorks.title')}
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {t('home.howItWorks.description')}
-            </p>
-          </div>
+        <Toaster position="top-right" />
 
-          <div className="relative">
-            <a 
-              href="https://www.youtube.com/watch?v=xdxpf2jL-1I"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block aspect-video rounded-2xl overflow-hidden relative group shadow-2xl"
-              style={{
-                backgroundImage: 'url(/images/video-background.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-            >
-              <div className="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all duration-300"></div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Play className="w-10 h-10 text-amber-500 ml-1" />
-                </div>
-                <div className="flex items-center gap-2 text-white">
-                  <span className="font-medium text-lg">{t('home.howItWorks.watchVideo')}</span>
-                  <ExternalLink className="w-5 h-5" />
-                </div>
-              </div>
-            </a>
-            <p className="text-gray-600 mt-4 text-center">
-              {t('home.howItWorks.videoDescription')}
-            </p>
-          </div>
-        </div>
-      </section>
-
-
-      {/* FAQ Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              {t('home.faq.title')}
-            </h2>
-          </div>
-          
-          <div className="space-y-4">
-            {faqItems.map((item, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <button
-                  onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
-                  className="w-full flex items-center justify-between text-left p-6 hover:bg-gray-50 transition-colors"
-                >
-                  <h3 className="text-lg font-semibold text-gray-900 pr-4">{item.question}</h3>
-                  {expandedFAQ === index ? (
-                    <ChevronUp className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                  )}
-                </button>
-                {expandedFAQ === index && (
-                  <div className="px-6 pb-6">
-                    <p className="text-gray-600 leading-relaxed">{item.answer}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-amber-500">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-            {t('home.cta.title')}
-          </h2>
-          <p className="text-xl text-amber-100 mb-8 max-w-2xl mx-auto">
-            {t('home.cta.description')}
-          </p>
-          <button 
-            onClick={() => setShowContactModal(true)}
-            className="bg-white hover:bg-gray-100 text-amber-600 px-8 py-4 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
-          >
-            {t('howToJoin.cta.button')}
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
-      </section>
-
-      <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
-    </div>
+        <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
+        <LoginModal 
+          isOpen={showLoginModal} 
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      </div>
+    </Router>
   );
 }
+
+export default App;
