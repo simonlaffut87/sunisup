@@ -1,25 +1,29 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types/supabase';
+import { SUPABASE_CONFIG } from '../config/supabase';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Use config file values first, then fall back to environment variables
+const supabaseUrl = SUPABASE_CONFIG.url !== 'YOUR_SUPABASE_URL_HERE' 
+  ? SUPABASE_CONFIG.url 
+  : import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = SUPABASE_CONFIG.anonKey !== 'YOUR_SUPABASE_ANON_KEY_HERE' 
+  ? SUPABASE_CONFIG.anonKey 
+  : import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Enhanced environment check for production debugging
-console.log('🔍 Supabase Environment Check (Production):');
+console.log('🔍 Supabase Configuration Check:');
+console.log('Config file URL:', SUPABASE_CONFIG.url !== 'YOUR_SUPABASE_URL_HERE' ? '✅ Configured' : '❌ Not configured');
+console.log('Config file Key:', SUPABASE_CONFIG.anonKey !== 'YOUR_SUPABASE_ANON_KEY_HERE' ? '✅ Configured' : '❌ Not configured');
 console.log('URL present:', !!supabaseUrl, supabaseUrl ? `(${supabaseUrl.substring(0, 20)}...)` : '(empty)');
 console.log('Key present:', !!supabaseAnonKey, supabaseAnonKey ? `(${supabaseAnonKey.substring(0, 20)}...)` : '(empty)');
-console.log('Environment mode:', import.meta.env.MODE);
-console.log('All env vars:', Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')));
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 
 // Show configuration status in production
 if (!isSupabaseConfigured) {
-  console.warn('❌ SUPABASE NOT CONFIGURED IN PRODUCTION');
-  console.warn('Missing environment variables:');
-  if (!supabaseUrl) console.warn('- VITE_SUPABASE_URL is missing or empty');
-  if (!supabaseAnonKey) console.warn('- VITE_SUPABASE_ANON_KEY is missing or empty');
-  console.warn('Please configure these environment variables in your deployment settings');
+  console.warn('❌ SUPABASE NOT CONFIGURED');
+  console.warn('Please update src/config/supabase.ts with your Supabase credentials');
+  console.warn('Or set environment variables VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
 }
 
 let supabase: any;
