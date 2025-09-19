@@ -6,7 +6,7 @@ import { SUPABASE_CONFIG } from '../config/supabase';
 const supabaseUrl = SUPABASE_CONFIG.url !== 'YOUR_SUPABASE_URL_HERE' 
   ? SUPABASE_CONFIG.url 
   : import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = SUPABASE_CONFIG.anonKey !== eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwbWJycHVmZnFpY25mYW1lbXFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzNzUxMTMsImV4cCI6MjA1Nzk1MTExM30.-cxnF3NhHR6Bcx9Lur033P1CT8WhZi0BpqnxAtY9VBw
+const supabaseAnonKey = SUPABASE_CONFIG.anonKey !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwbWJycHVmZnFpY25mYW1lbXFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzNzUxMTMsImV4cCI6MjA1Nzk1MTExM30.-cxnF3NhHR6Bcx9Lur033P1CT8WhZi0BpqnxAtY9VBw'
   ? SUPABASE_CONFIG.anonKey 
   : import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
