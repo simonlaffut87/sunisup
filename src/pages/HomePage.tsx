@@ -49,65 +49,27 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
-      // Check if Supabase is available
-      if (!isSupabaseAvailable()) {
-        if (import.meta.env.DEV) {
-          console.log('ℹ️ Supabase not available - using empty data');
-        }
-        setParticipants([]);
-        setError('Mode hors ligne - données de démonstration non disponibles');
-        setUsingFallbackData(true);
-        return;
-      }
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      console.log('🔍 Loading participants from Supabase...');
 
       const { data, error } = await supabase
         .from('participants')
         .select('*')
-        .order('name')
-        .abortSignal(controller.signal);
-      
-      clearTimeout(timeoutId);
+        .order('name');
       
       if (error) {
-        if (error.code === 'OFFLINE') {
-          if (import.meta.env.DEV) {
-            console.log('ℹ️ Running in offline mode');
-          }
-          setParticipants([]);
-          setError('Mode hors ligne - connectez-vous à Supabase pour voir les données');
-          setUsingFallbackData(true);
-          return;
-        }
-        if (error.code === '42501' || error.message?.includes('permission denied')) {
-          if (import.meta.env.DEV) {
-            console.log('ℹ️ Database access restricted by RLS policies - using demo data');
-          }
-          setParticipants([]);
-          setError('Accès à la base de données restreint par les politiques de sécurité');
-          return;
-        }
-        throw error;
+        console.error('❌ Error loading participants:', error);
+        setError(`Erreur de chargement: ${error.message}`);
+        setParticipants([]);
+        return;
       }
 
       setParticipants(data || []);
+      console.log('✅ Successfully loaded', data?.length || 0, 'participants');
       
-      if (import.meta.env.DEV) {
-        console.log('✅ Successfully loaded participants');
-      }
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        console.error('❌ Erreur chargement participants:', error);
-      }
+      console.error('❌ Error loading participants:', error);
       setParticipants([]);
-      if (error.message?.includes('No Supabase connection available')) {
-        setError('Mode hors ligne - connectez-vous à Supabase pour voir les données');
-        setUsingFallbackData(true);
-      } else {
-        setError('Erreur de connexion à la base de données');
-      }
+      setError(`Erreur de connexion: ${error.message}`);
     } finally {
       setLoading(false);
     }

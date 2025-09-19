@@ -25,13 +25,6 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     e.preventDefault();
     setLoading(true);
 
-    // Check if Supabase is available
-    if (!isSupabaseAvailable()) {
-      toast.error('Mode hors ligne - la connexion nécessite une configuration Supabase valide');
-      setLoading(false);
-      return;
-    }
-
     try {
       if (mode === 'reset') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -67,7 +60,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         }
 
         // Vérifier que l'EAN existe via RPC (accessible en rôle anon)
-        const { data: eanCheck, error: participantError } = await supabase
+        const { data: eanCheck, error: eanCheckError } = await supabase
           .rpc('check_ean_exists', { p_ean: eanCode });
 
         if (eanCheckError) {
@@ -219,11 +212,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      if (error.message?.includes('No Supabase connection available')) {
-        toast.error('Mode hors ligne - la connexion nécessite une configuration Supabase valide');
-      } else {
         toast.error(`Une erreur inattendue s'est produite: ${error.message || 'Erreur inconnue'}`);
-      }
     } finally {
       setLoading(false);
     }

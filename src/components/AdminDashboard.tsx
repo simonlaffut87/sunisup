@@ -170,7 +170,6 @@ export function AdminDashboard() {
     setLoading(true);
     try {
       console.log('📊 CHARGEMENT PARTICIPANTS ADMIN');
-      console.log('🔐 Status connexion:', connectionStatus);
       
       const { data, error } = await supabase
         .from('participants')
@@ -178,30 +177,22 @@ export function AdminDashboard() {
         .order(sortBy, { ascending: sortOrder === 'asc' });
 
       if (error) {
-        console.error('❌ ERREUR CHARGEMENT PARTICIPANTS:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-        
-        toast.error(`❌ Impossible de charger les participants: ${error.message} (Code: ${error.code})`);
+        console.error('❌ Error loading participants:', error);
+        toast.error(`Erreur de chargement: ${error.message}`);
         setParticipants([]);
         return;
       }
 
-      console.log('✅ Participants chargés avec succès:', data?.length || 0);
+      console.log('✅ Loaded', data?.length || 0, 'participants');
       setParticipants(data || []);
       
       if (data && data.length > 0) {
-        toast.success(`✅ ${data.length} participants chargés`);
-      } else {
-        toast.info('ℹ️ Aucun participant trouvé dans la base');
+        toast.success(`${data.length} participants chargés`);
       }
       
     } catch (error) {
-      console.error('❌ ERREUR GÉNÉRALE chargement participants:', error);
-      toast.error(`❌ Erreur générale: ${error.message}`);
+      console.error('❌ Error loading participants:', error);
+      toast.error(`Erreur: ${error.message}`);
       setParticipants([]);
     } finally {
       setLoading(false);
