@@ -1056,7 +1056,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       <div>
                         <div className="font-medium text-gray-900">Revenus injection</div>
                         <div className="text-xs text-gray-600">
-                          {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh
+                          {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.purchase_rate || 70}€/MWh
                         </div>
                       </div>
                     </td>
