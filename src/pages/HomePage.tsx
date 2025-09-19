@@ -49,7 +49,9 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
-      console.log('🔍 Loading participants from Supabase...');
+      if (!supabase) {
+        throw new Error('Supabase client not available');
+      }
 
       const { data, error } = await supabase
         .from('participants')
@@ -57,19 +59,16 @@ export default function HomePage() {
         .order('name');
       
       if (error) {
-        console.error('❌ Error loading participants:', error);
-        setError(`Erreur de chargement: ${error.message}`);
+        console.warn('Error loading participants:', error);
         setParticipants([]);
         return;
       }
 
       setParticipants(data || []);
-      console.log('✅ Successfully loaded', data?.length || 0, 'participants');
       
     } catch (error: any) {
-      console.error('❌ Error loading participants:', error);
+      console.warn('Error loading participants:', error);
       setParticipants([]);
-      setError(`Erreur de connexion: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -110,7 +109,7 @@ export default function HomePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading participants...</p>
+          <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
     );

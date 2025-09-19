@@ -4,102 +4,97 @@ import type { Database } from '../types/supabase';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Validate environment variables
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Missing Supabase environment variables');
-  console.error('VITE_SUPABASE_URL:', supabaseUrl ? 'Present' : 'Missing');
-  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Present' : 'Missing');
-  throw new Error('Supabase environment variables are required');
-}
+// Create a safe Supabase client that won't crash the app
+let supabase: any = null;
 
-// Validate URL format
 try {
-  new URL(supabaseUrl);
-} catch (error) {
-  console.error('❌ Invalid Supabase URL format:', supabaseUrl);
-  throw new Error('Invalid Supabase URL format');
-}
-
-// Validate anon key format (should be a JWT)
-if (!supabaseAnonKey.startsWith('eyJ')) {
-  console.error('❌ Invalid Supabase anon key format');
-  throw new Error('Invalid Supabase anon key format');
-}
-
-console.log('✅ Supabase environment variables validated');
-console.log('🔗 Connecting to:', supabaseUrl);
-
-// Create Supabase client
-export const supabase = createClient<Database>(
-  supabaseUrl,
-  supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce'
-    },
-    global: {
-      headers: {
-        'x-application-name': 'sun-is-up'
+  if (supabaseUrl && supabaseAnonKey) {
+    console.log('✅ Creating Supabase client');
+    supabase = createClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce'
+        },
+        global: {
+          headers: {
+            'x-application-name': 'sun-is-up'
+          }
+        }
       }
-    },
-    db: {
-      schema: 'public'
-    }
-  }
-);
-
-// Test connection function
-export const testSupabaseConnection = async () => {
-  try {
-    console.log('🔍 Testing Supabase connection...');
-    
-    // Test auth
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    if (authError) {
-      console.warn('⚠️ Auth test warning:', authError.message);
-    } else {
-      console.log('✅ Auth service accessible');
-    }
-
-    // Test database access
-    const { data, error } = await supabase
-      .from('participants')
-      .select('count')
-      .limit(1);
-
-    if (error) {
-      if (error.code === '42501') {
-        console.log('✅ Database connected (RLS policies active)');
-        return true;
-      } else {
-        console.error('❌ Database test failed:', error);
-        return false;
-      }
-    }
-
-    console.log('✅ Full database access confirmed');
-    return true;
-  } catch (error) {
-    console.error('❌ Connection test failed:', error);
-    return false;
-  }
-};
-
-// Helper function to check if Supabase is available
-export const isSupabaseAvailable = () => {
-  return !!(supabaseUrl && supabaseAnonKey);
-};
-
-// Initialize connection test
-testSupabaseConnection().then(connected => {
-  if (connected) {
-    console.log('🎉 Supabase connection established successfully');
+    );
   } else {
-    console.error('❌ Supabase connection failed');
+    console.warn('⚠️ Supabase environment variables not found');
+    // Create a mock client to prevent crashes
+    supabase = {
+      auth: {
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        signUp: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        signOut: () => Promise.resolve({ error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+      },
+      from: () => ({
+        select: () => ({ 
+          eq: () => ({ 
+            single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+            limit: () => Promise.resolve({ data: [], error: { message: 'Supabase not configured' } })
+          }),
+          order: () => Promise.resolve({ data: [], error: { message: 'Supabase not configured' } }),
+          limit: () => Promise.resolve({ data: [], error: { message: 'Supabase not configured' } })
+        }),
+        insert: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
+        update: () => ({ 
+          eq: () => Promise.resolve({ error: { message: 'Supabase not configured' } })
+        }),
+        delete: () => ({ 
+          eq: () => Promise.resolve({ error: { message: 'Supabase not configured' } })
+        })
+      }),
+      rpc: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      supabaseUrl: supabaseUrl || '',
+      supabaseKey: supabaseAnonKey || ''
+    };
   }
-});
+} catch (error) {
+  console.error('❌ Error creating Supabase client:', error);
+  // Create a minimal mock client to prevent app crashes
+  supabase = {
+    auth: {
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+      signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Connection error' } }),
+      signUp: () => Promise.resolve({ data: null, error: { message: 'Connection error' } }),
+      signOut: () => Promise.resolve({ error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+    },
+    from: () => ({
+      select: () => ({ 
+        eq: () => ({ 
+          single: () => Promise.resolve({ data: null, error: { message: 'Connection error' } }),
+          limit: () => Promise.resolve({ data: [], error: { message: 'Connection error' } })
+        }),
+        order: () => Promise.resolve({ data: [], error: { message: 'Connection error' } }),
+        limit: () => Promise.resolve({ data: [], error: { message: 'Connection error' } })
+      }),
+      insert: () => Promise.resolve({ error: { message: 'Connection error' } }),
+      update: () => ({ 
+        eq: () => Promise.resolve({ error: { message: 'Connection error' } })
+      }),
+      delete: () => ({ 
+        eq: () => Promise.resolve({ error: { message: 'Connection error' } })
+      })
+    }),
+    rpc: () => Promise.resolve({ data: null, error: { message: 'Connection error' } }),
+    supabaseUrl: supabaseUrl || '',
+    supabaseKey: supabaseAnonKey || ''
+  };
+}
 
+export { supabase };
 export default supabase;

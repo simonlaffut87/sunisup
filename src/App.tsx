@@ -156,7 +156,13 @@ function App() {
     const initialLang = storedLang || defaultLang;
     
     setCurrentLanguage(initialLang);
-    i18n.changeLanguage(initialLang);
+    
+    // Safely change language
+    if (i18n && typeof i18n.changeLanguage === 'function') {
+      i18n.changeLanguage(initialLang).catch(error => {
+        console.warn('Language change error:', error);
+      });
+    }
 
     // Helper: Link participant email on first login
     const linkParticipantEmailIfNeeded = async (authUser: any) => {
@@ -207,40 +213,37 @@ function App() {
     };
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('Session error:', error);
-        // Don't force logout on session errors, just log them
-        console.warn('Session error detected, continuing without session');
-      } else if (session) {
-        setUser(session.user);
-        checkIsAdmin(session.user.email);
-        linkParticipantEmailIfNeeded(session.user);
-      }
-    }).catch((error) => {
-      console.error('Failed to get session:', error);
-      // Don't force logout on session fetch errors
-      console.warn('Session fetch failed, continuing without session');
-    });
+    if (supabase && supabase.auth) {
+      supabase.auth.getSession().then(({ data: { session }, error }) => {
+        if (error) {
+          console.warn('Session error:', error);
+        } else if (session) {
+          setUser(session.user);
+          checkIsAdmin(session.user.email);
+          linkParticipantEmailIfNeeded(session.user);
+        }
+      }).catch((error) => {
+        console.warn('Failed to get session:', error);
+      });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'TOKEN_REFRESHED' && !session) {
-        // Token refresh failed, clear everything
-        handleLogout();
-      } else if (event === 'SIGNED_OUT' || !session) {
-        setUser(null);
-        setShowDashboard(false);
-        setIsAdmin(false);
-      } else if (session?.user) {
-        setUser(session.user);
-        checkIsAdmin(session.user.email);
-        linkParticipantEmailIfNeeded(session.user);
-      }
-    });
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'TOKEN_REFRESHED' && !session) {
+          handleLogout();
+        } else if (event === 'SIGNED_OUT' || !session) {
+          setUser(null);
+          setShowDashboard(false);
+          setIsAdmin(false);
+        } else if (session?.user) {
+          setUser(session.user);
+          checkIsAdmin(session.user.email);
+          linkParticipantEmailIfNeeded(session.user);
+        }
+      });
 
-    return () => subscription.unsubscribe();
-  }, [i18n]);
+      return () => subscription.unsubscribe();
+    }
+  }, []);
 
   const checkIsAdmin = (email?: string) => {
     // Check if user is admin (info@sunisup.be)
@@ -250,7 +253,9 @@ function App() {
 
   const handleLanguageChange = (lang: string) => {
     setCurrentLanguage(lang);
-    i18n.changeLanguage(lang);
+    if (i18n && typeof i18n.changeLanguage === 'function') {
+      i18n.changeLanguage(lang).catch(console.warn);
+    }
     localStorage.setItem('language', lang);
   };
 
@@ -266,8 +271,7 @@ function App() {
     setIsLoggingOut(true);
     
     try {
-      // Force complete logout with global scope
-      if (supabase?.auth?.signOut) {
+      if (supabase && supabase.auth && typeof supabase.auth.signOut === 'function') {
         await supabase.auth.signOut({ scope: 'global' });
       }
       
