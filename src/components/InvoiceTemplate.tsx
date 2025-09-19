@@ -847,20 +847,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   Assurez-vous d'importer un fichier Excel contenant les colonnes de coûts réseau.
                 </p>
               </div>
-            ) : (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                <div className="flex items-center">
-                  <span className="font-medium text-green-900">
-                    Données de coûts réseau disponibles pour {Object.keys(invoiceData.billingData).length} mois
-                  </span>
-                </div>
-                <p className="text-sm text-green-800 mt-1">
-                  Mois: {Object.keys(invoiceData.billingData).map(m => 
-                    format(parseISO(m + '-01'), 'MMM yyyy', { locale: fr })
-                  ).join(', ')}
-                </p>
-              </div>
-            )}
+            ) : null}
 
             <div className="overflow-x-auto border border-gray-300 rounded-lg">
               <table className="min-w-full">
