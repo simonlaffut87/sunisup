@@ -246,6 +246,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
         company_number: formData.company_number.trim() || null,
         shared_energy_price: parseFloat(formData.shared_energy_price),
         groupe: formData.groupe.trim() || null,
+        purchase_rate: parseFloat(formData.purchase_rate),
         lat: 50.8503,
         lng: 4.3517,
         peak_power: 0,

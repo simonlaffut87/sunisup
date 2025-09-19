@@ -55,6 +55,7 @@ export interface Database {
           updated_at: string
           shared_energy_price: number | null
           groupe: string | null
+          purchase_rate: number | null
         }
         Insert: {
           id?: string
@@ -75,6 +76,7 @@ export interface Database {
           updated_at?: string
           shared_energy_price?: number | null
           groupe?: string | null
+          purchase_rate?: number | null
         }
         Update: {
           id?: string
@@ -95,6 +97,7 @@ export interface Database {
           updated_at?: string
           shared_energy_price?: number | null
           groupe?: string | null
+          purchase_rate?: number | null
         }
       }
       energy_data: {
