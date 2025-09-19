@@ -885,7 +885,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Utilisation du réseau</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600">Distribution</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
@@ -900,7 +900,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Surcharges</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600">Distribution</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
@@ -915,7 +915,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Tarif capacitaire</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600">Distribution</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
@@ -930,7 +930,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Tarif mesure & comptage</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600">Distribution</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
@@ -945,7 +945,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Tarif OSP</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600">Distribution</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
@@ -960,7 +960,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Transport ELIA</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600">Distribution</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
@@ -975,7 +975,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Redevance voirie</div>
-                        <div className="text-xs text-gray-600">Consommation</div>
+                        <div className="text-xs text-gray-600">Distribution</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
@@ -988,7 +988,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   </tr>
                   <tr className="bg-gray-100 border-t-2 border-gray-400">
                     <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-300">
-                      TOTAL COÛTS RÉSEAU
+                      TOTAL FRAIS RÉSEAU
                     </td>
                     <td className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">21%</td>
                     <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
