@@ -3,6 +3,7 @@ import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, Hash, UserPlus } from 'lucide-re
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { supabase, isSupabaseAvailable } from '../lib/supabase';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -23,6 +24,12 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isSupabaseConfigured) {
+      toast.error('Base de données non configurée. Veuillez cliquer sur "Connect to Supabase" pour configurer la connexion.');
+      return;
+    }
+    
     setLoading(true);
 
     try {

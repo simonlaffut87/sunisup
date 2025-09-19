@@ -12,6 +12,7 @@ import { ParticipantForm } from './ParticipantForm';
 import { MonthlyFileManager } from './MonthlyFileManager';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 import { InvoiceTemplate } from './InvoiceTemplate';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 type Participant = DB['public']['Tables']['participants']['Row'];
 
@@ -169,6 +170,12 @@ export function AdminDashboard() {
   const loadParticipants = async () => {
     setLoading(true);
     try {
+      if (!isSupabaseConfigured) {
+        console.warn('Supabase not configured');
+        setParticipants([]);
+        return;
+      }
+      
       console.log('📊 CHARGEMENT PARTICIPANTS ADMIN');
       
       const { data, error } = await supabase

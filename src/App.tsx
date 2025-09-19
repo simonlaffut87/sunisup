@@ -13,7 +13,7 @@ import { MemberDashboard } from './components/MemberDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
 import { LanguageSelector } from './components/LanguageSelector';
 import { useAutoLogout } from './hooks/useAutoLogout';
-import { supabase } from './lib/supabase';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 
 function NavigationTabs() {
   const location = useLocation();
@@ -213,7 +213,7 @@ function App() {
     };
 
     // Check for existing session
-    if (supabase && supabase.auth) {
+    if (isSupabaseConfigured && supabase && supabase.auth) {
       supabase.auth.getSession().then(({ data: { session }, error }) => {
         if (error) {
           console.warn('Session error:', error);
@@ -242,6 +242,8 @@ function App() {
       });
 
       return () => subscription.unsubscribe();
+    } else {
+      console.log('Supabase not configured - authentication disabled');
     }
   }, []);
 

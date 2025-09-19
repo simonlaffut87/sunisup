@@ -23,6 +23,7 @@ import { divIcon } from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
 import { supabase, isSupabaseAvailable } from '../lib/supabase';
+import { isSupabaseConfigured } from '../lib/supabase';
 import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
@@ -49,8 +50,10 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
-      if (!supabase) {
-        throw new Error('Supabase client not available');
+      if (!isSupabaseConfigured) {
+        console.log('Supabase not configured, showing empty data');
+        setParticipants([]);
+        return;
       }
 
       const { data, error } = await supabase
