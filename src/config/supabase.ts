@@ -3,8 +3,8 @@
 
 export const SUPABASE_CONFIG = {
   // Get these from your Supabase Dashboard > Settings > API
-  url: 'YOUR_SUPABASE_URL_HERE', // Example: 'https://abcdefghijklmnop.supabase.co'
-  anonKey: 'YOUR_SUPABASE_ANON_KEY_HERE', // Your anon/public key from Supabase dashboard
+  url: 'https://lpmbrpuffqicnfamemqk.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwbWJycHVmZnFpY25mYW1lbXFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzNzUxMTMsImV4cCI6MjA1Nzk1MTExM30.-cxnF3NhHR6Bcx9Lur033P1CT8WhZi0BpqnxAtY9VBw',
 };
 
 // Instructions:
