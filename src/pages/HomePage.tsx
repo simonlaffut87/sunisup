@@ -22,79 +22,86 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { divIcon } from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
+import { supabase, isSupabaseAvailable } from '../lib/supabase';
+import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
 
-// Static data for the site
-const staticParticipants = [
-  {
-    id: '1',
-    name: 'Installation Solaire Tour & Taxis',
-    address: 'Avenue du Port 86C, 1000 Bruxelles',
-    type: 'producer' as const,
-    lat: 50.8667,
-    lng: 4.3589,
-    peak_power: 150,
-    annual_production: 142500,
-    ean_code: '541448000000000001'
-  },
-  {
-    id: '2', 
-    name: 'Boulangerie Saint-Gilles',
-    address: 'Chaussée de Waterloo 123, 1060 Saint-Gilles',
-    type: 'consumer' as const,
-    lat: 50.8322,
-    lng: 4.3389,
-    annual_consumption: 45000,
-    ean_code: '541448000000000002'
-  },
-  {
-    id: '3',
-    name: 'Café Forest',
-    address: 'Avenue Van Volxem 234, 1190 Forest',
-    type: 'consumer' as const,
-    lat: 50.8144,
-    lng: 4.3189,
-    annual_consumption: 15000,
-    ean_code: '541448000000000003'
-  },
-  {
-    id: '4',
-    name: 'Panneaux Solaires Ixelles',
-    address: 'Rue de la Paix 45, 1050 Ixelles',
-    type: 'producer' as const,
-    lat: 50.8244,
-    lng: 4.3689,
-    peak_power: 85,
-    annual_production: 80750,
-    ean_code: '541448000000000004'
-  },
-  {
-    id: '5',
-    name: 'Bureau Quartier Européen',
-    address: 'Rue de la Loi 200, 1000 Bruxelles',
-    type: 'consumer' as const,
-    lat: 50.8444,
-    lng: 4.3789,
-    annual_consumption: 25000,
-    ean_code: '541448000000000005'
-  }
-];
+type Participant = Database['public']['Tables']['participants']['Row'];
 
 
 export default function HomePage() {
-  const [participants, setParticipants] = useState(staticParticipants);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [usingFallbackData, setUsingFallbackData] = useState(false);
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
   const [showContactModal, setShowContactModal] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
-    // Simulate loading for smooth UX
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    loadParticipants();
   }, []);
+
+  const loadParticipants = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setUsingFallbackData(false);
+
+      // Check if Supabase is available
+      if (!isSupabaseAvailable()) {
+        console.log('ℹ️ Supabase not available - using empty data');
+        setParticipants([]);
+        setError('Mode hors ligne - données de démonstration non disponibles');
+        setUsingFallbackData(true);
+        return;
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      const { data, error } = await supabase
+        .from('participants')
+        .select('*')
+        .order('name')
+        .abortSignal(controller.signal);
+      
+      clearTimeout(timeoutId);
+      
+      if (error) {
+        if (error.code === 'OFFLINE') {
+          console.log('ℹ️ Running in offline mode');
+          setParticipants([]);
+          setError('Mode hors ligne - connectez-vous à Supabase pour voir les données');
+          setUsingFallbackData(true);
+          return;
+        }
+        if (error.code === '42501' || error.message?.includes('permission denied')) {
+          console.log('ℹ️ Database access restricted by RLS policies - using demo data');
+          setParticipants([]);
+          setError('Accès à la base de données restreint par les politiques de sécurité');
+          return;
+        }
+        throw error;
+      }
+
+      setParticipants(data || []);
+      
+      console.log('✅ Successfully loaded participants');
+    } catch (error: any) {
+      console.error('❌ Erreur chargement participants:', error);
+      setParticipants([]);
+      if (error.message?.includes('No Supabase connection available')) {
+        setError('Mode hors ligne - connectez-vous à Supabase pour voir les données');
+        setUsingFallbackData(true);
+      } else {
+        setError('Erreur de connexion à la base de données');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const createCustomIcon = (element: JSX.Element) => {
     const iconHtml = renderToStaticMarkup(
@@ -131,7 +138,7 @@ export default function HomePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
+          <p className="text-gray-600">Loading participants...</p>
         </div>
       </div>
     );
