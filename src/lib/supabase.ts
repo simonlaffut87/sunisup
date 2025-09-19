@@ -1,26 +1,18 @@
-// Mock Supabase client for static site
-const createMockClient = () => ({
+// Static mock client that doesn't try to connect anywhere
+export const supabase = {
   from: () => ({
     select: () => ({
-      order: () => ({
-        abortSignal: () => Promise.resolve({ data: [], error: null })
-      }),
+      order: () => Promise.resolve({ data: [], error: null }),
       eq: () => ({
         single: () => Promise.resolve({ data: null, error: null }),
         maybeSingle: () => Promise.resolve({ data: null, error: null })
       }),
-      not: () => ({
-        eq: () => Promise.resolve({ data: [], error: null })
-      }),
-      limit: () => ({
-        maybeSingle: () => Promise.resolve({ data: null, error: null })
-      })
+      not: () => Promise.resolve({ data: [], error: null }),
+      limit: () => Promise.resolve({ data: [], error: null })
     }),
     insert: () => Promise.resolve({ data: null, error: null }),
     update: () => ({
-      eq: () => ({
-        select: () => Promise.resolve({ data: null, error: null })
-      })
+      eq: () => Promise.resolve({ data: null, error: null })
     }),
     delete: () => ({
       eq: () => Promise.resolve({ data: null, error: null })
@@ -48,16 +40,11 @@ const createMockClient = () => ({
   rpc: () => Promise.resolve({ 
     data: null, 
     error: { message: 'Mode statique - RPC désactivé' } 
-  })
-});
+  }),
+  supabaseUrl: '',
+  supabaseKey: ''
+};
 
-// Export the mock client
-export const supabase = createMockClient();
-
-// Helper function to check if Supabase is available (always false for static site)
 export const isSupabaseAvailable = () => false;
-
-// Helper function to handle errors (always return null for static site)
 export const handleSupabaseError = (error: any) => null;
-
 export default supabase;
