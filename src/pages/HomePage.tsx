@@ -51,7 +51,9 @@ export default function HomePage() {
 
       // Check if Supabase is available
       if (!isSupabaseAvailable()) {
-        console.log('ℹ️ Supabase not available - using empty data');
+        if (import.meta.env.DEV) {
+          console.log('ℹ️ Supabase not available - using empty data');
+        }
         setParticipants([]);
         setError('Mode hors ligne - données de démonstration non disponibles');
         setUsingFallbackData(true);
@@ -71,14 +73,18 @@ export default function HomePage() {
       
       if (error) {
         if (error.code === 'OFFLINE') {
-          console.log('ℹ️ Running in offline mode');
+          if (import.meta.env.DEV) {
+            console.log('ℹ️ Running in offline mode');
+          }
           setParticipants([]);
           setError('Mode hors ligne - connectez-vous à Supabase pour voir les données');
           setUsingFallbackData(true);
           return;
         }
         if (error.code === '42501' || error.message?.includes('permission denied')) {
-          console.log('ℹ️ Database access restricted by RLS policies - using demo data');
+          if (import.meta.env.DEV) {
+            console.log('ℹ️ Database access restricted by RLS policies - using demo data');
+          }
           setParticipants([]);
           setError('Accès à la base de données restreint par les politiques de sécurité');
           return;
@@ -88,9 +94,13 @@ export default function HomePage() {
 
       setParticipants(data || []);
       
-      console.log('✅ Successfully loaded participants');
+      if (import.meta.env.DEV) {
+        console.log('✅ Successfully loaded participants');
+      }
     } catch (error: any) {
-      console.error('❌ Erreur chargement participants:', error);
+      if (import.meta.env.DEV) {
+        console.error('❌ Erreur chargement participants:', error);
+      }
       setParticipants([]);
       if (error.message?.includes('No Supabase connection available')) {
         setError('Mode hors ligne - connectez-vous à Supabase pour voir les données');

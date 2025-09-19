@@ -9,14 +9,15 @@ const hasValidCredentials = supabaseUrl && supabaseAnonKey &&
   supabaseUrl.includes('supabase.co') && 
   supabaseAnonKey.startsWith('eyJ');
 
-// Debug environment variables
-console.log('Environment check:', {
-  url: supabaseUrl ? 'Present' : 'Missing',
-  key: supabaseAnonKey ? 'Present' : 'Missing',
-  hasValidCredentials,
-  actualUrl: supabaseUrl,
-  environment: import.meta.env.MODE
-});
+// Debug environment variables only in development
+if (import.meta.env.DEV) {
+  console.log('Environment check:', {
+    url: supabaseUrl ? 'Present' : 'Missing',
+    key: supabaseAnonKey ? 'Present' : 'Missing',
+    hasValidCredentials,
+    environment: import.meta.env.MODE
+  });
+}
 
 // Only create client if we have valid credentials
 export let supabase: any = null;
@@ -45,7 +46,9 @@ if (hasValidCredentials) {
               ...options,
               signal: AbortSignal.timeout(8000) // 8 second timeout
             }).catch(error => {
-              console.warn('Supabase fetch error:', error.message);
+              if (import.meta.env.DEV) {
+                console.warn('Supabase fetch error:', error.message);
+              }
               if (error.name === 'AbortError' || error.name === 'TimeoutError') {
                 throw new Error('Connection timeout - using fallback data');
               }
@@ -67,12 +70,16 @@ if (hasValidCredentials) {
       }
     );
   } catch (error) {
-    console.error(`Invalid Supabase URL format: ${error.message}`);
+    if (import.meta.env.DEV) {
+      console.error(`Invalid Supabase URL format: ${error.message}`);
+    }
     supabase = null;
   }
 } else {
-  console.warn('⚠️ No valid Supabase credentials found. Running in offline mode.');
-  console.warn('💡 To connect to Supabase, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
+  if (import.meta.env.DEV) {
+    console.warn('⚠️ No valid Supabase credentials found. Running in offline mode.');
+    console.warn('💡 To connect to Supabase, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
+  }
 }
 
 // Create a mock client for offline mode
@@ -86,6 +93,7 @@ const createMockClient = () => ({
   }),
   auth: {
     getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
     signInWithPassword: () => Promise.resolve({ 
       data: null, 
       error: { message: 'No Supabase connection available - running in offline mode' } 
@@ -96,7 +104,8 @@ const createMockClient = () => ({
     }),
     resetPasswordForEmail: () => Promise.resolve({ 
       error: { message: 'No Supabase connection available - running in offline mode' } 
-    })
+    }),
+    signOut: () => Promise.resolve({ error: null })
   },
   rpc: () => Promise.resolve({ 
     data: null, 

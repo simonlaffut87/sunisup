@@ -201,14 +201,17 @@ function App() {
           sessionStorage.setItem(linkFlagKey, '1');
           toast.success('Votre compte a été lié à votre participant.');
         }
-      } catch {}
+      } catch (error) {
+        console.warn('Error linking participant email:', error);
+      }
     };
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         console.error('Session error:', error);
-        handleLogout();
+        // Don't force logout on session errors, just log them
+        console.warn('Session error detected, continuing without session');
       } else if (session) {
         setUser(session.user);
         checkIsAdmin(session.user.email);
@@ -216,7 +219,8 @@ function App() {
       }
     }).catch((error) => {
       console.error('Failed to get session:', error);
-      handleLogout();
+      // Don't force logout on session fetch errors
+      console.warn('Session fetch failed, continuing without session');
     });
 
     // Listen for auth changes
@@ -263,7 +267,9 @@ function App() {
     
     try {
       // Force complete logout with global scope
-      await supabase.auth.signOut({ scope: 'global' });
+      if (supabase?.auth?.signOut) {
+        await supabase.auth.signOut({ scope: 'global' });
+      }
       
       // Clear all Supabase-related data from localStorage
       Object.keys(localStorage).forEach(key => {
