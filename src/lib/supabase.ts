@@ -6,14 +6,14 @@ import { SUPABASE_CONFIG } from '../config/supabase';
 const supabaseUrl = SUPABASE_CONFIG.url !== 'YOUR_SUPABASE_URL_HERE' 
   ? SUPABASE_CONFIG.url 
   : import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = SUPABASE_CONFIG.anonKey !== 'YOUR_SUPABASE_ANON_KEY_HERE' 
+const supabaseAnonKey = SUPABASE_CONFIG.anonKey !== eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwbWJycHVmZnFpY25mYW1lbXFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzNzUxMTMsImV4cCI6MjA1Nzk1MTExM30.-cxnF3NhHR6Bcx9Lur033P1CT8WhZi0BpqnxAtY9VBw
   ? SUPABASE_CONFIG.anonKey 
   : import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Enhanced environment check for production debugging
 console.log('🔍 Supabase Configuration Check:');
 console.log('Config file URL:', SUPABASE_CONFIG.url !== 'YOUR_SUPABASE_URL_HERE' ? '✅ Configured' : '❌ Not configured');
-console.log('Config file Key:', SUPABASE_CONFIG.anonKey !== 'YOUR_SUPABASE_ANON_KEY_HERE' ? '✅ Configured' : '❌ Not configured');
+console.log('Config file Key:', SUPABASE_CONFIG.anonKey !== eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwbWJycHVmZnFpY25mYW1lbXFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzNzUxMTMsImV4cCI6MjA1Nzk1MTExM30.-cxnF3NhHR6Bcx9Lur033P1CT8WhZi0BpqnxAtY9VBw ? '✅ Configured' : '❌ Not configured');
 console.log('URL present:', !!supabaseUrl, supabaseUrl ? `(${supabaseUrl.substring(0, 20)}...)` : '(empty)');
 console.log('Key present:', !!supabaseAnonKey, supabaseAnonKey ? `(${supabaseAnonKey.substring(0, 20)}...)` : '(empty)');
 
