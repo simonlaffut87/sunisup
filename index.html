@@ -11,8 +11,10 @@
     })(window,document,'script','dataLayer','GTM-NWJCC9SZ');</script>
     <!-- End Google Tag Manager -->
     
-    <link rel="icon" type="image/png" href="/images/icon.png" />
-    <link rel="icon" type="image/x-icon" href="/images/icon.png" />
+    <link rel="icon" type="image/png" href="/images/logo.png" />
+    <link rel="icon" type="image/x-icon" href="/images/logo.png" />
+    <link rel="apple-touch-icon" href="/images/logo.png" />
+    <link rel="shortcut icon" href="/images/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- SEO Meta Tags -->
@@ -28,6 +30,7 @@
     <meta property="og:image" content="https://sunisup.be/images/pv.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sun Is Up - Communauté d'énergie Bruxelles - Logo et panneaux solaires" />
     <meta property="og:locale" content="fr_BE" />
     <meta property="og:site_name" content="Sun Is Up" />
 
@@ -37,6 +40,7 @@
     <meta property="twitter:title" content="Communauté d'Énergie Bruxelles | Sun Is Up - Partage d'Énergie" />
     <meta property="twitter:description" content="Communauté d'énergie Bruxelles : partage d'énergie solaire locale pour réduire votre facture électricité jusqu'à 30%. Rejoignez Sun Is Up Belgique." />
     <meta property="twitter:image" content="https://sunisup.be/images/pv.png" />
+    <meta property="twitter:image:alt" content="Sun Is Up - Communauté d'énergie Bruxelles - Logo et panneaux solaires" />
     <meta property="twitter:creator" content="@SunIsUpBE" />
 
     <!-- Additional SEO -->
@@ -71,11 +75,27 @@
         "url": "https://sunisup.be",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://sunisup.be/images/logo-v2.png",
-          "width": "200",
-          "height": "200"
+          "url": "https://sunisup.be/images/logo.png",
+          "width": "512",
+          "height": "512",
+          "caption": "Sun Is Up ASBL - Logo officiel de la communauté d'énergie Bruxelles"
         },
-        "image": "https://sunisup.be/images/pv.png",
+        "image": [
+          {
+            "@type": "ImageObject",
+            "url": "https://sunisup.be/images/logo.png",
+            "width": "512",
+            "height": "512",
+            "caption": "Sun Is Up ASBL - Logo officiel"
+          },
+          {
+            "@type": "ImageObject", 
+            "url": "https://sunisup.be/images/pv.png",
+            "width": "1200",
+            "height": "800",
+            "caption": "Panneaux solaires communauté d'énergie Sun Is Up Bruxelles"
+          }
+        ],
         "address": {
           "@type": "PostalAddress",
           "addressLocality": "Brussels",
