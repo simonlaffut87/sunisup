@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { supabase, isSupabaseAvailable } from '../lib/supabase';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { trackLogin, trackRegistration } from '../utils/analytics';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -188,6 +189,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           toast.success('Compte créé et associé au participant.');
         }
         
+        trackRegistration('email');
         onLoginSuccess(data.user);
         onClose();
 
@@ -210,6 +212,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             toast.error(`Erreur de connexion: ${error.message}`);
           }
         } else if (data?.user) {
+          trackLogin('email');
           toast.success('Connexion réussie !');
           onLoginSuccess(data.user);
           onClose();

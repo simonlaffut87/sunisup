@@ -3,6 +3,7 @@ import { X, Upload, Mail, MessageSquare, CheckCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
+import { trackContactForm, trackEvent } from '../utils/analytics';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -111,6 +112,9 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
       if (!data.success) {
         throw new Error(data.message || t('contact.errors.general'));
       }
+
+      // Track successful contact form submission
+      trackEvent('contact_form_submit', 'engagement', 'success');
 
       setShowSuccess(true);
       

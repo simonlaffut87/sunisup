@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { ArrowRight, Menu, X, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Toaster, toast } from 'react-hot-toast';
+import { trackPageView } from './utils/analytics';
 import HomePage from './pages/HomePage';
 import AdminPage from './pages/AdminPage';
 import SimulationPage from './pages/SimulationPage';
@@ -44,6 +45,18 @@ function NavigationTabs() {
   const location = useLocation();
   const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Track page views when location changes
+  useEffect(() => {
+    const pageTitle = {
+      '/': 'Accueil - Sun Is Up',
+      '/about': 'À propos - Sun Is Up', 
+      '/simulation': 'Simulation - Sun Is Up',
+      '/admin': 'Nous rejoindre - Sun Is Up'
+    }[location.pathname] || 'Sun Is Up';
+    
+    trackPageView(location.pathname, pageTitle);
+  }, [location.pathname]);
   
   return (
     <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">

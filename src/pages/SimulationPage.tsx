@@ -17,6 +17,7 @@ import { supabase } from '../lib/supabase';
 import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
+import { trackSimulation } from '../utils/analytics';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
@@ -121,8 +122,10 @@ export default function SimulationPage() {
     if (results) {
       let message = '';
       if ('savings' in results) {
+        trackSimulation('consumer', parseFloat(results.savings));
         message = `${t('simulation.consumer.title')} - ${t('simulation.consumer.consumption')}: ${results.consumption} kWh, ${t('simulation.consumer.savings')}: ${results.savings}€`;
       } else {
+        trackSimulation('producer', parseFloat(results.revenue));
         message = `${t('simulation.producer.title')} - ${t('simulation.producer.revenue')}: ${results.revenue}€`;
       }
       setSimulationResults(message);
