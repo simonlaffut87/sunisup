@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ContactModal } from '../components/ContactModal';
+import { SEOHead } from '../components/SEOHead';
 
 export default function AdminPage() {
   const [showContactModal, setShowContactModal] = useState(false);
