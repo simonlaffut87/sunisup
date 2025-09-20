@@ -7,6 +7,7 @@ interface SEOHeadProps {
   description?: string;
   keywords?: string;
   image?: string;
+  logo?: string;
   url?: string;
   type?: string;
   noIndex?: boolean;
@@ -17,6 +18,7 @@ export function SEOHead({
   description, 
   keywords, 
   image = "https://sunisup.be/images/pv.png",
+  logo = "https://sunisup.be/images/logo.png",
   url = "https://sunisup.be",
   type = "website",
   noIndex = false
@@ -43,6 +45,7 @@ export function SEOHead({
       <meta property="og:title" content={finalTitle} />
       <meta property="og:description" content={finalDescription} />
       <meta property="og:image" content={image} />
+      <meta property="og:image:alt" content="Sun Is Up - Communauté d'énergie Bruxelles" />
       <meta property="og:url" content={url} />
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content="Sun Is Up" />
@@ -53,6 +56,7 @@ export function SEOHead({
       <meta name="twitter:title" content={finalTitle} />
       <meta name="twitter:description" content={finalDescription} />
       <meta name="twitter:image" content={image} />
+      <meta name="twitter:image:alt" content="Sun Is Up - Communauté d'énergie Bruxelles" />
       
       {/* Canonical URL */}
       <link rel="canonical" href={url} />
@@ -78,6 +82,13 @@ export function SEOHead({
             "name": "Sun Is Up ASBL",
             "description": "Communauté d'énergie Bruxelles pour le partage d'énergie solaire et la réduction des factures électricité",
             "serviceType": ["Communauté d'énergie", "Partage d'énergie", "Réduction facture électricité"]
+          },
+          "primaryImageOfPage": {
+            "@type": "ImageObject",
+            "url": logo,
+            "width": "512",
+            "height": "512",
+            "caption": "Sun Is Up ASBL - Logo officiel de la communauté d'énergie Bruxelles"
           }
         })}
       </script>

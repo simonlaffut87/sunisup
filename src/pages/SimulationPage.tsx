@@ -153,6 +153,7 @@ export default function SimulationPage() {
         description="Simulez gratuitement votre réduction de facture électricité avec notre communauté d'énergie Bruxelles. Calculez vos économies grâce au partage d'énergie solaire locale en Belgique."
         keywords="réduction facture électricité, simulation économies énergie bruxelles, calculateur facture électricité belgique, communauté d'énergie bruxelles simulation, partage d'énergie bruxelles calcul, electricity bill reduction calculator, energy community brussels simulation, elektriciteitsrekening vermindering calculator, energiegemeenschap brussel simulatie, estimation revenus solaire belgique, économies communauté énergie belgique"
         url="https://sunisup.be/simulation"
+        logo="https://sunisup.be/images/logo.png"
       />
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section */}

@@ -24,6 +24,7 @@ export default function AboutPage() {
         description="Découvrez Sun Is Up, communauté d'énergie Bruxelles fondée par Thomas et Simon, ingénieurs passionnés. Notre mission : démocratiser le partage d'énergie solaire et la réduction des factures électricité à Bruxelles et en Belgique."
         keywords="communauté d'énergie bruxelles, communauté d'énergie belgique, partage d'énergie bruxelles, Thomas Simon ingénieurs, histoire Sun Is Up, mission transition énergétique belgique, energy community brussels founders, energiegemeenschap brussel oprichters, réduction facture électricité belgique, énergie renouvelable bruxelles"
         url="https://sunisup.be/about"
+        logo="https://sunisup.be/images/logo.png"
       />
       <div className="min-h-screen bg-gray-50">
       {/* Team Section */}

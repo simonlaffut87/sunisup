@@ -14,9 +14,14 @@
     <xhtml:link rel="alternate" hreflang="nl" href="https://sunisup.be/" />
     <xhtml:link rel="alternate" hreflang="en" href="https://sunisup.be/" />
     <image:image>
+      <image:loc>https://sunisup.be/images/logo.png</image:loc>
+      <image:title>Sun Is Up ASBL - Logo Communauté d'Énergie Bruxelles</image:title>
+      <image:caption>Logo officiel de Sun Is Up, communauté d'énergie Bruxelles pour le partage d'énergie solaire et la réduction des factures électricité</image:caption>
+    </image:image>
+    <image:image>
       <image:loc>https://sunisup.be/images/pv.png</image:loc>
-      <image:title>Communauté d'Énergie Bruxelles Sun Is Up - Partage d'Énergie Solaire</image:title>
-      <image:caption>Panneaux solaires de la communauté d'énergie Sun Is Up à Bruxelles pour le partage d'énergie locale</image:caption>
+      <image:title>Panneaux Solaires Communauté d'Énergie Bruxelles Sun Is Up</image:title>
+      <image:caption>Installation de panneaux solaires de la communauté d'énergie Sun Is Up à Bruxelles pour le partage d'énergie locale et la réduction des factures électricité</image:caption>
     </image:image>
   </url>
   <url>

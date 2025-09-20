@@ -24,6 +24,7 @@ export default function AdminPage() {
         description="Rejoignez la communauté d'énergie Bruxelles Sun Is Up en 4 étapes simples. Devenez membre pour bénéficier du partage d'énergie solaire et réduire votre facture électricité jusqu'à 30% en Belgique."
         keywords="rejoindre communauté d'énergie bruxelles, adhésion communauté énergie belgique, devenir membre partage énergie bruxelles, inscription communauté énergie bruxelles, join energy community brussels, become member energy sharing brussels, lid worden energiegemeenschap brussel, aansluiten energie delen brussel, comment rejoindre communauté énergie, réduction facture électricité belgique"
         url="https://sunisup.be/admin"
+        logo="https://sunisup.be/images/logo.png"
       />
       <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
