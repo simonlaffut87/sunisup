@@ -19,7 +19,7 @@
   </g>
   
   <!-- Sun center -->
-  <circle cx="16" cy="16" r="8" fill="url(#sunGradient)" />
+  <circle cx="16" cy="16" r="8" fill="url(#sunGradient)" stroke="#F59E0B" stroke-width="1" />
   
   <!-- Inner highlight -->
   <circle cx="13" cy="13" r="2" fill="#FEF3C7" opacity="0.8" />
