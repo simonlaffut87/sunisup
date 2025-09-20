@@ -381,11 +381,11 @@ function App() {
                 <div className="relative flex-shrink-0">
                   <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24" />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
                     {t('header.title')}
                   </h1>
-                  <p className="text-gray-600 text-xs sm:text-sm lg:text-base hidden sm:block truncate">
+                  <p className="text-gray-600 text-xs sm:text-sm lg:text-base hidden sm:block whitespace-nowrap overflow-hidden text-ellipsis">
                     {t('header.subtitle')}
                   </p>
                 </div>
