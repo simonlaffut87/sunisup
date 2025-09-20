@@ -36,6 +36,28 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     Link = "</sitemap.xml>; rel=sitemap; type=application/xml"
+    X-Robots-Tag = "index, follow"
+
+# SEO headers for key pages
+[[headers]]
+  for = "/"
+  [headers.values]
+    X-Robots-Tag = "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+
+[[headers]]
+  for = "/about"
+  [headers.values]
+    X-Robots-Tag = "index, follow, max-snippet:-1, max-image-preview:large"
+
+[[headers]]
+  for = "/simulation"
+  [headers.values]
+    X-Robots-Tag = "index, follow, max-snippet:-1, max-image-preview:large"
+
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "index, follow, max-snippet:-1, max-image-preview:large"
 
 # Cache pour les assets
 [[headers]]

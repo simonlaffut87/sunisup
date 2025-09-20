@@ -122,9 +122,9 @@ export default function HomePage() {
   return (
     <>
       <SEOHead 
-        title="Sun Is Up - Communauté d'Énergie Solaire Bruxelles | Économisez jusqu'à 30%"
-        description="Rejoignez la première communauté d'énergie solaire de Bruxelles. Réduisez vos factures d'électricité jusqu'à 30% grâce au partage d'énergie locale entre producteurs et consommateurs."
-        keywords="Sun Is Up, communauté énergie Bruxelles, partage énergie solaire, économies facture électricité, énergie renouvelable, autoconsommation collective, transition énergétique Bruxelles"
+        title="Communauté d'Énergie Bruxelles | Sun Is Up - Partage d'Énergie Solaire & Réduction Facture Électricité"
+        description="Communauté d'énergie Bruxelles Sun Is Up : partage d'énergie solaire locale pour réduire votre facture électricité jusqu'à 30%. Rejoignez la première communauté d'énergie renouvelable de Belgique à Bruxelles."
+        keywords="communauté d'énergie bruxelles, communauté d'énergie belgique, partage d'énergie bruxelles, réduction facture électricité, energy community brussels, energy sharing brussels, electricity bill reduction, energiegemeenschap brussel, energie delen brussel, elektriciteitsrekening vermindering, Sun Is Up, énergie renouvelable bruxelles, autoconsommation collective belgique, transition énergétique bruxelles, économies énergie belgique, panneaux solaires bruxelles, énergie locale belgique, renewable energy community belgium, local energy sharing belgium, groene energie gemeenschap belgie, lokale energie delen belgie"
         url="https://sunisup.be"
       />
       <div className="space-y-0">

@@ -24,8 +24,8 @@ export function SEOHead({
   const { t } = useTranslation();
   
   const defaultTitle = "Sun Is Up - Communauté d'Énergie Solaire Bruxelles | Réduisez vos Factures jusqu'à 30%";
-  const defaultDescription = "Rejoignez Sun Is Up, la communauté d'énergie solaire de Bruxelles. Économisez jusqu'à 30% sur vos factures d'électricité grâce au partage d'énergie locale.";
-  const defaultKeywords = "Sun Is Up, communauté énergie Bruxelles, partage énergie solaire, réduction facture électricité, énergie renouvelable Bruxelles, autoconsommation collective, transition énergétique";
+  const defaultDescription = "Communauté d'énergie Bruxelles Sun Is Up : partage d'énergie solaire locale pour réduire votre facture électricité jusqu'à 30%. Première communauté d'énergie renouvelable de Belgique.";
+  const defaultKeywords = "communauté d'énergie bruxelles, communauté d'énergie belgique, partage d'énergie bruxelles, réduction facture électricité, energy community brussels, energy sharing brussels, electricity bill reduction, energiegemeenschap brussel, energie delen brussel, elektriciteitsrekening vermindering, Sun Is Up, énergie renouvelable bruxelles, autoconsommation collective belgique, transition énergétique bruxelles";
 
   const finalTitle = title || defaultTitle;
   const finalDescription = description || defaultDescription;
@@ -64,16 +64,20 @@ export function SEOHead({
           "@type": "WebPage",
           "name": finalTitle,
           "description": finalDescription,
+          "keywords": finalKeywords,
           "url": url,
+          "inLanguage": ["fr-BE", "nl-BE", "en-BE"],
           "isPartOf": {
             "@type": "WebSite",
             "name": "Sun Is Up",
-            "url": "https://sunisup.be"
+            "url": "https://sunisup.be",
+            "alternateName": ["Communauté d'Énergie Bruxelles", "Energy Community Brussels", "Energiegemeenschap Brussel"]
           },
           "about": {
             "@type": "Organization",
             "name": "Sun Is Up ASBL",
-            "description": "Communauté d'énergie solaire à Bruxelles"
+            "description": "Communauté d'énergie Bruxelles pour le partage d'énergie solaire et la réduction des factures électricité",
+            "serviceType": ["Communauté d'énergie", "Partage d'énergie", "Réduction facture électricité"]
           }
         })}
       </script>

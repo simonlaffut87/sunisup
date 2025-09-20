@@ -20,9 +20,9 @@ export default function AboutPage() {
   return (
     <>
       <SEOHead 
-        title="À Propos - Sun Is Up | Thomas et Simon, Ingénieurs de la Transition Énergétique"
-        description="Découvrez l'histoire de Sun Is Up, fondée par Thomas et Simon, deux ingénieurs passionnés. Notre mission : démocratiser l'accès à l'énergie verte à Bruxelles via les communautés d'énergie."
-        keywords="Sun Is Up équipe, Thomas Simon ingénieurs, histoire Sun Is Up, mission transition énergétique, communauté énergie Bruxelles, fondateurs"
+        title="À Propos Communauté d'Énergie Bruxelles | Sun Is Up - Thomas et Simon, Ingénieurs Transition Énergétique"
+        description="Découvrez Sun Is Up, communauté d'énergie Bruxelles fondée par Thomas et Simon, ingénieurs passionnés. Notre mission : démocratiser le partage d'énergie solaire et la réduction des factures électricité à Bruxelles et en Belgique."
+        keywords="communauté d'énergie bruxelles, communauté d'énergie belgique, partage d'énergie bruxelles, Thomas Simon ingénieurs, histoire Sun Is Up, mission transition énergétique belgique, energy community brussels founders, energiegemeenschap brussel oprichters, réduction facture électricité belgique, énergie renouvelable bruxelles"
         url="https://sunisup.be/about"
       />
       <div className="min-h-screen bg-gray-50">

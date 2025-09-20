@@ -1,18 +1,17 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://sunisup.be/sitemap.xml
-
-# Disallow admin areas for non-admin users
-Disallow: /admin/dashboard
-Disallow: /member/dashboard
-
-# Allow important pages
-Allow: /
+# Important pages for energy community searches
 Allow: /about
 Allow: /simulation
 Allow: /admin
+
+# Sitemap
+Sitemap: https://sunisup.be/sitemap.xml
+
+# Disallow sensitive admin areas
+Disallow: /dashboard
+Disallow: /member
 
 # Crawl delay
 Crawl-delay: 1

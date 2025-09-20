@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { ContactModal } from '../components/ContactModal';
 import { SEOHead } from '../components/SEOHead';
+import { SEOHead } from '../components/SEOHead';
 
 export default function AdminPage() {
   const [showContactModal, setShowContactModal] = useState(false);
@@ -20,9 +21,9 @@ export default function AdminPage() {
   return (
     <>
       <SEOHead 
-        title="Rejoindre Sun Is Up - Comment Devenir Membre de la Communauté d'Énergie"
-        description="Découvrez comment rejoindre Sun Is Up en 4 étapes simples. Devenez membre de notre communauté d'énergie bruxelloise et commencez à économiser sur vos factures d'électricité."
-        keywords="rejoindre Sun Is Up, devenir membre communauté énergie, adhésion Sun Is Up, inscription communauté énergie Bruxelles, comment rejoindre"
+        title="Rejoindre Communauté d'Énergie Bruxelles | Sun Is Up - Adhésion & Partage d'Énergie"
+        description="Rejoignez la communauté d'énergie Bruxelles Sun Is Up en 4 étapes simples. Devenez membre pour bénéficier du partage d'énergie solaire et réduire votre facture électricité jusqu'à 30% en Belgique."
+        keywords="rejoindre communauté d'énergie bruxelles, adhésion communauté énergie belgique, devenir membre partage énergie bruxelles, inscription communauté énergie bruxelles, join energy community brussels, become member energy sharing brussels, lid worden energiegemeenschap brussel, aansluiten energie delen brussel, comment rejoindre communauté énergie, réduction facture électricité belgique"
         url="https://sunisup.be/admin"
       />
       <div className="min-h-screen bg-gray-50">
