@@ -27,6 +27,7 @@ import { isSupabaseConfigured } from '../lib/supabase';
 import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
+import { SEOHead } from '../components/SEOHead';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
@@ -119,7 +120,14 @@ export default function HomePage() {
   }
 
   return (
-    <div className="space-y-0">
+    <>
+      <SEOHead 
+        title="Sun Is Up - Communauté d'Énergie Solaire Bruxelles | Économisez jusqu'à 30%"
+        description="Rejoignez la première communauté d'énergie solaire de Bruxelles. Réduisez vos factures d'électricité jusqu'à 30% grâce au partage d'énergie locale entre producteurs et consommateurs."
+        keywords="Sun Is Up, communauté énergie Bruxelles, partage énergie solaire, économies facture électricité, énergie renouvelable, autoconsommation collective, transition énergétique Bruxelles"
+        url="https://sunisup.be"
+      />
+      <div className="space-y-0">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 overflow-hidden">
         <div className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f59e0b" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50`}></div>
@@ -352,7 +360,7 @@ export default function HomePage() {
       </section>
 
       <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
-      </div>
+    </div>
     </>
   );
 }
