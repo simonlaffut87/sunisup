@@ -467,7 +467,7 @@ function App() {
               <div>
                 <h3 className="text-lg font-semibold mb-4">{t('footer.followUs')}</h3>
                 <div className="flex space-x-4">
-                  <a href="#" className="text-gray-400 hover:text-amber-400 transition-colors text-sm">
+                  <a href="https://www.linkedin.com/company/sun-is-up-asbl" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-amber-400 transition-colors text-sm">
                     LinkedIn
                   </a>
                 </div>
