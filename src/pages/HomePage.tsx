@@ -352,6 +352,7 @@ export default function HomePage() {
       </section>
 
       <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
-    </div>
+      </div>
+    </>
   );
 }

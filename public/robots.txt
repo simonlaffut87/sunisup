@@ -1,2 +1,18 @@
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://sunisup.be/sitemap.xml
+
+# Disallow admin areas for non-admin users
+Disallow: /admin/dashboard
+Disallow: /member/dashboard
+
+# Allow important pages
+Allow: /
+Allow: /about
+Allow: /simulation
+Allow: /admin
+
+# Crawl delay
+Crawl-delay: 1

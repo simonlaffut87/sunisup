@@ -18,6 +18,7 @@ import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
 import { trackSimulation } from '../utils/analytics';
+import { SEOHead } from '../components/SEOHead';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
@@ -146,7 +147,14 @@ export default function SimulationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <SEOHead 
+        title="Simulation Gratuite - Calculez vos Économies d'Énergie | Sun Is Up"
+        description="Simulez gratuitement vos économies en rejoignant notre communauté d'énergie. Découvrez combien vous pourriez économiser ou gagner grâce au partage d'énergie solaire à Bruxelles."
+        keywords="simulation économies énergie, calculateur facture électricité, estimation revenus solaire, économies communauté énergie, simulation gratuite Bruxelles"
+        url="https://sunisup.be/simulation"
+      />
+      <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-amber-50 to-orange-50 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -447,6 +455,7 @@ export default function SimulationPage() {
         onClose={() => setShowContactModal(false)}
         initialMessage={simulationResults}
       />
-    </div>
+      </div>
+    </>
   );
 }

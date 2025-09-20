@@ -17,7 +17,14 @@ export default function AdminPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <SEOHead 
+        title="Rejoindre Sun Is Up - Comment Devenir Membre de la Communauté d'Énergie"
+        description="Découvrez comment rejoindre Sun Is Up en 4 étapes simples. Devenez membre de notre communauté d'énergie bruxelloise et commencez à économiser sur vos factures d'électricité."
+        keywords="rejoindre Sun Is Up, devenir membre communauté énergie, adhésion Sun Is Up, inscription communauté énergie Bruxelles, comment rejoindre"
+        url="https://sunisup.be/admin"
+      />
+      <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-amber-50 to-orange-50 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -169,6 +176,7 @@ export default function AdminPage() {
         isOpen={showContactModal} 
         onClose={() => setShowContactModal(false)} 
       />
-    </div>
+      </div>
+    </>
   );
 }

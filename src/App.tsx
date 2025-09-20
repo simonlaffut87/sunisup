@@ -49,10 +49,10 @@ function NavigationTabs() {
   // Track page views when location changes
   useEffect(() => {
     const pageTitle = {
-      '/': 'Accueil - Sun Is Up',
-      '/about': 'À propos - Sun Is Up', 
-      '/simulation': 'Simulation - Sun Is Up',
-      '/admin': 'Nous rejoindre - Sun Is Up'
+      '/': 'Accueil | Sun Is Up - Communauté d\'Énergie Bruxelles',
+      '/about': 'À Propos | Sun Is Up - Thomas et Simon, Ingénieurs',
+      '/simulation': 'Simulation Gratuite | Sun Is Up - Calculez vos Économies',
+      '/admin': 'Rejoindre | Sun Is Up - Devenez Membre'
     }[location.pathname] || 'Sun Is Up';
     
     trackPageView(location.pathname, pageTitle);
