@@ -545,7 +545,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                       border: '1px solid #e5e7eb'
                     }}
-                    formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
+                    formatter={(value: number, name: string) => [
+                      `${value.toLocaleString()} kWh`,
+                      name
+                    ]}
                   />
                   <Legend />
                   <Bar dataKey="volume_partage" fill="#10B981" name="Consommation Partagée" />
