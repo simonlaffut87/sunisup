@@ -121,7 +121,7 @@ function NavigationTabs() {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-100 py-2">
-            <div className="hidden md:flex space-x-4 lg:space-x-8">
+            <div className="flex flex-col space-y-2">
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
@@ -162,7 +162,7 @@ function NavigationTabs() {
                   location.pathname === '/admin'
                     ? 'text-amber-600 bg-amber-50'
                     : 'text-gray-700 hover:text-amber-600'
-              }`}
+                }`}
               >
                 {t('nav.howToJoin')}
               </Link>
@@ -445,26 +445,26 @@ function App() {
         </main>
 
         {/* Footer */}
-            <Link to="/" className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-2">
+        <footer className="bg-gray-900 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-10 h-10 sm:w-14 sm:h-14 lg:w-20 lg:h-20" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
                 <div className="flex items-center space-x-3 mb-4">
-                <h1 className="text-sm sm:text-lg lg:text-2xl xl:text-3xl font-bold text-gray-900 leading-tight">
-                  <h3 className="text-xl font-bold">Sun Is Up</h3>
+                  <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-10 h-10 sm:w-14 sm:h-14 lg:w-20 lg:h-20" />
+                  <div>
+                    <h3 className="text-xl font-bold">Sun Is Up</h3>
+                    <p className="text-gray-400 text-sm">{t('footer.subtitle')}</p>
+                  </div>
                 </div>
-                <p className="text-gray-600 text-xs sm:text-sm lg:text-base hidden sm:block leading-tight">
-                  className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-2 sm:px-3 lg:px-4 py-2 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 text-xs sm:text-sm"
-                </p>
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              </div>
               
               <div>
                 <h3 className="text-lg font-semibold mb-4">{t('footer.contact')}</h3>
                 <div className="space-y-2 text-gray-400 text-sm">
                   <p>+32 471 31 71 48</p>
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-3 lg:px-4 py-2 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 text-xs sm:text-sm"
+                  <p>info@sunisup.be</p>
                 </div>
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              </div>
               
               <div>
                 <h3 className="text-lg font-semibold mb-4">{t('footer.followUs')}</h3>
@@ -472,11 +472,11 @@ function App() {
                   <a href="https://www.linkedin.com/company/sun-is-up-asbl" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-amber-400 transition-colors text-sm">
                     LinkedIn
                   </a>
-                className="bg-amber-500 hover:bg-amber-600 text-white px-2 sm:px-3 lg:px-4 py-2 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 text-xs sm:text-sm"
+                </div>
               </div>
             </div>
             
-                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
               {t('footer.copyright')}
             </div>
           </div>
