@@ -61,3 +61,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://sunisup.be/admin" />
   </url>
 </urlset>
+  <url>
+    <loc>https://sunisup.be/reset-password</loc>
+    <lastmod>2025-01-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>

@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import AdminPage from './pages/AdminPage';
 import SimulationPage from './pages/SimulationPage';
 import AboutPage from './pages/AboutPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { ContactModal } from './components/ContactModal';
 import { LoginModal } from './components/LoginModal';
 import { MemberDashboard } from './components/MemberDashboard';
@@ -439,6 +440,7 @@ function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/simulation" element={<SimulationPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Routes>
         </main>
 
