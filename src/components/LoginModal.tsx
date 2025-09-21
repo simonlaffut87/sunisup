@@ -36,7 +36,12 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     try {
       if (mode === 'reset') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`
+          redirectTo: `${window.location.origin}/reset-password`,
+          captchaToken: undefined,
+          data: {
+            site_name: 'Sun Is Up',
+            site_url: window.location.origin
+          }
         });
 
         if (error) {
@@ -45,7 +50,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           return;
         }
 
-        toast.success('Email de réinitialisation envoyé ! Vérifiez votre boîte mail.');
+        toast.success('Email de réinitialisation envoyé ! Vérifiez votre boîte mail (et le dossier spam).');
         setMode('login');
       } else if (mode === 'register') {
         // Vérifier que l'EAN existe dans la base participants
