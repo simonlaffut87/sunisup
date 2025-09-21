@@ -72,9 +72,8 @@ export default function AboutPage() {
             {/* Photo - Center */}
             <div className="relative">
               <div className="w-full h-[600px] rounded-2xl shadow-2xl overflow-hidden relative" style={{ width: '120%', marginLeft: '-10%' }}>
-                
                 <img
-                  src="/images/simtom.png"
+                  src="https://stackblitz.com/storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBCQ3BvNWdFPSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--4d23099f147ac87f070b826899455bd8e9e66d58/-simtom.png"
                   alt="Thomas et Simon, fondateurs de Sun Is Up"
                   className="w-full h-full object-cover"
                   loading="eager"
