@@ -73,7 +73,7 @@ export default function AboutPage() {
             <div className="relative">
               <div className="w-full h-[600px] rounded-2xl shadow-2xl overflow-hidden relative" style={{ width: '120%', marginLeft: '-10%' }}>
                 <img
-                  src="/images/simtom.png"
+                  src="/images/about.jpg"
                   alt="Thomas et Simon, fondateurs de Sun Is Up"
                   className="w-full h-full object-cover"
                 />
