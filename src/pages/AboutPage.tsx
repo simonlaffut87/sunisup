@@ -76,31 +76,7 @@ export default function AboutPage() {
                   src="/images/simtom.png"
                   alt="Thomas et Simon, fondateurs de Sun Is Up"
                   className="w-full h-full object-cover"
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                  style={{
-                    imageRendering: 'auto',
-                    aspectRatio: '4/3'
-                  }}
-                  onError={(e) => {
-                    console.error('Image failed to load:', e);
-                    e.currentTarget.style.display = 'none';
-                  }}
-                  onLoad={() => {
-                    console.log('Image loaded successfully');
-                  }}
                 />
-                {/* Fallback si l'image ne charge pas */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-amber-100 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Users className="w-12 h-12 text-amber-600" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Thomas & Simon</h3>
-                    <p className="text-gray-600">Fondateurs de Sun Is Up</p>
-                  </div>
-                </div>
               </div>
               <div className="absolute -bottom-6 -right-6 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                 <div className="flex items-center space-x-3">
