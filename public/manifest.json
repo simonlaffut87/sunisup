@@ -1,0 +1,26 @@
+{
+  "name": "Sun Is Up - Communauté d'Énergie Bruxelles",
+  "short_name": "Sun Is Up",
+  "description": "Communauté d'énergie Bruxelles pour le partage d'énergie solaire et la réduction des factures électricité",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#F59E0B",
+  "background_color": "#FFFFFF",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "fr-BE"
+}
