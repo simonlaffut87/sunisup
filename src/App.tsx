@@ -108,7 +108,7 @@ function NavigationTabs() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex-shrink-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-gray-700 hover:text-amber-600 p-2"
@@ -120,12 +120,12 @@ function NavigationTabs() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 py-4">
-            <div className="space-y-2">
+          <div className="md:hidden border-t border-gray-100 py-2">
+            <div className="hidden md:flex space-x-4 lg:space-x-8">
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 text-sm font-medium ${
+                className={`block px-4 py-3 text-sm font-medium ${
                   location.pathname === '/' 
                     ? 'text-amber-600 bg-amber-50'
                     : 'text-gray-700 hover:text-amber-600'
@@ -136,7 +136,7 @@ function NavigationTabs() {
               <Link
                 to="/about"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 text-sm font-medium ${
+                className={`block px-4 py-3 text-sm font-medium ${
                   location.pathname === '/about'
                     ? 'text-amber-600 bg-amber-50'
                     : 'text-gray-700 hover:text-amber-600'
@@ -147,7 +147,7 @@ function NavigationTabs() {
               <Link
                 to="/simulation"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 text-sm font-medium ${
+                className={`block px-4 py-3 text-sm font-medium ${
                   location.pathname === '/simulation'
                     ? 'text-amber-600 bg-amber-50'
                     : 'text-gray-700 hover:text-amber-600'
@@ -158,7 +158,7 @@ function NavigationTabs() {
               <Link
                 to="/admin"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 text-sm font-medium ${
+                className={`block px-4 py-3 text-sm font-medium ${
                   location.pathname === '/admin'
                     ? 'text-amber-600 bg-amber-50'
                     : 'text-gray-700 hover:text-amber-600'
@@ -445,26 +445,26 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="bg-gray-900 text-white mt-16">
+            <Link to="/" className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-2">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-10 h-10 sm:w-14 sm:h-14 lg:w-20 lg:h-20" />
               <div>
                 <div className="flex items-center space-x-3 mb-4">
-                  <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-12 h-12" />
+                <h1 className="text-sm sm:text-lg lg:text-2xl xl:text-3xl font-bold text-gray-900 leading-tight">
                   <h3 className="text-xl font-bold">Sun Is Up</h3>
                 </div>
-                <p className="text-gray-400 text-sm">
-                  {t('footer.description')}
+                <p className="text-gray-600 text-xs sm:text-sm lg:text-base hidden sm:block leading-tight">
+                  className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-2 sm:px-3 lg:px-4 py-2 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 text-xs sm:text-sm"
                 </p>
-              </div>
+                  <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
               
               <div>
                 <h3 className="text-lg font-semibold mb-4">{t('footer.contact')}</h3>
                 <div className="space-y-2 text-gray-400 text-sm">
                   <p>+32 471 31 71 48</p>
-                  <p>info@sunisup.be</p>
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-3 lg:px-4 py-2 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 text-xs sm:text-sm"
                 </div>
-              </div>
+                  <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
               
               <div>
                 <h3 className="text-lg font-semibold mb-4">{t('footer.followUs')}</h3>
@@ -472,11 +472,11 @@ function App() {
                   <a href="https://www.linkedin.com/company/sun-is-up-asbl" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-amber-400 transition-colors text-sm">
                     LinkedIn
                   </a>
-                </div>
+                className="bg-amber-500 hover:bg-amber-600 text-white px-2 sm:px-3 lg:px-4 py-2 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 text-xs sm:text-sm"
               </div>
             </div>
             
-            <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
               {t('footer.copyright')}
             </div>
           </div>
