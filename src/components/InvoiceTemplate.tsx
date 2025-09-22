@@ -77,6 +77,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
   const [groupParticipants, setGroupParticipants] = useState<any[]>([]);
   const [isGroupInvoice, setIsGroupInvoice] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [saving, setSaving] = useState(false);
@@ -642,11 +643,16 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     try {
       setSaving(true);
       
+      const debug: string[] = [];
+      debug.push(`🔍 Participant principal: ${participant.name}`);
+      debug.push(`👥 Groupe: ${participant.groupe || 'Aucun groupe'}`);
       // Générer le PDF
       const invoiceContent = document.getElementById('invoice-content');
       if (!invoiceContent) {
+        debug.push('👤 Participant individuel, pas de groupe');
         toast.error('Impossible de trouver le contenu de la facture');
         setSaving(false);
+        setDebugInfo(debug);
         return;
       }
 
@@ -678,6 +684,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
         // Ajouter la première page
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      debug.push(`👥 Chargement du groupe: "${participant.groupe}"`);
         heightLeft -= pageHeight;
 
         // Ajouter des pages supplémentaires si nécessaire
@@ -686,21 +693,26 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           pdf.addPage();
           pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
+        debug.push(`❌ Erreur chargement groupe: ${error.message}`);
         }
 
+        setDebugInfo(debug);
         // Télécharger le PDF
         const fileName = `Facture_${invoiceData.participant.name.replace(/[^a-zA-Z0-9]/g, '_')}_${invoiceData.period.startMonth}${invoiceData.period.startMonth !== invoiceData.period.endMonth ? '_' + invoiceData.period.endMonth : ''}.pdf`;
         pdf.save(fileName);
         
+      debug.push(`✅ ${allGroupParticipants?.length || 0} participants trouvés dans le groupe`);
         toast.success('Facture PDF téléchargée avec succès');
         setSaving(false);
       }).catch(error => {
         // Restaurer l'affichage des boutons en cas d'erreur
+        setDebugInfo(debug);
         buttons.forEach(btn => (btn as HTMLElement).style.display = '');
         console.error('Erreur génération PDF:', error);
         toast.error('Erreur lors de la génération du PDF');
         setSaving(false);
       });
+      setDebugInfo(debug);
 
     } catch (error) {
       console.error('Erreur téléchargement:', error);
@@ -721,6 +733,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         period_start: invoiceData.period.startMonth,
         period_end: invoiceData.period.endMonth,
         generated_date: new Date().toISOString(),
+    const debug: string[] = [];
+    debug.push('🧮 DÉBUT CALCUL DES TOTAUX');
+    debug.push(`📅 Période: ${selectedPeriod.startMonth} à ${selectedPeriod.endMonth}`);
         totals: invoiceData.totals,
         calculations: invoiceData.calculations,
         status: 'generated'
@@ -742,6 +757,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       if (currentParticipant.billing_data) {
         try {
           if (typeof currentParticipant.billing_data === 'string') {
+      debug.push(`🔍 Participant: ${p.name} (${p.ean_code})`);
             billingData = JSON.parse(currentParticipant.billing_data);
           } else {
             billingData = currentParticipant.billing_data;
@@ -783,25 +799,36 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         
         // Calculer les totaux pour la période sélectionnée
         let memberTotals = {
-          volume_partage: 0,
-          volume_complementaire: 0,
-          injection_partagee: 0,
-          injection_complementaire: 0
-        };
+      let monthsFound = 0;
+      for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         
-        // Parcourir tous les mois de la période sélectionnée
-        const startDate = new Date(selectedPeriod.startMonth + '-01');
-        const endDate = new Date(selectedPeriod.endMonth + '-01');
+        debug.push(`📅 ${p.name}: Recherche ${monthKey}...`);
         
-        let currentDate = new Date(startDate);
-        while (currentDate <= endDate) {
-          const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+        if (monthlyData[monthKey]) {
+          const monthData = monthlyData[monthKey];
+          monthsFound++;
           
-          if (memberMonthlyData[monthKey]) {
-            const monthData = memberMonthlyData[monthKey];
+          debug.push(`✅ ${p.name}: Données trouvées pour ${monthKey}`);
+          debug.push(`📊 ${p.name} ${monthKey}: VP=${monthData.volume_partage || 0}, VC=${monthData.volume_complementaire || 0}, IP=${monthData.injection_partagee || 0}, IC=${monthData.injection_complementaire || 0}`);
+          
+          // Additionner les valeurs pour ce participant
+          totals[p.id].volume_partage += Number(monthData.volume_partage || 0);
+          totals[p.id].volume_complementaire += Number(monthData.volume_complementaire || 0);
+          totals[p.id].injection_partagee += Number(monthData.injection_partagee || 0);
+          totals[p.id].injection_complementaire += Number(monthData.injection_complementaire || 0);
+          
+        } else {
+          debug.push(`⚠️ ${p.name}: Aucune donnée pour ${monthKey}`);
+        }
+      }
+      
+      debug.push(`📊 ${p.name}: ${monthsFound} mois trouvés sur la période`);
+      debug.push(`🧮 ${p.name}: Totaux calculés - VP=${totals[p.id].volume_partage}, VC=${totals[p.id].volume_complementaire}, IP=${totals[p.id].injection_partagee}, IC=${totals[p.id].injection_complementaire}`);
             memberTotals.volume_partage += Number(monthData.volume_partage || 0);
             memberTotals.volume_complementaire += Number(monthData.volume_complementaire || 0);
             memberTotals.injection_partagee += Number(monthData.injection_partagee || 0);
+        debug.push(`💰 ${p.name}: Traitement billing_data...`);
             memberTotals.injection_complementaire += Number(monthData.injection_complementaire || 0);
           }
           
@@ -809,32 +836,53 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         }
         
         return {
+          debug.push(`💰 ${p.name}: billing_data parsé, mois disponibles: ${Object.keys(billingData).join(', ')}`);
           ...member,
           calculatedTotals: memberTotals
         };
       });
-      
+      // Parser les données mensuelles
+      let monthlyData: any = {};
+              debug.push(`💰 ${p.name} ${monthKey}: Coûts réseau trouvés`);
       console.log('📊 Participants du groupe avec données calculées:', processedGroupMembers);
       setGroupParticipants(processedGroupMembers);
 
       // Sauvegarder en base
+            } else {
+              debug.push(`💰 ${p.name} ${monthKey}: Aucun coût réseau`);
       const { error: updateError } = await supabase
         .from('participants')
+        debug.push(`✅ ${p.name}: monthly_data parsé avec succès`);
+        debug.push(`📊 ${p.name}: Mois disponibles: ${Object.keys(monthlyData).join(', ')}`);
+          debug.push(`❌ ${p.name}: Erreur parsing billing_data`);
         .update({ billing_data: updatedBillingData })
+      } else {
+        debug.push(`💰 ${p.name}: Aucune billing_data`);
         .eq('id', invoiceData.participant.id);
-
-      if (updateError) {
-        throw new Error(`Erreur lors de la sauvegarde: ${updateError.message}`);
-      }
-
-      toast.success('Facture enregistrée avec succès dans le dashboard du participant');
+        debug.push(`❌ ${p.name}: Erreur parsing monthly_data`);
+      // Vérifier si le participant a des données mensuelles
+      if (!p.monthly_data) {
+        console.log(`⚠️ ${p.name} n'a pas de monthly_data`);
+      // Parcourir la période sélectionnée
+      const startDate = new Date(selectedPeriod.startMonth + '-01');
+      const endDate = new Date(selectedPeriod.endMonth + '-01');
       
+      debug.push(`📅 ${p.name}: Recherche données entre ${selectedPeriod.startMonth} et ${selectedPeriod.endMonth}`);
+        return;
     } catch (error) {
       console.error('Erreur sauvegarde facture:', error);
+    debug.push('🎯 TOTAUX GLOBAUX CALCULÉS:');
+    debug.push(`📊 Volume Partagé: ${globalTotals.volume_partage} kWh`);
+    debug.push(`📊 Volume Complémentaire: ${globalTotals.volume_complementaire} kWh`);
+    debug.push(`📊 Injection Partagée: ${globalTotals.injection_partagee} kWh`);
+    debug.push(`📊 Injection Complémentaire: ${globalTotals.injection_complementaire} kWh`);
+    debug.push(`💰 Total Frais Réseau: ${globalTotals.networkCosts.totalFraisReseau} €`);
+    
       toast.error(`Erreur lors de l'enregistrement: ${error.message}`);
     } finally {
       setSaving(false);
     }
+    setDebugInfo(prev => [...prev, ...debug]);
   };
 
   if (!isOpen) return null;
