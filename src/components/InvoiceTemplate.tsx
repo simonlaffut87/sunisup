@@ -246,12 +246,33 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       // Traiter chaque participant (individuel ou groupe)
       for (const currentParticipant of allParticipants) {
         console.log(`🔍 Traitement participant: ${currentParticipant.name}`);
+      // Calculer les totaux en temps réel depuis les données des participants
+      const totals = groupParticipants.reduce((acc, member) => {
+        const memberTotals = member.calculatedTotals || {};
+        const memberNetworkCosts = member.calculatedNetworkCosts || {};
         
-        let participantVolumePartage = 0;
-        let participantVolumeComplementaire = 0;
-        let participantInjectionPartagee = 0;
-        let participantInjectionComplementaire = 0;
-        let participantNetworkCosts = {
+        return {
+          volume_partage: acc.volume_partage + (memberTotals.volume_partage || 0),
+          volume_complementaire: acc.volume_complementaire + (memberTotals.volume_complementaire || 0),
+          injection_partagee: acc.injection_partagee + (memberTotals.injection_partagee || 0),
+          injection_complementaire: acc.injection_complementaire + (memberTotals.injection_complementaire || 0),
+          networkCosts: {
+            utilisationReseau: acc.networkCosts.utilisationReseau + (memberNetworkCosts.utilisationReseau || 0),
+            surcharges: acc.networkCosts.surcharges + (memberNetworkCosts.surcharges || 0),
+            tarifCapacitaire: acc.networkCosts.tarifCapacitaire + (memberNetworkCosts.tarifCapacitaire || 0),
+            tarifMesure: acc.networkCosts.tarifMesure + (memberNetworkCosts.tarifMesure || 0),
+            tarifOSP: acc.networkCosts.tarifOSP + (memberNetworkCosts.tarifOSP || 0),
+            transportELIA: acc.networkCosts.transportELIA + (memberNetworkCosts.transportELIA || 0),
+            redevanceVoirie: acc.networkCosts.redevanceVoirie + (memberNetworkCosts.redevanceVoirie || 0),
+            totalFraisReseau: acc.networkCosts.totalFraisReseau + (memberNetworkCosts.totalFraisReseau || 0)
+          }
+        };
+      }, {
+        volume_partage: 0,
+        volume_complementaire: 0,
+        injection_partagee: 0,
+        injection_complementaire: 0,
+        networkCosts: {
           utilisationReseau: 0,
           surcharges: 0,
           tarifCapacitaire: 0,
@@ -260,8 +281,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           transportELIA: 0,
           redevanceVoirie: 0,
           totalFraisReseau: 0
-        };
-
+        }
+      });
+      
+      console.log('📊 Totaux finaux du groupe:', totals);
+      return totals;
         if (currentParticipant.monthly_data) {
           let monthlyData;
           try {
@@ -743,23 +767,41 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         try {
           if (typeof currentParticipant.billing_data === 'string') {
             billingData = JSON.parse(currentParticipant.billing_data);
-          } else {
-            billingData = currentParticipant.billing_data;
+      // Traiter les données mensuelles pour chaque participant du groupe
+      const processedGroupMembers = groupMembers?.map(member => {
+        console.log(`📊 Traitement des données pour: ${member.name} (${member.ean_code})`);
+        
+        let memberMonthlyData = {};
+        if (member.monthly_data) {
+          try {
+            if (typeof member.monthly_data === 'string') {
+              memberMonthlyData = JSON.parse(member.monthly_data);
+            } else {
+              memberMonthlyData = member.monthly_data;
+            }
+          } catch (error) {
+            console.warn(`Erreur parsing monthly_data pour ${member.name}:`, error);
+            memberMonthlyData = {};
           }
-        } catch (error) {
-          console.warn('Erreur parsing billing_data existant:', error);
-          billingData = {};
         }
-      }
-
-      // Ajouter la facture aux données billing
-      const updatedBillingData = {
-        ...billingData,
-        invoices: {
-          ...(billingData.invoices || {}),
-          [invoiceRecord.id]: invoiceRecord
-        }
-      };
+        
+        console.log(`📅 Données mensuelles pour ${member.name}:`, memberMonthlyData);
+        
+        // Calculer les totaux pour la période sélectionnée
+        let memberTotals = {
+          volume_partage: 0,
+          volume_complementaire: 0,
+          injection_partagee: 0,
+          injection_complementaire: 0
+        };
+        
+        // Parcourir tous les mois de la période sélectionnée
+        const startDate = new Date(selectedPeriod.startMonth + '-01');
+        const endDate = new Date(selectedPeriod.endMonth + '-01');
+        
+      
+      console.log('📊 Participants du groupe avec données calculées:', processedGroupMembers);
+      setGroupParticipants(processedGroupMembers);
 
       // Sauvegarder en base
       const { error: updateError } = await supabase
@@ -1021,6 +1063,13 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {groupParticipants.map((groupParticipant: any, index: number) => (
+                        const memberTotals = member.calculatedTotals || {
+                          volume_partage: 0,
+                          volume_complementaire: 0,
+                          injection_partagee: 0,
+                          injection_complementaire: 0
+                        };
+                        
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="px-4 py-3">
                             <div>
@@ -1043,10 +1092,18 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                           <td className="px-4 py-3 text-right text-sm text-gray-900">
                             {(groupParticipant.volume_complementaire / 1000).toFixed(3)} MWh
                           </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {(groupParticipant.injection_partagee / 1000).toFixed(3)} MWh
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            <td className="px-4 py-3 text-sm text-right">
+                              {(memberTotals.volume_partage / 1000).toFixed(3)} MWh
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right">
+                              {(memberTotals.volume_complementaire / 1000).toFixed(3)} MWh
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right">
+                              {(memberTotals.injection_partagee / 1000).toFixed(3)} MWh
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right">
+                              {(memberTotals.injection_complementaire / 1000).toFixed(3)} MWh
+                            </td>
                             {(groupParticipant.injection_complementaire / 1000).toFixed(3)} MWh
                           </td>
                         </tr>
@@ -1056,17 +1113,25 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         <td className="px-4 py-3 text-sm font-bold text-gray-900" colSpan={2}>
                           TOTAL GROUPE
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh
+                        <td className="px-4 py-4 text-sm text-right font-bold text-blue-600">
+                          {(groupParticipants.reduce((sum, member) => 
+                            sum + ((member.calculatedTotals?.volume_partage || 0) / 1000), 0
+                          )).toFixed(3)} MWh
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                          {(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh
+                        <td className="px-4 py-4 text-sm text-right font-bold text-blue-600">
+                          {(groupParticipants.reduce((sum, member) => 
+                            sum + ((member.calculatedTotals?.volume_complementaire || 0) / 1000), 0
+                          )).toFixed(3)} MWh
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                          {(invoiceData.totals.injection_partagee / 1000).toFixed(3)} MWh
+                        <td className="px-4 py-4 text-sm text-right font-bold text-amber-600">
+                          {(groupParticipants.reduce((sum, member) => 
+                            sum + ((member.calculatedTotals?.injection_partagee || 0) / 1000), 0
+                          )).toFixed(3)} MWh
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                          {(invoiceData.totals.injection_complementaire / 1000).toFixed(3)} MWh
+                        <td className="px-4 py-4 text-sm text-right font-bold text-amber-600">
+                          {(groupParticipants.reduce((sum, member) => 
+                            sum + ((member.calculatedTotals?.injection_complementaire || 0) / 1000), 0
+                          )).toFixed(3)} MWh
                         </td>
                       </tr>
                     </tbody>
