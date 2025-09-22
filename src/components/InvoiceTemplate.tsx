@@ -369,8 +369,20 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     // Revenus d'injection
     const injectionRevenue = (injectionPartageeInMWh + injectionComplementaireInMWh) * sharedEnergyPrice;
 
+    // Frais d'adhésion annuels (50€ TTC) - seulement pour la première facture de l'année
+    const currentYear = new Date().getFullYear();
+    const isFirstInvoiceOfYear = true; // Pour 2025, c'est la première facture
+    const membershipFeeHTVA = isFirstInvoiceOfYear ? 50 / 1.21 : 0; // 41.32€ HTVA
+    const membershipFeeTVAC = isFirstInvoiceOfYear ? 50 : 0; // 50€ TVAC
+    
+    console.log('💰 Frais d\'adhésion:', {
+      isFirstInvoiceOfYear,
+      currentYear,
+      membershipFeeHTVA: `${membershipFeeHTVA.toFixed(2)}€`,
+      membershipFeeTVAC: `${membershipFeeTVAC}€`
+    });
     // Total
-    const totalCostTVAC = energySharedCostTVAC + networkCostTVAC;
+    const totalCostTVAC = energySharedCostTVAC + networkCostTVAC + membershipFeeTVAC;
     const netAmount = totalCostTVAC - injectionRevenue;
 
     const calculations = {
@@ -378,6 +390,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       energySharedCostTVAC: Math.round(energySharedCostTVAC * 100) / 100,
       networkCostTotal: Math.round(networkCostTotal * 100) / 100,
       networkCostTVAC: Math.round(networkCostTVAC * 100) / 100,
+      membershipFeeHTVA: Math.round(membershipFeeHTVA * 100) / 100,
+      membershipFeeTVAC: Math.round(membershipFeeTVAC * 100) / 100,
+      isFirstInvoiceOfYear,
       totalCostTVAC: Math.round(totalCostTVAC * 100) / 100,
       injectionRevenue: Math.round(injectionRevenue * 100) / 100,
       netAmount: Math.round(netAmount * 100) / 100,
