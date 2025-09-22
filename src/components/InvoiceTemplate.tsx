@@ -810,7 +810,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         
         return {
           ...member,
-          ...memberTotals
+          calculatedTotals: memberTotals
         };
       });
       
@@ -1076,53 +1076,70 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {groupParticipants.map((groupParticipant: any, index: number) => (
-                        <tr key={index} className="hover:bg-gray-50">
-                          <td className="px-4 py-3">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{groupParticipant.name}</div>
-                              <div className="text-xs text-gray-500">{groupParticipant.ean_code}</div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              groupParticipant.type === 'producer' 
-                                ? 'bg-amber-100 text-amber-800' 
-                                : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {(groupParticipant.volume_partage / 1000).toFixed(3)} MWh
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {(groupParticipant.volume_complementaire / 1000).toFixed(3)} MWh
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {(groupParticipant.injection_partagee / 1000).toFixed(3)} MWh
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {(groupParticipant.injection_complementaire / 1000).toFixed(3)} MWh
-                          </td>
-                        </tr>
-                      ))}
+                      {groupParticipants.map((groupParticipant: any, index: number) => {
+                        const memberTotals = groupParticipant.calculatedTotals || {
+                          volume_partage: 0,
+                          volume_complementaire: 0,
+                          injection_partagee: 0,
+                          injection_complementaire: 0
+                        };
+                        
+                        return (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">{groupParticipant.name}</div>
+                                <div className="text-xs text-gray-500">{groupParticipant.ean_code}</div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                groupParticipant.type === 'producer' 
+                                  ? 'bg-amber-100 text-amber-800' 
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right">
+                              {(memberTotals.volume_partage / 1000).toFixed(3)} MWh
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right">
+                              {(memberTotals.volume_complementaire / 1000).toFixed(3)} MWh
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right">
+                              {(memberTotals.injection_partagee / 1000).toFixed(3)} MWh
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right">
+                              {(memberTotals.injection_complementaire / 1000).toFixed(3)} MWh
+                            </td>
+                          </tr>
+                        );
+                      })}
                       {/* Ligne de total */}
                       <tr className="bg-amber-50 border-t-2 border-amber-200 font-semibold">
                         <td className="px-4 py-3 text-sm font-bold text-gray-900" colSpan={2}>
                           TOTAL GROUPE
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh
+                        <td className="px-4 py-4 text-sm text-right font-bold text-blue-600">
+                          {(groupParticipants.reduce((sum, member) => 
+                            sum + ((member.calculatedTotals?.volume_partage || 0) / 1000), 0
+                          )).toFixed(3)} MWh
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                          {(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh
+                        <td className="px-4 py-4 text-sm text-right font-bold text-blue-600">
+                          {(groupParticipants.reduce((sum, member) => 
+                            sum + ((member.calculatedTotals?.volume_complementaire || 0) / 1000), 0
+                          )).toFixed(3)} MWh
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                          {(invoiceData.totals.injection_partagee / 1000).toFixed(3)} MWh
+                        <td className="px-4 py-4 text-sm text-right font-bold text-amber-600">
+                          {(groupParticipants.reduce((sum, member) => 
+                            sum + ((member.calculatedTotals?.injection_partagee || 0) / 1000), 0
+                          )).toFixed(3)} MWh
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
-                          {(invoiceData.totals.injection_complementaire / 1000).toFixed(3)} MWh
+                        <td className="px-4 py-4 text-sm text-right font-bold text-amber-600">
+                          {(groupParticipants.reduce((sum, member) => 
+                            sum + ((member.calculatedTotals?.injection_complementaire || 0) / 1000), 0
+                          )).toFixed(3)} MWh
                         </td>
                       </tr>
                     </tbody>
