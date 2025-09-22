@@ -1056,6 +1056,23 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       {invoiceData.calculations.networkCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
+                  {invoiceData.calculations.isFirstInvoiceOfYear && (
+                    <tr className="border-b border-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                        <div>
+                          <div className="font-medium text-gray-900">Frais d'adhésion annuels</div>
+                          <div className="text-xs text-gray-600">Cotisation membre 2025</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                      <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                        {invoiceData.calculations.membershipFeeHTVA.toFixed(2)} €
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                        {invoiceData.calculations.membershipFeeTVAC.toFixed(2)} €
+                      </td>
+                    </tr>
+                  )}
                   <tr className="border-b-2 border-gray-400 bg-blue-50 font-semibold">
                     <td className="px-4 py-3 text-sm font-bold text-blue-900 border-r border-gray-300">
                       SOUS-TOTAL COÛTS
