@@ -156,94 +156,96 @@ export default function SimulationPage() {
         logo="https://sunisup.be/images/logo.png"
       />
       <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-br from-amber-50 to-orange-50 py-16">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium mb-6">
+        {/* Modern Hero Section */}
+        <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg mb-8">
               <Calculator className="w-4 h-4 mr-2" />
               {t('simulation.badge')}
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8">
               {t('simulation.title')}
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto">
               {t('simulation.subtitle')}
             </p>
           </div>
         </section>
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           {/* Examples Section for Consumers */}
           {simulationType === 'consumer' && (
-            <div className="mb-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+            <div className="mb-16">
+              <h3 className="text-3xl font-bold text-gray-900 mb-12 text-center">
                 {t('simulation.examplesTitle')}
               </h3>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow text-center">
-                  <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Coffee className="w-8 h-8 text-amber-600" />
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 text-center group">
+                  <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+                    <Coffee className="w-10 h-10 text-white" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('simulation.examples.bar.title')}</h4>
-                  <p className="text-gray-600 text-sm">{t('simulation.examples.bar.consumption')}</p>
+                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{t('simulation.examples.bar.title')}</h4>
+                  <p className="text-gray-600">{t('simulation.examples.bar.consumption')}</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow text-center">
-                  <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Store className="w-8 h-8 text-amber-600" />
+                <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 text-center group">
+                  <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+                    <Store className="w-10 h-10 text-white" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('simulation.examples.bakery.title')}</h4>
-                  <p className="text-gray-600 text-sm">{t('simulation.examples.bakery.consumption')}</p>
+                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{t('simulation.examples.bakery.title')}</h4>
+                  <p className="text-gray-600">{t('simulation.examples.bakery.consumption')}</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow text-center">
-                  <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Building className="w-8 h-8 text-amber-600" />
+                <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 text-center group">
+                  <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+                    <Building className="w-10 h-10 text-white" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('simulation.examples.office.title')}</h4>
-                  <p className="text-gray-600 text-sm">{t('simulation.examples.office.consumption')}</p>
+                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{t('simulation.examples.office.title')}</h4>
+                  <p className="text-gray-600">{t('simulation.examples.office.consumption')}</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow text-center">
-                  <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Factory className="w-8 h-8 text-amber-600" />
+                <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 text-center group">
+                  <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+                    <Factory className="w-10 h-10 text-white" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('simulation.examples.workshop.title')}</h4>
-                  <p className="text-gray-600 text-sm">{t('simulation.examples.workshop.consumption')}</p>
+                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{t('simulation.examples.workshop.title')}</h4>
+                  <p className="text-gray-600">{t('simulation.examples.workshop.consumption')}</p>
                 </div>
               </div>
             </div>
           )}
 
           {/* Simulation Type Selection */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12 mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
               {t('simulation.profileChoice')}
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
               <button
                 onClick={() => {
                   setSimulationType('consumer');
                   setShowResults(false);
                 }}
-                className={`p-8 rounded-xl border-2 transition-all ${
+                className={`p-10 rounded-2xl border-2 transition-all duration-200 ${
                   simulationType === 'consumer'
-                    ? 'border-emerald-500 bg-emerald-50 shadow-lg'
-                    : 'border-gray-200 hover:border-emerald-300 hover:shadow-md'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-xl scale-105'
+                    : 'border-gray-200 hover:border-emerald-300 hover:shadow-lg hover:scale-102'
                 }`}
               >
-                <div className="flex items-center justify-center mb-6">
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                    simulationType === 'consumer' ? 'bg-emerald-100' : 'bg-gray-100'
+                <div className="flex items-center justify-center mb-8">
+                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center ${
+                    simulationType === 'consumer' 
+                      ? 'bg-gradient-to-br from-emerald-500 to-green-500' 
+                      : 'bg-gray-100'
                   }`}>
-                    <Building2 className={`w-8 h-8 ${
-                      simulationType === 'consumer' ? 'text-emerald-600' : 'text-gray-600'
+                    <Building2 className={`w-10 h-10 ${
+                      simulationType === 'consumer' ? 'text-white' : 'text-gray-600'
                     }`} />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('simulation.consumer.title')}</h3>
-                <p className="text-gray-600">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('simulation.consumer.title')}</h3>
+                <p className="text-gray-600 text-lg">
                   {t('simulation.consumer.description')}
                 </p>
               </button>
@@ -253,33 +255,35 @@ export default function SimulationPage() {
                   setSimulationType('producer');
                   setShowResults(false);
                 }}
-                className={`p-8 rounded-xl border-2 transition-all ${
+                className={`p-10 rounded-2xl border-2 transition-all duration-200 ${
                   simulationType === 'producer'
-                    ? 'border-amber-500 bg-amber-50 shadow-lg'
-                    : 'border-gray-200 hover:border-amber-300 hover:shadow-md'
+                    ? 'border-amber-500 bg-amber-50 shadow-xl scale-105'
+                    : 'border-gray-200 hover:border-amber-300 hover:shadow-lg hover:scale-102'
                 }`}
               >
-                <div className="flex items-center justify-center mb-6">
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                    simulationType === 'producer' ? 'bg-amber-100' : 'bg-gray-100'
+                <div className="flex items-center justify-center mb-8">
+                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center ${
+                    simulationType === 'producer' 
+                      ? 'bg-gradient-to-br from-amber-500 to-orange-500' 
+                      : 'bg-gray-100'
                   }`}>
-                    <Sun className={`w-8 h-8 ${
-                      simulationType === 'producer' ? 'text-amber-600' : 'text-gray-600'
+                    <Sun className={`w-10 h-10 ${
+                      simulationType === 'producer' ? 'text-white' : 'text-gray-600'
                     }`} />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('simulation.producer.title')}</h3>
-                <p className="text-gray-600">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('simulation.producer.title')}</h3>
+                <p className="text-gray-600 text-lg">
                   {t('simulation.producer.description')}
                 </p>
               </button>
             </div>
 
             {/* Simulation Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {simulationType === 'consumer' ? (
                 <div>
-                  <label className="block text-lg font-semibold text-gray-900 mb-3">
+                  <label className="block text-xl font-bold text-gray-900 mb-4">
                     {t('simulation.consumer.consumption')}
                   </label>
                   <div className="relative">
@@ -287,7 +291,7 @@ export default function SimulationPage() {
                       type="number"
                       value={annualConsumption}
                       onChange={(e) => setAnnualConsumption(e.target.value)}
-                      className="w-full px-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white"
+                      className="w-full px-6 py-5 text-xl border border-gray-300 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-lg"
                       placeholder="Ex: 25000"
                       min="0"
                       step="1"
@@ -295,43 +299,43 @@ export default function SimulationPage() {
                       disabled={false}
                       required
                     />
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+                    <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
                       kWh/an
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div className="flex items-center space-x-3">
                     <input
                       type="checkbox"
                       id="usePanelCount"
                       checked={usePanelCount}
                       onChange={(e) => setUsePanelCount(e.target.checked)}
-                      className="w-5 h-5 rounded text-amber-500 focus:ring-amber-500"
+                      className="w-6 h-6 rounded text-amber-500 focus:ring-amber-500"
                     />
-                    <label htmlFor="usePanelCount" className="text-gray-700 font-medium">
+                    <label htmlFor="usePanelCount" className="text-gray-700 font-medium text-lg">
                       {t('simulation.producer.powerUnknown')}
                     </label>
                   </div>
 
                   {usePanelCount ? (
                     <div>
-                      <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      <label className="block text-xl font-bold text-gray-900 mb-4">
                         {t('simulation.producer.panelCount')}
                       </label>
                       <input
                         type="number"
                         value={panelCount}
                         onChange={(e) => setPanelCount(e.target.value)}
-                        className="w-full px-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+                        className="w-full px-6 py-5 text-xl border border-gray-300 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white shadow-lg"
                         placeholder="Ex: 20"
                         required
                       />
                     </div>
                   ) : (
                     <div>
-                      <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      <label className="block text-xl font-bold text-gray-900 mb-4">
                         {t('simulation.producer.power')}
                       </label>
                       <div className="relative">
@@ -340,11 +344,11 @@ export default function SimulationPage() {
                           step="0.1"
                           value={peakPower}
                           onChange={(e) => setPeakPower(e.target.value)}
-                          className="w-full px-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+                          className="w-full px-6 py-5 text-xl border border-gray-300 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white shadow-lg"
                           placeholder="Ex: 8.5"
                           required
                         />
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
                           kWp
                         </div>
                       </div>
@@ -355,31 +359,33 @@ export default function SimulationPage() {
 
               <button
                 type="submit"
-                className={`w-full py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-3 ${
+                className={`w-full py-5 rounded-2xl font-bold text-xl transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 flex items-center justify-center gap-4 ${
                   simulationType === 'consumer'
-                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                    : 'bg-amber-500 hover:bg-amber-600 text-white'
+                    ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
+                    : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
                 }`}
               >
-                <Calculator className="w-6 h-6" />
+                <Calculator className="w-7 h-7" />
                 {t('simulation.calculate')}
               </button>
             </form>
 
             {/* Results */}
             {showResults && (
-              <div className={`mt-8 p-8 rounded-xl ${
-                simulationType === 'consumer' ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'
+              <div className={`mt-12 p-10 rounded-3xl shadow-2xl ${
+                simulationType === 'consumer' ? 'bg-emerald-50 border border-emerald-100' : 'bg-amber-50 border border-amber-100'
               }`}>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    simulationType === 'consumer' ? 'bg-emerald-100' : 'bg-amber-100'
+                <div className="flex items-center gap-4 mb-8">
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
+                    simulationType === 'consumer' 
+                      ? 'bg-gradient-to-br from-emerald-500 to-green-500' 
+                      : 'bg-gradient-to-br from-amber-500 to-orange-500'
                   }`}>
-                    <TrendingUp className={`w-6 h-6 ${
-                      simulationType === 'consumer' ? 'text-emerald-600' : 'text-amber-600'
+                    <TrendingUp className={`w-8 h-8 ${
+                      simulationType === 'consumer' ? 'text-white' : 'text-white'
                     }`} />
                   </div>
-                  <h3 className={`text-2xl font-bold ${
+                  <h3 className={`text-3xl font-bold ${
                     simulationType === 'consumer' ? 'text-emerald-900' : 'text-amber-900'
                   }`}>
                     {t('simulation.results')}
@@ -387,44 +393,44 @@ export default function SimulationPage() {
                 </div>
                 
                 {simulationType === 'consumer' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div className="bg-white p-6 rounded-lg border border-emerald-200">
-                      <p className="text-emerald-700 font-medium mb-2">{t('simulation.consumer.currentCost')}</p>
-                      <p className="text-2xl font-bold text-emerald-900">{calculateSimulation()?.traditionalCost} €</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <div className="bg-white p-8 rounded-2xl border border-emerald-200 shadow-lg">
+                      <p className="text-emerald-700 font-semibold mb-3 text-lg">{t('simulation.consumer.currentCost')}</p>
+                      <p className="text-3xl font-bold text-emerald-900">{calculateSimulation()?.traditionalCost} €</p>
                     </div>
                     
-                    <div className="bg-white p-6 rounded-lg border border-emerald-200">
-                      <p className="text-emerald-700 font-medium mb-2">{t('simulation.consumer.newCost')}</p>
-                      <p className="text-2xl font-bold text-emerald-900">{calculateSimulation()?.sunIsUpCost} €</p>
+                    <div className="bg-white p-8 rounded-2xl border border-emerald-200 shadow-lg">
+                      <p className="text-emerald-700 font-semibold mb-3 text-lg">{t('simulation.consumer.newCost')}</p>
+                      <p className="text-3xl font-bold text-emerald-900">{calculateSimulation()?.sunIsUpCost} €</p>
                     </div>
 
-                    <div className="bg-emerald-100 p-6 rounded-lg border border-emerald-300">
-                      <p className="text-emerald-700 font-medium mb-2">{t('simulation.consumer.savings')}</p>
-                      <p className="text-3xl font-bold text-emerald-600">{calculateSimulation()?.savings} €</p>
+                    <div className="bg-gradient-to-br from-emerald-100 to-green-100 p-8 rounded-2xl border border-emerald-300 shadow-lg">
+                      <p className="text-emerald-700 font-semibold mb-3 text-lg">{t('simulation.consumer.savings')}</p>
+                      <p className="text-4xl font-bold text-emerald-600">{calculateSimulation()?.savings} €</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div className="bg-white p-6 rounded-lg border border-amber-200">
-                      <p className="text-amber-700 font-medium mb-2">{t('simulation.producer.production')}</p>
-                      <p className="text-2xl font-bold text-amber-900">{calculateSimulation()?.estimatedProduction} kWh</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div className="bg-white p-8 rounded-2xl border border-amber-200 shadow-lg">
+                      <p className="text-amber-700 font-semibold mb-3 text-lg">{t('simulation.producer.production')}</p>
+                      <p className="text-3xl font-bold text-amber-900">{calculateSimulation()?.estimatedProduction} kWh</p>
                     </div>
 
-                    <div className="bg-amber-100 p-6 rounded-lg border border-amber-300">
-                      <p className="text-amber-700 font-medium mb-2">{t('simulation.producer.revenue')}</p>
-                      <p className="text-3xl font-bold text-amber-600">{calculateSimulation()?.revenue} €</p>
+                    <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-8 rounded-2xl border border-amber-300 shadow-lg">
+                      <p className="text-amber-700 font-semibold mb-3 text-lg">{t('simulation.producer.revenue')}</p>
+                      <p className="text-4xl font-bold text-amber-600">{calculateSimulation()?.revenue} €</p>
                     </div>
                   </div>
                 )}
 
-                <div className={`p-4 rounded-lg border ${
+                <div className={`p-6 rounded-2xl border ${
                   simulationType === 'consumer' ? 'bg-emerald-100 border-emerald-200' : 'bg-amber-100 border-amber-200'
-                } mb-6`}>
-                  <div className="flex items-start gap-3">
-                    <InfoCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                } mb-8`}>
+                  <div className="flex items-start gap-4">
+                    <InfoCircle className={`w-6 h-6 flex-shrink-0 mt-1 ${
                       simulationType === 'consumer' ? 'text-emerald-600' : 'text-amber-600'
                     }`} />
-                    <p className={`text-sm ${
+                    <p className={`text-lg ${
                       simulationType === 'consumer' ? 'text-emerald-700' : 'text-amber-700'
                     }`}>
                       {simulationType === 'consumer' 
@@ -437,14 +443,14 @@ export default function SimulationPage() {
 
                 <button 
                   onClick={handleContactClick}
-                  className={`w-full py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-3 ${
+                  className={`w-full py-5 rounded-2xl font-bold text-xl transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 flex items-center justify-center gap-4 ${
                     simulationType === 'consumer'
-                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                      : 'bg-amber-500 hover:bg-amber-600 text-white'
+                      ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
+                      : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
                   }`}
                 >
                   {t('simulation.contact')}
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-6 h-6" />
                 </button>
               </div>
             )}

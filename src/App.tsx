@@ -374,25 +374,23 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <SupabaseConnectionBanner />
         
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
-                <div className="relative flex-shrink-0">
-                  <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
-                    {t('header.title')}
-                  </h1>
-                  <p className="text-gray-600 text-xs sm:text-sm lg:text-base hidden sm:block leading-tight">
-                    {t('header.subtitle')}
-                  </p>
-                </div>
+        {/* Modern Header */}
+        <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              {/* Logo */}
+              <Link to="/" className="flex items-center space-x-3">
+                <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-8 h-8" />
+                <span className="text-xl font-bold text-gray-900">{t('header.title')}</span>
               </Link>
               
-              <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-8">
+                <NavigationLinks />
+              </div>
+              
+              {/* Actions */}
+              <div className="flex items-center space-x-3">
                 <LanguageSelector
                   currentLanguage={currentLanguage}
                   onLanguageChange={handleLanguageChange}
@@ -402,39 +400,38 @@ function App() {
                   <button
                     onClick={() => setShowDashboard(true)}
                     disabled={isLoggingOut}
-                    className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm"
                   >
-                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <User className="w-4 h-4" />
                     <span className="hidden sm:inline">Dashboard</span>
                   </button>
                 ) : (
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm"
                   >
-                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <User className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('header.memberAccess')}</span>
-                    <span className="sm:hidden">{t('header.member')}</span>
                   </button>
                 )}
                 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base"
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl"
                 >
-                  <span className="hidden sm:inline">{t('header.contact')}</span>
-                  <span className="sm:hidden">Contact</span>
-                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>{t('header.contact')}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
         </header>
 
-        <NavigationTabs />
+        {/* Mobile Navigation */}
+        <MobileNavigation />
 
-        {/* Main Content */}
-        <main>
+        {/* Main Content with top padding for fixed header */}
+        <main className="pt-16">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -444,39 +441,52 @@ function App() {
           </Routes>
         </main>
 
-        {/* Footer */}
-        <footer className="bg-gray-900 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <div className="flex items-center space-x-3 mb-4">
-                  <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="w-10 h-10 sm:w-14 sm:h-14 lg:w-20 lg:h-20" />
+        {/* Modern Footer */}
+        <footer className="bg-gray-50 border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-2">
+                <div className="flex items-center space-x-3 mb-6">
+                  <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-10 h-10" />
                   <div>
-                    <h3 className="text-xl font-bold">Sun Is Up</h3>
-                    <p className="text-gray-400 text-sm">{t('footer.subtitle')}</p>
+                    <h3 className="text-xl font-bold text-gray-900">Sun Is Up</h3>
+                    <p className="text-gray-600 text-sm">{t('footer.description')}</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 max-w-md">
+                  Communauté d'énergie bruxelloise pour une transition énergétique locale et durable.
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4">{t('footer.contact')}</h4>
+                <div className="space-y-3 text-gray-600 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span>📞</span>
+                    <span>+32 471 31 71 48</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span>✉️</span>
+                    <span>info@sunisup.be</span>
                   </div>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-semibold mb-4">{t('footer.contact')}</h3>
-                <div className="space-y-2 text-gray-400 text-sm">
-                  <p>+32 471 31 71 48</p>
-                  <p>info@sunisup.be</p>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold mb-4">{t('footer.followUs')}</h3>
-                <div className="flex space-x-4">
-                  <a href="https://www.linkedin.com/company/sun-is-up-asbl" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-amber-400 transition-colors text-sm">
-                    LinkedIn
-                  </a>
-                </div>
+                <h4 className="font-semibold text-gray-900 mb-4">{t('footer.followUs')}</h4>
+                <a 
+                  href="https://www.linkedin.com/company/sun-is-up-asbl" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition-colors text-sm"
+                >
+                  <span>🔗</span>
+                  <span>LinkedIn</span>
+                </a>
               </div>
             </div>
             
-            <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+            <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm">
               {t('footer.copyright')}
             </div>
           </div>
@@ -492,6 +502,88 @@ function App() {
         />
       </div>
     </Router>
+  );
+}
+
+function NavigationLinks() {
+  const location = useLocation();
+  const { t } = useTranslation();
+  
+  const links = [
+    { path: '/', label: t('nav.home') },
+    { path: '/about', label: t('nav.about') },
+    { path: '/simulation', label: t('nav.quickscan') },
+    { path: '/admin', label: t('nav.howToJoin') },
+  ];
+  
+  return (
+    <>
+      {links.map((link) => (
+        <Link
+          key={link.path}
+          to={link.path}
+          className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 ${
+            location.pathname === link.path
+              ? 'text-amber-600'
+              : 'text-gray-700 hover:text-amber-600'
+          }`}
+        >
+          {link.label}
+          {location.pathname === link.path && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" />
+          )}
+        </Link>
+      ))}
+    </>
+  );
+}
+
+function MobileNavigation() {
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const { t } = useTranslation();
+  
+  const links = [
+    { path: '/', label: t('nav.home') },
+    { path: '/about', label: t('nav.about') },
+    { path: '/simulation', label: t('nav.quickscan') },
+    { path: '/admin', label: t('nav.howToJoin') },
+  ];
+  
+  return (
+    <div className="md:hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-2 border border-gray-200"
+      >
+        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
+      
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsOpen(false)}>
+          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300">
+            <div className="p-6 pt-20">
+              <nav className="space-y-4">
+                {links.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsOpen(false)}
+                    className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+                      location.pathname === link.path
+                        ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

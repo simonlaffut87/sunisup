@@ -129,135 +129,138 @@ export default function HomePage() {
         logo="https://sunisup.be/images/logo.png"
       />
       <div className="space-y-0">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 overflow-hidden">
-        <div className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f59e0b" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50`}></div>
+      {/* Modern Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-orange-50"></div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
-                  <Zap className="w-4 h-4 mr-2" />
-                  {t('home.hero.badge')}
-                </div>
-                <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  {t('home.hero.title')}
-                </h1>
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  {t('home.hero.intro')}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <Target className="w-5 h-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t('home.hero.features.local.title')}</h3>
-                    <p className="text-gray-600 text-sm">{t('home.hero.features.local.description')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Wallet className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t('home.hero.features.price.title')}</h3>
-                    <p className="text-gray-600 text-sm">{t('home.hero.features.price.description')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Leaf className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t('home.hero.features.transition.title')}</h3>
-                    <p className="text-gray-600 text-sm">{t('home.hero.features.transition.description')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t('home.hero.features.green.title')}</h3>
-                    <p className="text-gray-600 text-sm">{t('home.hero.features.green.description')}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button 
-                  onClick={() => setShowContactModal(true)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-4 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                >
-                  {t('howToJoin.cta.button')}
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-                <a 
-                  href="/simulation"
-                  className="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  {t('simulation.title')}
-                  <TrendingUp className="w-5 h-5" />
-                </a>
-              </div>
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(245,158,11,0.15)_1px,transparent_0)] bg-[length:24px_24px]"></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center space-y-8">
+            {/* Badge */}
+            <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg">
+              <Zap className="w-5 h-5 mr-2" />
+              {t('home.hero.badge')}
             </div>
+            
+            {/* Main title */}
+            <div className="space-y-6">
+              <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto">
+                {t('home.hero.title')}
+              </h1>
+              <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+                {t('home.hero.intro')}
+              </p>
+            </div>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+              <button 
+                onClick={() => setShowContactModal(true)}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-full font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 flex items-center gap-3 text-lg"
+              >
+                {t('howToJoin.cta.button')}
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              <a 
+                href="/simulation"
+                className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 px-8 py-4 rounded-full font-semibold transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3 text-lg"
+              >
+                {t('simulation.title')}
+                <TrendingUp className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        {/* Floating image */}
+        <div className="absolute bottom-10 right-10 hidden lg:block">
+          <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/50 backdrop-blur-sm">
+            <img
+              src="/images/pv.png"
+              alt="Panneaux solaires"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </section>
 
-            <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-                <img
-                  src="/images/pv.png"
-                  alt="Panneaux solaires"
-                  className="w-full h-full object-cover"
-                />
+      {/* Features Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
+                <Target className="w-8 h-8 text-white" />
               </div>
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">724 MWh/an</p>
-                    <p className="text-gray-600 text-sm">{t('home.stats.production.title')}</p>
-                  </div>
-                </div>
+              <h3 className="font-bold text-gray-900 mb-2">{t('home.hero.features.local.title')}</h3>
+              <p className="text-gray-600 text-sm">{t('home.hero.features.local.description')}</p>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
+                <Wallet className="w-8 h-8 text-white" />
               </div>
+              <h3 className="font-bold text-gray-900 mb-2">{t('home.hero.features.price.title')}</h3>
+              <p className="text-gray-600 text-sm">{t('home.hero.features.price.description')}</p>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
+                <Leaf className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">{t('home.hero.features.transition.title')}</h3>
+              <p className="text-gray-600 text-sm">{t('home.hero.features.transition.description')}</p>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
+                <Zap className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">{t('home.hero.features.green.title')}</h3>
+              <p className="text-gray-600 text-sm">{t('home.hero.features.green.description')}</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
+      {/* Modern Stats Section */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Notre impact en chiffres</h2>
+            <p className="text-xl text-gray-600">Des résultats concrets pour notre communauté</p>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Power className="w-8 h-8 text-amber-600" />
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 text-center group hover:shadow-xl transition-all duration-300">
+              <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+                <Power className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">724 MWh/an</h3>
+              <h3 className="text-4xl font-bold text-gray-900 mb-2">724</h3>
+              <p className="text-lg font-medium text-gray-700 mb-2">MWh/an</p>
               <p className="text-gray-600">{t('home.stats.production.subtitle')}</p>
             </div>
             
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-blue-600" />
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 text-center group hover:shadow-xl transition-all duration-300">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+                <Users className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">11</h3>
+              <h3 className="text-4xl font-bold text-gray-900 mb-2">11</h3>
+              <p className="text-lg font-medium text-gray-700 mb-2">Participants</p>
               <p className="text-gray-600">{t('home.stats.participants.subtitle')}</p>
             </div>
             
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-green-600" />
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 text-center group hover:shadow-xl transition-all duration-300">
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+                <TrendingUp className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">10%</h3>
+              <h3 className="text-4xl font-bold text-gray-900 mb-2">10%</h3>
+              <p className="text-lg font-medium text-gray-700 mb-2">Économies</p>
               <p className="text-gray-600">{t('home.stats.savings.subtitle')}</p>
             </div>
           </div>
@@ -265,41 +268,41 @@ export default function HomePage() {
       </section>
 
       {/* How it works Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               {t('home.howItWorks.title')}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto">
               {t('home.howItWorks.description')}
             </p>
           </div>
 
-          <div className="relative">
+          <div className="relative max-w-4xl mx-auto">
             <a 
               href="https://www.youtube.com/watch?v=xdxpf2jL-1I"
               target="_blank"
               rel="noopener noreferrer"
-              className="block aspect-video rounded-2xl overflow-hidden relative group shadow-2xl"
+              className="block aspect-video rounded-3xl overflow-hidden relative group shadow-2xl hover:shadow-3xl transition-all duration-300"
               style={{
                 backgroundImage: 'url(/images/video-background.png)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
               }}
             >
-              <div className="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all duration-300"></div>
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300"></div>
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Play className="w-10 h-10 text-amber-500 ml-1" />
+                <div className="w-24 h-24 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                  <Play className="w-12 h-12 text-amber-500 ml-1" />
                 </div>
-                <div className="flex items-center gap-2 text-white">
-                  <span className="font-medium text-lg">{t('home.howItWorks.watchVideo')}</span>
+                <div className="flex items-center gap-3 text-white">
+                  <span className="font-semibold text-xl">{t('home.howItWorks.watchVideo')}</span>
                   <ExternalLink className="w-5 h-5" />
                 </div>
               </div>
             </a>
-            <p className="text-gray-600 mt-4 text-center">
+            <p className="text-gray-600 mt-6 text-center text-lg">
               {t('home.howItWorks.videoDescription')}
             </p>
           </div>
@@ -307,32 +310,32 @@ export default function HomePage() {
       </section>
 
 
-      {/* FAQ Section */}
-      <section className="py-16 bg-gray-50">
+      {/* Modern FAQ Section */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               {t('home.faq.title')}
             </h2>
           </div>
           
           <div className="space-y-4">
             {faqItems.map((item, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div key={index} className="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200">
                 <button
                   onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
-                  className="w-full flex items-center justify-between text-left p-6 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between text-left p-8 hover:bg-gray-50 transition-colors rounded-2xl"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 pr-4">{item.question}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 pr-4">{item.question}</h3>
                   {expandedFAQ === index ? (
-                    <ChevronUp className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                    <ChevronUp className="w-6 h-6 text-amber-500 flex-shrink-0" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                    <ChevronDown className="w-6 h-6 text-gray-400 flex-shrink-0" />
                   )}
                 </button>
                 {expandedFAQ === index && (
-                  <div className="px-6 pb-6">
-                    <p className="text-gray-600 leading-relaxed">{item.answer}</p>
+                  <div className="px-8 pb-8">
+                    <p className="text-gray-600 leading-relaxed text-lg">{item.answer}</p>
                   </div>
                 )}
               </div>
@@ -341,21 +344,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-amber-500">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+      {/* Modern CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6">
             {t('home.cta.title')}
           </h2>
-          <p className="text-xl text-amber-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl lg:text-2xl text-white/90 mb-12 max-w-3xl mx-auto">
             {t('home.cta.description')}
           </p>
           <button 
             onClick={() => setShowContactModal(true)}
-            className="bg-white hover:bg-gray-100 text-amber-600 px-8 py-4 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
+            className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-full font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:scale-105 flex items-center gap-3 mx-auto text-lg"
           >
             {t('howToJoin.cta.button')}
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-6 h-6" />
           </button>
         </div>
       </section>
