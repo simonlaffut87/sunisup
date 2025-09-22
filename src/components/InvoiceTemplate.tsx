@@ -1386,7 +1386,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                       <div>
                         <div className="font-medium text-gray-900">Coûts réseau</div>
-                        <div className="text-xs text-gray-600">Frais de transport</div>
+                        <div className="text-xs text-gray-600">Frais remboursés à Sibelga</div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
