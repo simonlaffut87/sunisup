@@ -390,7 +390,6 @@ function App() {
                     {t('header.subtitle')}
                   </p>
                 </div>
-                </div>
               </Link>
               
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
