@@ -120,36 +120,36 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     try {
       setLoading(true);
       setError(null);
+      setGroupParticipants([]);
 
       console.log('🧾 DÉBUT GÉNÉRATION FACTURE');
       console.log('👤 Participant:', participant.name, participant.ean_code);
       console.log('📅 Période:', selectedPeriod);
       console.log('👥 Groupe participant:', participant.groupe);
       
-      let participantsToProcess = [participant];
+      let allParticipants = [participant];
       let isGroup = false;
-      
-      // Si le participant appartient à un groupe, charger tous les participants du groupe
+
+      // Si le participant fait partie d'un groupe, charger tous les participants du groupe
       if (participant.groupe) {
-        console.log(`👥 Chargement du groupe: "${participant.groupe}"`);
+        console.log(`👥 Participant fait partie du groupe: "${participant.groupe}"`);
         
         const { data: groupData, error: groupError } = await supabase
           .from('participants')
           .select('*')
           .eq('groupe', participant.groupe);
-        
+
         if (groupError) {
-          console.error('❌ Erreur chargement groupe:', groupError);
-          toast.error('Erreur lors du chargement du groupe');
-          return;
+          console.error('Erreur chargement groupe:', groupError);
+          throw new Error(`Impossible de charger les participants du groupe: ${groupError.message}`);
         }
-        
+
         if (groupData && groupData.length > 1) {
-          console.log(`✅ Groupe trouvé avec ${groupData.length} participants`);
-          participantsToProcess = groupData;
+          allParticipants = groupData;
           isGroup = true;
           setGroupParticipants(groupData);
           setIsGroupInvoice(true);
+          console.log(`✅ ${groupData.length} participants trouvés dans le groupe "${participant.groupe}"`);
         } else {
           console.log('ℹ️ Participant individuel ou groupe avec un seul membre');
           setIsGroupInvoice(false);
@@ -226,6 +226,135 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       const months = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
       console.log('📅 Mois dans la période:', months);
 
+      // Initialiser les totaux pour tous les participants
+      const participantDetails: any[] = [];
+      let groupTotalVolumePartage = 0;
+      let groupTotalVolumeComplementaire = 0;
+      let groupTotalInjectionPartagee = 0;
+      let groupTotalInjectionComplementaire = 0;
+      let groupTotalNetworkCosts = {
+        utilisationReseau: 0,
+        surcharges: 0,
+        tarifCapacitaire: 0,
+        tarifMesure: 0,
+        tarifOSP: 0,
+        transportELIA: 0,
+        redevanceVoirie: 0,
+        totalFraisReseau: 0
+      };
+
+      // Traiter chaque participant (individuel ou groupe)
+      for (const currentParticipant of allParticipants) {
+        console.log(`🔍 Traitement participant: ${currentParticipant.name}`);
+        
+        let participantVolumePartage = 0;
+        let participantVolumeComplementaire = 0;
+        let participantInjectionPartagee = 0;
+        let participantInjectionComplementaire = 0;
+        let participantNetworkCosts = {
+          utilisationReseau: 0,
+          surcharges: 0,
+          tarifCapacitaire: 0,
+          tarifMesure: 0,
+          tarifOSP: 0,
+          transportELIA: 0,
+          redevanceVoirie: 0,
+          totalFraisReseau: 0
+        };
+
+        if (currentParticipant.monthly_data) {
+          let monthlyData;
+          try {
+            if (typeof currentParticipant.monthly_data === 'string') {
+              monthlyData = JSON.parse(currentParticipant.monthly_data);
+            } else {
+              monthlyData = currentParticipant.monthly_data;
+            }
+          } catch (error) {
+            console.warn(`Erreur parsing monthly_data pour ${currentParticipant.name}:`, error);
+            monthlyData = {};
+          }
+
+          months.forEach(month => {
+            const monthData = monthlyData[month];
+            if (monthData) {
+              participantVolumePartage += Number(monthData.volume_partage || 0);
+              participantVolumeComplementaire += Number(monthData.volume_complementaire || 0);
+              participantInjectionPartagee += Number(monthData.injection_partagee || 0);
+              participantInjectionComplementaire += Number(monthData.injection_complementaire || 0);
+            }
+          });
+        }
+
+        // Traiter les données de facturation (coûts réseau)
+        if (currentParticipant.billing_data) {
+          let billingData;
+          try {
+            if (typeof currentParticipant.billing_data === 'string') {
+              billingData = JSON.parse(currentParticipant.billing_data);
+            } else {
+              billingData = currentParticipant.billing_data;
+            }
+          } catch (error) {
+            console.warn(`Erreur parsing billing_data pour ${currentParticipant.name}:`, error);
+            billingData = {};
+          }
+
+          months.forEach(month => {
+            const monthBilling = billingData[month];
+            if (monthBilling && monthBilling.networkCosts) {
+              const costs = monthBilling.networkCosts;
+              participantNetworkCosts.utilisationReseau += Number(costs.utilisationReseau || 0);
+              participantNetworkCosts.surcharges += Number(costs.surcharges || 0);
+              participantNetworkCosts.tarifCapacitaire += Number(costs.tarifCapacitaire || 0);
+              participantNetworkCosts.tarifMesure += Number(costs.tarifMesure || 0);
+              participantNetworkCosts.tarifOSP += Number(costs.tarifOSP || 0);
+              participantNetworkCosts.transportELIA += Number(costs.transportELIA || 0);
+              participantNetworkCosts.redevanceVoirie += Number(costs.redevanceVoirie || 0);
+              participantNetworkCosts.totalFraisReseau += Number(costs.totalFraisReseau || 0);
+            }
+          });
+        }
+
+        // Ajouter les détails de ce participant
+        participantDetails.push({
+          name: currentParticipant.name,
+          address: currentParticipant.address,
+          ean_code: currentParticipant.ean_code,
+          type: currentParticipant.type,
+          volume_partage: participantVolumePartage,
+          volume_complementaire: participantVolumeComplementaire,
+          injection_partagee: participantInjectionPartagee,
+          injection_complementaire: participantInjectionComplementaire,
+          networkCosts: participantNetworkCosts
+        });
+
+        // Ajouter aux totaux du groupe
+        groupTotalVolumePartage += participantVolumePartage;
+        groupTotalVolumeComplementaire += participantVolumeComplementaire;
+        groupTotalInjectionPartagee += participantInjectionPartagee;
+        groupTotalInjectionComplementaire += participantInjectionComplementaire;
+        
+        // Ajouter aux coûts réseau du groupe
+        groupTotalNetworkCosts.utilisationReseau += participantNetworkCosts.utilisationReseau;
+        groupTotalNetworkCosts.surcharges += participantNetworkCosts.surcharges;
+        groupTotalNetworkCosts.tarifCapacitaire += participantNetworkCosts.tarifCapacitaire;
+        groupTotalNetworkCosts.tarifMesure += participantNetworkCosts.tarifMesure;
+        groupTotalNetworkCosts.tarifOSP += participantNetworkCosts.tarifOSP;
+        groupTotalNetworkCosts.transportELIA += participantNetworkCosts.transportELIA;
+        groupTotalNetworkCosts.redevanceVoirie += participantNetworkCosts.redevanceVoirie;
+        groupTotalNetworkCosts.totalFraisReseau += participantNetworkCosts.totalFraisReseau;
+      }
+
+      console.log('📊 Totaux du groupe calculés:', {
+        participants: participantDetails.length,
+        totalVolumePartage: groupTotalVolumePartage,
+        totalVolumeComplementaire: groupTotalVolumeComplementaire,
+        totalInjectionPartagee: groupTotalInjectionPartagee,
+        totalInjectionComplementaire: groupTotalInjectionComplementaire,
+        totalNetworkCosts: groupTotalNetworkCosts.totalFraisReseau
+      });
+
       // Filtrer les données pour la période sélectionnée
       const periodMonthlyData: { [month: string]: MonthlyData } = {};
       const periodBillingData: { [month: string]: BillingData } = {};
@@ -255,7 +384,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       console.log('💰 Calculs financiers:', calculations);
 
       const invoiceData: InvoiceData = {
-        participant: participantData,
+        participant: isGroup ? {
+          ...participantData,
+          name: `Groupe ${participant.groupe}`,
+          address: 'Multiples adresses',
+          ean_code: 'Multiples codes EAN'
+        } : participantData,
         period: {
           startMonth: selectedPeriod.startMonth,
           endMonth: selectedPeriod.endMonth,
@@ -866,6 +1000,81 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           {/* Détail énergétique */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail énergétique</h3>
+            
+            {/* Affichage détaillé pour les groupes */}
+            {isGroupInvoice && groupParticipants && (
+              <div className="mb-6">
+                <h4 className="text-md font-semibold text-gray-800 mb-3">
+                  Détail par participant ({groupParticipants.length} membres)
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border border-gray-200 rounded-lg">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Participant</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cons. Partagée</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cons. Réseau</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Inj. Partagée</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Inj. Réseau</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {groupParticipants.map((groupParticipant: any, index: number) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="px-4 py-3">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">{groupParticipant.name}</div>
+                              <div className="text-xs text-gray-500">{groupParticipant.ean_code}</div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              groupParticipant.type === 'producer' 
+                                ? 'bg-amber-100 text-amber-800' 
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            {(groupParticipant.volume_partage / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            {(groupParticipant.volume_complementaire / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            {(groupParticipant.injection_partagee / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm text-gray-900">
+                            {(groupParticipant.injection_complementaire / 1000).toFixed(3)} MWh
+                          </td>
+                        </tr>
+                      ))}
+                      {/* Ligne de total */}
+                      <tr className="bg-amber-50 border-t-2 border-amber-200 font-semibold">
+                        <td className="px-4 py-3 text-sm font-bold text-gray-900" colSpan={2}>
+                          TOTAL GROUPE
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                          {(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                          {(invoiceData.totals.injection_partagee / 1000).toFixed(3)} MWh
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                          {(invoiceData.totals.injection_complementaire / 1000).toFixed(3)} MWh
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Consommation */}
               <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
@@ -891,15 +1100,15 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 <div className="space-y-2 text-sm text-amber-800">
                   <div className="flex justify-between">
                     <span>Injection partagée :</span>
-                    <span className="font-medium">{(invoiceData.totals.injection_partagee / 1000).toFixed(3)} MWh</span>
+                    <span className="font-medium">{((invoiceData.totals.injection_partagee || 0) / 1000).toFixed(3)} MWh</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Injection réseau :</span>
-                    <span className="font-medium">{(invoiceData.totals.injection_complementaire / 1000).toFixed(3)} MWh</span>
+                    <span className="font-medium">{((invoiceData.totals.injection_complementaire || 0) / 1000).toFixed(3)} MWh</span>
                   </div>
                   <div className="flex justify-between border-t border-amber-300 pt-2 mt-2 font-semibold text-amber-900 bg-amber-100 p-2 rounded">
                     <span>Total injection :</span>
-                    <span>{((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh</span>
+                    <span>{(((invoiceData.totals.injection_partagee || 0) + (invoiceData.totals.injection_complementaire || 0)) / 1000).toFixed(3)} MWh</span>
                   </div>
                 </div>
               </div>
@@ -1147,7 +1356,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       <div>
                         <div className="font-medium text-gray-900">Revenus injection</div>
                         <div className="text-xs text-gray-600">
-                          {((invoiceData.totals.injection_partagee + invoiceData.totals.injection_complementaire) / 1000).toFixed(3)} MWh × {invoiceData.participant.purchase_rate || 70}€/MWh
+                          {(((invoiceData.totals.injection_partagee || 0) + (invoiceData.totals.injection_complementaire || 0)) / 1000).toFixed(3)} MWh × {invoiceData.participant.purchase_rate || 70}€/MWh
                         </div>
                       </div>
                     </td>
