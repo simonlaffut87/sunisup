@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Download, FileText, Calendar, User, MapPin, Hash, Euro, Printer, AlertCircle, Database as DatabaseIcon } from 'lucide-react';
+import { X, Download, FileText, Calendar, User, MapPin, Hash, Euro, Printer, AlertCircle, Database as DatabaseIcon, Users } from 'lucide-react';
 import { format, parseISO, addDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '../lib/supabase';
@@ -74,6 +74,8 @@ interface InvoiceData {
 
 export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }: InvoiceTemplateProps) {
   const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
+  const [groupParticipants, setGroupParticipants] = useState<any[]>([]);
+  const [isGroupInvoice, setIsGroupInvoice] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
@@ -122,6 +124,40 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       console.log('🧾 DÉBUT GÉNÉRATION FACTURE');
       console.log('👤 Participant:', participant.name, participant.ean_code);
       console.log('📅 Période:', selectedPeriod);
+      console.log('👥 Groupe participant:', participant.groupe);
+      
+      let participantsToProcess = [participant];
+      let isGroup = false;
+      
+      // Si le participant appartient à un groupe, charger tous les participants du groupe
+      if (participant.groupe) {
+        console.log(`👥 Chargement du groupe: "${participant.groupe}"`);
+        
+        const { data: groupData, error: groupError } = await supabase
+          .from('participants')
+          .select('*')
+          .eq('groupe', participant.groupe);
+        
+        if (groupError) {
+          console.error('❌ Erreur chargement groupe:', groupError);
+          toast.error('Erreur lors du chargement du groupe');
+          return;
+        }
+        
+        if (groupData && groupData.length > 1) {
+          console.log(`✅ Groupe trouvé avec ${groupData.length} participants`);
+          participantsToProcess = groupData;
+          isGroup = true;
+          setGroupParticipants(groupData);
+          setIsGroupInvoice(true);
+        } else {
+          console.log('ℹ️ Participant individuel ou groupe avec un seul membre');
+          setIsGroupInvoice(false);
+        }
+      } else {
+        console.log('ℹ️ Participant sans groupe');
+        setIsGroupInvoice(false);
+      }
 
       // Récupérer les données du participant depuis la base
       const { data: participantData, error: participantError } = await supabase
@@ -775,13 +811,26 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           {/* Informations du participant */}
           <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-300">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              Informations du participant
+              {isGroupInvoice ? (
+                <>
+                  <Users className="w-5 h-5 mr-2 text-amber-600" />
+                  Facturé au groupe
+                </>
+              ) : (
+                <>
+                  <User className="w-5 h-5 mr-2 text-amber-600" />
+                  Informations du participant
+                </>
+              )}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-800">
               <div>
                 <div className="space-y-2">
-                  <div><strong className="text-gray-900">Nom :</strong> {invoiceData.participant.name}</div>
-                  <div><strong className="text-gray-900">Adresse :</strong> {invoiceData.participant.address}</div>
+                  <div><strong className="text-gray-900">Nom :</strong> {isGroupInvoice ? `Groupe ${participant.groupe}` : invoiceData.participant.name}</div>
+                  <div><strong className="text-gray-900">Adresse :</strong> {isGroupInvoice ? 
+                    `Groupe ${participant.groupe}\n${groupParticipants.map(p => `• ${p.name} - ${p.address}`).join('\n')}` :
+                    invoiceData.participant.address
+                  }</div>
                   {invoiceData.participant.email && (
                     <div><strong className="text-gray-900">Email :</strong> {invoiceData.participant.email}</div>
                   )}
@@ -798,6 +847,16 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   </div>
                   {invoiceData.participant.company_number && (
                     <div><strong className="text-gray-900">N° entreprise :</strong> {invoiceData.participant.company_number}</div>
+                  )}
+                  {isGroupInvoice && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Participants du groupe:</p>
+                      {groupParticipants.map((p: any, index: number) => (
+                        <div key={p.id} className="text-xs text-gray-600 mb-1">
+                          {index + 1}. {p.name} {p.ean_code && `(${p.ean_code})`}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
