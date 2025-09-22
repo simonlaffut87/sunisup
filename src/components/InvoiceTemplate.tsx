@@ -79,7 +79,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
   const [loading, setLoading] = useState(true);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [logoBase64, setLogoBase64] = useState<string>('');
 
@@ -186,7 +185,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         monthlyDataType: typeof participantData.monthly_data,
         billingDataType: typeof participantData.billing_data
       };
-      setDebugInfo(debugData);
 
       // Parser les données mensuelles
       let monthlyData: { [month: string]: MonthlyData } = {};
@@ -1125,12 +1123,57 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {groupParticipants.map((groupParticipant: any, index: number) => {
-                        const memberTotals = groupParticipant.calculatedTotals || {
+                        // Récupérer les totaux calculés pour ce participant
+                        const participantTotals = calculatedTotals.individual?.[groupParticipant.id];
+                        
+                        // Si pas de totaux calculés, essayer de les extraire directement
+                        let finalTotals = {
                           volume_partage: 0,
                           volume_complementaire: 0,
                           injection_partagee: 0,
                           injection_complementaire: 0
                         };
+                        
+                        if (participantTotals) {
+                          finalTotals = participantTotals;
+                        } else {
+                          // Extraction directe des données pour ce participant
+                          console.log(`🔍 Extraction directe pour ${groupParticipant.name}`);
+                          
+                          if (groupParticipant.monthly_data) {
+                            try {
+                              let monthlyData: any = {};
+                              if (typeof groupParticipant.monthly_data === 'string') {
+                                monthlyData = JSON.parse(groupParticipant.monthly_data);
+                              } else {
+                                monthlyData = groupParticipant.monthly_data;
+                              }
+                              
+                              // Parcourir la période sélectionnée
+                              const startDate = new Date(selectedPeriod.startMonth + '-01');
+                              const endDate = new Date(selectedPeriod.endMonth + '-01');
+                              
+                              for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+                                const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                                
+                                if (monthlyData[monthKey]) {
+                                  const monthData = monthlyData[monthKey];
+                                  console.log(`✅ ${groupParticipant.name} ${monthKey}:`, monthData);
+                                  
+                                  finalTotals.volume_partage += Number(monthData.volume_partage || 0);
+                                  finalTotals.volume_complementaire += Number(monthData.volume_complementaire || 0);
+                                  finalTotals.injection_partagee += Number(monthData.injection_partagee || 0);
+                                  finalTotals.injection_complementaire += Number(monthData.injection_complementaire || 0);
+                                }
+                              }
+                              
+                              console.log(`🧮 ${groupParticipant.name} totaux finaux:`, finalTotals);
+                              
+                            } catch (error) {
+                              console.warn(`⚠️ Erreur extraction directe pour ${groupParticipant.name}:`, error);
+                            }
+                          }
+                        }
                         
                         return (
                           <tr key={index} className="hover:bg-gray-50">
@@ -1150,16 +1193,16 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                               </span>
                             </td>
                             <td className="px-4 py-3 text-sm text-right">
-                              {(memberTotals.volume_partage / 1000).toFixed(3)} MWh
+                              {(finalTotals.volume_partage / 1000).toFixed(3)} MWh
                             </td>
                             <td className="px-4 py-3 text-sm text-right">
-                              {(memberTotals.volume_complementaire / 1000).toFixed(3)} MWh
+                              {(finalTotals.volume_complementaire / 1000).toFixed(3)} MWh
                             </td>
                             <td className="px-4 py-3 text-sm text-right">
-                              {(memberTotals.injection_partagee / 1000).toFixed(3)} MWh
+                              {(finalTotals.injection_partagee / 1000).toFixed(3)} MWh
                             </td>
                             <td className="px-4 py-3 text-sm text-right">
-                              {(memberTotals.injection_complementaire / 1000).toFixed(3)} MWh
+                              {(finalTotals.injection_complementaire / 1000).toFixed(3)} MWh
                             </td>
                           </tr>
                         );
@@ -1193,6 +1236,28 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     </tbody>
                   </table>
                 </div>
+                
+                {/* Section de debug pour vérifier les données */}
+                {debugInfo.length > 0 && (
+                  <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h4 className="font-medium text-yellow-900 mb-2">🔍 Debug - Extraction des données</h4>
+                    <div className="max-h-40 overflow-y-auto">
+                      <div className="space-y-1 text-xs font-mono">
+                        {debugInfo.map((log, index) => (
+                          <div key={index} className={`${
+                            log.includes('❌') ? 'text-red-600' :
+                            log.includes('✅') ? 'text-green-600' :
+                            log.includes('⚠️') ? 'text-orange-600' :
+                            log.includes('🔍') ? 'text-blue-600' :
+                            'text-gray-700'
+                          }`}>
+                            {log}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             
