@@ -284,8 +284,16 @@ export function AdminDashboard() {
   };
 
   const handleShowInvoice = (participant: Participant) => {
+    console.log('🧾 CLIC GÉNÉRATION FACTURE');
+    console.log('👤 Participant:', participant);
+    console.log('📧 Email participant:', participant.email);
+    console.log('🆔 ID participant:', participant.id);
+    
     setSelectedParticipantForInvoice(participant);
+    console.log('✅ Participant sélectionné pour facture');
+    
     setShowPeriodSelection(true);
+    console.log('✅ Modal période activée');
     
     // Initialiser avec le mois actuel
     const currentMonth = new Date().toISOString().slice(0, 7);
@@ -293,6 +301,7 @@ export function AdminDashboard() {
       startMonth: currentMonth,
       endMonth: currentMonth
     });
+    console.log('✅ Période initialisée:', currentMonth);
   };
 
   const handleCloseInvoice = () => {
@@ -704,6 +713,8 @@ export function AdminDashboard() {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleShowInvoice(participant)}
+                            onMouseDown={() => console.log('🖱️ MOUSE DOWN sur bouton facture')}
+                            onMouseUp={() => console.log('🖱️ MOUSE UP sur bouton facture')}
                             className="text-purple-600 hover:text-purple-900 transition-colors"
                             title="Générer facture"
                           >
@@ -765,6 +776,11 @@ export function AdminDashboard() {
 
       {/* Modal de sélection de période */}
       {showPeriodSelection && selectedParticipantForInvoice && (
+        <>
+          {console.log('🖼️ RENDU MODAL PÉRIODE:', { 
+            showPeriodSelection, 
+            selectedParticipantForInvoice: selectedParticipantForInvoice?.name 
+          })}
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
             <div className="p-6">
@@ -840,6 +856,7 @@ export function AdminDashboard() {
             </div>
           </div>
         </div>
+        </>
       )}
 
       {showInvoice && selectedParticipantForInvoice && (
