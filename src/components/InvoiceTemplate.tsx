@@ -744,6 +744,4 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       setSaving(false);
     }
   };
-    }
-  }
 }
