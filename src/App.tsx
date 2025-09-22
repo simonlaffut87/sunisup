@@ -386,9 +386,10 @@ function App() {
                   <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
                     {t('header.title')}
                   </h1>
-                  <p className="text-gray-600 text-xs sm:text-sm lg:text-base hidden sm:block whitespace-nowrap overflow-hidden text-ellipsis">
+                  <p className="text-gray-600 text-xs sm:text-sm lg:text-base hidden sm:block leading-tight">
                     {t('header.subtitle')}
                   </p>
+                </div>
                 </div>
               </Link>
               
