@@ -280,28 +280,17 @@ export default function HomePage() {
           </div>
 
           <div className="relative max-w-4xl mx-auto">
-            <a 
-              href="https://www.youtube.com/watch?v=xdxpf2jL-1I"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block aspect-video rounded-3xl overflow-hidden relative group shadow-2xl hover:shadow-3xl transition-all duration-300"
-              style={{
-                backgroundImage: 'url(/images/video-background.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-            >
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300"></div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                <div className="w-24 h-24 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                  <Play className="w-12 h-12 text-amber-500 ml-1" />
-                </div>
-                <div className="flex items-center gap-3 text-white">
-                  <span className="font-semibold text-xl">{t('home.howItWorks.watchVideo')}</span>
-                  <ExternalLink className="w-5 h-5" />
-                </div>
-              </div>
-            </a>
+            <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl">
+              <video
+                controls
+                poster="/images/video-background.png"
+                className="w-full h-full object-cover"
+                preload="metadata"
+              >
+                <source src="/videos/Partage.mp4" type="video/mp4" />
+                Votre navigateur ne supporte pas la lecture vidéo.
+              </video>
+            </div>
             <p className="text-gray-600 mt-6 text-center text-lg">
               {t('home.howItWorks.videoDescription')}
             </p>
