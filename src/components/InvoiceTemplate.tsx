@@ -737,6 +737,13 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       };
 
       // Réc
+    } catch (error) {
+      console.error('Erreur sauvegarde facture:', error);
+      toast.error('Erreur lors de la sauvegarde de la facture');
+    } finally {
+      setSaving(false);
+    }
+  };
     }
   }
 }
