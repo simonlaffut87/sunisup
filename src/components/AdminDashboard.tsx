@@ -1111,6 +1111,7 @@ export function AdminDashboard() {
             </table>
           </div>
         </div>
+      </main>
         </main>
       </div>
 
