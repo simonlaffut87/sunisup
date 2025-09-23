@@ -30,6 +30,8 @@ export default function ResetPasswordPage() {
   const checkResetToken = async () => {
     try {
       console.log("🔍 Vérification du token de réinitialisation...");
+      console.log("🔍 URL actuelle:", window.location.href);
+      console.log("🔍 Paramètres URL:", window.location.search);
       
       // Récupérer tous les paramètres possibles
       const code = searchParams.get("code");
@@ -38,12 +40,16 @@ export default function ResetPasswordPage() {
       const type = searchParams.get("type");
       const urlError = searchParams.get("error");
       const errorDescription = searchParams.get("error_description");
+      const tokenHash = searchParams.get("token_hash");
+      const tokenType = searchParams.get("token_type");
 
       console.log("📋 Paramètres URL:", { 
-        code: !!code, 
+        code: code ? code.substring(0, 8) + '...' : null,
         accessToken: !!accessToken, 
         refreshToken: !!refreshToken, 
-        type, 
+        type,
+        tokenHash: tokenHash ? tokenHash.substring(0, 8) + '...' : null,
+        tokenType,
         urlError, 
         errorDescription 
       });
@@ -57,18 +63,31 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      // Nouveau format avec code (PKCE flow)
-      if (code) {
+      // Format moderne avec code (PKCE flow) - le plus courant maintenant
+      if (code || tokenHash) {
+        const authCode = code || tokenHash;
         console.log("🔄 Utilisation du nouveau format avec code...");
+        console.log("🔍 Code utilisé:", authCode ? authCode.substring(0, 8) + '...' : 'null');
+        
         try {
-          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode);
           
           if (exchangeError) {
             console.error("❌ Erreur échange code:", exchangeError);
+            console.error("❌ Détails erreur:", exchangeError);
             setIsValidToken(false);
-            toast.error(`Lien invalide ou expiré: ${exchangeError.message}`);
+            
+            // Messages d'erreur plus spécifiques
+            if (exchangeError.message.includes('invalid_grant')) {
+              toast.error("Le lien de réinitialisation a expiré ou a déjà été utilisé. Demandez un nouveau lien.");
+            } else if (exchangeError.message.includes('invalid_request')) {
+              toast.error("Format de lien invalide. Vérifiez que vous avez copié le lien complet.");
+            } else {
+              toast.error(`Lien invalide: ${exchangeError.message}`);
+            }
           } else if (data.session) {
             console.log("✅ Session établie via code");
+            console.log("✅ Utilisateur:", data.user?.email);
             setIsValidToken(true);
             toast.success("Lien valide. Vous pouvez maintenant définir un nouveau mot de passe.");
           } else {
@@ -79,7 +98,7 @@ export default function ResetPasswordPage() {
         } catch (error) {
           console.error("❌ Exception lors de l'échange du code:", error);
           setIsValidToken(false);
-          toast.error(`Erreur lors de la vérification: ${error.message}`);
+          toast.error(`Erreur technique: ${error.message}. Contactez le support si le problème persiste.`);
         }
       }
       // Ancien format avec access_token et refresh_token
@@ -113,8 +132,9 @@ export default function ResetPasswordPage() {
       // Aucun paramètre valide trouvé
       else {
         console.warn("⚠️ Aucun paramètre de récupération valide trouvé");
+        console.warn("⚠️ URL complète:", window.location.href);
         setIsValidToken(false);
-        toast.error("Lien de réinitialisation invalide. Veuillez demander un nouveau lien.");
+        toast.error("Lien de réinitialisation invalide ou incomplet. Vérifiez que vous avez cliqué sur le lien complet depuis votre email.");
       }
 
     } catch (error) {
