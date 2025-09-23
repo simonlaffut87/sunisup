@@ -1417,9 +1417,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
                       <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
                         {invoiceData.calculations.membershipFeeHTVA.toFixed(2)} €
-                     <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">60.50 €</td>
+                      </td>
                       <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                       60.50 €
+                        {invoiceData.calculations.membershipFeeTVAC.toFixed(2)} €
                       </td>
                     </tr>
                   )}
