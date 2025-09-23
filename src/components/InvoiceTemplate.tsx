@@ -17,6 +17,8 @@ interface InvoiceTemplateProps {
   selectedPeriod: {
     startMonth: string;
     endMonth: string;
+  const [groupParticipants, setGroupParticipants] = useState<any[]>([]);
+  const [groupTotals, setGroupTotals] = useState<any>(null);
   };
 }
 
@@ -112,15 +114,45 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
   useEffect(() => {
     if (isOpen && participant) {
-      loadInvoiceData();
+      loadGroupInvoiceData();
     }
   }, [isOpen, participant, selectedPeriod]);
 
-  const loadInvoiceData = async () => {
+  const loadGroupInvoiceData = async () => {
     try {
       setLoading(true);
       setError(null);
       setGroupParticipants([]);
+
+      // Si le participant fait partie d'un groupe, charger TOUS les participants du groupe
+      let participantsToProcess = [participant];
+      
+      if (participant.groupe) {
+        console.log(`👥 Chargement du groupe: "${participant.groupe}"`);
+        
+        const { data: allGroupParticipants, error: groupError } = await supabase
+          .from('participants')
+          .select('*')
+          .eq('groupe', participant.groupe);
+
+        if (groupError) {
+          console.error('❌ Erreur chargement groupe:', groupError);
+          toast.error('Erreur lors du chargement du groupe');
+          return;
+        }
+
+        if (allGroupParticipants && allGroupParticipants.length > 0) {
+          participantsToProcess = allGroupParticipants;
+          setGroupParticipants(allGroupParticipants);
+          console.log(`✅ ${allGroupParticipants.length} participants trouvés dans le groupe`);
+        }
+      } else {
+        setGroupParticipants([participant]);
+      }
+
+      // Calculer les totaux du groupe pour la période sélectionnée
+      const groupTotals = calculateGroupTotals(participantsToProcess, selectedPeriod);
+      setGroupTotals(groupTotals);
 
       console.log('🧾 DÉBUT GÉNÉRATION FACTURE');
       console.log('👤 Participant:', participant.name, participant.ean_code);
@@ -385,25 +417,31 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
       const invoiceData: InvoiceData = {
         participant: isGroup ? {
-          ...participantData,
+            quantity: groupTotals.totalVolumePartage,
           name: `Groupe ${participant.groupe}`,
-          address: 'Multiples adresses',
-          ean_code: 'Multiples codes EAN'
+            unitPrice: participant.shared_energy_price || 100,
+            total: (groupTotals.totalVolumePartage * (participant.shared_energy_price || 100)) / 1000
         } : participantData,
         period: {
           startMonth: selectedPeriod.startMonth,
-          endMonth: selectedPeriod.endMonth,
+            quantity: participantsToProcess.length,
           startDate: selectedPeriod.startMonth + '-01',
-          endDate: getLastDayOfMonth(selectedPeriod.endMonth)
+            unitPrice: 4.17, // 50€/an ÷ 12 mois
+            total: participantsToProcess.length * 4.17
+        groupName: participant.groupe,
+        groupParticipants: participantsToProcess,
+        groupTotals: groupTotals,
         },
-        monthlyData: periodMonthlyData,
-        billingData: periodBillingData,
-        totals,
-        calculations
-      };
-
-      setInvoiceData(invoiceData);
       console.log('🧾 Facture générée avec succès');
+      // Calculer le total
+      const totalHT = mockInvoiceData.items.reduce((sum, item) => sum + item.total, 0);
+      mockInvoiceData.items.push({
+        description: 'Total HT',
+        quantity: 1,
+        unit: '',
+        unitPrice: 0,
+        total: totalHT
+      });
 
     } catch (error) {
       console.error('❌ Erreur génération facture:', error);
@@ -414,6 +452,103 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     }
   };
 
+  const calculateGroupTotals = (participants: any[], period: { startMonth: string; endMonth: string }) => {
+    console.log('📊 Calcul des totaux du groupe pour la période:', period);
+    
+    let totalVolumePartage = 0;
+    let totalVolumeComplementaire = 0;
+    let totalInjectionPartagee = 0;
+    let totalInjectionComplementaire = 0;
+    
+    const participantDetails: any[] = [];
+    
+    participants.forEach(p => {
+      console.log(`🔍 Traitement participant: ${p.name}`);
+      
+      if (!p.monthly_data) {
+        console.log(`⚠️ ${p.name} n'a pas de monthly_data`);
+        participantDetails.push({
+          ...p,
+          periodTotals: {
+            volume_partage: 0,
+            volume_complementaire: 0,
+            injection_partagee: 0,
+            injection_complementaire: 0
+          }
+        });
+        return;
+      }
+
+      let monthlyData;
+      try {
+        if (typeof p.monthly_data === 'string') {
+          monthlyData = JSON.parse(p.monthly_data);
+        } else {
+          monthlyData = p.monthly_data;
+        }
+      } catch (error) {
+        console.warn(`⚠️ Erreur parsing monthly_data pour ${p.name}:`, error);
+        participantDetails.push({
+          ...p,
+          periodTotals: {
+            volume_partage: 0,
+            volume_complementaire: 0,
+            injection_partagee: 0,
+            injection_complementaire: 0
+          }
+        });
+        return;
+      }
+
+      // Calculer les totaux pour la période sélectionnée
+      let participantTotals = {
+        volume_partage: 0,
+        volume_complementaire: 0,
+        injection_partagee: 0,
+        injection_complementaire: 0
+      };
+
+      // Générer la liste des mois dans la période
+      const startDate = new Date(period.startMonth + '-01');
+      const endDate = new Date(period.endMonth + '-01');
+      
+      for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        
+        if (monthlyData[monthKey]) {
+          const monthData = monthlyData[monthKey];
+          participantTotals.volume_partage += Number(monthData.volume_partage || 0);
+          participantTotals.volume_complementaire += Number(monthData.volume_complementaire || 0);
+          participantTotals.injection_partagee += Number(monthData.injection_partagee || 0);
+          participantTotals.injection_complementaire += Number(monthData.injection_complementaire || 0);
+        }
+      }
+
+      console.log(`📊 Totaux pour ${p.name}:`, participantTotals);
+
+      // Ajouter aux totaux du groupe
+      totalVolumePartage += participantTotals.volume_partage;
+      totalVolumeComplementaire += participantTotals.volume_complementaire;
+      totalInjectionPartagee += participantTotals.injection_partagee;
+      totalInjectionComplementaire += participantTotals.injection_complementaire;
+
+      participantDetails.push({
+        ...p,
+        periodTotals: participantTotals
+      });
+    });
+
+    const result = {
+      totalVolumePartage,
+      totalVolumeComplementaire,
+      totalInjectionPartagee,
+      totalInjectionComplementaire,
+      participantDetails
+    };
+
+    console.log('📊 Totaux finaux du groupe:', result);
+    return result;
+  };
   const generateMonthsInPeriod = (startMonth: string, endMonth: string): string[] => {
     const months: string[] = [];
     const start = new Date(startMonth + '-01');
@@ -834,7 +969,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         .eq('id', invoiceData.participant.id);
 
       if (updateError) {
-        throw new Error(`Erreur lors de la sauvegarde: ${updateError.message}`);
+      const filename = invoiceData.isGroup 
+        ? `facture-groupe-${invoiceData.groupName.replace(/\s+/g, '-')}-${selectedPeriod.startMonth}.pdf`
+        : `facture-${participant.name.replace(/\s+/g, '-')}-${selectedPeriod.startMonth}.pdf`;
       }
 
       toast.success('Facture enregistrée avec succès');
@@ -980,7 +1117,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
-                  <p className="text-gray-700">Communauté d'énergie bruxelloise</p>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Facture - {invoiceData.isGroup ? `Groupe ${invoiceData.groupName}` : participant.name}
+                </h2>
                 </div>
               </div>
               <div>
@@ -1029,9 +1168,16 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   <div><strong className="text-gray-900">Adresse :</strong> {isGroupInvoice ? 
                     `Groupe ${participant.groupe}\n${groupParticipants.map(p => `• ${p.name} - ${p.address}`).join('\n')}` :
                     invoiceData.participant.address
-                  }</div>
+                  <p className="font-medium text-gray-900">
+                    {invoiceData.isGroup ? `Groupe ${invoiceData.groupName}` : participant.name}
+                  </p>
                   {invoiceData.participant.email && (
                     <div><strong className="text-gray-900">Email :</strong> {invoiceData.participant.email}</div>
+                  )}
+                  {invoiceData.isGroup && (
+                    <p className="text-sm text-amber-600 mt-2">
+                      {invoiceData.groupParticipants.length} participant(s) dans ce groupe
+                    </p>
                   )}
                 </div>
               </div>
@@ -1048,6 +1194,114 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <div><strong className="text-gray-900">N° entreprise :</strong> {invoiceData.participant.company_number}</div>
                   )}
                   {isGroupInvoice && (
+            {/* Tableau détaillé par participant (pour les groupes) */}
+            {invoiceData.isGroup && groupTotals && (
+              <div className="mb-8">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+                  <Users className="w-5 h-5 mr-2 text-amber-600" />
+                  Détail par participant - Groupe {invoiceData.groupName}
+                </h3>
+                <div className="overflow-x-auto bg-gray-50 rounded-lg border border-gray-200">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Participant
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Type
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Cons. Partagée
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Cons. Réseau
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Inj. Partagée
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Inj. Réseau
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {groupTotals.participantDetails.map((groupParticipant: any) => (
+                        <tr key={groupParticipant.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-8 h-8">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                  groupParticipant.type === 'producer' ? 'bg-amber-100' : 'bg-blue-100'
+                                }`}>
+                                  {groupParticipant.type === 'producer' ? (
+                                    <Sun className="w-4 h-4 text-amber-600" />
+                                  ) : (
+                                    <Building2 className="w-4 h-4 text-blue-600" />
+                                  )}
+                                </div>
+                              </div>
+                              <div className="ml-3">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {groupParticipant.name}
+                                </div>
+                                {groupParticipant.ean_code && (
+                                  <div className="text-xs text-gray-500 font-mono">
+                                    {groupParticipant.ean_code}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              groupParticipant.type === 'producer' 
+                                ? 'bg-amber-100 text-amber-800' 
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {(groupParticipant.periodTotals.volume_partage / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {(groupParticipant.periodTotals.volume_complementaire / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {(groupParticipant.periodTotals.injection_partagee / 1000).toFixed(3)} MWh
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {(groupParticipant.periodTotals.injection_complementaire / 1000).toFixed(3)} MWh
+                          </td>
+                        </tr>
+                      ))}
+                      {/* Ligne de total */}
+                      <tr className="bg-amber-50 font-semibold">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-amber-900" colSpan={2}>
+                          <div className="flex items-center">
+                            <Users className="w-4 h-4 mr-2 text-amber-600" />
+                            TOTAL GROUPE
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-amber-900">
+                          {(groupTotals.totalVolumePartage / 1000).toFixed(3)} MWh
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-amber-900">
+                          {(groupTotals.totalVolumeComplementaire / 1000).toFixed(3)} MWh
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-amber-900">
+                          {(groupTotals.totalInjectionPartagee / 1000).toFixed(3)} MWh
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-amber-900">
+                          {(groupTotals.totalInjectionComplementaire / 1000).toFixed(3)} MWh
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <p className="text-sm font-medium text-gray-700 mb-2">Participants du groupe:</p>
                       {groupParticipants.map((p: any, index: number) => (
@@ -1410,13 +1664,22 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <tr className="border-b border-gray-300">
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
                         <div>
-                          <div className="font-medium text-gray-900">Frais d'adhésion annuels</div>
+                        {item.description === 'Énergie partagée' 
+                          ? `${(item.quantity / 1000).toFixed(3)}`
+                          : item.quantity
+                        }
                           <div className="text-xs text-gray-600">Cotisation membre 2025</div>
                         </div>
-                      </td>
+                        {item.description === 'Énergie partagée' ? 'MWh' : item.unit}
                       <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
                       <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
-                        {invoiceData.calculations.membershipFeeHTVA.toFixed(2)} €
+                        {item.unitPrice > 0 
+                          ? (item.description === 'Énergie partagée' 
+                              ? `${item.unitPrice.toFixed(2)} €/MWh`
+                              : `${item.unitPrice.toFixed(2)} €`
+                            )
+                          : '-'
+                        }
                       </td>
                       <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
                         {invoiceData.calculations.membershipFeeTVAC.toFixed(2)} €
@@ -1465,12 +1728,48 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             </div>
           </div>
 
+            {/* Résumé des données énergétiques */}
+            <div className="mb-8 bg-blue-50 p-6 rounded-lg border border-blue-200">
+              <h3 className="font-semibold text-blue-900 mb-4 flex items-center">
+                <Zap className="w-5 h-5 mr-2" />
+                Résumé énergétique - Période facturée
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-900">
+                    {groupTotals ? (groupTotals.totalVolumePartage / 1000).toFixed(3) : '0.000'} MWh
+                  </div>
+                  <div className="text-sm text-blue-700">Consommation Partagée</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-700">
+                    {groupTotals ? (groupTotals.totalVolumeComplementaire / 1000).toFixed(3) : '0.000'} MWh
+                  </div>
+                  <div className="text-sm text-gray-600">Consommation Réseau</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-amber-700">
+                    {groupTotals ? (groupTotals.totalInjectionPartagee / 1000).toFixed(3) : '0.000'} MWh
+                  </div>
+                  <div className="text-sm text-amber-600">Injection Partagée</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-700">
+                    {groupTotals ? (groupTotals.totalInjectionComplementaire / 1000).toFixed(3) : '0.000'} MWh
+                  </div>
+                  <div className="text-sm text-purple-600">Injection Réseau</div>
+                </div>
+              </div>
+            </div>
           {/* Conditions de paiement */}
           <div className="mt-8 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
             <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
             <div className="text-sm text-gray-700 space-y-1">
               <p>• Paiement à 30 jours, soit au plus tard le {format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}</p>
               <p>• Virement bancaire : BE96 0020 1192 6005</p>
+                {invoiceData.isGroup && (
+                  <p>• Cette facture concerne l'ensemble du groupe "{invoiceData.groupName}" ({invoiceData.groupParticipants.length} participants)</p>
+                )}
               <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
             </div>
           </div>
