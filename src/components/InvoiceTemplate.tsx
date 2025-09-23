@@ -1405,4 +1405,4 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 <div className="space-y-2 text-sm text-blue-800">
                   <div className="flex justify-between">
                     <span>Énergie partagée :</span>
-                    <span className="font-medium">{(invoiceData.tot
+                    <span className="font-medium">{(groupTotals.injection_partagee / 1000).toFixed(3)} MWh</span>
