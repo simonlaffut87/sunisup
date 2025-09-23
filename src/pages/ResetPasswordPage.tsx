@@ -29,12 +29,26 @@ export default function ResetPasswordPage() {
 
   const checkResetToken = async () => {
     try {
+      console.log("🔍 Vérification du token de réinitialisation...");
+      
+      // Récupérer tous les paramètres possibles
       const code = searchParams.get("code");
+      const accessToken = searchParams.get("access_token");
+      const refreshToken = searchParams.get("refresh_token");
+      const type = searchParams.get("type");
       const urlError = searchParams.get("error");
       const errorDescription = searchParams.get("error_description");
 
-      console.log("🔍 Paramètres URL:", { code: !!code, urlError, errorDescription });
+      console.log("📋 Paramètres URL:", { 
+        code: !!code, 
+        accessToken: !!accessToken, 
+        refreshToken: !!refreshToken, 
+        type, 
+        urlError, 
+        errorDescription 
+      });
 
+      // Vérifier s'il y a une erreur dans l'URL
       if (urlError) {
         console.error("❌ Erreur dans l'URL:", urlError, errorDescription);
         setIsValidToken(false);
@@ -43,32 +57,68 @@ export default function ResetPasswordPage() {
         return;
       }
 
+      // Nouveau format avec code (PKCE flow)
       if (code) {
-        console.log("🔄 Échange du code de récupération...");
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-        if (error) {
-          console.error("❌ Erreur lors de l'échange du code:", error);
+        console.log("🔄 Utilisation du nouveau format avec code...");
+        try {
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          
+          if (exchangeError) {
+            console.error("❌ Erreur échange code:", exchangeError);
+            setIsValidToken(false);
+            toast.error(`Lien invalide ou expiré: ${exchangeError.message}`);
+          } else if (data.session) {
+            console.log("✅ Session établie via code");
+            setIsValidToken(true);
+            toast.success("Lien valide. Vous pouvez maintenant définir un nouveau mot de passe.");
+          } else {
+            console.warn("⚠️ Aucune session créée");
+            setIsValidToken(false);
+            toast.error("Impossible de créer une session de récupération");
+          }
+        } catch (error) {
+          console.error("❌ Exception lors de l'échange du code:", error);
           setIsValidToken(false);
-          toast.error(`Lien de réinitialisation invalide ou expiré: ${error.message}`);
-        } else if (data.session) {
-          console.log("✅ Session de récupération établie via code");
-          setIsValidToken(true);
-          toast.success(
-            "Lien de réinitialisation valide. Vous pouvez maintenant définir un nouveau mot de passe."
-          );
-        } else {
-          console.warn("⚠️ Aucune session créée via code");
-          setIsValidToken(false);
-          toast.error("Impossible de créer une session de récupération");
+          toast.error(`Erreur lors de la vérification: ${error.message}`);
         }
-      } else {
-        console.warn("⚠️ Pas de code dans l'URL");
+      }
+      // Ancien format avec access_token et refresh_token
+      else if (accessToken && refreshToken && type === "recovery") {
+        console.log("🔄 Utilisation de l'ancien format avec tokens...");
+        try {
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+
+          if (sessionError) {
+            console.error("❌ Erreur session:", sessionError);
+            setIsValidToken(false);
+            toast.error(`Tokens invalides: ${sessionError.message}`);
+          } else if (data.session) {
+            console.log("✅ Session établie via tokens");
+            setIsValidToken(true);
+            toast.success("Lien valide. Vous pouvez maintenant définir un nouveau mot de passe.");
+          } else {
+            console.warn("⚠️ Aucune session créée");
+            setIsValidToken(false);
+            toast.error("Impossible de créer une session de récupération");
+          }
+        } catch (error) {
+          console.error("❌ Exception lors de la définition de session:", error);
+          setIsValidToken(false);
+          toast.error(`Erreur lors de la vérification: ${error.message}`);
+        }
+      }
+      // Aucun paramètre valide trouvé
+      else {
+        console.warn("⚠️ Aucun paramètre de récupération valide trouvé");
         setIsValidToken(false);
         toast.error("Lien de réinitialisation invalide. Veuillez demander un nouveau lien.");
       }
-    } catch (error: any) {
-      console.error("❌ Erreur lors de la vérification du token:", error);
+
+    } catch (error) {
+      console.error("❌ Erreur générale lors de la vérification:", error);
       setIsValidToken(false);
       toast.error(`Erreur lors de la vérification du lien: ${error.message}`);
     } finally {
@@ -92,27 +142,35 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password,
+      console.log("🔄 Mise à jour du mot de passe...");
+      
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password,
       });
 
-      if (error) {
-        console.error("❌ Erreur mise à jour mot de passe:", error);
-        toast.error(`Erreur lors de la mise à jour: ${error.message}`);
+      if (updateError) {
+        console.error("❌ Erreur mise à jour mot de passe:", updateError);
+        toast.error(`Erreur lors de la mise à jour: ${updateError.message}`);
       } else {
         console.log("✅ Mot de passe mis à jour avec succès");
-        toast.success("Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter.");
-        setTimeout(() => navigate("/"), 2000);
+        toast.success("Mot de passe mis à jour avec succès ! Redirection vers l'accueil...");
+        
+        // Déconnexion pour forcer une nouvelle connexion
+        await supabase.auth.signOut();
+        
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       }
     } catch (error) {
-      console.error("❌ Erreur:", error);
+      console.error("❌ Exception:", error);
       toast.error("Une erreur inattendue s'est produite");
     } finally {
       setLoading(false);
     }
   };
 
-  // --- UI ---
+  // Loading state
   if (!tokenChecked) {
     return (
       <>
@@ -131,6 +189,7 @@ export default function ResetPasswordPage() {
     );
   }
 
+  // Invalid token state
   if (isValidToken === false) {
     return (
       <>
@@ -144,24 +203,30 @@ export default function ResetPasswordPage() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Lien invalide</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Lien invalide ou expiré</h1>
             <p className="text-gray-600 mb-6">
               Ce lien de réinitialisation est invalide ou a expiré.
               Veuillez demander un nouveau lien de réinitialisation.
             </p>
-            <button
-              onClick={() => navigate("/")}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Retour à l'accueil
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate("/")}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Retour à l'accueil
+              </button>
+              <p className="text-sm text-gray-500">
+                Vous pouvez demander un nouveau lien depuis la page de connexion
+              </p>
+            </div>
           </div>
         </div>
       </>
     );
   }
 
+  // Valid token - show password reset form
   return (
     <>
       <SEOHead
