@@ -28,13 +28,15 @@ export default function ResetPasswordPage() {
       const type = searchParams.get('type');
       const urlError = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
+      const code = searchParams.get('code'); // Nouveau format de lien
 
       console.log('🔍 Paramètres URL:', { 
         accessToken: !!accessToken, 
         refreshToken: !!refreshToken, 
         type,
         urlError,
-        errorDescription 
+        errorDescription,
+        code: !!code
       });
 
       // Vérifier s'il y a une erreur dans l'URL
@@ -46,32 +48,54 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      if (!accessToken || !refreshToken || type !== 'recovery') {
+      // Gérer le nouveau format avec 'code' ou l'ancien format avec access_token/refresh_token
+      if (code) {
+        // Nouveau format: échange le code contre une session
+        console.log('🔄 Nouveau format détecté, échange du code...');
+        
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        
+        if (error) {
+          console.error('❌ Erreur lors de l\'échange du code:', error);
+          setIsValidToken(false);
+          toast.error(`Lien de réinitialisation invalide ou expiré: ${error.message}`);
+        } else if (data.session) {
+          console.log('✅ Session de récupération établie via code');
+          setIsValidToken(true);
+          toast.success('Lien de réinitialisation valide. Vous pouvez maintenant définir un nouveau mot de passe.');
+        } else {
+          console.warn('⚠️ Aucune session créée via code');
+          setIsValidToken(false);
+          toast.error('Impossible de créer une session de récupération');
+        }
+      } else if (accessToken && refreshToken && type === 'recovery') {
+        // Ancien format: utiliser les tokens directement
+        console.log('🔄 Ancien format détecté, utilisation des tokens...');
+        
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        });
+
+        if (error) {
+          console.error('❌ Erreur lors de la définition de la session:', error);
+          setIsValidToken(false);
+          toast.error(`Lien de réinitialisation invalide ou expiré: ${error.message}`);
+        } else if (data.session) {
+          console.log('✅ Session de récupération établie via tokens');
+          setIsValidToken(true);
+          toast.success('Lien de réinitialisation valide. Vous pouvez maintenant définir un nouveau mot de passe.');
+        } else {
+          console.warn('⚠️ Aucune session créée via tokens');
+          setIsValidToken(false);
+          toast.error('Impossible de créer une session de récupération');
+        }
+      } else {
         console.warn('⚠️ Paramètres manquants ou invalides');
         setIsValidToken(false);
         setTokenChecked(true);
         toast.error('Lien de réinitialisation invalide. Veuillez demander un nouveau lien.');
         return;
-      }
-
-      // Essayer de définir la session avec les tokens
-      const { data, error } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken
-      });
-
-      if (error) {
-        console.error('❌ Erreur lors de la définition de la session:', error);
-        setIsValidToken(false);
-        toast.error(`Lien de réinitialisation invalide ou expiré: ${error.message}`);
-      } else if (data.session) {
-        console.log('✅ Session de récupération établie');
-        setIsValidToken(true);
-        toast.success('Lien de réinitialisation valide. Vous pouvez maintenant définir un nouveau mot de passe.');
-      } else {
-        console.warn('⚠️ Aucune session créée');
-        setIsValidToken(false);
-        toast.error('Impossible de créer une session de récupération');
       }
     } catch (error) {
       console.error('❌ Erreur lors de la vérification du token:', error);
