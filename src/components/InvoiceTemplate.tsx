@@ -533,9 +533,6 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       totalVolumePartage,
       totalVolumeComplementaire,
       totalInjectionPartagee,
-    }
-  }
-}
       totalInjectionComplementaire,
       participantDetails
     };
@@ -1408,4 +1405,355 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 <div className="space-y-2 text-sm text-blue-800">
                   <div className="flex justify-between">
                     <span>Énergie partagée :</span>
-                    <span className="font-medium">{(groupTotals.injection_partagee / 1000).toFixed(3)} MWh</span>
+                    <span className="font-medium">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="flex justify-between border-t border-blue-200 pt-2 mt-2">
+                    <span>Énergie réseau (achat au fournisseur) :</span>
+                    <span className="font-medium text-blue-600">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="text-xs text-blue-600 italic mt-2 p-2 bg-blue-100 rounded">
+                    * Énergie réseau : indicatif, non facturée par Sun Is Up
+                  </div>
+                </div>
+              </div>
+
+              {/* Injection */}
+              <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
+                <h4 className="font-medium text-amber-900 mb-3">Injection</h4>
+                <div className="space-y-2 text-sm text-amber-800">
+                  <div className="flex justify-between">
+                    <span>Injection partagée :</span>
+                    <span className="font-medium">{((invoiceData.totals.injection_partagee || 0) / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Injection réseau :</span>
+                    <span className="font-medium">{((invoiceData.totals.injection_complementaire || 0) / 1000).toFixed(3)} MWh</span>
+                  </div>
+                  <div className="flex justify-between border-t border-amber-300 pt-2 mt-2 font-semibold text-amber-900 bg-amber-100 p-2 rounded">
+                    <span>Total injection :</span>
+                    <span>{(((invoiceData.totals.injection_partagee || 0) + (invoiceData.totals.injection_complementaire || 0)) / 1000).toFixed(3)} MWh</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Détail des coûts réseau - AMÉLIORÉ */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail des coûts réseau</h3>
+            
+            {/* Vérification des données billing */}
+            {Object.keys(invoiceData.billingData).length === 0 ? (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center">
+                  <span className="font-medium text-red-900">Aucune donnée de coûts réseau trouvée</span>
+                </div>
+                <p className="text-sm text-red-800 mt-2">
+                  Les coûts réseau n'ont pas été importés pour cette période. 
+                  Assurez-vous d'importer un fichier Excel contenant les colonnes de coûts réseau.
+                </p>
+              </div>
+            ) : null}
+
+            <div className="overflow-x-auto border border-gray-300 rounded-lg">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="bg-gray-100 border-b border-gray-300">
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-r border-gray-300">
+                      Description
+                    </th>
+                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">
+                      Taux TVA
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
+                      Montant HTVA
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                      Montant TVAC
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Utilisation du réseau</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.utilisationReseau.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.totals.networkCosts.utilisationReseau * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Surcharges</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.surcharges.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.totals.networkCosts.surcharges * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Tarif capacitaire</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.tarifCapacitaire.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.totals.networkCosts.tarifCapacitaire * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Tarif mesure & comptage</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.tarifMesure.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.totals.networkCosts.tarifMesure * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Tarif OSP</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.tarifOSP.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.totals.networkCosts.tarifOSP * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Transport ELIA</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.transportELIA.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.totals.networkCosts.transportELIA * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Redevance voirie</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.redevanceVoirie.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {(invoiceData.totals.networkCosts.redevanceVoirie * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-gray-100 border-t-2 border-gray-400">
+                    <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-300">
+                      TOTAL FRAIS RÉSEAU
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
+                      {invoiceData.totals.networkCosts.totalFraisReseau.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                      {(invoiceData.totals.networkCosts.totalFraisReseau * 1.21).toFixed(2)} €
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Récapitulatif financier */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Récapitulatif financier
+            </h3>
+            <div className="overflow-x-auto border border-gray-300 rounded-lg">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="bg-gray-100 border-b border-gray-300">
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-r border-gray-300">
+                      Description
+                    </th>
+                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">
+                      Taux TVA
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
+                      Montant HTVA
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                      Montant TVAC
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Énergie partagée</div>
+                        <div className="text-xs text-gray-600">
+                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh HTVA
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">
+                      {(invoiceData.calculations.vatRate * 100).toFixed(0)}%
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.calculations.energySharedCostHTVA.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {invoiceData.calculations.energySharedCostTVAC.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Coûts réseau</div>
+                        <div className="text-xs text-gray-600">Frais remboursés à Sibelga</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      {invoiceData.calculations.networkCostTotal.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      {invoiceData.calculations.networkCostTVAC.toFixed(2)} €
+                    </td>
+                  </tr>
+                  {invoiceData.calculations.isFirstInvoiceOfYear && (
+                    <tr className="border-b border-gray-300">
+                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                        <div>
+                          <div className="font-medium text-gray-900">Frais d'adhésion</div>
+                          <div className="text-xs text-gray-600">Cotisation membre 2025</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
+                      <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                        {invoiceData.calculations.membershipFeeHTVA.toFixed(2)} €
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                        {invoiceData.calculations.membershipFeeTVAC.toFixed(2)} €
+                      </td>
+                    </tr>
+                  )}
+                  <tr className="border-b-2 border-gray-400 bg-blue-50 font-semibold">
+                    <td className="px-4 py-3 text-sm font-bold text-blue-900 border-r border-gray-300">
+                      SOUS-TOTAL COÛTS
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900">
+                      {invoiceData.calculations.totalCostTVAC.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-300">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                      <div>
+                        <div className="font-medium text-gray-900">Revenus injection</div>
+                        <div className="text-xs text-gray-600">
+                          {(((invoiceData.totals.injection_partagee || 0) + (invoiceData.totals.injection_complementaire || 0)) / 1000).toFixed(3)} MWh × {invoiceData.participant.purchase_rate || 70}€/MWh
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700 border-r border-gray-300">
+                      -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700">
+                      -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
+                    </td>
+                  </tr>
+                  <tr className="bg-amber-100 border-t-2 border-amber-400">
+                    <td className="px-4 py-3 text-lg font-bold text-amber-900 border-r border-gray-300">
+                      MONTANT NET À PAYER
+                    </td>
+                    <td className="px-4 py-3 text-center text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900">
+                      {invoiceData.calculations.netAmount.toFixed(2)} €
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Résumé des données énergétiques */}
+          <div className="mb-8 bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <h3 className="font-semibold text-blue-900 mb-4 flex items-center">
+              <span className="w-5 h-5 mr-2">⚡</span>
+              Résumé énergétique - Période facturée
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-900">
+                  {groupTotals ? (groupTotals.totalVolumePartage / 1000).toFixed(3) : '0.000'} MWh
+                </div>
+                <div className="text-sm text-blue-700">Consommation Partagée</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-700">
+                  {groupTotals ? (groupTotals.totalVolumeComplementaire / 1000).toFixed(3) : '0.000'} MWh
+                </div>
+                <div className="text-sm text-gray-600">Consommation Réseau</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-amber-700">
+                  {groupTotals ? (groupTotals.totalInjectionPartagee / 1000).toFixed(3) : '0.000'} MWh
+                </div>
+                <div className="text-sm text-amber-600">Injection Partagée</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-700">
+                  {groupTotals ? (groupTotals.totalInjectionComplementaire / 1000).toFixed(3) : '0.000'} MWh
+                </div>
+                <div className="text-sm text-purple-600">Injection Réseau</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Conditions de paiement */}
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
+            <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>• Paiement à 30 jours, soit au plus tard le {format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}</p>
+              <p>• Virement bancaire : BE96 0020 1192 6005</p>
+              {isGroupInvoice && (
+                <p>• Cette facture concerne l'ensemble du groupe "{participant.groupe}" ({groupParticipants.length} participants)</p>
+              )}
+              <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
