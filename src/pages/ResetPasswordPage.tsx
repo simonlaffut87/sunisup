@@ -26,23 +26,23 @@ export default function ResetPasswordPage() {
       const accessToken = searchParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token');
       const type = searchParams.get('type');
-      const error = searchParams.get('error');
+      const urlError = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
 
       console.log('🔍 Paramètres URL:', { 
         accessToken: !!accessToken, 
         refreshToken: !!refreshToken, 
         type,
-        error,
+        urlError,
         errorDescription 
       });
 
       // Vérifier s'il y a une erreur dans l'URL
-      if (error) {
-        console.error('❌ Erreur dans l\'URL:', error, errorDescription);
+      if (urlError) {
+        console.error('❌ Erreur dans l\'URL:', urlError, errorDescription);
         setIsValidToken(false);
         setTokenChecked(true);
-        toast.error(`Erreur: ${errorDescription || error}`);
+        toast.error(`Erreur: ${errorDescription || urlError}`);
         return;
       }
 
