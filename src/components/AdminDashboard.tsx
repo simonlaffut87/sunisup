@@ -31,6 +31,7 @@ export function AdminDashboard() {
     startMonth: '',
     endMonth: ''
   });
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState<'name' | 'type' | 'entry_date'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [connectionStatus, setConnectionStatus] = useState<{
@@ -235,6 +236,52 @@ export function AdminDashboard() {
       console.error('❌ Erreur actualisation:', error);
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  // Fonction pour grouper les participants
+  const groupParticipants = () => {
+    const grouped: { [key: string]: Participant[] } = {};
+    const ungrouped: Participant[] = [];
+
+    participants.forEach(participant => {
+      if (participant.groupe) {
+        if (!grouped[participant.groupe]) {
+          grouped[participant.groupe] = [];
+        }
+        grouped[participant.groupe].push(participant);
+      } else {
+        ungrouped.push(participant);
+      }
+    });
+
+    return { grouped, ungrouped };
+  };
+
+  const toggleGroup = (groupName: string) => {
+    const newExpanded = new Set(expandedGroups);
+    if (newExpanded.has(groupName)) {
+      newExpanded.delete(groupName);
+    } else {
+      newExpanded.add(groupName);
+    }
+    setExpandedGroups(newExpanded);
+  };
+
+  const handleGroupAction = (action: 'invoice' | 'dashboard' | 'edit', group: Participant[]) => {
+    // Pour les actions de groupe, utiliser le premier participant du groupe
+    const representative = group[0];
+    
+    switch (action) {
+      case 'invoice':
+        handleShowInvoice(representative);
+        break;
+      case 'dashboard':
+        handleViewParticipantDashboard(representative);
+        break;
+      case 'edit':
+        handleEdit(representative);
+        break;
     }
   };
 
@@ -629,18 +676,311 @@ export function AdminDashboard() {
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Euro className="w-4 h-4 mr-2" />
-                      Tarif commodité
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {participants.length === 0 ? (
+                {(() => {
+                  const { grouped, ungrouped } = groupParticipants();
+                  const hasData = participants.length > 0;
+                  
+                  if (!hasData) {
+                    return (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                          <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                          <p className="text-lg font-medium mb-2">Aucun participant enregistré</p>
+                          <p className="text-sm">Ajoutez votre premier participant pour commencer</p>
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  const rows: JSX.Element[] = [];
+
+                  // Afficher les groupes
+                  Object.entries(grouped).forEach(([groupName, groupParticipants]) => {
+                    const isExpanded = expandedGroups.has(groupName);
+                    const groupTypes = [...new Set(groupParticipants.map(p => p.type))];
+                    const groupTypeDisplay = groupTypes.length === 1 
+                      ? (groupTypes[0] === 'producer' ? 'Producteurs' : 'Consommateurs')
+                      : 'Mixte';
+
+                    // Ligne du groupe
+                    rows.push(
+                      <tr key={`group-${groupName}`} className="bg-gray-50 hover:bg-gray-100">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <button
+                              onClick={() => toggleGroup(groupName)}
+                              className="flex items-center space-x-2 text-left"
+                            >
+                              <div className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
+                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Users className="w-5 h-5 text-amber-600" />
+                                <div>
+                                  <div className="text-sm font-bold text-gray-900">{groupName}</div>
+                                  <div className="text-xs text-gray-500">{groupParticipants.length} membre(s)</div>
+                                </div>
+                              </div>
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                            {groupTypeDisplay}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500 italic">
+                            Groupe de {groupParticipants.length} participants
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500 italic">
+                            Voir détails
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleGroupAction('invoice', groupParticipants)}
+                              className="text-purple-600 hover:text-purple-900 transition-colors"
+                              title="Générer facture groupe"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleGroupAction('dashboard', groupParticipants)}
+                              className="text-blue-600 hover:text-blue-900 transition-colors"
+                              title="Voir dashboard groupe"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleGroupAction('edit', groupParticipants)}
+                              className="text-amber-600 hover:text-amber-900 transition-colors"
+                              title="Modifier groupe"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+
+                    // Lignes des membres du groupe (si développé)
+                    if (isExpanded) {
+                      groupParticipants.forEach(participant => {
+                        rows.push(
+                          <tr key={participant.id} className="hover:bg-gray-50 bg-white">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center pl-8">
+                                <div className="text-sm font-medium text-gray-700">
+                                  └ {participant.name}
+                                </div>
+                                {participant.ean_code && (
+                                  <div className="ml-2">
+                                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                      <Database className="w-3 h-3 mr-1" />
+                                      Prêt import
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                participant.type === 'producer' 
+                                  ? 'bg-amber-100 text-amber-800' 
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-600 max-w-xs truncate" title={participant.address}>
+                                {participant.address}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-600">
+                                {participant.entry_date ? (
+                                  format(new Date(participant.entry_date), 'dd/MM/yyyy', { locale: fr })
+                                ) : (
+                                  <span className="text-gray-400 italic">Non renseignée</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => handleShowInvoice(participant)}
+                                  className="text-purple-600 hover:text-purple-900 transition-colors"
+                                  title="Générer facture individuelle"
+                                >
+                                  <FileText className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée.`)}
+                                  className="text-blue-600 hover:text-blue-900 transition-colors"
+                                  title={participant.email ? "Voir le dashboard" : "Email manquant"}
+                                  disabled={!participant.email}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleEdit(participant)}
+                                  className="text-amber-600 hover:text-amber-900 transition-colors"
+                                  title="Modifier"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    if (confirm(`Êtes-vous sûr de vouloir supprimer ${participant.name} ?`)) {
+                                      try {
+                                        const { error } = await supabase
+                                          .from('participants')
+                                          .delete()
+                                          .eq('id', participant.id);
+                                        
+                                        if (error) {
+                                          console.error('Error deleting participant:', error);
+                                          toast.error('Erreur lors de la suppression');
+                                        } else {
+                                          toast.success(`Participant "${participant.name}" supprimé avec succès`);
+                                          loadParticipants();
+                                        }
+                                      } catch (error) {
+                                        console.error('Error deleting participant:', error);
+                                        toast.error('Erreur lors de la suppression');
+                                      }
+                                    }
+                                  }}
+                                  className="text-red-600 hover:text-red-900 transition-colors"
+                                  title="Supprimer"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      });
+                    }
+                  });
+
+                  // Afficher les participants sans groupe
+                  ungrouped.forEach(participant => {
+                    rows.push(
+                      <tr key={participant.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="text-sm font-medium text-gray-900">{participant.name}</div>
+                            {participant.ean_code && (
+                              <div className="ml-2">
+                                <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                  <Database className="w-3 h-3 mr-1" />
+                                  Prêt import
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            participant.type === 'producer' 
+                              ? 'bg-amber-100 text-amber-800' 
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 max-w-xs truncate" title={participant.address}>
+                            {participant.address}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {participant.entry_date ? (
+                              format(new Date(participant.entry_date), 'dd/MM/yyyy', { locale: fr })
+                            ) : (
+                              <span className="text-gray-400 italic">Non renseignée</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleShowInvoice(participant)}
+                              onMouseDown={() => console.log('🖱️ MOUSE DOWN sur bouton facture')}
+                              onMouseUp={() => console.log('🖱️ MOUSE UP sur bouton facture')}
+                              className="text-purple-600 hover:text-purple-900 transition-colors"
+                              title="Générer facture"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée. Modifiez le participant pour ajouter une adresse email.`)}
+                              className="text-blue-600 hover:text-blue-900 transition-colors"
+                              title={participant.email ? "Voir le dashboard" : "Email manquant"}
+                              disabled={!participant.email}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEdit(participant)}
+                              className="text-amber-600 hover:text-amber-900 transition-colors"
+                              title="Modifier"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (confirm(`Êtes-vous sûr de vouloir supprimer ${participant.name} ?`)) {
+                                  try {
+                                    const { error } = await supabase
+                                      .from('participants')
+                                      .delete()
+                                      .eq('id', participant.id);
+                                    
+                                    if (error) {
+                                      console.error('Error deleting participant:', error);
+                                      toast.error('Erreur lors de la suppression');
+                                    } else {
+                                      toast.success(`Participant "${participant.name}" supprimé avec succès`);
+                                      loadParticipants();
+                                    }
+                                  } catch (error) {
+                                    console.error('Error deleting participant:', error);
+                                    toast.error('Erreur lors de la suppression');
+                                  }
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-900 transition-colors"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  });
+
+                  return rows;
+                })()}
+              </tbody>
+            </table>
+          </div>
+        </div>
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                       <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
