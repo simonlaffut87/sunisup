@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { supabase } from '../lib/supabase';
-import { SEOHead } from '../components/SEOHead';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
+import { toast } from "react-hot-toast";
+import { supabase } from "../lib/supabase";
+import { SEOHead } from "../components/SEOHead";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,83 +29,46 @@ export default function ResetPasswordPage() {
 
   const checkResetToken = async () => {
     try {
-      // Vérifier si nous avons les paramètres nécessaires
-      const accessToken = searchParams.get('access_token');
-      const refreshToken = searchParams.get('refresh_token');
-      const type = searchParams.get('type');
-      const urlError = searchParams.get('error');
-      const errorDescription = searchParams.get('error_description');
-      const code = searchParams.get('code'); // Nouveau format de lien
+      const code = searchParams.get("code");
+      const urlError = searchParams.get("error");
+      const errorDescription = searchParams.get("error_description");
 
-      console.log('🔍 Paramètres URL:', { 
-        accessToken: !!accessToken, 
-        refreshToken: !!refreshToken, 
-        type,
-        urlError,
-        errorDescription,
-        code: !!code
-      });
+      console.log("🔍 Paramètres URL:", { code: !!code, urlError, errorDescription });
 
-      // Vérifier s'il y a une erreur dans l'URL
       if (urlError) {
-        console.error('❌ Erreur dans l\'URL:', urlError, errorDescription);
+        console.error("❌ Erreur dans l'URL:", urlError, errorDescription);
         setIsValidToken(false);
         setTokenChecked(true);
         toast.error(`Erreur: ${errorDescription || urlError}`);
         return;
       }
 
-      // Gérer le nouveau format avec 'code' ou l'ancien format avec access_token/refresh_token
       if (code) {
-        // Nouveau format: échange le code contre une session
-        console.log('🔄 Nouveau format détecté, échange du code...');
-        
+        console.log("🔄 Échange du code de récupération...");
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        
-        if (error) {
-          console.error('❌ Erreur lors de l\'échange du code:', error);
-          setIsValidToken(false);
-          toast.error(`Lien de réinitialisation invalide ou expiré: ${error.message}`);
-        } else if (data.session) {
-          console.log('✅ Session de récupération établie via code');
-          setIsValidToken(true);
-          toast.success('Lien de réinitialisation valide. Vous pouvez maintenant définir un nouveau mot de passe.');
-        } else {
-          console.warn('⚠️ Aucune session créée via code');
-          setIsValidToken(false);
-          toast.error('Impossible de créer une session de récupération');
-        }
-      } else if (accessToken && refreshToken && type === 'recovery') {
-        // Ancien format: utiliser les tokens directement
-        console.log('🔄 Ancien format détecté, utilisation des tokens...');
-        
-        const { data, error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
-        });
 
         if (error) {
-          console.error('❌ Erreur lors de la définition de la session:', error);
+          console.error("❌ Erreur lors de l'échange du code:", error);
           setIsValidToken(false);
           toast.error(`Lien de réinitialisation invalide ou expiré: ${error.message}`);
         } else if (data.session) {
-          console.log('✅ Session de récupération établie via tokens');
+          console.log("✅ Session de récupération établie via code");
           setIsValidToken(true);
-          toast.success('Lien de réinitialisation valide. Vous pouvez maintenant définir un nouveau mot de passe.');
+          toast.success(
+            "Lien de réinitialisation valide. Vous pouvez maintenant définir un nouveau mot de passe."
+          );
         } else {
-          console.warn('⚠️ Aucune session créée via tokens');
+          console.warn("⚠️ Aucune session créée via code");
           setIsValidToken(false);
-          toast.error('Impossible de créer une session de récupération');
+          toast.error("Impossible de créer une session de récupération");
         }
       } else {
-        console.warn('⚠️ Paramètres manquants ou invalides');
+        console.warn("⚠️ Pas de code dans l'URL");
         setIsValidToken(false);
-        setTokenChecked(true);
-        toast.error('Lien de réinitialisation invalide. Veuillez demander un nouveau lien.');
-        return;
+        toast.error("Lien de réinitialisation invalide. Veuillez demander un nouveau lien.");
       }
-    } catch (error) {
-      console.error('❌ Erreur lors de la vérification du token:', error);
+    } catch (error: any) {
+      console.error("❌ Erreur lors de la vérification du token:", error);
       setIsValidToken(false);
       toast.error(`Erreur lors de la vérification du lien: ${error.message}`);
     } finally {
@@ -108,14 +78,14 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
-      toast.error('Les mots de passe ne correspondent pas');
+      toast.error("Les mots de passe ne correspondent pas");
       return;
     }
 
     if (password.length < 6) {
-      toast.error('Le mot de passe doit contenir au moins 6 caractères');
+      toast.error("Le mot de passe doit contenir au moins 6 caractères");
       return;
     }
 
@@ -123,33 +93,30 @@ export default function ResetPasswordPage() {
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: password
+        password,
       });
 
       if (error) {
-        console.error('❌ Erreur mise à jour mot de passe:', error);
+        console.error("❌ Erreur mise à jour mot de passe:", error);
         toast.error(`Erreur lors de la mise à jour: ${error.message}`);
       } else {
-        console.log('✅ Mot de passe mis à jour avec succès');
-        toast.success('Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter.');
-        
-        // Rediriger vers la page d'accueil après 2 secondes
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
+        console.log("✅ Mot de passe mis à jour avec succès");
+        toast.success("Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter.");
+        setTimeout(() => navigate("/"), 2000);
       }
     } catch (error) {
-      console.error('❌ Erreur:', error);
-      toast.error('Une erreur inattendue s\'est produite');
+      console.error("❌ Erreur:", error);
+      toast.error("Une erreur inattendue s'est produite");
     } finally {
       setLoading(false);
     }
   };
 
+  // --- UI ---
   if (!tokenChecked) {
     return (
       <>
-        <SEOHead 
+        <SEOHead
           title="Réinitialisation du mot de passe - Sun Is Up"
           description="Réinitialisez votre mot de passe pour accéder à votre compte membre Sun Is Up"
           noIndex={true}
@@ -167,7 +134,7 @@ export default function ResetPasswordPage() {
   if (isValidToken === false) {
     return (
       <>
-        <SEOHead 
+        <SEOHead
           title="Lien invalide - Sun Is Up"
           description="Le lien de réinitialisation est invalide ou a expiré"
           noIndex={true}
@@ -179,11 +146,11 @@ export default function ResetPasswordPage() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Lien invalide</h1>
             <p className="text-gray-600 mb-6">
-              Ce lien de réinitialisation est invalide ou a expiré. 
+              Ce lien de réinitialisation est invalide ou a expiré.
               Veuillez demander un nouveau lien de réinitialisation.
             </p>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -197,7 +164,7 @@ export default function ResetPasswordPage() {
 
   return (
     <>
-      <SEOHead 
+      <SEOHead
         title="Nouveau mot de passe - Sun Is Up"
         description="Définissez votre nouveau mot de passe pour votre compte membre Sun Is Up"
         noIndex={true}
@@ -208,15 +175,12 @@ export default function ResetPasswordPage() {
             <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-amber-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Nouveau mot de passe
-            </h1>
-            <p className="text-gray-600">
-              Définissez un nouveau mot de passe sécurisé pour votre compte
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Nouveau mot de passe</h1>
+            <p className="text-gray-600">Définissez un nouveau mot de passe sécurisé pour votre compte</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Champ mot de passe */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nouveau mot de passe
@@ -226,7 +190,7 @@ export default function ResetPasswordPage() {
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
@@ -246,11 +210,10 @@ export default function ResetPasswordPage() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Minimum 6 caractères
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Minimum 6 caractères</p>
             </div>
 
+            {/* Champ confirmation */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Confirmer le mot de passe
@@ -260,7 +223,7 @@ export default function ResetPasswordPage() {
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
@@ -284,9 +247,7 @@ export default function ResetPasswordPage() {
 
             {password && confirmPassword && password !== confirmPassword && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-700">
-                  Les mots de passe ne correspondent pas
-                </p>
+                <p className="text-sm text-red-700">Les mots de passe ne correspondent pas</p>
               </div>
             )}
 
@@ -311,7 +272,7 @@ export default function ResetPasswordPage() {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="text-sm text-gray-600 hover:text-gray-800 flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
