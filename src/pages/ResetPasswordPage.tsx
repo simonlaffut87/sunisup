@@ -26,13 +26,31 @@ export default function ResetPasswordPage() {
       const accessToken = searchParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token');
       const type = searchParams.get('type');
+      const error = searchParams.get('error');
+      const errorDescription = searchParams.get('error_description');
 
-      console.log('🔍 Paramètres URL:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+      console.log('🔍 Paramètres URL:', { 
+        accessToken: !!accessToken, 
+        refreshToken: !!refreshToken, 
+        type,
+        error,
+        errorDescription 
+      });
+
+      // Vérifier s'il y a une erreur dans l'URL
+      if (error) {
+        console.error('❌ Erreur dans l\'URL:', error, errorDescription);
+        setIsValidToken(false);
+        setTokenChecked(true);
+        toast.error(`Erreur: ${errorDescription || error}`);
+        return;
+      }
 
       if (!accessToken || !refreshToken || type !== 'recovery') {
         console.warn('⚠️ Paramètres manquants ou invalides');
         setIsValidToken(false);
         setTokenChecked(true);
+        toast.error('Lien de réinitialisation invalide. Veuillez demander un nouveau lien.');
         return;
       }
 
@@ -45,7 +63,7 @@ export default function ResetPasswordPage() {
       if (error) {
         console.error('❌ Erreur lors de la définition de la session:', error);
         setIsValidToken(false);
-        toast.error('Lien de réinitialisation invalide ou expiré');
+        toast.error(`Lien de réinitialisation invalide ou expiré: ${error.message}`);
       } else if (data.session) {
         console.log('✅ Session de récupération établie');
         setIsValidToken(true);
@@ -53,11 +71,12 @@ export default function ResetPasswordPage() {
       } else {
         console.warn('⚠️ Aucune session créée');
         setIsValidToken(false);
+        toast.error('Impossible de créer une session de récupération');
       }
     } catch (error) {
       console.error('❌ Erreur lors de la vérification du token:', error);
       setIsValidToken(false);
-      toast.error('Erreur lors de la vérification du lien');
+      toast.error(`Erreur lors de la vérification du lien: ${error.message}`);
     } finally {
       setTokenChecked(true);
     }

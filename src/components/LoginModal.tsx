@@ -36,7 +36,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     try {
       if (mode === 'reset') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: 'https://sunisup.be/reset-password',
+          redirectTo: `${window.location.origin}/reset-password`,
           captchaToken: undefined,
           data: {
             site_name: 'Sun Is Up',
