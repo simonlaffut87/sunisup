@@ -539,11 +539,11 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     // Revenus d'injection
     const injectionRevenue = (injectionPartageeInMWh + injectionComplementaireInMWh) * sharedEnergyPrice;
 
-    // Frais d'adhésion annuels (50€ TTC) - seulement pour la première facture de l'année
+    // Frais d'adhésion annuels (60.50€ TTC) - seulement pour la première facture de l'année
     const currentYear = new Date().getFullYear();
     const isFirstInvoiceOfYear = true; // Pour 2025, c'est la première facture
-    const membershipFeeHTVA = isFirstInvoiceOfYear ? 50 / 1.21 : 0; // 41.32€ HTVA
-    const membershipFeeTVAC = isFirstInvoiceOfYear ? 50 : 0; // 50€ TVAC
+    const membershipFeeHTVA = isFirstInvoiceOfYear ? 60.50 / 1.21 : 0; // 50.00€ HTVA
+    const membershipFeeTVAC = isFirstInvoiceOfYear ? 60.50 : 0; // 60.50€ TVAC
     
     console.log('💰 Frais d\'adhésion:', {
       isFirstInvoiceOfYear,
