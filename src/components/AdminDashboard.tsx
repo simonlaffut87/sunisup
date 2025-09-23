@@ -1112,7 +1112,6 @@ export function AdminDashboard() {
           </div>
         </div>
       </main>
-        </main>
       </div>
 
       {/* Modal de sélection de période */}
