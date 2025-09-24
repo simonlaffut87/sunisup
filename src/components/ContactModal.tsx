@@ -164,7 +164,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-4 md:p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl md:text-2xl font-bold text-amber-900">{t('contact.title')}</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-amber-900 font-sans">{t('contact.title')}</h2>
             <button
               onClick={onClose}
               className="text-amber-700 hover:text-amber-900 transition-colors p-2"
@@ -175,7 +175,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
 
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2">
+              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
                 {t('contact.email')}
               </label>
               <div className="relative">
@@ -208,7 +208,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2">
+              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
                 {t('contact.message')}
               </label>
               <div className="relative">
@@ -226,7 +226,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2">
+              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
                 {t('contact.billFile')}
               </label>
               <div className="flex items-center justify-center w-full">
@@ -234,7 +234,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                   contactForm.billFile ? 'border-amber-500' : 'border-amber-300 border-dashed'
                 } cursor-pointer hover:bg-amber-50`}>
                   <Upload className="w-6 h-6 md:w-8 md:h-8 text-amber-500 mb-2" />
-                  <span className="text-sm text-amber-600 text-center">
+                  <span className="text-sm text-amber-600 text-center font-sans">
                     {contactForm.billFile ? contactForm.billFile.name : t('contact.billFileText')}
                   </span>
                   <input
@@ -248,7 +248,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2">
+              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
                 {t('contact.meterPhoto')}
               </label>
               <div className="flex items-center justify-center w-full">
@@ -256,7 +256,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                   contactForm.meterFile ? 'border-amber-500' : 'border-amber-300 border-dashed'
                 } cursor-pointer hover:bg-amber-50`}>
                   <Upload className="w-6 h-6 md:w-8 md:h-8 text-amber-500 mb-2" />
-                  <span className="text-sm text-amber-600 text-center">
+                  <span className="text-sm text-amber-600 text-center font-sans">
                     {contactForm.meterFile ? contactForm.meterFile.name : t('contact.meterPhotoText')}
                   </span>
                   <input
@@ -270,7 +270,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2">
+              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
                 {t('contact.additionalDoc')}
               </label>
               <div className="flex items-center justify-center w-full">
@@ -278,7 +278,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                   contactForm.additionalFile ? 'border-amber-500' : 'border-amber-300 border-dashed'
                 } cursor-pointer hover:bg-amber-50`}>
                   <Upload className="w-6 h-6 md:w-8 md:h-8 text-amber-500 mb-2" />
-                  <span className="text-sm text-amber-600 text-center">
+                  <span className="text-sm text-amber-600 text-center font-sans">
                     {contactForm.additionalFile ? contactForm.additionalFile.name : t('contact.additionalDocText')}
                   </span>
                   <input
@@ -294,7 +294,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-sans"
             >
               {submitting ? (
                 <>

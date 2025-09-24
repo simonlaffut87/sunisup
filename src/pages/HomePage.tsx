@@ -128,7 +128,7 @@ export default function HomePage() {
         url="https://sunisup.be"
         logo="https://sunisup.be/images/logo.png"
       />
-      <div className="space-y-0">
+      <div className="space-y-0 font-sans">
       {/* Modern Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background gradient */}
@@ -142,17 +142,17 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center space-y-8">
             {/* Badge */}
-            <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg">
+            <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg font-sans">
               <Zap className="w-5 h-5 mr-2" />
               {t('home.hero.badge')}
             </div>
             
             {/* Main title */}
             <div className="space-y-6">
-              <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto">
+              <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto font-sans">
                 {t('home.hero.title')}
               </h1>
-              <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-3xl mx-auto font-sans">
                 {t('home.hero.intro')}
               </p>
             </div>
@@ -161,14 +161,14 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
               <button 
                 onClick={() => setShowContactModal(true)}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-full font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 flex items-center gap-3 text-lg"
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-full font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 flex items-center gap-3 text-lg font-sans"
               >
                 {t('howToJoin.cta.button')}
                 <ArrowRight className="w-5 h-5" />
               </button>
               <a 
                 href="/simulation"
-                className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 px-8 py-4 rounded-full font-semibold transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3 text-lg"
+                className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 px-8 py-4 rounded-full font-semibold transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-3 text-lg font-sans"
               >
                 {t('simulation.title')}
                 <TrendingUp className="w-5 h-5" />
@@ -197,32 +197,32 @@ export default function HomePage() {
               <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
                 <Target className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{t('home.hero.features.local.title')}</h3>
-              <p className="text-gray-600 text-sm">{t('home.hero.features.local.description')}</p>
+              <h3 className="font-bold text-gray-900 mb-2 font-sans">{t('home.hero.features.local.title')}</h3>
+              <p className="text-gray-600 text-sm font-sans">{t('home.hero.features.local.description')}</p>
             </div>
             
             <div className="text-center group">
               <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
                 <Wallet className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{t('home.hero.features.price.title')}</h3>
-              <p className="text-gray-600 text-sm">{t('home.hero.features.price.description')}</p>
+              <h3 className="font-bold text-gray-900 mb-2 font-sans">{t('home.hero.features.price.title')}</h3>
+              <p className="text-gray-600 text-sm font-sans">{t('home.hero.features.price.description')}</p>
             </div>
             
             <div className="text-center group">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
                 <Leaf className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{t('home.hero.features.transition.title')}</h3>
-              <p className="text-gray-600 text-sm">{t('home.hero.features.transition.description')}</p>
+              <h3 className="font-bold text-gray-900 mb-2 font-sans">{t('home.hero.features.transition.title')}</h3>
+              <p className="text-gray-600 text-sm font-sans">{t('home.hero.features.transition.description')}</p>
             </div>
             
             <div className="text-center group">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
                 <Zap className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{t('home.hero.features.green.title')}</h3>
-              <p className="text-gray-600 text-sm">{t('home.hero.features.green.description')}</p>
+              <h3 className="font-bold text-gray-900 mb-2 font-sans">{t('home.hero.features.green.title')}</h3>
+              <p className="text-gray-600 text-sm font-sans">{t('home.hero.features.green.description')}</p>
             </div>
           </div>
         </div>
@@ -232,8 +232,8 @@ export default function HomePage() {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Notre impact en chiffres</h2>
-            <p className="text-xl text-gray-600">Des résultats concrets pour notre communauté</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4 font-sans">Notre impact en chiffres</h2>
+            <p className="text-xl text-gray-600 font-sans">Des résultats concrets pour notre communauté</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -241,27 +241,27 @@ export default function HomePage() {
               <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                 <Power className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-4xl font-bold text-gray-900 mb-2">724</h3>
-              <p className="text-lg font-medium text-gray-700 mb-2">MWh/an</p>
-              <p className="text-gray-600">{t('home.stats.production.subtitle')}</p>
+              <h3 className="text-4xl font-bold text-gray-900 mb-2 font-sans">724</h3>
+              <p className="text-lg font-medium text-gray-700 mb-2 font-sans">MWh/an</p>
+              <p className="text-gray-600 font-sans">{t('home.stats.production.subtitle')}</p>
             </div>
             
             <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 text-center group hover:shadow-xl transition-all duration-300">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                 <Users className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-4xl font-bold text-gray-900 mb-2">11</h3>
-              <p className="text-lg font-medium text-gray-700 mb-2">Participants</p>
-              <p className="text-gray-600">{t('home.stats.participants.subtitle')}</p>
+              <h3 className="text-4xl font-bold text-gray-900 mb-2 font-sans">11</h3>
+              <p className="text-lg font-medium text-gray-700 mb-2 font-sans">Participants</p>
+              <p className="text-gray-600 font-sans">{t('home.stats.participants.subtitle')}</p>
             </div>
             
             <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 text-center group hover:shadow-xl transition-all duration-300">
               <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                 <TrendingUp className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-4xl font-bold text-gray-900 mb-2">10%</h3>
-              <p className="text-lg font-medium text-gray-700 mb-2">Économies</p>
-              <p className="text-gray-600">{t('home.stats.savings.subtitle')}</p>
+              <h3 className="text-4xl font-bold text-gray-900 mb-2 font-sans">10%</h3>
+              <p className="text-lg font-medium text-gray-700 mb-2 font-sans">Économies</p>
+              <p className="text-gray-600 font-sans">{t('home.stats.savings.subtitle')}</p>
             </div>
           </div>
         </div>
@@ -271,10 +271,10 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
               {t('home.howItWorks.title')}
             </h2>
-            <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto">
+            <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto font-sans">
               {t('home.howItWorks.description')}
             </p>
           </div>
@@ -291,7 +291,7 @@ export default function HomePage() {
                 Votre navigateur ne supporte pas la lecture vidéo.
               </video>
             </div>
-            <p className="text-gray-600 mt-6 text-center text-lg">
+            <p className="text-gray-600 mt-6 text-center text-lg font-sans">
               {t('home.howItWorks.videoDescription')}
             </p>
           </div>
@@ -303,7 +303,7 @@ export default function HomePage() {
       <section className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
               {t('home.faq.title')}
             </h2>
           </div>
@@ -315,7 +315,7 @@ export default function HomePage() {
                   onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
                   className="w-full flex items-center justify-between text-left p-8 hover:bg-gray-50 transition-colors rounded-2xl"
                 >
-                  <h3 className="text-xl font-semibold text-gray-900 pr-4">{item.question}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 pr-4 font-sans">{item.question}</h3>
                   {expandedFAQ === index ? (
                     <ChevronUp className="w-6 h-6 text-amber-500 flex-shrink-0" />
                   ) : (
@@ -324,7 +324,7 @@ export default function HomePage() {
                 </button>
                 {expandedFAQ === index && (
                   <div className="px-8 pb-8">
-                    <p className="text-gray-600 leading-relaxed text-lg">{item.answer}</p>
+                    <p className="text-gray-600 leading-relaxed text-lg font-sans">{item.answer}</p>
                   </div>
                 )}
               </div>
@@ -337,15 +337,15 @@ export default function HomePage() {
       <section className="py-20 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6">
+          <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 font-sans">
             {t('home.cta.title')}
           </h2>
-          <p className="text-xl lg:text-2xl text-white/90 mb-12 max-w-3xl mx-auto">
+          <p className="text-xl lg:text-2xl text-white/90 mb-12 max-w-3xl mx-auto font-sans">
             {t('home.cta.description')}
           </p>
           <button 
             onClick={() => setShowContactModal(true)}
-            className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-full font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:scale-105 flex items-center gap-3 mx-auto text-lg"
+            className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-full font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:scale-105 flex items-center gap-3 mx-auto text-lg font-sans"
           >
             {t('howToJoin.cta.button')}
             <ArrowRight className="w-6 h-6" />

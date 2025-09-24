@@ -155,18 +155,18 @@ export default function SimulationPage() {
         url="https://sunisup.be/simulation"
         logo="https://sunisup.be/images/logo.png"
       />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 font-sans">
         {/* Modern Hero Section */}
         <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg mb-8">
+            <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg mb-8 font-sans">
               <Calculator className="w-4 h-4 mr-2" />
               {t('simulation.badge')}
             </div>
-            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8">
+            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
               {t('simulation.title')}
             </h1>
-            <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto">
+            <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto font-sans">
               {t('simulation.subtitle')}
             </p>
           </div>
@@ -176,7 +176,7 @@ export default function SimulationPage() {
           {/* Examples Section for Consumers */}
           {simulationType === 'consumer' && (
             <div className="mb-16">
-              <h3 className="text-3xl font-bold text-gray-900 mb-12 text-center">
+              <h3 className="text-3xl font-bold text-gray-900 mb-12 text-center font-sans">
                 {t('simulation.examplesTitle')}
               </h3>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -184,32 +184,32 @@ export default function SimulationPage() {
                   <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                     <Coffee className="w-10 h-10 text-white" />
                   </div>
-                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{t('simulation.examples.bar.title')}</h4>
-                  <p className="text-gray-600">{t('simulation.examples.bar.consumption')}</p>
+                  <h4 className="font-bold text-gray-900 mb-3 text-lg font-sans">{t('simulation.examples.bar.title')}</h4>
+                  <p className="text-gray-600 font-sans">{t('simulation.examples.bar.consumption')}</p>
                 </div>
 
                 <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 text-center group">
                   <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                     <Store className="w-10 h-10 text-white" />
                   </div>
-                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{t('simulation.examples.bakery.title')}</h4>
-                  <p className="text-gray-600">{t('simulation.examples.bakery.consumption')}</p>
+                  <h4 className="font-bold text-gray-900 mb-3 text-lg font-sans">{t('simulation.examples.bakery.title')}</h4>
+                  <p className="text-gray-600 font-sans">{t('simulation.examples.bakery.consumption')}</p>
                 </div>
 
                 <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 text-center group">
                   <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                     <Building className="w-10 h-10 text-white" />
                   </div>
-                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{t('simulation.examples.office.title')}</h4>
-                  <p className="text-gray-600">{t('simulation.examples.office.consumption')}</p>
+                  <h4 className="font-bold text-gray-900 mb-3 text-lg font-sans">{t('simulation.examples.office.title')}</h4>
+                  <p className="text-gray-600 font-sans">{t('simulation.examples.office.consumption')}</p>
                 </div>
 
                 <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 text-center group">
                   <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                     <Factory className="w-10 h-10 text-white" />
                   </div>
-                  <h4 className="font-bold text-gray-900 mb-3 text-lg">{t('simulation.examples.workshop.title')}</h4>
-                  <p className="text-gray-600">{t('simulation.examples.workshop.consumption')}</p>
+                  <h4 className="font-bold text-gray-900 mb-3 text-lg font-sans">{t('simulation.examples.workshop.title')}</h4>
+                  <p className="text-gray-600 font-sans">{t('simulation.examples.workshop.consumption')}</p>
                 </div>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function SimulationPage() {
 
           {/* Simulation Type Selection */}
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12 mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center font-sans">
               {t('simulation.profileChoice')}
             </h2>
             
@@ -244,8 +244,8 @@ export default function SimulationPage() {
                     }`} />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('simulation.consumer.title')}</h3>
-                <p className="text-gray-600 text-lg">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 font-sans">{t('simulation.consumer.title')}</h3>
+                <p className="text-gray-600 text-lg font-sans">
                   {t('simulation.consumer.description')}
                 </p>
               </button>
@@ -272,8 +272,8 @@ export default function SimulationPage() {
                     }`} />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('simulation.producer.title')}</h3>
-                <p className="text-gray-600 text-lg">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 font-sans">{t('simulation.producer.title')}</h3>
+                <p className="text-gray-600 text-lg font-sans">
                   {t('simulation.producer.description')}
                 </p>
               </button>
@@ -283,7 +283,7 @@ export default function SimulationPage() {
             <form onSubmit={handleSubmit} className="space-y-8">
               {simulationType === 'consumer' ? (
                 <div>
-                  <label className="block text-xl font-bold text-gray-900 mb-4">
+                  <label className="block text-xl font-bold text-gray-900 mb-4 font-sans">
                     {t('simulation.consumer.consumption')}
                   </label>
                   <div className="relative">
@@ -299,7 +299,7 @@ export default function SimulationPage() {
                       disabled={false}
                       required
                     />
-                    <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                    <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium font-sans">
                       kWh/an
                     </div>
                   </div>
@@ -312,16 +312,16 @@ export default function SimulationPage() {
                       id="usePanelCount"
                       checked={usePanelCount}
                       onChange={(e) => setUsePanelCount(e.target.checked)}
-                      className="w-6 h-6 rounded text-amber-500 focus:ring-amber-500"
+                      className="w-6 h-6 rounded text-amber-500 focus:ring-amber-500 font-sans"
                     />
-                    <label htmlFor="usePanelCount" className="text-gray-700 font-medium text-lg">
+                    <label htmlFor="usePanelCount" className="text-gray-700 font-medium text-lg font-sans">
                       {t('simulation.producer.powerUnknown')}
                     </label>
                   </div>
 
                   {usePanelCount ? (
                     <div>
-                      <label className="block text-xl font-bold text-gray-900 mb-4">
+                      <label className="block text-xl font-bold text-gray-900 mb-4 font-sans">
                         {t('simulation.producer.panelCount')}
                       </label>
                       <input
@@ -335,7 +335,7 @@ export default function SimulationPage() {
                     </div>
                   ) : (
                     <div>
-                      <label className="block text-xl font-bold text-gray-900 mb-4">
+                      <label className="block text-xl font-bold text-gray-900 mb-4 font-sans">
                         {t('simulation.producer.power')}
                       </label>
                       <div className="relative">
@@ -348,7 +348,7 @@ export default function SimulationPage() {
                           placeholder="Ex: 8.5"
                           required
                         />
-                        <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                        <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium font-sans">
                           kWp
                         </div>
                       </div>
@@ -363,7 +363,7 @@ export default function SimulationPage() {
                   simulationType === 'consumer'
                     ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
                     : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
-                }`}
+                } font-sans`}
               >
                 <Calculator className="w-7 h-7" />
                 {t('simulation.calculate')}
@@ -387,7 +387,7 @@ export default function SimulationPage() {
                   </div>
                   <h3 className={`text-3xl font-bold ${
                     simulationType === 'consumer' ? 'text-emerald-900' : 'text-amber-900'
-                  }`}>
+                  } font-sans`}>
                     {t('simulation.results')}
                   </h3>
                 </div>
@@ -395,30 +395,30 @@ export default function SimulationPage() {
                 {simulationType === 'consumer' ? (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                     <div className="bg-white p-8 rounded-2xl border border-emerald-200 shadow-lg">
-                      <p className="text-emerald-700 font-semibold mb-3 text-lg">{t('simulation.consumer.currentCost')}</p>
-                      <p className="text-3xl font-bold text-emerald-900">{calculateSimulation()?.traditionalCost} €</p>
+                      <p className="text-emerald-700 font-semibold mb-3 text-lg font-sans">{t('simulation.consumer.currentCost')}</p>
+                      <p className="text-3xl font-bold text-emerald-900 font-sans">{calculateSimulation()?.traditionalCost} €</p>
                     </div>
                     
                     <div className="bg-white p-8 rounded-2xl border border-emerald-200 shadow-lg">
-                      <p className="text-emerald-700 font-semibold mb-3 text-lg">{t('simulation.consumer.newCost')}</p>
-                      <p className="text-3xl font-bold text-emerald-900">{calculateSimulation()?.sunIsUpCost} €</p>
+                      <p className="text-emerald-700 font-semibold mb-3 text-lg font-sans">{t('simulation.consumer.newCost')}</p>
+                      <p className="text-3xl font-bold text-emerald-900 font-sans">{calculateSimulation()?.sunIsUpCost} €</p>
                     </div>
 
                     <div className="bg-gradient-to-br from-emerald-100 to-green-100 p-8 rounded-2xl border border-emerald-300 shadow-lg">
-                      <p className="text-emerald-700 font-semibold mb-3 text-lg">{t('simulation.consumer.savings')}</p>
-                      <p className="text-4xl font-bold text-emerald-600">{calculateSimulation()?.savings} €</p>
+                      <p className="text-emerald-700 font-semibold mb-3 text-lg font-sans">{t('simulation.consumer.savings')}</p>
+                      <p className="text-4xl font-bold text-emerald-600 font-sans">{calculateSimulation()?.savings} €</p>
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div className="bg-white p-8 rounded-2xl border border-amber-200 shadow-lg">
-                      <p className="text-amber-700 font-semibold mb-3 text-lg">{t('simulation.producer.production')}</p>
-                      <p className="text-3xl font-bold text-amber-900">{calculateSimulation()?.estimatedProduction} kWh</p>
+                      <p className="text-amber-700 font-semibold mb-3 text-lg font-sans">{t('simulation.producer.production')}</p>
+                      <p className="text-3xl font-bold text-amber-900 font-sans">{calculateSimulation()?.estimatedProduction} kWh</p>
                     </div>
 
                     <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-8 rounded-2xl border border-amber-300 shadow-lg">
-                      <p className="text-amber-700 font-semibold mb-3 text-lg">{t('simulation.producer.revenue')}</p>
-                      <p className="text-4xl font-bold text-amber-600">{calculateSimulation()?.revenue} €</p>
+                      <p className="text-amber-700 font-semibold mb-3 text-lg font-sans">{t('simulation.producer.revenue')}</p>
+                      <p className="text-4xl font-bold text-amber-600 font-sans">{calculateSimulation()?.revenue} €</p>
                     </div>
                   </div>
                 )}
@@ -430,7 +430,7 @@ export default function SimulationPage() {
                     <InfoCircle className={`w-6 h-6 flex-shrink-0 mt-1 ${
                       simulationType === 'consumer' ? 'text-emerald-600' : 'text-amber-600'
                     }`} />
-                    <p className={`text-lg ${
+                    <p className={`text-lg font-sans ${
                       simulationType === 'consumer' ? 'text-emerald-700' : 'text-amber-700'
                     }`}>
                       {simulationType === 'consumer' 
@@ -447,7 +447,7 @@ export default function SimulationPage() {
                     simulationType === 'consumer'
                       ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
                       : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
-                  }`}
+                  } font-sans`}
                 >
                   {t('simulation.contact')}
                   <ArrowRight className="w-6 h-6" />

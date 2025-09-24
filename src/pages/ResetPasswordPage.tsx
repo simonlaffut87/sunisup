@@ -180,19 +180,19 @@ export default function ResetPasswordPage() {
         description="Définissez votre nouveau mot de passe pour votre compte membre Sun Is Up"
         noIndex={true}
       />
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-amber-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Nouveau mot de passe</h1>
-            <p className="text-gray-600">Définissez un nouveau mot de passe sécurisé pour votre compte</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2 font-sans">Nouveau mot de passe</h1>
+            <p className="text-gray-600 font-sans">Définissez un nouveau mot de passe sécurisé pour votre compte</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">Nouveau mot de passe</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
@@ -214,11 +214,11 @@ export default function ResetPasswordPage() {
                   {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Minimum 6 caractères</p>
+              <p className="text-xs text-gray-500 mt-1 font-sans">Minimum 6 caractères</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">Confirmer le mot de passe</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
@@ -244,14 +244,14 @@ export default function ResetPasswordPage() {
 
             {password && confirmPassword && password !== confirmPassword && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-700">Les mots de passe ne correspondent pas</p>
+                <p className="text-sm text-red-700 font-sans">Les mots de passe ne correspondent pas</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading || !password || !confirmPassword || password !== confirmPassword}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 font-sans"
             >
               {loading ? "Chargement..." : "Réinitialiser le mot de passe"}
             </button>

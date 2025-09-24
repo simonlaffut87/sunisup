@@ -371,7 +371,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 font-sans">
         <SupabaseConnectionBanner />
         
         {/* Modern Header */}
@@ -381,7 +381,7 @@ function App() {
               {/* Logo */}
               <Link to="/" className="flex items-center space-x-3">
                 <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-8 h-8" />
-                <span className="text-xl font-bold text-gray-900">{t('header.title')}</span>
+                <span className="text-xl font-bold text-gray-900 font-sans">{t('header.title')}</span>
               </Link>
               
               {/* Desktop Navigation */}
@@ -400,7 +400,7 @@ function App() {
                   <button
                     onClick={() => setShowDashboard(true)}
                     disabled={isLoggingOut}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">Dashboard</span>
@@ -408,7 +408,7 @@ function App() {
                 ) : (
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('header.memberAccess')}</span>
@@ -417,7 +417,7 @@ function App() {
                 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl"
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans"
                 >
                   <span>{t('header.contact')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -449,23 +449,23 @@ function App() {
                 <div className="flex items-center space-x-3 mb-6">
                   <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-10 h-10" />
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">Sun Is Up</h3>
-                    <p className="text-gray-600 text-sm">{t('footer.description')}</p>
+                    <h3 className="text-xl font-bold text-gray-900 font-sans">Sun Is Up</h3>
+                    <p className="text-gray-600 text-sm font-sans">{t('footer.description')}</p>
                   </div>
                 </div>
-                <p className="text-gray-600 max-w-md">
+                <p className="text-gray-600 max-w-md font-sans">
                   Communauté d'énergie bruxelloise pour une transition énergétique locale et durable.
                 </p>
               </div>
               
               <div>
-                <h4 className="font-semibold text-gray-900 mb-4">{t('footer.contact')}</h4>
+                <h4 className="font-semibold text-gray-900 mb-4 font-sans">{t('footer.contact')}</h4>
                 <div className="space-y-3 text-gray-600 text-sm">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 font-sans">
                     <span>📞</span>
                     <span>+32 471 31 71 48</span>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 font-sans">
                     <span>✉️</span>
                     <span>info@sunisup.be</span>
                   </div>
@@ -473,12 +473,12 @@ function App() {
               </div>
               
               <div>
-                <h4 className="font-semibold text-gray-900 mb-4">{t('footer.followUs')}</h4>
+                <h4 className="font-semibold text-gray-900 mb-4 font-sans">{t('footer.followUs')}</h4>
                 <a 
                   href="https://www.linkedin.com/company/sun-is-up-asbl" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition-colors text-sm"
+                  className="inline-flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition-colors text-sm font-sans"
                 >
                   <span>🔗</span>
                   <span>LinkedIn</span>
@@ -486,7 +486,7 @@ function App() {
               </div>
             </div>
             
-            <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm">
+            <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm font-sans">
               {t('footer.copyright')}
             </div>
           </div>
@@ -526,7 +526,7 @@ function NavigationLinks() {
             location.pathname === link.path
               ? 'text-amber-600'
               : 'text-gray-700 hover:text-amber-600'
-          }`}
+          } font-sans`}
         >
           {link.label}
           {location.pathname === link.path && (
@@ -573,8 +573,8 @@ function MobileNavigation() {
                       location.pathname === link.path
                         ? 'bg-amber-50 text-amber-600 border border-amber-200'
                         : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
+                      : 'text-gray-700 hover:bg-gray-50'
+                  } font-sans`}
                     {link.label}
                   </Link>
                 ))}

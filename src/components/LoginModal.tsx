@@ -283,7 +283,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                   <ArrowLeft className="w-5 h-5" />
                 </button>
               )}
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-gray-900 font-sans">
                 {getTitle()}
               </h2>
             </div>
@@ -297,7 +297,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
           {mode === 'reset' && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-700">
+              <p className="text-sm text-blue-700 font-sans">
                 Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
               </p>
             </div>
@@ -305,7 +305,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
           {mode === 'register' && (
             <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-700">
+              <p className="text-sm text-green-700 font-sans">
                 <strong>Création de compte membre.</strong> Votre code EAN doit être enregistré dans notre système.
               </p>
             </div>
@@ -313,7 +313,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
           {mode === 'login' && (
             <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-amber-700">
+              <p className="text-sm text-amber-700 font-sans">
                 <strong>Accès réservé aux membres.</strong> Si vous n'avez pas encore de compte, créez-en un avec votre code EAN.
               </p>
             </div>
@@ -321,7 +321,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
                 Email
               </label>
               <div className="relative">
@@ -341,7 +341,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
             {mode === 'register' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
                   Code EAN (18 chiffres)
                 </label>
                 <div className="relative">
@@ -364,7 +364,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                   />
                 </div>
                 {eanCode && eanCode.length < 18 && (
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 mt-1 font-sans">
                     {18 - eanCode.length} chiffres restants
                   </p>
                 )}
@@ -373,7 +373,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
             {mode !== 'reset' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
                   Mot de passe
                 </label>
                 <div className="relative">
@@ -406,7 +406,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
             {mode === 'register' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
                   Confirmer le mot de passe
                 </label>
                 <div className="relative">
@@ -440,7 +440,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-sans"
             >
               {loading ? (
                 <>
@@ -457,7 +457,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             {mode === 'login' && (
               <button
                 onClick={() => switchMode('reset')}
-                className="text-sm text-gray-600 hover:text-gray-800 block"
+                className="text-sm text-gray-600 hover:text-gray-800 block font-sans"
               >
                 Mot de passe oublié ?
               </button>
@@ -466,7 +466,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             {mode === 'login' && (
               <button
                 onClick={() => switchMode('register')}
-                className="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center justify-center gap-2"
+                className="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center justify-center gap-2 font-sans"
               >
                 <UserPlus className="w-4 h-4" />
                 Créer un compte avec mon code EAN
@@ -474,11 +474,11 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             )}
             
             <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-sm text-gray-600 text-center font-sans">
                 {mode === 'register' ? 'Déjà un compte ?' : 'Pas encore membre ?'}{' '}
                 <button
                   onClick={mode === 'register' ? () => switchMode('login') : onClose}
-                  className="text-amber-600 hover:text-amber-700 font-medium"
+                  className="text-amber-600 hover:text-amber-700 font-medium font-sans"
                 >
                   {mode === 'register' ? 'Se connecter' : 'Contactez-nous pour rejoindre la communauté'}
                 </button>
