@@ -37,10 +37,10 @@ export default function ResetPasswordPage() {
       const errorDescription = searchParams.get("error_description");
 
       if (code) {
-        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-        if (exchangeError) {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
           setIsValidToken(false);
-          toast.error(`Lien invalide ou expiré: ${exchangeError.message}`);
+          toast.error(`Lien invalide ou expiré: ${error.message}`);
         } else if (data.session) {
           setIsValidToken(true);
           toast.success("Lien valide ! Vous pouvez maintenant changer votre mot de passe.");
@@ -60,14 +60,14 @@ export default function ResetPasswordPage() {
       }
 
       if (accessToken && refreshToken && type === "recovery") {
-        const { data, error: sessionError } = await supabase.auth.setSession({
+        const { data, error } = await supabase.auth.setSession({
           access_token: accessToken,
-          refresh_token: refreshToken,
+          refresh_token: refreshToken
         });
 
-        if (sessionError) {
+        if (error) {
           setIsValidToken(false);
-          toast.error(`Tokens invalides: ${sessionError.message}`);
+          toast.error(`Tokens invalides: ${error.message}`);
         } else if (data.session) {
           setIsValidToken(true);
           toast.success("Lien valide. Vous pouvez maintenant définir un nouveau mot de passe.");
@@ -103,27 +103,10 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      // Crée une session temporaire avec le access_token avant updateUser
-      const accessToken = searchParams.get("access_token");
-      const refreshToken = searchParams.get("refresh_token");
+      const { error } = await supabase.auth.updateUser({ password });
 
-      if (accessToken) {
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken || undefined,
-        });
-
-        if (sessionError) {
-          toast.error(`Erreur lors de la création de session : ${sessionError.message}`);
-          setLoading(false);
-          return;
-        }
-      }
-
-      const { error: updateError } = await supabase.auth.updateUser({ password });
-
-      if (updateError) {
-        toast.error(`Erreur lors de la mise à jour : ${updateError.message}`);
+      if (error) {
+        toast.error(`Erreur lors de la mise à jour: ${error.message}`);
       } else {
         toast.success("Mot de passe mis à jour avec succès ! Redirection...");
         await supabase.auth.signOut();
@@ -238,4 +221,43 @@ export default function ResetPasswordPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock class
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                  placeholder="••••••••"
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
+                </button>
+              </div>
+            </div>
+
+            {password && confirmPassword && password !== confirmPassword && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-700">Les mots de passe ne correspondent pas</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || !password || !confirmPassword || password !== confirmPassword}
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {loading ? "Chargement..." : "Réinitialiser le mot de passe"}
+            </button>
+          </form>
+        </div>
+      </div>
+    </>
+  );
+}
