@@ -29,108 +29,57 @@ export default function ResetPasswordPage() {
 
   const checkResetToken = async () => {
     try {
-      console.log("🔍 Vérification du token de réinitialisation...");
-      console.log("🔍 URL actuelle:", window.location.href);
-      console.log("🔍 Paramètres URL complets:", window.location.search);
-      
-      // Récupérer tous les paramètres possibles
       const code = searchParams.get("code");
       const accessToken = searchParams.get("access_token");
       const refreshToken = searchParams.get("refresh_token");
       const type = searchParams.get("type");
       const urlError = searchParams.get("error");
       const errorDescription = searchParams.get("error_description");
-      const tokenHash = searchParams.get("token_hash");
-      const tokenType = searchParams.get("token_type");
 
-      console.log("📋 Paramètres URL:", { 
-        code: code ? `${code.substring(0, 8)}...` : null,
-        accessToken: !!accessToken, 
-        refreshToken: !!refreshToken, 
-        type,
-        tokenHash: tokenHash ? `${tokenHash.substring(0, 8)}...` : null,
-        tokenType,
-        urlError, 
-        errorDescription 
-      });
-
-      // Test simple : si on a un code, on essaie directement
       if (code) {
-        console.log("✅ Code trouvé, tentative d'échange...");
-        try {
-          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-          
-          if (exchangeError) {
-            console.error("❌ Erreur échange code:", exchangeError);
-            setIsValidToken(false);
-            toast.error(`Lien invalide ou expiré: ${exchangeError.message}`);
-          } else if (data.session) {
-            console.log("✅ Session établie avec succès");
-            setIsValidToken(true);
-            toast.success("Lien valide ! Vous pouvez maintenant changer votre mot de passe.");
-          } else {
-            console.warn("⚠️ Pas de session créée");
-            setIsValidToken(false);
-            toast.error("Impossible de créer une session");
-          }
-        } catch (error) {
-          console.error("❌ Exception:", error);
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        if (exchangeError) {
           setIsValidToken(false);
-          toast.error(`Erreur technique: ${error.message}`);
+          toast.error(`Lien invalide ou expiré: ${exchangeError.message}`);
+        } else if (data.session) {
+          setIsValidToken(true);
+          toast.success("Lien valide ! Vous pouvez maintenant changer votre mot de passe.");
+        } else {
+          setIsValidToken(false);
+          toast.error("Impossible de créer une session");
         }
         setTokenChecked(true);
         return;
       }
 
-      // Vérifier s'il y a une erreur dans l'URL
       if (urlError) {
-        console.error("❌ Erreur dans l'URL:", urlError, errorDescription);
         setIsValidToken(false);
         setTokenChecked(true);
         toast.error(`Erreur: ${errorDescription || urlError}`);
         return;
       }
 
-      // Format moderne avec code (PKCE flow) - le plus courant maintenant
-      // Ancien format avec access_token et refresh_token
       if (accessToken && refreshToken && type === "recovery") {
-        console.log("🔄 Utilisation de l'ancien format avec tokens...");
-        try {
-          const { data, error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          });
+        const { data, error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
 
-          if (sessionError) {
-            console.error("❌ Erreur session:", sessionError);
-            setIsValidToken(false);
-            toast.error(`Tokens invalides: ${sessionError.message}`);
-          } else if (data.session) {
-            console.log("✅ Session établie via tokens");
-            setIsValidToken(true);
-            toast.success("Lien valide. Vous pouvez maintenant définir un nouveau mot de passe.");
-          } else {
-            console.warn("⚠️ Aucune session créée");
-            setIsValidToken(false);
-            toast.error("Impossible de créer une session de récupération");
-          }
-        } catch (error) {
-          console.error("❌ Exception lors de la définition de session:", error);
+        if (sessionError) {
           setIsValidToken(false);
-          toast.error(`Erreur lors de la vérification: ${error.message}`);
+          toast.error(`Tokens invalides: ${sessionError.message}`);
+        } else if (data.session) {
+          setIsValidToken(true);
+          toast.success("Lien valide. Vous pouvez maintenant définir un nouveau mot de passe.");
+        } else {
+          setIsValidToken(false);
+          toast.error("Impossible de créer une session de récupération");
         }
-      }
-      // Si aucun paramètre valide trouvé
-      else {
-        console.warn("⚠️ Aucun paramètre de récupération trouvé");
-        console.warn("⚠️ URL complète:", window.location.href);
-        console.warn("⚠️ Tous les paramètres:", Object.fromEntries(searchParams.entries()));
+      } else {
         setIsValidToken(false);
-        toast.error("Aucun code de réinitialisation trouvé dans l'URL. Vérifiez que vous avez cliqué sur le lien complet depuis votre email.");
+        toast.error("Aucun code de réinitialisation trouvé dans l'URL.");
       }
-
-    } catch (error) {
-      console.error("❌ Erreur générale lors de la vérification:", error);
+    } catch (error: any) {
       setIsValidToken(false);
       toast.error(`Erreur lors de la vérification du lien: ${error.message}`);
     } finally {
@@ -154,35 +103,39 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      console.log("🔄 Mise à jour du mot de passe...");
-      
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
-      });
+      // Crée une session temporaire avec le access_token avant updateUser
+      const accessToken = searchParams.get("access_token");
+      const refreshToken = searchParams.get("refresh_token");
+
+      if (accessToken) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || undefined,
+        });
+
+        if (sessionError) {
+          toast.error(`Erreur lors de la création de session : ${sessionError.message}`);
+          setLoading(false);
+          return;
+        }
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({ password });
 
       if (updateError) {
-        console.error("❌ Erreur mise à jour mot de passe:", updateError);
-        toast.error(`Erreur lors de la mise à jour: ${updateError.message}`);
+        toast.error(`Erreur lors de la mise à jour : ${updateError.message}`);
       } else {
-        console.log("✅ Mot de passe mis à jour avec succès");
-        toast.success("Mot de passe mis à jour avec succès ! Redirection vers l'accueil...");
-        
-        // Déconnexion pour forcer une nouvelle connexion
+        toast.success("Mot de passe mis à jour avec succès ! Redirection...");
         await supabase.auth.signOut();
-        
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        setTimeout(() => navigate("/"), 2000);
       }
-    } catch (error) {
-      console.error("❌ Exception:", error);
+    } catch (error: any) {
       toast.error("Une erreur inattendue s'est produite");
     } finally {
       setLoading(false);
     }
   };
 
-  // Loading state
   if (!tokenChecked) {
     return (
       <>
@@ -201,7 +154,6 @@ export default function ResetPasswordPage() {
     );
   }
 
-  // Invalid token state
   if (isValidToken === false) {
     return (
       <>
@@ -238,7 +190,6 @@ export default function ResetPasswordPage() {
     );
   }
 
-  // Valid token - show password reset form
   return (
     <>
       <SEOHead
@@ -257,11 +208,8 @@ export default function ResetPasswordPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Champ mot de passe */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nouveau mot de passe
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
@@ -280,84 +228,14 @@ export default function ResetPasswordPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
+                  {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-1">Minimum 6 caractères</p>
             </div>
 
-            {/* Champ confirmation */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirmer le mot de passe
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
-                  placeholder="••••••••"
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {password && confirmPassword && password !== confirmPassword && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-700">Les mots de passe ne correspondent pas</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading || !password || !confirmPassword || password !== confirmPassword}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
-                  <span>Mise à jour...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-5 h-5" />
-                  <span>Mettre à jour le mot de passe</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate("/")}
-              className="text-sm text-gray-600 hover:text-gray-800 flex items-center justify-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Retour à l'accueil
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
+                  <Lock class
