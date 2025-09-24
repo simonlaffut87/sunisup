@@ -34,7 +34,6 @@ export default function AdminPage() {
             <Users className="w-4 h-4 mr-2" />
             {t('howToJoin.badge')}
           </div>
-          <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
             {t('howToJoin.title')}
           </h1>
