@@ -31,10 +31,10 @@ export default function AboutPage() {
       <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-6 font-sans">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-6 font-sans">
               {t('about.whoAreWe.title')}
             </h1>
-            <p className="text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto font-sans">
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto font-sans">
               {t('about.whoAreWe.subtitle')}
             </p>
           </div>

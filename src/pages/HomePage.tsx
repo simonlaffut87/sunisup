@@ -149,10 +149,10 @@ export default function HomePage() {
             
             {/* Main title */}
             <div className="space-y-6">
-              <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto font-sans">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto font-sans">
                 {t('home.hero.title')}
               </h1>
-              <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-3xl mx-auto font-sans">
+              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-3xl mx-auto font-sans">
                 {t('home.hero.intro')}
               </p>
             </div>

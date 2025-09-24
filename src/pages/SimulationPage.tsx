@@ -164,9 +164,10 @@ export default function SimulationPage() {
               {t('simulation.badge')}
             </div>
             <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
               {t('simulation.title')}
             </h1>
-            <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto font-sans">
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto font-sans">
               {t('simulation.subtitle')}
             </p>
           </div>

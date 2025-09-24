@@ -375,13 +375,13 @@ function App() {
         <SupabaseConnectionBanner />
         
         {/* Modern Header */}
-        <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-50">
+        <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-50 font-sans">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <Link to="/" className="flex items-center space-x-3">
                 <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-8 h-8" />
-                <span className="text-xl font-bold text-gray-900 font-sans">{t('header.title')}</span>
+                <span className="text-lg sm:text-xl font-bold text-gray-900 font-sans">{t('header.title')}</span>
               </Link>
               
               {/* Desktop Navigation */}
