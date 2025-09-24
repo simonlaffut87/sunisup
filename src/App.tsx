@@ -573,8 +573,8 @@ function MobileNavigation() {
                       location.pathname === link.path
                         ? 'bg-amber-50 text-amber-600 border border-amber-200'
                         : 'text-gray-700 hover:bg-gray-50'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  } font-sans`}
+                    } font-sans`}
+                  >
                     {link.label}
                   </Link>
                 ))}
