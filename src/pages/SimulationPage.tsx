@@ -163,7 +163,6 @@ export default function SimulationPage() {
               <Calculator className="w-4 h-4 mr-2" />
               {t('simulation.badge')}
             </div>
-            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
               {t('simulation.title')}
             </h1>
