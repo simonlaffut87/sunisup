@@ -153,6 +153,51 @@
     "description": "Brusselse energiegemeenschap voor een lokale en duurzame energietransitie."
   },
   "home": {
+    "services": {
+      "title": "Onze vier energiediensten",
+      "subtitle": "Volledige oplossingen om uw energiestrategie te optimaliseren",
+      "integration": {
+        "title": "Integratie van onze diensten",
+        "subtitle": "Een compleet ecosysteem voor uw energietransitie",
+        "approach": {
+          "title": "Een geïntegreerde aanpak",
+          "description": "Onze vier diensten vullen elkaar aan om een complete energieoplossing te bieden. Of u nu lid wilt worden van onze energiegemeenschap, uw huidige contract wilt optimaliseren, de installatie van zonnepanelen wilt bestuderen of wilt profiteren van groepstarieven, wij ondersteunen u bij elke stap van uw energietransitie."
+        }
+      },
+      "community": {
+        "title": "Lid worden van onze energiegemeenschap (EG)",
+        "description": "Word lid, krijg toegang tot gedeelde elektriciteit, profiteer van collectieve tarieven en draag bij aan de lokale energietransitie.",
+        "videoDescription": "Werking van een gemeenschap uitgelegd door Brugel",
+        "button": "Meer weten"
+      },
+      "optimization": {
+        "title": "Optimalisatie van energiecontract",
+        "description": "Analyse van uw huidige contract, studie van uw verbruik, vergelijking van aanbiedingen van Belgische leveranciers, simulatie van potentiële besparingen, begeleiding bij onderhandeling en regelmatige opvolging.",
+        "features": [
+          "Volledige analyse van uw huidige contract",
+          "Vergelijking van Belgische leveranciers",
+          "Begeleiding bij onderhandeling"
+        ],
+        "button": "Mijn contract optimaliseren"
+      },
+      "study": {
+        "title": "Rendabiliteitsstudie (batterij of zonnepanelen)",
+        "description": "Analyse van het rendement op investering en dimensionering van zonne-installaties of batterijen aangepast aan uw gebouw.",
+        "solarPanels": "Zonnepanelen",
+        "batteries": "Batterijen",
+        "button": "Een studie aanvragen"
+      },
+      "groupContract": {
+        "title": "Groepscontract",
+        "description": "Sluit u aan bij ons collectieve contract met onze partnerleverancier en profiteer van onderhandelde en stabiele tarieven.",
+        "features": [
+          "Collectief onderhandelde tarieven",
+          "Prijsstabiliteit",
+          "Vertrouwde partnerleverancier"
+        ],
+        "button": "Lid worden van het contract"
+      }
+    },
     "hero": {
       "title": "Profiteer van hernieuwbare energiedeling in Brussel",
       "intro": "Word lid van onze energiegemeenschap en bespaar tot 30% op uw elektriciteitsrekening door lokaal zonne-energie te delen.",

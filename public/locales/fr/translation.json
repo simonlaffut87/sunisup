@@ -153,6 +153,51 @@
     "description": "Communauté d'énergie bruxelloise pour une transition énergétique locale et durable."
   },
   "home": {
+    "services": {
+      "title": "Nos quatre services énergétiques",
+      "subtitle": "Des solutions complètes pour optimiser votre stratégie énergétique",
+      "integration": {
+        "title": "Intégration de nos services",
+        "subtitle": "Un écosystème complet pour votre transition énergétique",
+        "approach": {
+          "title": "Une approche intégrée",
+          "description": "Nos quatre services se complètent pour offrir une solution énergétique complète. Que vous souhaitiez rejoindre notre communauté d'énergie, optimiser votre contrat actuel, étudier l'installation de panneaux solaires ou bénéficier de tarifs groupés, nous vous accompagnons à chaque étape de votre transition énergétique."
+        }
+      },
+      "community": {
+        "title": "Rejoindre notre communauté d'énergie (CE)",
+        "description": "Devenez membre, accédez à l'électricité partagée, profitez d'un tarif collectif et contribuez à la transition énergétique locale.",
+        "videoDescription": "Fonctionnement d'une communauté expliqué par Brugel",
+        "button": "En savoir plus"
+      },
+      "optimization": {
+        "title": "Optimisation de contrat d'énergie",
+        "description": "Analyse de votre contrat actuel, étude de votre consommation, comparaison des offres des fournisseurs belges, simulation des économies potentielles, accompagnement dans la négociation et suivi régulier.",
+        "features": [
+          "Analyse complète de votre contrat actuel",
+          "Comparaison des fournisseurs belges",
+          "Accompagnement dans la négociation"
+        ],
+        "button": "Optimiser mon contrat"
+      },
+      "study": {
+        "title": "Étude de rentabilité (batterie ou panneaux solaires)",
+        "description": "Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment.",
+        "solarPanels": "Panneaux solaires",
+        "batteries": "Batteries",
+        "button": "Demander une étude"
+      },
+      "groupContract": {
+        "title": "Contrat groupé",
+        "description": "Rejoignez notre contrat collectif avec notre fournisseur partenaire et bénéficiez de tarifs négociés et stables.",
+        "features": [
+          "Tarifs négociés collectivement",
+          "Stabilité des prix",
+          "Fournisseur partenaire de confiance"
+        ],
+        "button": "Rejoindre le contrat"
+      }
+    },
     "hero": {
       "title": "Bénéficiez du partage d'énergie renouvelable à Bruxelles",
       "intro": "Rejoignez notre communauté d'énergie et réduisez vos factures d'électricité jusqu'à 30% grâce au partage d'énergie solaire local.",

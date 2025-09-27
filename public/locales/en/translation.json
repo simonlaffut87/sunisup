@@ -153,6 +153,51 @@
     "description": "Brussels energy community for a local and sustainable energy transition."
   },
   "home": {
+    "services": {
+      "title": "Our four energy services",
+      "subtitle": "Complete solutions to optimize your energy strategy",
+      "integration": {
+        "title": "Integration of our services",
+        "subtitle": "A complete ecosystem for your energy transition",
+        "approach": {
+          "title": "An integrated approach",
+          "description": "Our four services complement each other to offer a complete energy solution. Whether you want to join our energy community, optimize your current contract, study the installation of solar panels or benefit from group rates, we support you at every step of your energy transition."
+        }
+      },
+      "community": {
+        "title": "Join our energy community (EC)",
+        "description": "Become a member, access shared electricity, benefit from collective rates and contribute to the local energy transition.",
+        "videoDescription": "Community operation explained by Brugel",
+        "button": "Learn more"
+      },
+      "optimization": {
+        "title": "Energy contract optimization",
+        "description": "Analysis of your current contract, study of your consumption, comparison of Belgian supplier offers, simulation of potential savings, support in negotiation and regular monitoring.",
+        "features": [
+          "Complete analysis of your current contract",
+          "Comparison of Belgian suppliers",
+          "Support in negotiation"
+        ],
+        "button": "Optimize my contract"
+      },
+      "study": {
+        "title": "Profitability study (battery or solar panels)",
+        "description": "Return on investment analysis and sizing of solar installations or batteries adapted to your building.",
+        "solarPanels": "Solar panels",
+        "batteries": "Batteries",
+        "button": "Request a study"
+      },
+      "groupContract": {
+        "title": "Group contract",
+        "description": "Join our collective contract with our partner supplier and benefit from negotiated and stable rates.",
+        "features": [
+          "Collectively negotiated rates",
+          "Price stability",
+          "Trusted partner supplier"
+        ],
+        "button": "Join the contract"
+      }
+    },
     "hero": {
       "title": "Benefit from renewable energy sharing in Brussels",
       "intro": "Join our energy community and reduce your electricity bills by up to 30% through local solar energy sharing.",

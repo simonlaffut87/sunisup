@@ -142,10 +142,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans tracking-tight">
-                Nos quatre services énergétiques
+                {t('home.services.title')}
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto font-sans font-light">
-                Des solutions complètes pour optimiser votre stratégie énergétique
+                {t('home.services.subtitle')}
               </p>
             </div>
 
@@ -157,12 +157,12 @@ export default function HomePage() {
                     <Users className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">Rejoindre notre communauté d'énergie (CE)</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.community.title')}</h3>
                     <div className="w-12 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
                   </div>
                 </div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
-                  Devenez membre, accédez à l'électricité partagée, profitez d'un tarif collectif et contribuez à la transition énergétique locale.
+                  {t('home.services.community.description')}
                 </p>
                 
                 {/* Vidéo explicative */}
@@ -178,7 +178,7 @@ export default function HomePage() {
                   </video>
                 </div>
                 <p className="text-gray-600 text-center text-sm font-sans">
-                  Fonctionnement d'une communauté expliqué par Brugel
+                  {t('home.services.community.videoDescription')}
                 </p>
                 
                 <div className="flex justify-center mt-8">
@@ -186,7 +186,7 @@ export default function HomePage() {
                     onClick={() => setShowContactModal(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
                   >
-                    En savoir plus
+                    {t('home.services.community.button')}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -199,27 +199,21 @@ export default function HomePage() {
                     <FileText className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">Optimisation de contrat d'énergie</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.optimization.title')}</h3>
                     <div className="w-12 h-1 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full"></div>
                   </div>
                 </div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
-                  Analyse de votre contrat actuel, étude de votre consommation, comparaison des offres des fournisseurs belges, simulation des économies potentielles, accompagnement dans la négociation et suivi régulier.
+                  {t('home.services.optimization.description')}
                 </p>
                 
                 <div className="space-y-4 mb-8">
-                  <div className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-emerald-600" />
-                    <span className="text-gray-700 font-sans">Analyse complète de votre contrat actuel</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-emerald-600" />
-                    <span className="text-gray-700 font-sans">Comparaison des fournisseurs belges</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-emerald-600" />
-                    <span className="text-gray-700 font-sans">Accompagnement dans la négociation</span>
-                  </div>
+                  {t('home.services.optimization.features', { returnObjects: true }).map((feature: string, index: number) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <CheckCircle className="w-5 h-5 text-emerald-600" />
+                      <span className="text-gray-700 font-sans">{feature}</span>
+                    </div>
+                  ))}
                 </div>
                 
                 <div className="flex justify-center">
@@ -227,7 +221,7 @@ export default function HomePage() {
                     onClick={() => setShowContactModal(true)}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
                   >
-                    Optimiser mon contrat
+                    {t('home.services.optimization.button')}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -240,22 +234,22 @@ export default function HomePage() {
                     <Sun className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">Étude de rentabilité</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.study.title')}</h3>
                     <div className="w-12 h-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full"></div>
                   </div>
                 </div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
-                  Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment.
+                  {t('home.services.study.description')}
                 </p>
                 
                 <div className="grid grid-cols-2 gap-4 mb-8">
                   <div className="bg-white p-4 rounded-xl border border-amber-200 text-center">
                     <Sun className="w-8 h-8 text-amber-600 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-900 font-sans">Panneaux solaires</p>
+                    <p className="text-sm font-medium text-gray-900 font-sans">{t('home.services.study.solarPanels')}</p>
                   </div>
                   <div className="bg-white p-4 rounded-xl border border-amber-200 text-center">
                     <Battery className="w-8 h-8 text-amber-600 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-900 font-sans">Batteries</p>
+                    <p className="text-sm font-medium text-gray-900 font-sans">{t('home.services.study.batteries')}</p>
                   </div>
                 </div>
                 
@@ -264,7 +258,7 @@ export default function HomePage() {
                     onClick={() => setShowContactModal(true)}
                     className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
                   >
-                    Demander une étude
+                    {t('home.services.study.button')}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -277,27 +271,21 @@ export default function HomePage() {
                     <Handshake className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">Contrat groupé</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.groupContract.title')}</h3>
                     <div className="w-12 h-1 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full"></div>
                   </div>
                 </div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
-                  Rejoignez notre contrat collectif avec notre fournisseur partenaire et bénéficiez de tarifs négociés et stables.
+                  {t('home.services.groupContract.description')}
                 </p>
                 
                 <div className="space-y-4 mb-8">
-                  <div className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-purple-600" />
-                    <span className="text-gray-700 font-sans">Tarifs négociés collectivement</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-purple-600" />
-                    <span className="text-gray-700 font-sans">Stabilité des prix</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-purple-600" />
-                    <span className="text-gray-700 font-sans">Fournisseur partenaire de confiance</span>
-                  </div>
+                  {t('home.services.groupContract.features', { returnObjects: true }).map((feature: string, index: number) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <CheckCircle className="w-5 h-5 text-purple-600" />
+                      <span className="text-gray-700 font-sans">{feature}</span>
+                    </div>
+                  ))}
                 </div>
                 
                 <div className="flex justify-center">
@@ -305,7 +293,7 @@ export default function HomePage() {
                     onClick={() => setShowContactModal(true)}
                     className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
                   >
-                    Rejoindre le contrat
+                    {t('home.services.groupContract.button')}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -319,10 +307,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans tracking-tight">
-                Intégration de nos services
+                {t('home.services.integration.title')}
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto font-sans font-light">
-                Un écosystème complet pour votre transition énergétique
+                {t('home.services.integration.subtitle')}
               </p>
             </div>
 
@@ -399,12 +387,9 @@ export default function HomePage() {
             {/* Texte explicatif du schéma */}
             <div className="text-center mt-16">
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 max-w-3xl mx-auto">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 font-sans">Une approche intégrée</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 font-sans">{t('home.services.integration.approach.title')}</h3>
                 <p className="text-gray-700 text-lg leading-relaxed font-sans font-light">
-                  Nos quatre services se complètent pour offrir une solution énergétique complète. 
-                  Que vous souhaitiez rejoindre notre communauté d'énergie, optimiser votre contrat actuel, 
-                  étudier l'installation de panneaux solaires ou bénéficier de tarifs groupés, 
-                  nous vous accompagnons à chaque étape de votre transition énergétique.
+                  {t('home.services.integration.approach.description')}
                 </p>
               </div>
             </div>
