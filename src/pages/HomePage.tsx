@@ -103,16 +103,16 @@ export default function HomePage() {
               {/* Badge */}
               <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-full text-blue-700 font-medium shadow-lg font-sans">
                 <Building2 className="w-5 h-5 mr-2" />
-                {t('home.heroSection.badge')}
+                {t('home.services.heroSection.badge')}
               </div>
               
               {/* Main title */}
               <div className="space-y-6">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto font-sans tracking-tight">
-                  {t('home.heroSection.title')}
+                  {t('home.services.heroSection.title')}
                 </h1>
                 <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto font-sans font-light">
-                  {t('home.heroSection.description')}
+                  {t('home.services.heroSection.description')}
                 </p>
               </div>
               
@@ -122,14 +122,14 @@ export default function HomePage() {
                   onClick={() => setShowContactModal(true)}
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
-                  {t('home.heroSection.discoverButton')}
+                  {t('home.services.heroSection.discoverButton')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <a 
                   href="/simulation"
                   className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
-                  {t('home.heroSection.simulationButton')}
+                  {t('home.services.heroSection.simulationButton')}
                   <TrendingUp className="w-5 h-5" />
                 </a>
               </div>
@@ -142,10 +142,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans tracking-tight">
-                {t('home.services.title')}
+                {t('home.services.servicesSection.title')}
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto font-sans font-light">
-                {t('home.services.subtitle')}
+                {t('home.services.servicesSection.subtitle')}
               </p>
             </div>
 
@@ -307,10 +307,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans tracking-tight">
-                {t('home.services.integration.title')}
+                {t('home.services.integrationSection.title')}
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto font-sans font-light">
-                {t('home.services.integration.subtitle')}
+                {t('home.services.integrationSection.subtitle')}
               </p>
             </div>
 
@@ -435,16 +435,16 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/10"></div>
           <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 font-sans tracking-tight">
-              {t('home.energyCta.title')}
+              {t('home.services.energyCta.title')}
             </h2>
             <p className="text-xl lg:text-2xl text-white/90 mb-12 max-w-3xl mx-auto font-sans font-light">
-              {t('home.energyCta.description')}
+              {t('home.services.energyCta.description')}
             </p>
             <button 
               onClick={() => setShowContactModal(true)}
               className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-2xl font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:-translate-y-1 flex items-center gap-3 mx-auto text-lg font-sans"
             >
-              {t('home.energyCta.button')}
+              {t('home.services.energyCta.button')}
               <ArrowRight className="w-6 h-6" />
             </button>
           </div>

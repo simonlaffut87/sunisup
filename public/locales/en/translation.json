@@ -1,6 +1,7 @@
 {
   "nav": {
-    "home": "Our Services",
+    "home": "Home",
+    "services": "Our Services", 
     "about": "About",
     "quickscan": "Simulation",
     "howToJoin": "Join us"
