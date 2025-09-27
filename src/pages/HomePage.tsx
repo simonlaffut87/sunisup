@@ -174,13 +174,22 @@ export default function HomePage() {
                 </p>
                 
                 <div className="flex justify-center mt-8">
-                  <button 
-                    onClick={() => setShowContactModal(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
-                  >
-                    {t('home.services.community.button')}
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button 
+                      onClick={() => window.location.href = '/simulation'}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
+                    >
+                      <Calculator className="w-4 h-4" />
+                      {t('about.cta.simulateButton')}
+                    </button>
+                    <button 
+                      onClick={() => window.location.href = '/admin'}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
+                    >
+                      <FileText className="w-4 h-4" />
+                      {t('about.cta.joinButton')}
+                    </button>
+                  </div>
                 </div>
               </div>
 
