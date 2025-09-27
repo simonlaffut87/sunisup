@@ -158,157 +158,6 @@
       "description": "Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers quatre services clés : rejoindre notre communauté d'énergie bruxelloise, optimiser vos contrats d'énergie, réaliser une étude de rentabilité pour panneaux solaires ou batteries, et accéder à notre contrat groupé avec fournisseur partenaire.",
       "badge": "Solutions énergétiques pour entreprises",
       "discoverButton": "Découvrir nos services",
-      "simulationButton": "Simulation gratuite"
-    },
-    "services": {
-      "title": "Nos quatre services énergétiques",
-      "subtitle": "Des solutions complètes pour optimiser votre stratégie énergétique",
-      "integration": {
-        "title": "Intégration de nos services",
-        "subtitle": "Un écosystème complet pour votre transition énergétique",
-        "approach": {
-          "title": "Une approche intégrée",
-          "description": "Nos quatre services se complètent pour offrir une solution énergétique complète. Que vous souhaitiez rejoindre notre communauté d'énergie, optimiser votre contrat actuel, étudier l'installation de panneaux solaires ou bénéficier de tarifs groupés, nous vous accompagnons à chaque étape de votre transition énergétique."
-        }
-      },
-      "community": {
-        "title": "Rejoindre notre communauté d'énergie (CE)",
-        "description": "Devenez membre, accédez à l'électricité partagée, profitez d'un tarif collectif et contribuez à la transition énergétique locale.",
-        "videoDescription": "Fonctionnement d'une communauté expliqué par Brugel",
-        "button": "En savoir plus"
-      },
-      "optimization": {
-        "title": "Optimisation de contrat d'énergie",
-        "description": "Analyse de votre contrat actuel, étude de votre consommation, comparaison des offres des fournisseurs belges, simulation des économies potentielles, accompagnement dans la négociation et suivi régulier.",
-        "features": [
-          "Analyse complète de votre contrat actuel",
-          "Comparaison des fournisseurs belges",
-          "Accompagnement dans la négociation"
-        ],
-        "button": "Optimiser mon contrat"
-      },
-      "study": {
-        "title": "Étude de rentabilité (batterie ou panneaux solaires)",
-        "description": "Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment.",
-        "solarPanels": "Panneaux solaires",
-        "batteries": "Batteries",
-        "button": "Demander une étude"
-      },
-      "groupContract": {
-        "title": "Contrat groupé",
-        "description": "Rejoignez notre contrat collectif avec notre fournisseur partenaire et bénéficiez de tarifs négociés et stables.",
-        "features": [
-          "Tarifs négociés collectivement",
-          "Stabilité des prix",
-          "Fournisseur partenaire de confiance"
-        ],
-        "button": "Rejoindre le contrat"
-      }
-    },
-    "faq": {
-      "title": "Questions fréquentes",
-      "items": [
-        {
-          "question": "Comment fonctionne la communauté d'énergie ?",
-          "answer": "Notre communauté permet aux producteurs d'énergie solaire de partager leur surplus avec des consommateurs locaux via un contrat direct établi par notre ASBL. Cette approche directe réduit les coûts pour tous les participants."
-        },
-        {
-          "question": "Quelles sont les conditions pour nous rejoindre ?",
-          "answer": "Il suffit d'être situé dans la région de Bruxelles-Capitale et de disposer d'un compteur nouvelle génération (smart meter). Si vous n'en avez pas encore, Sibelga peut l'installer gratuitement sur simple demande."
-        },
-        {
-          "question": "Qu'est-ce qu'un compteur nouvelle génération ?",
-          "answer": "Le compteur nouvelle génération (smart meter) est un compteur électrique intelligent qui permet de mesurer votre consommation et production d'énergie en temps réel. Il est indispensable pour participer à une communauté d'énergie car il permet le partage précis de l'énergie entre les membres. Sibelga, le gestionnaire du réseau bruxellois, l'installe gratuitement."
-        },
-        {
-          "question": "Quelles sont les économies possibles ?",
-          "answer": "Les membres peuvent économiser jusqu'à 30% sur leur facture d'électricité selon leur profil de consommation. Plus vous consommez d'énergie pendant les heures d'ensoleillement, plus vos économies seront importantes."
-        }
-      ]
-    },
-    "hero": {
-      "title": "Nos services dédiés aux entreprises",
-      "description": "Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers quatre services clés : rejoindre notre communauté d'énergie bruxelloise, optimiser vos contrats d'énergie, réaliser une étude de rentabilité pour panneaux solaires ou batteries, et accéder à notre contrat groupé avec fournisseur partenaire.",
-      "badge": "Solutions énergétiques pour entreprises",
-      "discoverButton": "Découvrir nos services",
-      "simulationButton": "Simulation gratuite"
-    },
-    "services": {
-      "title": "Nos quatre services énergétiques",
-      "subtitle": "Des solutions complètes pour optimiser votre stratégie énergétique",
-      "integration": {
-        "title": "Intégration de nos services",
-        "subtitle": "Un écosystème complet pour votre transition énergétique",
-        "approach": {
-          "title": "Une approche intégrée",
-          "description": "Nos quatre services se complètent pour offrir une solution énergétique complète. Que vous souhaitiez rejoindre notre communauté d'énergie, optimiser votre contrat actuel, étudier l'installation de panneaux solaires ou bénéficier de tarifs groupés, nous vous accompagnons à chaque étape de votre transition énergétique."
-        }
-      },
-      "community": {
-        "title": "Rejoindre notre communauté d'énergie (CE)",
-        "description": "Devenez membre, accédez à l'électricité partagée, profitez d'un tarif collectif et contribuez à la transition énergétique locale.",
-        "videoDescription": "Fonctionnement d'une communauté expliqué par Brugel",
-        "button": "En savoir plus"
-      },
-      "optimization": {
-        "title": "Optimisation de contrat d'énergie",
-        "description": "Analyse de votre contrat actuel, étude de votre consommation, comparaison des offres des fournisseurs belges, simulation des économies potentielles, accompagnement dans la négociation et suivi régulier.",
-        "features": [
-          "Analyse complète de votre contrat actuel",
-          "Comparaison des fournisseurs belges",
-          "Accompagnement dans la négociation"
-        ],
-        "button": "Optimiser mon contrat"
-      },
-      "study": {
-        "title": "Étude de rentabilité (batterie ou panneaux solaires)",
-        "description": "Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment.",
-        "solarPanels": "Panneaux solaires",
-        "batteries": "Batteries",
-        "button": "Demander une étude"
-      },
-      "groupContract": {
-        "title": "Contrat groupé",
-        "description": "Rejoignez notre contrat collectif avec notre fournisseur partenaire et bénéficiez de tarifs négociés et stables.",
-        "features": [
-          "Tarifs négociés collectivement",
-          "Stabilité des prix",
-          "Fournisseur partenaire de confiance"
-        ],
-        "button": "Rejoindre le contrat"
-      }
-    },
-    "faq": {
-      "title": "Questions fréquentes",
-      "items": [
-        {
-          "question": "Comment fonctionne la communauté d'énergie ?",
-          "answer": "Notre communauté permet aux producteurs d'énergie solaire de partager leur surplus avec des consommateurs locaux via un contrat direct établi par notre ASBL. Cette approche directe réduit les coûts pour tous les participants."
-        },
-        {
-          "question": "Quelles sont les conditions pour nous rejoindre ?",
-          "answer": "Il suffit d'être situé dans la région de Bruxelles-Capitale et de disposer d'un compteur nouvelle génération (smart meter). Si vous n'en avez pas encore, Sibelga peut l'installer gratuitement sur simple demande."
-        },
-        {
-          "question": "Qu'est-ce qu'un compteur nouvelle génération ?",
-          "answer": "Le compteur nouvelle génération (smart meter) est un compteur électrique intelligent qui permet de mesurer votre consommation et production d'énergie en temps réel. Il est indispensable pour participer à une communauté d'énergie car il permet le partage précis de l'énergie entre les membres. Sibelga, le gestionnaire du réseau bruxellois, l'installe gratuitement."
-        },
-        {
-          "question": "Quelles sont les économies possibles ?",
-          "answer": "Les membres peuvent économiser jusqu'à 30% sur leur facture d'électricité selon leur profil de consommation. Plus vous consommez d'énergie pendant les heures d'ensoleillement, plus vos économies seront importantes."
-        }
-      ]
-    },
-    "energyCta": {
-      "title": "Prêt à optimiser votre énergie ?",
-      "description": "Contactez-nous pour découvrir quelle solution correspond le mieux à votre entreprise",
-      "button": "Contacter nos experts"
-    },
-    "hero": {
-      "title": "Nos services dédiés aux entreprises",
-      "description": "Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers quatre services clés : rejoindre notre communauté d'énergie bruxelloise, optimiser vos contrats d'énergie, réaliser une étude de rentabilité pour panneaux solaires ou batteries, et accéder à notre contrat groupé avec fournisseur partenaire.",
-      "badge": "Solutions énergétiques pour entreprises",
-      "discoverButton": "Découvrir nos services",
       "simulationButton": "Simulation gratuite",
       "intro": "Rejoignez notre communauté d'énergie et réduisez vos factures d'électricité jusqu'à 30% grâce au partage d'énergie solaire local.",
       "features": {
@@ -328,6 +177,51 @@
           "title": "Accès à l'énergie verte",
           "description": "Profitez de l'énergie renouvelable d'installations déjà existantes"
         }
+      }
+    },
+    "services": {
+      "title": "Nos quatre services énergétiques",
+      "subtitle": "Des solutions complètes pour optimiser votre stratégie énergétique",
+      "integration": {
+        "title": "Intégration de nos services",
+        "subtitle": "Un écosystème complet pour votre transition énergétique",
+        "approach": {
+          "title": "Une approche intégrée",
+          "description": "Nos quatre services se complètent pour offrir une solution énergétique complète. Que vous souhaitiez rejoindre notre communauté d'énergie, optimiser votre contrat actuel, étudier l'installation de panneaux solaires ou bénéficier de tarifs groupés, nous vous accompagnons à chaque étape de votre transition énergétique."
+        }
+      },
+      "community": {
+        "title": "Rejoindre notre communauté d'énergie (CE)",
+        "description": "Devenez membre, accédez à l'électricité partagée, profitez d'un tarif collectif et contribuez à la transition énergétique locale.",
+        "videoDescription": "Fonctionnement d'une communauté expliqué par Brugel",
+        "button": "En savoir plus"
+      },
+      "optimization": {
+        "title": "Optimisation de contrat d'énergie",
+        "description": "Analyse de votre contrat actuel, étude de votre consommation, comparaison des offres des fournisseurs belges, simulation des économies potentielles, accompagnement dans la négociation et suivi régulier.",
+        "features": [
+          "Analyse complète de votre contrat actuel",
+          "Comparaison des fournisseurs belges",
+          "Accompagnement dans la négociation"
+        ],
+        "button": "Optimiser mon contrat"
+      },
+      "study": {
+        "title": "Étude de rentabilité (batterie ou panneaux solaires)",
+        "description": "Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment.",
+        "solarPanels": "Panneaux solaires",
+        "batteries": "Batteries",
+        "button": "Demander une étude"
+      },
+      "groupContract": {
+        "title": "Contrat groupé",
+        "description": "Rejoignez notre contrat collectif avec notre fournisseur partenaire et bénéficiez de tarifs négociés et stables.",
+        "features": [
+          "Tarifs négociés collectivement",
+          "Stabilité des prix",
+          "Fournisseur partenaire de confiance"
+        ],
+        "button": "Rejoindre le contrat"
       }
     },
     "howItWorks": {
