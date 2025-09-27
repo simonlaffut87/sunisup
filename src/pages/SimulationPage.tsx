@@ -447,14 +447,14 @@ export default function SimulationPage() {
                     simulationType === 'consumer'
                       ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
                       : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
-                  } font-sans`}
+            {t('simulation.heroBadge')}
                 >
-                  {t('simulation.contact')}
-                  <ArrowRight className="w-6 h-6" />
-                </button>
-              </div>
-            )}
-          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 font-sans">
+            {t('simulation.heroTitle')}
+          </h1>
+          <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto font-sans">
+            {t('simulation.heroDescription')}
+          </p>
         </div>
 
         <ContactModal 

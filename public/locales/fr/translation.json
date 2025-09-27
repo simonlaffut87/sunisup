@@ -106,6 +106,9 @@
     },
     "mission": {
       "title": "Notre Mission",
+      "communityStats": {
+        "title": "Notre communauté d'énergie en chiffres"
+      },
       "objectives": {
         "title": "Objectifs Clés",
         "items": [
@@ -302,6 +305,9 @@
   },
   "simulation": {
     "title": "Simulez vos économies",
+    "heroTitle": "Simulez vos gains en rejoignant la communauté d'énergie",
+    "heroDescription": "Découvrez combien vous pourriez économiser ou gagner en rejoignant notre communauté d'énergie bruxelloise",
+    "heroBadge": "Simulation gains communauté d'énergie",
     "examplesTitle": "Exemples de valeurs de consommation",
     "consumer": {
       "title": "Je suis consommateur",

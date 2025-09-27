@@ -106,6 +106,9 @@
     },
     "mission": {
       "title": "Onze Missie",
+      "communityStats": {
+        "title": "Onze energiegemeenschap in cijfers"
+      },
       "objectives": {
         "title": "Belangrijkste Doelstellingen",
         "items": [
@@ -283,6 +286,9 @@
   },
   "simulation": {
     "title": "Bereken uw besparingen",
+    "heroTitle": "Simuleer uw winsten door lid te worden van de energiegemeenschap",
+    "heroDescription": "Ontdek hoeveel u zou kunnen besparen of verdienen door lid te worden van onze Brusselse energiegemeenschap",
+    "heroBadge": "Energiegemeenschap winsten simulatie",
     "examplesTitle": "Voorbeelden van verbruikswaarden",
     "consumer": {
       "title": "Ik ben verbruiker",
