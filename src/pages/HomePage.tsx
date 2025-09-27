@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Building2, Power, Users, Play, Target, Leaf, Wallet, HelpCircle, ChevronDown, ChevronUp, ExternalLink, Zap, ArrowRight, CheckCircle, TrendingUp, FileText, BarChart3, Shield, Battery, HeartHandshake as Handshake } from 'lucide-react';
+import { Sun, Building2, Power, Users, Play, Target, Leaf, Wallet, HelpCircle, ChevronDown, ChevronUp, ExternalLink, Zap, ArrowRight, CheckCircle, TrendingUp, FileText, BarChart3, Shield, Battery, HeartHandshake as Handshake, Calculator } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase, isSupabaseAvailable } from '../lib/supabase';
 import { isSupabaseConfigured } from '../lib/supabase';
