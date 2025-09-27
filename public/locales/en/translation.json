@@ -26,7 +26,7 @@
     "email": "Email address",
     "emailPlaceholder": "your@email.com",
     "message": "Message",
-    "messagePlaceholder": "Describe your situation to help us estimate your savings (building type, annual consumption, business sector, surface area, number of occupants...)",
+    "messagePlaceholder": "How can we help you?",
     "billFile": "Recent settlement bill (optional)",
     "billFileText": "Click to select",
     "meterPhoto": "Electric meter photo (optional)",

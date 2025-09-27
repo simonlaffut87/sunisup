@@ -26,7 +26,7 @@
     "email": "Adresse email",
     "emailPlaceholder": "votre@email.com",
     "message": "Message",
-    "messagePlaceholder": "Décrivez votre situation pour nous permettre d'estimer vos gains (type de bâtiment, consommation annuelle, secteur d'activité, surface, nombre d'occupants...)",
+    "messagePlaceholder": "Comment pouvons-nous vous aider ?",
     "billFile": "Facture de régularisation récente (optionnel)",
     "billFileText": "Cliquez pour sélectionner",
     "meterPhoto": "Photo du compteur électrique (optionnel)",
