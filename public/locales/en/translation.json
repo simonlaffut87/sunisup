@@ -281,6 +281,20 @@
       "description": "Start saving on your electricity bill today"
     }
   },
+  "home": {
+    "hero": {
+      "title": "Our services dedicated to businesses",
+      "description": "In the current context of energy transition, businesses have concrete solutions to reduce their costs and improve their energy efficiency. Our goal is to support businesses towards sustainable energy savings through four key services: join our Brussels energy community, optimize your energy contracts, conduct a profitability study for solar panels or batteries, and access our group contract with partner supplier.",
+      "badge": "Energy solutions for businesses",
+      "discoverButton": "Discover our services",
+      "simulationButton": "Free simulation"
+    },
+    "energyCta": {
+      "title": "Ready to optimize your energy?",
+      "description": "Contact us to discover which solution best fits your business",
+      "button": "Contact our experts"
+    }
+  },
   "simulation": {
     "title": "Simulate your savings",
     "examplesTitle": "Consumption value examples",
