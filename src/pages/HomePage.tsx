@@ -435,16 +435,16 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/10"></div>
           <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 font-sans tracking-tight">
-              Prêt à optimiser votre énergie ?
+              {t('home.energyCta.title')}
             </h2>
             <p className="text-xl lg:text-2xl text-white/90 mb-12 max-w-3xl mx-auto font-sans font-light">
-              Contactez-nous pour découvrir quelle solution correspond le mieux à votre entreprise
+              {t('home.energyCta.description')}
             </p>
             <button 
               onClick={() => setShowContactModal(true)}
               className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-2xl font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:-translate-y-1 flex items-center gap-3 mx-auto text-lg font-sans"
             >
-              Contactez nos experts
+              {t('home.energyCta.button')}
               <ArrowRight className="w-6 h-6" />
             </button>
           </div>
