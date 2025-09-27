@@ -51,24 +51,34 @@ export default function HomePage() {
       setError(null);
       setUsingFallbackData(false);
 
-      if (!isSupabaseConfigured) {
-        console.log('Supabase not configured, showing empty data');
+      // Check if Supabase is configured and available
+      if (!isSupabaseConfigured || !supabase) {
+        console.log('Supabase not configured or unavailable, showing empty data');
         setParticipants([]);
         return;
       }
 
-      const { data, error } = await supabase
-        .from('participants')
-        .select('*')
-        .order('name');
-      
-      if (error) {
-        console.warn('Error loading participants:', error);
+      // Test Supabase connection first
+      try {
+        const { data, error } = await supabase
+          .from('participants')
+          .select('*')
+          .order('name');
+        
+        if (error) {
+          console.warn('Supabase API error:', error);
+          setParticipants([]);
+          return;
+        }
+
+        setParticipants(data || []);
+        
+      } catch (networkError: any) {
+        console.warn('Network error connecting to Supabase:', networkError);
+        // This could be a CORS issue or network connectivity problem
         setParticipants([]);
         return;
       }
-
-      setParticipants(data || []);
       
     } catch (error: any) {
       console.warn('Error loading participants:', error);
