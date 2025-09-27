@@ -161,13 +161,13 @@ export default function SimulationPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg mb-8 font-sans">
               <Calculator className="w-4 h-4 mr-2" />
-              Simulation gains communauté d'énergie
+              {t('simulation.badge')}
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 font-sans">
-              Simulez vos gains en rejoignant la communauté d'énergie
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
+              {t('simulation.title')}
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto font-sans">
-              Découvrez combien vous pourriez économiser ou gagner en rejoignant notre communauté d'énergie bruxelloise
+              {t('simulation.subtitle')}
             </p>
           </div>
         </section>
@@ -447,14 +447,14 @@ export default function SimulationPage() {
                     simulationType === 'consumer'
                       ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
                       : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
-            {t('simulation.heroBadge')}
+                  } font-sans`}
                 >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 font-sans">
-            {t('simulation.heroTitle')}
-          </h1>
-          <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto font-sans">
-            {t('simulation.heroDescription')}
-          </p>
+                  {t('simulation.contact')}
+                  <ArrowRight className="w-6 h-6" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <ContactModal 

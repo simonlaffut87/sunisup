@@ -1,7 +1,6 @@
 {
   "nav": {
     "home": "Accueil",
-    "services": "Nos Services",
     "about": "À propos",
     "quickscan": "Simulation",
     "howToJoin": "Nous rejoindre"
@@ -15,18 +14,10 @@
   },
   "contact": {
     "title": "Prendre contact",
-    "servicesTitle": "Services qui vous intéressent",
-    "servicesOptional": "Sélectionnez un ou plusieurs services (optionnel)",
-    "services": {
-      "community": "Rejoindre notre communauté d'énergie",
-      "optimization": "Optimisation de contrat d'énergie",
-      "study": "Étude de rentabilité (panneaux solaires/batteries)",
-      "groupContract": "Contrat groupé avec fournisseur partenaire"
-    },
     "email": "Adresse email",
     "emailPlaceholder": "votre@email.com",
     "message": "Message",
-    "messagePlaceholder": "Comment pouvons-nous vous aider ?",
+    "messagePlaceholder": "Décrivez votre situation pour nous permettre d'estimer vos gains (type de bâtiment, consommation annuelle, secteur d'activité, surface, nombre d'occupants...)",
     "billFile": "Facture de régularisation récente (optionnel)",
     "billFileText": "Cliquez pour sélectionner",
     "meterPhoto": "Photo du compteur électrique (optionnel)",
@@ -106,9 +97,6 @@
     },
     "mission": {
       "title": "Notre Mission",
-      "communityStats": {
-        "title": "Notre communauté d'énergie en chiffres"
-      },
       "objectives": {
         "title": "Objectifs Clés",
         "items": [
@@ -147,7 +135,6 @@
       "title": "Rejoignez notre vision",
       "description": "Ensemble, construisons un avenir énergétique plus durable et solidaire pour Bruxelles",
       "joinButton": "Nous rejoindre",
-      "procedureButton": "Procédure",
       "simulateButton": "Simuler mes économies"
     }
   },
@@ -159,12 +146,9 @@
   },
   "home": {
     "hero": {
-      "title": "Nos services dédiés aux entreprises",
-      "description": "Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers quatre services clés : rejoindre notre communauté d'énergie bruxelloise, optimiser vos contrats d'énergie, réaliser une étude de rentabilité pour panneaux solaires ou batteries, et accéder à notre contrat groupé avec fournisseur partenaire.",
-      "badge": "Solutions énergétiques pour entreprises",
-      "discoverButton": "Découvrir nos services",
-      "simulationButton": "Simulation gratuite",
+      "title": "Bénéficiez du partage d'énergie renouvelable à Bruxelles",
       "intro": "Rejoignez notre communauté d'énergie et réduisez vos factures d'électricité jusqu'à 30% grâce au partage d'énergie solaire local.",
+      "badge": "Communauté d'énergie locale",
       "features": {
         "local": {
           "title": "Production locale",
@@ -182,61 +166,6 @@
           "title": "Accès à l'énergie verte",
           "description": "Profitez de l'énergie renouvelable d'installations déjà existantes"
         }
-      }
-    },
-    "services": {
-      "title": "Nos quatre services énergétiques",
-      "subtitle": "Des solutions complètes pour optimiser votre stratégie énergétique",
-      "integration": {
-        "title": "Intégration de nos services",
-        "subtitle": "Un écosystème complet pour votre transition énergétique",
-        "approach": {
-          "title": "Une approche intégrée",
-          "description": "Nos quatre services se complètent pour offrir une solution énergétique complète. Que vous souhaitiez rejoindre notre communauté d'énergie, optimiser votre contrat actuel, étudier l'installation de panneaux solaires ou bénéficier de tarifs groupés, nous vous accompagnons à chaque étape de votre transition énergétique."
-        }
-      },
-      "schemaLabels": {
-        "community": "Communauté",
-        "communitySecond": "d'énergie",
-        "optimization": "Optimisation",
-        "optimizationSecond": "contrat",
-        "study": "Étude",
-        "studySecond": "rentabilité",
-        "groupContract": "Contrat",
-        "groupContractSecond": "groupé"
-      },
-      "community": {
-        "title": "Rejoindre notre communauté d'énergie (CE)",
-        "description": "Devenez membre, accédez à l'électricité partagée, profitez d'un tarif collectif et contribuez à la transition énergétique locale.",
-        "videoDescription": "Fonctionnement d'une communauté expliqué par Brugel",
-        "button": "En savoir plus"
-      },
-      "optimization": {
-        "title": "Optimisation de contrat d'énergie",
-        "description": "Analyse de votre contrat actuel, étude de votre consommation, comparaison des offres des fournisseurs belges, simulation des économies potentielles, accompagnement dans la négociation et suivi régulier.",
-        "features": [
-          "Analyse complète de votre contrat actuel",
-          "Comparaison des fournisseurs belges",
-          "Accompagnement dans la négociation"
-        ],
-        "button": "Optimiser mon contrat"
-      },
-      "study": {
-        "title": "Étude de rentabilité (batterie ou panneaux solaires)",
-        "description": "Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment.",
-        "solarPanels": "Panneaux solaires",
-        "batteries": "Batteries",
-        "button": "Demander une étude"
-      },
-      "groupContract": {
-        "title": "Contrat groupé",
-        "description": "Rejoignez notre contrat collectif avec notre fournisseur partenaire et bénéficiez de tarifs négociés et stables.",
-        "features": [
-          "Tarifs négociés collectivement",
-          "Stabilité des prix",
-          "Fournisseur partenaire de confiance"
-        ],
-        "button": "Rejoindre le contrat"
       }
     },
     "howItWorks": {
@@ -297,18 +226,10 @@
     "cta": {
       "title": "Prêt à rejoindre la communauté ?",
       "description": "Commencez à économiser sur votre facture d'électricité dès aujourd'hui"
-    },
-    "energyCta": {
-      "title": "Prêt à optimiser votre énergie ?",
-      "description": "Contactez-nous pour découvrir quelle solution correspond le mieux à votre entreprise",
-      "button": "Contacter nos experts"
     }
   },
   "simulation": {
     "title": "Simulez vos économies",
-    "heroTitle": "Simulez vos gains en rejoignant la communauté d'énergie",
-    "heroDescription": "Découvrez combien vous pourriez économiser ou gagner en rejoignant notre communauté d'énergie bruxelloise",
-    "heroBadge": "Simulation gains communauté d'énergie",
     "examplesTitle": "Exemples de valeurs de consommation",
     "consumer": {
       "title": "Je suis consommateur",
@@ -388,8 +309,9 @@
       }
     },
     "cta": {
-      "title": "Prêt à rejoindre la communauté ?",
-      "description": "Commencez à économiser sur votre facture d'électricité dès aujourd'hui"
+      "title": "Prêt à nous rejoindre ?",
+      "description": "Contactez-nous pour discuter de votre projet et commencer à économiser sur votre facture d'électricité.",
+      "button": "Commencer ma demande"
     }
   }
 }

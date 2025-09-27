@@ -1,7 +1,6 @@
 {
   "nav": {
     "home": "Home",
-    "services": "Onze Diensten",
     "about": "Over ons",
     "quickscan": "Simulatie",
     "howToJoin": "Lid worden"
@@ -15,18 +14,10 @@
   },
   "contact": {
     "title": "Contact opnemen",
-    "servicesTitle": "Diensten waarin u geïnteresseerd bent",
-    "servicesOptional": "Selecteer een of meer diensten (optioneel)",
-    "services": {
-      "community": "Lid worden van onze energiegemeenschap",
-      "optimization": "Optimalisatie van energiecontract",
-      "study": "Rendabiliteitstudie (zonnepanelen/batterijen)",
-      "groupContract": "Groepscontract met partnerleverancier"
-    },
     "email": "E-mailadres",
     "emailPlaceholder": "uw@email.com",
     "message": "Bericht",
-    "messagePlaceholder": "Hoe kunnen wij u helpen?",
+    "messagePlaceholder": "Beschrijf uw situatie zodat wij uw besparingen kunnen inschatten (type gebouw, jaarlijks verbruik, bedrijfssector, oppervlakte, aantal bewoners...)",
     "billFile": "Recente afrekening (optioneel)",
     "billFileText": "Klik om te selecteren",
     "meterPhoto": "Foto van elektriciteitsmeter (optioneel)",
@@ -106,9 +97,6 @@
     },
     "mission": {
       "title": "Onze Missie",
-      "communityStats": {
-        "title": "Onze energiegemeenschap in cijfers"
-      },
       "objectives": {
         "title": "Belangrijkste Doelstellingen",
         "items": [
@@ -147,7 +135,6 @@
       "title": "Sluit u aan bij onze visie",
       "description": "Samen bouwen we een duurzamere en solidaire energietoekomst voor Brussel",
       "joinButton": "Lid worden",
-      "procedureButton": "Procedure",
       "simulateButton": "Bereken mijn besparingen"
     }
   },
@@ -159,65 +146,26 @@
   },
   "home": {
     "hero": {
-      "title": "Onze diensten voor bedrijven",
-      "description": "In de huidige context van energietransitie hebben bedrijven concrete oplossingen om hun kosten te verlagen en hun energie-efficiëntie te verbeteren. Ons doel is bedrijven te ondersteunen naar duurzame energiebesparingen door vier belangrijke diensten: lid worden van onze Brusselse energiegemeenschap, uw energiecontracten optimaliseren, een rendabiliteitsstudie uitvoeren voor zonnepanelen of batterijen, en toegang krijgen tot ons groepscontract met partnerleverancier.",
-      "badge": "Energieoplossingen voor bedrijven",
-      "discoverButton": "Ontdek onze diensten",
-      "simulationButton": "Gratis simulatie"
-    },
-    "services": {
-      "title": "Onze vier energiediensten",
-      "subtitle": "Volledige oplossingen om uw energiestrategie te optimaliseren",
-      "integration": {
-        "title": "Integratie van onze diensten",
-        "subtitle": "Een compleet ecosysteem voor uw energietransitie",
-        "approach": {
-          "title": "Een geïntegreerde aanpak",
-          "description": "Onze vier diensten vullen elkaar aan om een complete energieoplossing te bieden. Of u nu lid wilt worden van onze energiegemeenschap, uw huidige contract wilt optimaliseren, de installatie van zonnepanelen wilt bestuderen of wilt profiteren van groepstarieven, wij ondersteunen u bij elke stap van uw energietransitie."
+      "title": "Profiteer van hernieuwbare energiedeling in Brussel",
+      "intro": "Word lid van onze energiegemeenschap en bespaar tot 30% op uw elektriciteitsrekening door lokaal zonne-energie te delen.",
+      "badge": "Lokale energiegemeenschap",
+      "features": {
+        "local": {
+          "title": "Lokale productie",
+          "description": "Energie lokaal geproduceerd en verbruikt in Brussel"
+        },
+        "price": {
+          "title": "Voordelige prijzen",
+          "description": "Aanzienlijke korting op uw elektriciteitsrekening"
+        },
+        "transition": {
+          "title": "Energietransitie",
+          "description": "Neem actief deel aan de energietransitie"
+        },
+        "green": {
+          "title": "Toegang tot groene energie",
+          "description": "Profiteer van hernieuwbare energie van bestaande installaties"
         }
-      },
-      "schemaLabels": {
-        "community": "Energie",
-        "communitySecond": "Gemeenschap",
-        "optimization": "Contract",
-        "optimizationSecond": "Optimalisatie",
-        "study": "Rendabiliteits",
-        "studySecond": "studie",
-        "groupContract": "Groeps",
-        "groupContractSecond": "contract"
-      },
-      "community": {
-        "title": "Lid worden van onze energiegemeenschap (EG)",
-        "description": "Word lid, krijg toegang tot gedeelde elektriciteit, profiteer van collectieve tarieven en draag bij aan de lokale energietransitie.",
-        "videoDescription": "Werking van een gemeenschap uitgelegd door Brugel",
-        "button": "Meer weten"
-      },
-      "optimization": {
-        "title": "Optimalisatie van energiecontract",
-        "description": "Analyse van uw huidige contract, studie van uw verbruik, vergelijking van aanbiedingen van Belgische leveranciers, simulatie van potentiële besparingen, begeleiding bij onderhandeling en regelmatige opvolging.",
-        "features": [
-          "Volledige analyse van uw huidige contract",
-          "Vergelijking van Belgische leveranciers",
-          "Begeleiding bij onderhandeling"
-        ],
-        "button": "Mijn contract optimaliseren"
-      },
-      "study": {
-        "title": "Rendabiliteitsstudie (batterij of zonnepanelen)",
-        "description": "Analyse van het rendement op investering en dimensionering van zonne-installaties of batterijen aangepast aan uw gebouw.",
-        "solarPanels": "Zonnepanelen",
-        "batteries": "Batterijen",
-        "button": "Een studie aanvragen"
-      },
-      "groupContract": {
-        "title": "Groepscontract",
-        "description": "Sluit u aan bij ons collectieve contract met onze partnerleverancier en profiteer van onderhandelde en stabiele tarieven.",
-        "features": [
-          "Collectief onderhandelde tarieven",
-          "Prijsstabiliteit",
-          "Vertrouwde partnerleverancier"
-        ],
-        "button": "Lid worden van het contract"
       }
     },
     "howItWorks": {
@@ -278,18 +226,10 @@
     "cta": {
       "title": "Klaar om lid te worden van de gemeenschap?",
       "description": "Begin vandaag nog met besparen op uw elektriciteitsrekening"
-    },
-    "energyCta": {
-      "title": "Klaar om uw energie te optimaliseren?",
-      "description": "Neem contact met ons op om te ontdekken welke oplossing het beste bij uw bedrijf past",
-      "button": "Neem contact op met onze experts"
     }
   },
   "simulation": {
     "title": "Bereken uw besparingen",
-    "heroTitle": "Simuleer uw winsten door lid te worden van de energiegemeenschap",
-    "heroDescription": "Ontdek hoeveel u zou kunnen besparen of verdienen door lid te worden van onze Brusselse energiegemeenschap",
-    "heroBadge": "Energiegemeenschap winsten simulatie",
     "examplesTitle": "Voorbeelden van verbruikswaarden",
     "consumer": {
       "title": "Ik ben verbruiker",
@@ -369,8 +309,9 @@
       }
     },
     "cta": {
-      "title": "Klaar om lid te worden van de gemeenschap?",
-      "description": "Begin vandaag nog met besparen op uw elektriciteitsrekening"
+      "title": "Klaar om lid te worden?",
+      "description": "Neem contact met ons op om uw project te bespreken en te beginnen met besparen op uw elektriciteitsrekening.",
+      "button": "Mijn aanvraag starten"
     }
   }
 }
