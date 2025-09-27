@@ -528,7 +528,7 @@ function NavigationLinks() {
               : 'text-gray-700 hover:text-amber-600'
           } font-sans`}
         >
-          {link.path === '/' ? t('nav.services') : link.label}
+          {link.path === '/' ? 'Nos Services' : link.label}
           {location.pathname === link.path && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" />
           )}
