@@ -9,13 +9,17 @@ import {
   Zap,
   CheckCircle,
   ArrowRight,
-  Building
+  Building,
+  Calculator,
+  FileText
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '../components/SEOHead';
+import { useNavigate } from 'react-router-dom';
 
 export default function AboutPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -242,13 +246,20 @@ export default function AboutPage() {
             {t('about.cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <a 
-              href="/admin"
+            <button
+              onClick={() => navigate('/simulation')}
               className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-full font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:scale-105 flex items-center gap-3 justify-center text-lg font-sans"
             >
+              <Calculator className="w-6 h-6" />
+              {t('about.cta.simulateButton')}
+            </button>
+            <button
+              onClick={() => navigate('/admin')}
+              className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-full font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:scale-105 flex items-center gap-3 justify-center text-lg font-sans"
+            >
+              <FileText className="w-6 h-6" />
               {t('about.cta.joinButton')}
-              <ArrowRight className="w-6 h-6" />
-            </a>
+            </button>
           </div>
         </div>
       </section>
