@@ -376,21 +376,21 @@ function App() {
         
         {/* Modern Header */}
         <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-50 font-sans">
-          <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-            <div className="flex items-center justify-between h-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <Link to="/" className="flex items-center space-x-3">
-                <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-10 h-10" />
-                <span className="text-xl sm:text-2xl font-bold text-gray-900 font-sans">{t('header.title')}</span>
+                <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-8 h-8" />
+                <span className="text-lg sm:text-xl font-bold text-gray-900 font-sans">{t('header.title')}</span>
               </Link>
               
               {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-12">
+              <div className="hidden md:flex items-center space-x-8">
                 <NavigationLinks />
               </div>
               
               {/* Actions */}
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <LanguageSelector
                   currentLanguage={currentLanguage}
                   onLanguageChange={handleLanguageChange}
@@ -400,7 +400,7 @@ function App() {
                   <button
                     onClick={() => setShowDashboard(true)}
                     disabled={isLoggingOut}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 flex items-center gap-2 text-sm font-sans"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">Dashboard</span>
@@ -408,7 +408,7 @@ function App() {
                 ) : (
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 flex items-center gap-2 text-sm font-sans"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('header.memberAccess')}</span>
@@ -417,7 +417,7 @@ function App() {
                 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-3 rounded-2xl font-semibold transition-all duration-300 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans"
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans"
                 >
                   <span>{t('header.contact')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -431,7 +431,7 @@ function App() {
         <MobileNavigation />
 
         {/* Main Content with top padding for fixed header */}
-        <main className="pt-20">
+        <main className="pt-16">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -442,25 +442,25 @@ function App() {
         </main>
 
         {/* Modern Footer */}
-        <footer className="bg-gray-900 text-white">
-          <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-20">
+        <footer className="bg-gray-50 border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
               <div className="lg:col-span-2">
                 <div className="flex items-center space-x-3 mb-6">
                   <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-10 h-10" />
                   <div>
-                    <h3 className="text-xl font-bold text-white font-sans">Sun Is Up</h3>
-                    <p className="text-gray-300 text-sm font-sans">{t('footer.description')}</p>
+                    <h3 className="text-xl font-bold text-gray-900 font-sans">Sun Is Up</h3>
+                    <p className="text-gray-600 text-sm font-sans">{t('footer.description')}</p>
                   </div>
                 </div>
-                <p className="text-gray-300 max-w-md font-sans font-light leading-relaxed">
+                <p className="text-gray-600 max-w-md font-sans">
                   Communauté d'énergie bruxelloise pour une transition énergétique locale et durable.
                 </p>
               </div>
               
               <div>
-                <h4 className="font-semibold text-white mb-6 font-sans">{t('footer.contact')}</h4>
-                <div className="space-y-4 text-gray-300 text-sm">
+                <h4 className="font-semibold text-gray-900 mb-4 font-sans">{t('footer.contact')}</h4>
+                <div className="space-y-3 text-gray-600 text-sm">
                   <div className="flex items-center space-x-2 font-sans">
                     <span>📞</span>
                     <span>+32 471 31 71 48</span>
@@ -473,12 +473,12 @@ function App() {
               </div>
               
               <div>
-                <h4 className="font-semibold text-white mb-6 font-sans">{t('footer.followUs')}</h4>
+                <h4 className="font-semibold text-gray-900 mb-4 font-sans">{t('footer.followUs')}</h4>
                 <a 
                   href="https://www.linkedin.com/company/sun-is-up-asbl" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center space-x-2 text-gray-300 hover:text-blue-400 transition-colors text-sm font-sans"
+                  className="inline-flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition-colors text-sm font-sans"
                 >
                   <span>🔗</span>
                   <span>LinkedIn</span>
@@ -486,7 +486,7 @@ function App() {
               </div>
             </div>
             
-            <div className="border-t border-gray-700 mt-16 pt-8 text-center text-gray-400 text-sm font-sans">
+            <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm font-sans">
               {t('footer.copyright')}
             </div>
           </div>
