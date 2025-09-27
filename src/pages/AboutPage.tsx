@@ -310,13 +310,6 @@ export default function AboutPage() {
               {t('about.cta.joinButton')}
               <ArrowRight className="w-6 h-6" />
             </a>
-            <a 
-              href="/simulation"
-              className="border-2 border-white/50 hover:bg-white hover:text-gray-900 text-white px-10 py-4 rounded-full font-bold transition-all duration-200 backdrop-blur-sm flex items-center gap-3 justify-center text-lg font-sans"
-            >
-              {t('about.cta.simulateButton')}
-              <Target className="w-6 h-6" />
-            </a>
           </div>
         </div>
       </section>
