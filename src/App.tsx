@@ -575,7 +575,7 @@ function MobileNavigation() {
                         : 'text-gray-700 hover:bg-gray-50'
                     } font-sans`}
                   >
-                    {link.path === '/' ? 'Nos Services' : link.label}
+                    {link.label}
                   </Link>
                 ))}
               </nav>

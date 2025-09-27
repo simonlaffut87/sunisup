@@ -163,7 +163,7 @@ export default function SimulationPage() {
               <Calculator className="w-4 h-4 mr-2" />
               Simulation gains communauté d'énergie
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-8 font-sans">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 font-sans">
               Simulez vos gains en rejoignant la communauté d'énergie
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto font-sans">
