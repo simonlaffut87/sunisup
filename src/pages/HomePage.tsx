@@ -103,16 +103,16 @@ export default function HomePage() {
               {/* Badge */}
               <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-full text-blue-700 font-medium shadow-lg font-sans">
                 <Building2 className="w-5 h-5 mr-2" />
-                Solutions énergétiques pour entreprises
+                {t('home.heroSection.badge')}
               </div>
               
               {/* Main title */}
               <div className="space-y-6">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto font-sans tracking-tight">
-                  Nos services dédiés aux entreprises
+                  {t('home.heroSection.title')}
                 </h1>
                 <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto font-sans font-light">
-                  Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers quatre services clés : rejoindre notre communauté d'énergie bruxelloise, optimiser vos contrats d'énergie, réaliser une étude de rentabilité pour panneaux solaires ou batteries, et accéder à notre contrat groupé avec fournisseur partenaire.
+                  {t('home.heroSection.description')}
                 </p>
               </div>
               
@@ -122,14 +122,14 @@ export default function HomePage() {
                   onClick={() => setShowContactModal(true)}
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
-                  Découvrir nos services
+                  {t('home.heroSection.discoverButton')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <a 
                   href="/simulation"
                   className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
-                  Simulation gratuite
+                  {t('home.heroSection.simulationButton')}
                   <TrendingUp className="w-5 h-5" />
                 </a>
               </div>

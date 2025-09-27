@@ -1,6 +1,6 @@
 {
   "nav": {
-    "home": "Onze Diensten",
+    "home": "Home",
     "about": "Over ons",
     "quickscan": "Simulatie",
     "howToJoin": "Lid worden"
@@ -153,6 +153,14 @@
     "description": "Brusselse energiegemeenschap voor een lokale en duurzame energietransitie."
   },
   "home": {
+    "pageTitle": "Onze Diensten",
+    "heroSection": {
+      "badge": "Energieoplossingen voor bedrijven",
+      "title": "Onze diensten voor bedrijven",
+      "description": "In de huidige context van energietransitie hebben bedrijven concrete oplossingen om hun kosten te verlagen en hun energie-efficiëntie te verbeteren. Ons doel is bedrijven te ondersteunen naar duurzame energiebesparingen door vier belangrijke diensten: lid worden van onze Brusselse energiegemeenschap, uw energiecontracten optimaliseren, een rendabiliteitsstudie uitvoeren voor zonnepanelen of batterijen, en toegang krijgen tot ons groepscontract met partnerleverancier.",
+      "discoverButton": "Ontdek onze diensten",
+      "simulationButton": "Gratis simulatie"
+    },
     "services": {
       "title": "Onze vier energiediensten",
       "subtitle": "Volledige oplossingen om uw energiestrategie te optimaliseren",
@@ -376,6 +384,7 @@
     },
     "energyCta": {
       "title": "Klaar om uw energie te optimaliseren?",
+      "description": "Neem contact met ons op om te ontdekken welke oplossing het beste bij uw bedrijf past",
       "description": "Neem contact met ons op om te ontdekken welke oplossing het beste bij uw bedrijf past",
       "button": "Neem contact op met onze experts"
     }

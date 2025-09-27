@@ -1,6 +1,6 @@
 {
   "nav": {
-    "home": "Nos Services",
+    "home": "Accueil",
     "about": "À propos",
     "quickscan": "Simulation",
     "howToJoin": "Nous rejoindre"
@@ -153,6 +153,14 @@
     "description": "Communauté d'énergie bruxelloise pour une transition énergétique locale et durable."
   },
   "home": {
+    "pageTitle": "Nos Services",
+    "heroSection": {
+      "badge": "Solutions énergétiques pour entreprises",
+      "title": "Nos services dédiés aux entreprises",
+      "description": "Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers quatre services clés : rejoindre notre communauté d'énergie bruxelloise, optimiser vos contrats d'énergie, réaliser une étude de rentabilité pour panneaux solaires ou batteries, et accéder à notre contrat groupé avec fournisseur partenaire.",
+      "discoverButton": "Découvrir nos services",
+      "simulationButton": "Simulation gratuite"
+    },
     "services": {
       "title": "Nos quatre services énergétiques",
       "subtitle": "Des solutions complètes pour optimiser votre stratégie énergétique",
@@ -285,6 +293,7 @@
     },
     "energyCta": {
       "title": "Prêt à optimiser votre énergie ?",
+      "description": "Contactez-nous pour découvrir quelle solution correspond le mieux à votre entreprise",
       "button": "Commencer ma demande"
     }
   },
