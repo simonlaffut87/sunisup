@@ -14,6 +14,14 @@
   },
   "contact": {
     "title": "Contact opnemen",
+    "servicesTitle": "Diensten waarin u geïnteresseerd bent",
+    "servicesOptional": "Selecteer een of meer diensten (optioneel)",
+    "services": {
+      "community": "Lid worden van onze energiegemeenschap",
+      "optimization": "Optimalisatie van energiecontract",
+      "study": "Rendabiliteitstudie (zonnepanelen/batterijen)",
+      "groupContract": "Groepscontract met partnerleverancier"
+    },
     "email": "E-mailadres",
     "emailPlaceholder": "uw@email.com",
     "message": "Bericht",

@@ -213,14 +213,14 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
 
             <div>
               <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
-                Services qui vous intéressent
+                {t('contact.servicesTitle')}
               </label>
               <div className="space-y-2">
                 {[
-                  'Rejoindre notre communauté d\'énergie',
-                  'Optimisation de contrat d\'énergie',
-                  'Étude de rentabilité (panneaux solaires/batteries)',
-                  'Contrat groupé avec fournisseur partenaire'
+                  t('contact.services.community'),
+                  t('contact.services.optimization'),
+                  t('contact.services.study'),
+                  t('contact.services.groupContract')
                 ].map((service, index) => (
                   <label key={index} className="flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors">
                     <input
@@ -246,7 +246,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                 ))}
               </div>
               <p className="text-xs text-amber-600 mt-2 font-sans">
-                Sélectionnez un ou plusieurs services (optionnel)
+                {t('contact.servicesOptional')}
               </p>
             </div>
 

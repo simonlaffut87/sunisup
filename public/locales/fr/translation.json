@@ -14,6 +14,14 @@
   },
   "contact": {
     "title": "Prendre contact",
+    "servicesTitle": "Services qui vous intéressent",
+    "servicesOptional": "Sélectionnez un ou plusieurs services (optionnel)",
+    "services": {
+      "community": "Rejoindre notre communauté d'énergie",
+      "optimization": "Optimisation de contrat d'énergie",
+      "study": "Étude de rentabilité (panneaux solaires/batteries)",
+      "groupContract": "Contrat groupé avec fournisseur partenaire"
+    },
     "email": "Adresse email",
     "emailPlaceholder": "votre@email.com",
     "message": "Message",

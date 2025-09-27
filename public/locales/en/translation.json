@@ -14,6 +14,14 @@
   },
   "contact": {
     "title": "Get in touch",
+    "servicesTitle": "Services you're interested in",
+    "servicesOptional": "Select one or more services (optional)",
+    "services": {
+      "community": "Join our energy community",
+      "optimization": "Energy contract optimization",
+      "study": "Profitability study (solar panels/batteries)",
+      "groupContract": "Group contract with partner supplier"
+    },
     "email": "Email address",
     "emailPlaceholder": "your@email.com",
     "message": "Message",
