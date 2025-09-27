@@ -1,6 +1,7 @@
 {
   "nav": {
-    "home": "Our Services",
+    "home": "Home",
+    "services": "Our Services",
     "about": "About",
     "quickscan": "Simulation",
     "howToJoin": "Join us"
@@ -170,6 +171,16 @@
           "title": "An integrated approach",
           "description": "Our four services complement each other to offer a complete energy solution. Whether you want to join our energy community, optimize your current contract, study the installation of solar panels or benefit from group rates, we support you at every step of your energy transition."
         }
+      },
+      "schemaLabels": {
+        "community": "Energy",
+        "communitySecond": "Community",
+        "optimization": "Contract",
+        "optimizationSecond": "Optimization",
+        "study": "Profitability",
+        "studySecond": "Study",
+        "groupContract": "Group",
+        "groupContractSecond": "Contract"
       },
       "community": {
         "title": "Join our energy community (EC)",

@@ -1,6 +1,7 @@
 {
   "nav": {
-    "home": "Nos Services",
+    "home": "Accueil",
+    "services": "Nos Services",
     "about": "À propos",
     "quickscan": "Simulation",
     "howToJoin": "Nous rejoindre"
@@ -189,6 +190,16 @@
           "title": "Une approche intégrée",
           "description": "Nos quatre services se complètent pour offrir une solution énergétique complète. Que vous souhaitiez rejoindre notre communauté d'énergie, optimiser votre contrat actuel, étudier l'installation de panneaux solaires ou bénéficier de tarifs groupés, nous vous accompagnons à chaque étape de votre transition énergétique."
         }
+      },
+      "schemaLabels": {
+        "community": "Communauté",
+        "communitySecond": "d'énergie",
+        "optimization": "Optimisation",
+        "optimizationSecond": "contrat",
+        "study": "Étude",
+        "studySecond": "rentabilité",
+        "groupContract": "Contrat",
+        "groupContractSecond": "groupé"
       },
       "community": {
         "title": "Rejoindre notre communauté d'énergie (CE)",
