@@ -173,7 +173,7 @@ export default function AboutPage() {
                     <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
                       <Zap className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">724</h3>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">1300</h3>
                     <p className="text-gray-600 font-medium font-sans">{t('about.mission.stats.availableEnergy')}</p>
                   </div>
                   
@@ -181,7 +181,7 @@ export default function AboutPage() {
                     <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                       <Users className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">11</h3>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">15</h3>
                     <p className="text-gray-600 font-medium font-sans">{t('about.mission.stats.activeMembers')}</p>
                   </div>
                   
@@ -189,7 +189,7 @@ export default function AboutPage() {
                     <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
                       <span className="text-3xl font-bold text-white">€</span>
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">10%</h3>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">15%</h3>
                     <p className="text-gray-600 font-medium font-sans">{t('about.mission.stats.averageSavings')}</p>
                   </div>
                   
