@@ -330,8 +330,8 @@ export default function HomePage() {
             <div className="relative max-w-4xl mx-auto">
               <div className="relative aspect-square max-w-2xl mx-auto">
                 {/* Centre du diagramme */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl z-10">
-                  <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-20 h-20" />
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                  <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-48 h-48 drop-shadow-2xl" />
                 </div>
 
                 {/* Service 1 - Top */}
@@ -378,20 +378,20 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Lignes de connexion */}
+                {/* Flèches pointant vers les services */}
                 <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 400">
                   <defs>
-                    <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#6366F1" stopOpacity="0.3" />
-                    </linearGradient>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                     refX="9" refY="3.5" orient="auto">
+                      <polygon points="0 0, 10 3.5, 0 7" fill="#6366F1" />
+                    </marker>
                   </defs>
                   
-                  {/* Lignes connectant le centre aux services */}
-                  <line x1="200" y1="200" x2="200" y2="50" stroke="url(#connectionGradient)" strokeWidth="3" strokeDasharray="5,5" />
-                  <line x1="200" y1="200" x2="350" y2="200" stroke="url(#connectionGradient)" strokeWidth="3" strokeDasharray="5,5" />
-                  <line x1="200" y1="200" x2="200" y2="350" stroke="url(#connectionGradient)" strokeWidth="3" strokeDasharray="5,5" />
-                  <line x1="200" y1="200" x2="50" y2="200" stroke="url(#connectionGradient)" strokeWidth="3" strokeDasharray="5,5" />
+                  {/* Flèches du centre vers les services */}
+                  <line x1="200" y1="150" x2="200" y2="80" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="250" y1="200" x2="320" y2="200" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="200" y1="250" x2="200" y2="320" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="150" y1="200" x2="80" y2="200" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
                 </svg>
               </div>
             </div>
