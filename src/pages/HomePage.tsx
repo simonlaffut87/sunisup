@@ -331,10 +331,7 @@ export default function HomePage() {
               <div className="relative aspect-square max-w-2xl mx-auto">
                 {/* Centre du diagramme */}
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl z-10">
-                  <div className="text-center">
-                    <Building2 className="w-8 h-8 text-white mx-auto mb-1" />
-                    <p className="text-white font-bold text-sm font-sans">Votre entreprise</p>
-                  </div>
+                  <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-16 h-16" />
                 </div>
 
                 {/* Service 1 - Top */}
