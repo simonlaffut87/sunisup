@@ -1,6 +1,7 @@
 {
   "nav": {
-    "home": "Onze Diensten",
+    "home": "Home",
+    "services": "Onze Diensten",
     "about": "Over ons",
     "quickscan": "Simulatie",
     "howToJoin": "Lid worden"
@@ -170,6 +171,16 @@
           "title": "Een geïntegreerde aanpak",
           "description": "Onze vier diensten vullen elkaar aan om een complete energieoplossing te bieden. Of u nu lid wilt worden van onze energiegemeenschap, uw huidige contract wilt optimaliseren, de installatie van zonnepanelen wilt bestuderen of wilt profiteren van groepstarieven, wij ondersteunen u bij elke stap van uw energietransitie."
         }
+      },
+      "schemaLabels": {
+        "community": "Energie",
+        "communitySecond": "Gemeenschap",
+        "optimization": "Contract",
+        "optimizationSecond": "Optimalisatie",
+        "study": "Rendabiliteits",
+        "studySecond": "studie",
+        "groupContract": "Groeps",
+        "groupContractSecond": "contract"
       },
       "community": {
         "title": "Lid worden van onze energiegemeenschap (EG)",

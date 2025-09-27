@@ -327,8 +327,8 @@ export default function HomePage() {
                     <Users className="w-8 h-8 text-white" />
                   </div>
                   <div className="mt-4 text-center">
-                    <p className="font-bold text-gray-900 text-sm font-sans">Communauté</p>
-                    <p className="font-bold text-gray-900 text-sm font-sans">d'énergie</p>
+                    <p className="font-bold text-gray-900 text-sm font-sans">{t('home.services.schemaLabels.community')}</p>
+                    <p className="font-bold text-gray-900 text-sm font-sans">{t('home.services.schemaLabels.communitySecond')}</p>
                   </div>
                 </div>
 
@@ -338,8 +338,8 @@ export default function HomePage() {
                     <FileText className="w-8 h-8 text-white" />
                   </div>
                   <div className="mt-4 text-center">
-                    <p className="font-bold text-gray-900 text-sm font-sans">Optimisation</p>
-                    <p className="font-bold text-gray-900 text-sm font-sans">contrat</p>
+                    <p className="font-bold text-gray-900 text-sm font-sans">{t('home.services.schemaLabels.optimization')}</p>
+                    <p className="font-bold text-gray-900 text-sm font-sans">{t('home.services.schemaLabels.optimizationSecond')}</p>
                   </div>
                 </div>
 
@@ -349,8 +349,8 @@ export default function HomePage() {
                     <Sun className="w-8 h-8 text-white" />
                   </div>
                   <div className="mb-4 text-center">
-                    <p className="font-bold text-gray-900 text-sm font-sans">Étude</p>
-                    <p className="font-bold text-gray-900 text-sm font-sans">rentabilité</p>
+                    <p className="font-bold text-gray-900 text-sm font-sans">{t('home.services.schemaLabels.study')}</p>
+                    <p className="font-bold text-gray-900 text-sm font-sans">{t('home.services.schemaLabels.studySecond')}</p>
                   </div>
                 </div>
 
@@ -360,8 +360,8 @@ export default function HomePage() {
                     <Handshake className="w-8 h-8 text-white" />
                   </div>
                   <div className="mt-4 text-center">
-                    <p className="font-bold text-gray-900 text-sm font-sans">Contrat</p>
-                    <p className="font-bold text-gray-900 text-sm font-sans">groupé</p>
+                    <p className="font-bold text-gray-900 text-sm font-sans">{t('home.services.schemaLabels.groupContract')}</p>
+                    <p className="font-bold text-gray-900 text-sm font-sans">{t('home.services.schemaLabels.groupContractSecond')}</p>
                   </div>
                 </div>
 
