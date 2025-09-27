@@ -140,60 +140,13 @@ export default function AboutPage() {
       </section>
 
       {/* Solution Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
-              {t('about.history.solution.title')}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div className="bg-white rounded-3xl shadow-xl p-10 border border-gray-100 hover:shadow-2xl transition-all duration-300 group">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-200">
-                <Building className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 font-sans">
-                {t('about.history.solution.benefits.suppliers')}
-              </h3>
-              <p className="text-gray-600 text-lg leading-relaxed font-sans">
-                {t('about.history.solution.benefits.suppliersDescription')}
-              </p>
-            </div>
-
-            <div className="bg-white rounded-3xl shadow-xl p-10 border border-gray-100 hover:shadow-2xl transition-all duration-300 group">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-200">
-                <Zap className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 font-sans">
-                {t('about.history.solution.benefits.resilience')}
-              </h3>
-              <p className="text-gray-600 text-lg leading-relaxed font-sans">
-                {t('about.history.solution.benefits.resilienceDescription')}
-              </p>
-            </div>
-
-            <div className="bg-white rounded-3xl shadow-xl p-10 border border-gray-100 hover:shadow-2xl transition-all duration-300 group">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-200">
-                <Leaf className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 font-sans">
-                {t('about.history.solution.benefits.sustainable')}
-              </h3>
-              <p className="text-gray-600 text-lg leading-relaxed font-sans">
-                {t('about.history.solution.benefits.sustainableDescription')}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Mission Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
-              {t('about.mission.title')}
+              Notre communauté d'énergie en chiffres
             </h2>
           </div>
 
