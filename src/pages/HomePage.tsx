@@ -102,7 +102,7 @@ export default function HomePage() {
               {/* Badge */}
               <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-full text-blue-700 font-medium shadow-lg font-sans">
                 <Building2 className="w-5 h-5 mr-2" />
-                {t('home.hero.badge')}
+                Solutions énergétiques pour entreprises
               </div>
               
               {/* Main title */}
@@ -121,14 +121,14 @@ export default function HomePage() {
                   onClick={() => setShowContactModal(true)}
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
-                  Découvrir nos services
+                  {t('home.hero.discoverButton')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <a 
                   href="/simulation"
                   className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
-                  Simulation gratuite
+                  {t('home.hero.simulationButton')}
                   <TrendingUp className="w-5 h-5" />
                 </a>
               </div>
