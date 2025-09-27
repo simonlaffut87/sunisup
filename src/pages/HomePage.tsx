@@ -64,9 +64,6 @@ export default function HomePage() {
   const producers = participants.filter(p => p.type === 'producer');
   const consumers = participants.filter(p => p.type === 'consumer');
 
-  const translatedFaqItems = t('home.faq.items', { returnObjects: true });
-  const faqItems = Array.isArray(translatedFaqItems) ? translatedFaqItems : [];
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
