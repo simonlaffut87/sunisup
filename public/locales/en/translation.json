@@ -153,6 +153,13 @@
     "description": "Brussels energy community for a local and sustainable energy transition."
   },
   "home": {
+    "hero": {
+      "title": "Our services dedicated to businesses",
+      "description": "In the current context of energy transition, businesses have concrete solutions to reduce their costs and improve their energy efficiency. Our goal is to support businesses towards sustainable energy savings through four key services: join our Brussels energy community, optimize your energy contracts, conduct a profitability study for solar panels or batteries, and access our group contract with partner supplier.",
+      "badge": "Energy solutions for businesses",
+      "discoverButton": "Discover our services",
+      "simulationButton": "Free simulation"
+    },
     "services": {
       "title": "Our four energy services",
       "subtitle": "Complete solutions to optimize your energy strategy",
@@ -198,28 +205,31 @@
         "button": "Join the contract"
       }
     },
-    "hero": {
-      "title": "Benefit from renewable energy sharing in Brussels",
-      "intro": "Join our energy community and reduce your electricity bills by up to 30% through local solar energy sharing.",
-      "badge": "Local energy community",
-      "features": {
-        "local": {
-          "title": "Local production",
-          "description": "Energy produced and consumed locally in Brussels"
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": [
+        {
+          "question": "How does the energy community work?",
+          "answer": "Our community enables solar energy producers to share their surplus with local consumers through a direct contract established by our NPO. This direct approach reduces costs for all participants."
         },
-        "price": {
-          "title": "Competitive prices",
-          "description": "Significant reduction on your electricity bill"
+        {
+          "question": "What are the conditions to join?",
+          "answer": "You simply need to be located in the Brussels-Capital region and have a new generation meter (smart meter). If you don't have one yet, Sibelga can install it for free upon request."
         },
-        "transition": {
-          "title": "Energy transition",
-          "description": "Actively participate in the energy transition"
+        {
+          "question": "What is a new generation meter?",
+          "answer": "The new generation meter (smart meter) is an intelligent electricity meter that measures your energy consumption and production in real time. It is essential for participating in an energy community as it enables precise energy sharing between members. Sibelga, the Brussels network operator, installs it for free."
         },
-        "green": {
-          "title": "Access to green energy",
-          "description": "Benefit from renewable energy from existing installations"
+        {
+          "question": "How much can I save?",
+          "answer": "Members can save up to 30% on their electricity bill depending on their consumption profile. The more energy you consume during sunlight hours, the higher your savings will be."
         }
-      }
+      ]
+    },
+    "energyCta": {
+      "title": "Ready to optimize your energy?",
+      "description": "Contact us to discover which solution best fits your business",
+      "button": "Contact our experts"
     },
     "howItWorks": {
       "title": "How does it work?",
@@ -255,44 +265,9 @@
         "perYear": "kWh/year"
       }
     },
-    "faq": {
-      "title": "Frequently Asked Questions",
-      "items": [
-        {
-          "question": "How does the energy community work?",
-          "answer": "Our community enables solar energy producers to share their surplus with local consumers through a direct contract established by our NPO. This direct approach reduces costs for all participants."
-        },
-        {
-          "question": "What are the conditions to join?",
-          "answer": "You simply need to be located in the Brussels-Capital region and have a new generation meter (smart meter). If you don't have one yet, Sibelga can install it for free upon request."
-        },
-        {
-          "question": "What is a new generation meter?",
-          "answer": "The new generation meter (smart meter) is an intelligent electricity meter that measures your energy consumption and production in real time. It is essential for participating in an energy community as it enables precise energy sharing between members. Sibelga, the Brussels network operator, installs it for free."
-        },
-        {
-          "question": "How much can I save?",
-          "answer": "Members can save up to 30% on their electricity bill depending on their consumption profile. The more energy you consume during sunlight hours, the higher your savings will be."
-        }
-      ]
-    },
     "cta": {
       "title": "Ready to join the community?",
       "description": "Start saving on your electricity bill today"
-    }
-  },
-  "home": {
-    "hero": {
-      "title": "Our services dedicated to businesses",
-      "description": "In the current context of energy transition, businesses have concrete solutions to reduce their costs and improve their energy efficiency. Our goal is to support businesses towards sustainable energy savings through four key services: join our Brussels energy community, optimize your energy contracts, conduct a profitability study for solar panels or batteries, and access our group contract with partner supplier.",
-      "badge": "Energy solutions for businesses",
-      "discoverButton": "Discover our services",
-      "simulationButton": "Free simulation"
-    },
-    "energyCta": {
-      "title": "Ready to optimize your energy?",
-      "description": "Contact us to discover which solution best fits your business",
-      "button": "Contact our experts"
     }
   },
   "simulation": {
