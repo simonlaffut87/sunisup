@@ -18,6 +18,7 @@ interface ContactForm {
   meterFile: File | null;
   additionalFile: File | null;
   website: string; // Honeypot field
+  selectedServices: string[];
 }
 
 export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactModalProps) {
@@ -29,6 +30,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
     meterFile: null,
     additionalFile: null,
     website: '', // Honeypot field should remain empty
+    selectedServices: [],
   });
   const [submitting, setSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -79,6 +81,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
         email: contactForm.email,
         message: contactForm.message,
         submissionTime: timeSinceLoad,
+        selectedServices: contactForm.selectedServices,
       };
 
       if (contactForm.billFile) {
@@ -126,6 +129,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
           meterFile: null,
           additionalFile: null,
           website: '',
+          selectedServices: [],
         });
         setShowSuccess(false);
         onClose();
@@ -205,45 +209,6 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                   autoComplete="off"
                 />
               </label>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
-                Services qui vous intéressent
-              </label>
-              <div className="space-y-2">
-                {[
-                  'Rejoindre notre communauté d\'énergie',
-                  'Optimisation de contrat d\'énergie',
-                  'Étude de rentabilité (panneaux solaires/batteries)',
-                  'Contrat groupé avec fournisseur partenaire'
-                ].map((service, index) => (
-                  <label key={index} className="flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={contactForm.selectedServices.includes(service)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setContactForm(prev => ({
-                            ...prev,
-                            selectedServices: [...prev.selectedServices, service]
-                          }));
-                        } else {
-                          setContactForm(prev => ({
-                            ...prev,
-                            selectedServices: prev.selectedServices.filter(s => s !== service)
-                          }));
-                        }
-                      }}
-                      className="w-4 h-4 text-amber-600 border-amber-300 rounded focus:ring-amber-500"
-                    />
-                    <span className="text-sm text-amber-700 font-sans">{service}</span>
-                  </label>
-                ))}
-              </div>
-              <p className="text-xs text-amber-600 mt-2 font-sans">
-                Sélectionnez un ou plusieurs services (optionnel)
-              </p>
             </div>
 
             <div>
