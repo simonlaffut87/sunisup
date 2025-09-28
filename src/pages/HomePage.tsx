@@ -309,25 +309,25 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Service 2 - Right */}
-                <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
+                {/* Service 2 - Bottom Right */}
+                <div className="absolute bottom-8 right-8 transform translate-x-1/2 translate-y-1/2">
                   <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center shadow-xl">
                     <FileText className="w-6 h-6 text-white" />
                   </div>
-                  <div className="mt-4 text-center">
+                  <div className="mb-4 text-center">
                     <p className="font-bold text-gray-900 text-xs font-sans">Optimisation</p>
                     <p className="font-bold text-gray-900 text-xs font-sans">énergétique</p>
                   </div>
                 </div>
 
-                {/* Service 3 - Bottom */}
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+                {/* Service 3 - Bottom Left */}
+                <div className="absolute bottom-8 left-8 transform -translate-x-1/2 translate-y-1/2">
                   <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl">
                     <Sun className="w-6 h-6 text-white" />
                   </div>
                   <div className="mb-4 text-center">
                     <p className="font-bold text-gray-900 text-xs font-sans">Étude</p>
-                    <p className="font-bold text-gray-900 text-xs font-sans">rentabilité</p>
+                    <p className="font-bold text-gray-900 text-xs font-sans">installations</p>
                   </div>
                 </div>
 
@@ -340,10 +340,10 @@ export default function HomePage() {
                     </marker>
                   </defs>
                   
-                  {/* Flèches du centre vers les 3 services */}
-                  <line x1="150" y1="120" x2="150" y2="60" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
-                  <line x1="190" y1="150" x2="240" y2="150" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
-                  <line x1="150" y1="180" x2="150" y2="240" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  {/* Flèches du centre vers les 3 services en triangle */}
+                  <line x1="150" y1="130" x2="150" y2="70" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="170" y1="160" x2="220" y2="200" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="130" y1="160" x2="80" y2="200" stroke="#6366F1" strokeWidth="3" markerEnd="url(#arrowhead)" />
                 </svg>
               </div>
             </div>
