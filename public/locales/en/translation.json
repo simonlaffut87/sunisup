@@ -159,8 +159,8 @@
   },
   "home": {
     "hero": {
-      "title": "Our three services dedicated to businesses",
-      "description": "In the current context of energy transition, businesses have concrete solutions to reduce their costs and improve their energy efficiency. Our goal is to support businesses towards sustainable energy savings through three key services: join our Brussels energy community, optimize your overall energy situation, and conduct a profitability study with installation of solar panels or batteries.",
+      "title": "Our four services dedicated to businesses",
+      "description": "In the current context of energy transition, businesses have concrete solutions to reduce their costs and improve their energy efficiency. Our goal is to support businesses towards sustainable energy savings through four key services: join our mother energy community, create your own sub-community, use our monitoring platform, and optimize your complete energy situation.",
       "badge": "Energy solutions for businesses",
       "discoverButton": "Discover our services",
       "simulationButton": "Free simulation"
@@ -173,32 +173,51 @@
         "subtitle": "A complete ecosystem for your energy transition",
         "approach": {
           "title": "An integrated approach",
-          "description": "Our four services complement each other to offer a complete energy solution. Whether you want to join our energy community, optimize your current contract, study the installation of solar panels or benefit from group rates, we support you at every step of your energy transition."
+          "description": "Our four services complement each other to offer a complete energy solution. Whether you want to join our mother energy community, create your own sub-community, use our monitoring platform or optimize your energy situation, we support you at every step of your energy transition."
         }
       },
       "schemaLabels": {
         "community": "Energy",
         "communitySecond": "Community",
-        "optimization": "Contract",
-        "optimizationSecond": "Optimization",
-        "study": "Profitability",
-        "studySecond": "Study",
-        "groupContract": "Group",
-        "groupContractSecond": "Contract"
+        "subCommunity": "Sub-",
+        "subCommunitySecond": "community",
+        "platform": "Platform",
+        "platformSecond": "monitoring",
+        "optimization": "Energy",
+        "optimizationSecond": "optimization"
       },
       "community": {
-        "title": "Join our energy community (EC)",
-        "description": "Become a member, access shared electricity, benefit from collective rates and contribute to the local energy transition.",
+        "title": "Mother energy community",
+        "description": "Join our mother community composed of producers and consumers who currently account for 1.4 GWh of available energy and 1.5 GWh of annual consumption and benefit from a stable rate at 40% of market rates.",
         "videoDescription": "Community operation explained by Brugel",
         "button": "Learn more"
       },
+      "subCommunity": {
+        "title": "Sub-community",
+        "description": "Take advantage of our structure and advice to set up energy sharing between your buildings only.",
+        "features": [
+          "Creation of your own energy community",
+          "Energy sharing between your own buildings",
+          "Technical and regulatory support"
+        ],
+        "button": "Create my sub-community"
+      },
+      "platform": {
+        "title": "Management and monitoring platform",
+        "description": "Management and monitoring platform for your energy sharing projects with real-time tracking and continuous optimization.",
+        "features": [
+          "Real-time monitoring",
+          "Continuous optimization"
+        ],
+        "button": "Discover the platform"
+      },
       "optimization": {
         "title": "Energy situation optimization",
-        "description": "Complete analysis of your current contract, help understanding your energy bills, and personalized support to find the best contract adapted to your actual consumption.",
+        "description": "Study and installation of solar panels, energy storage and complete optimization of your energy situation.",
         "features": [
-          "Complete analysis of your current contract",
-          "Support in supplier change",
-          "Regular monitoring and continuous optimization"
+          "Personalized profitability study",
+          "Solar panels and batteries installation",
+          "Contract and bills optimization"
         ],
         "button": "Optimize my situation"
       }
