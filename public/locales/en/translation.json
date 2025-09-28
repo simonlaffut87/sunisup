@@ -193,23 +193,6 @@
         "button": "Learn more"
       },
       "optimization": {
-        "title": "Energy contract optimization",
-        "description": "Analysis of your current contract, study of your consumption, comparison of Belgian supplier offers, simulation of potential savings, support in negotiation and regular monitoring.",
-        "features": [
-          "Complete analysis of your current contract",
-          "Comparison of Belgian suppliers",
-          "Support in negotiation"
-        ],
-        "button": "Optimize my contract"
-      },
-      "study": {
-        "title": "Profitability study and installations",
-        "description": "Return on investment analysis and sizing of solar installations or batteries adapted to your building. Installation carried out through our certified partner.",
-        "solarPanels": "Solar panels",
-        "batteries": "Batteries",
-        "button": "Request a study"
-      },
-      "optimization": {
         "title": "Energy situation optimization",
         "description": "Complete analysis of your current contract, help understanding your energy bills, and personalized support to find the best contract adapted to your actual consumption.",
         "features": [

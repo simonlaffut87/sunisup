@@ -193,23 +193,6 @@
         "button": "Meer weten"
       },
       "optimization": {
-        "title": "Optimalisatie van energiecontract",
-        "description": "Analyse van uw huidige contract, studie van uw verbruik, vergelijking van aanbiedingen van Belgische leveranciers, simulatie van potentiële besparingen, begeleiding bij onderhandeling en regelmatige opvolging.",
-        "features": [
-          "Volledige analyse van uw huidige contract",
-          "Vergelijking van Belgische leveranciers",
-          "Begeleiding bij onderhandeling"
-        ],
-        "button": "Mijn contract optimaliseren"
-      },
-      "study": {
-        "title": "Rendabiliteitsstudie en installaties",
-        "description": "Analyse van het rendement op investering en dimensionering van zonne-installaties of batterijen aangepast aan uw gebouw. Installatie uitgevoerd via onze gecertificeerde partner.",
-        "solarPanels": "Zonnepanelen",
-        "batteries": "Batterijen",
-        "button": "Een studie aanvragen"
-      },
-      "optimization": {
         "title": "Optimalisatie van uw energiesituatie",
         "description": "Volledige analyse van uw huidige contract, hulp bij het begrijpen van uw energierekeningen, en persoonlijke begeleiding om het beste contract te vinden aangepast aan uw werkelijke verbruik.",
         "features": [
