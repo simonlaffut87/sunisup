@@ -112,10 +112,10 @@ export default function HomePage() {
               {/* Main title */}
               <div className="space-y-6">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto font-sans tracking-tight">
-                  {t('home.hero.title')}
+                  Nos quatre services dédiés aux entreprises
                 </h1>
                 <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto font-sans font-light">
-                  Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers trois services clés : rejoindre notre communauté d'énergie bruxelloise, optimiser votre situation énergétique globale, et réaliser une étude de rentabilité avec installation de panneaux solaires ou batteries.
+                  Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers quatre services clés : rejoindre notre communauté d'énergie mère, créer votre propre sous-communauté, utiliser notre plateforme de monitoring, et optimiser votre situation énergétique complète.
                 </p>
               </div>
               
