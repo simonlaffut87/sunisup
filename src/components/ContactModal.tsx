@@ -217,10 +217,10 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
               </label>
               <div className="space-y-2">
                 {[
-                  'Rejoindre notre communauté d\'énergie mère',
-                  'Créer une sous-communauté pour mes bâtiments',
-                  'Accéder à la plateforme de gestion et monitoring',
-                  'Optimisation énergétique (panneaux, batteries, contrats)'
+                  t('contact.services.community'),
+                  t('contact.services.subCommunity'),
+                  t('contact.services.platform'),
+                  t('contact.services.optimization')
                 ].map((service, index) => (
                   <label key={index} className="flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors">
                     <input
