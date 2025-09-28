@@ -217,10 +217,9 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
               </label>
               <div className="space-y-2">
                 {[
-                  t('contact.services.community'),
-                  t('contact.services.optimization'),
-                  t('contact.services.study'),
-                  t('contact.services.groupContract')
+                  'Rejoindre notre communauté d\'énergie',
+                  'Optimisation de votre situation énergétique',
+                  'Étude de rentabilité (panneaux solaires/batteries)'
                 ].map((service, index) => (
                   <label key={index} className="flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors">
                     <input
