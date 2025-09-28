@@ -103,12 +103,6 @@ export default function HomePage() {
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
             <div className="text-center space-y-8">
-              {/* Badge */}
-              <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-full text-blue-700 font-medium shadow-lg font-sans">
-                <Building2 className="w-5 h-5 mr-2" />
-                Solutions énergétiques pour entreprises
-              </div>
-              
               {/* Main title */}
               <div className="space-y-6">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto font-sans tracking-tight">
