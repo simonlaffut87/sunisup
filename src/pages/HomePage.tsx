@@ -209,7 +209,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
-                  Analyse complète de votre contrat actuel, négociation de tarifs groupés avec nos fournisseurs partenaires, et accompagnement personnalisé pour optimiser votre situation énergétique globale.
+                  Analyse complète de votre contrat actuel, aide à la compréhension de vos factures d'énergie, et accompagnement personnalisé pour trouver le meilleur contrat adapté à votre consommation réelle.
                 </p>
                 
                 <div className="space-y-4 mb-8">
