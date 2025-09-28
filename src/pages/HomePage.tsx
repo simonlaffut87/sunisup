@@ -136,15 +136,6 @@ export default function HomePage() {
         {/* Section Services */}
         <section className="py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans tracking-tight">
-                {t('home.services.title')}
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto font-sans font-light">
-                {t('home.services.subtitle')}
-              </p>
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
               {/* Service 1: Communauté d'énergie */}
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-10 border border-blue-100 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
