@@ -170,7 +170,7 @@ export default function AdminPage() {
             onClick={() => setShowContactModal(true)}
               className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-full font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:scale-105 flex items-center gap-3 mx-auto text-lg font-sans"
           >
-            {t('howToJoin.cta.button')}
+             {t('howToJoin.cta.title')}
               <ArrowRight className="w-6 h-6" />
           </button>
           </div>
