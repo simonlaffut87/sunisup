@@ -187,7 +187,7 @@
         "optimizationSecond": "optimization"
       },
       "community": {
-        "title": "Mother energy community",
+        "title": "Energy community",
         "description": "Join our mother community composed of producers and consumers who currently account for 1.4 GWh of available energy and 1.5 GWh of annual consumption and benefit from a stable rate at 40% of market rates.",
         "videoDescription": "Community operation explained by Brugel",
         "button": "Learn more"
@@ -212,7 +212,7 @@
         "button": "Discover the platform"
       },
       "optimization": {
-        "title": "Energy situation optimization",
+        "title": "Optimization of your energy situation",
         "description": "Study and installation of solar panels, energy storage and complete optimization of your energy situation.",
         "features": [
           "Personalized profitability study",
