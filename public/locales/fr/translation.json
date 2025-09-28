@@ -222,21 +222,21 @@
         "button": "Optimiser mon contrat"
       },
       "study": {
-        "title": "Étude de rentabilité (batterie ou panneaux solaires)",
-        "description": "Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment.",
+        "title": "Étude de rentabilité et installations",
+        "description": "Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment. Installation réalisée via notre partenaire certifié.",
         "solarPanels": "Panneaux solaires",
         "batteries": "Batteries",
         "button": "Demander une étude"
       },
-      "groupContract": {
-        "title": "Contrat groupé",
-        "description": "Rejoignez notre contrat collectif avec notre fournisseur partenaire et bénéficiez de tarifs négociés et stables.",
+      "optimization": {
+        "title": "Optimisation de votre situation énergétique",
+        "description": "Analyse complète de votre contrat actuel, aide à la compréhension de vos factures d'énergie, et accompagnement personnalisé pour trouver le meilleur contrat adapté à votre consommation réelle.",
         "features": [
-          "Tarifs négociés collectivement",
-          "Stabilité des prix",
-          "Fournisseur partenaire de confiance"
+          "Analyse complète de votre contrat actuel",
+          "Accompagnement dans le changement de fournisseur",
+          "Suivi régulier et optimisation continue"
         ],
-        "button": "Rejoindre le contrat"
+        "button": "Optimiser ma situation"
       }
     },
     "howItWorks": {

@@ -203,21 +203,21 @@
         "button": "Optimize my contract"
       },
       "study": {
-        "title": "Profitability study (battery or solar panels)",
-        "description": "Return on investment analysis and sizing of solar installations or batteries adapted to your building.",
+        "title": "Profitability study and installations",
+        "description": "Return on investment analysis and sizing of solar installations or batteries adapted to your building. Installation carried out through our certified partner.",
         "solarPanels": "Solar panels",
         "batteries": "Batteries",
         "button": "Request a study"
       },
-      "groupContract": {
-        "title": "Group contract",
-        "description": "Join our collective contract with our partner supplier and benefit from negotiated and stable rates.",
+      "optimization": {
+        "title": "Energy situation optimization",
+        "description": "Complete analysis of your current contract, help understanding your energy bills, and personalized support to find the best contract adapted to your actual consumption.",
         "features": [
-          "Collectively negotiated rates",
-          "Price stability",
-          "Trusted partner supplier"
+          "Complete analysis of your current contract",
+          "Support in supplier change",
+          "Regular monitoring and continuous optimization"
         ],
-        "button": "Join the contract"
+        "button": "Optimize my situation"
       }
     },
     "faq": {

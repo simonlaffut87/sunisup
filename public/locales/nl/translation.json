@@ -203,21 +203,21 @@
         "button": "Mijn contract optimaliseren"
       },
       "study": {
-        "title": "Rendabiliteitsstudie (batterij of zonnepanelen)",
-        "description": "Analyse van het rendement op investering en dimensionering van zonne-installaties of batterijen aangepast aan uw gebouw.",
+        "title": "Rendabiliteitsstudie en installaties",
+        "description": "Analyse van het rendement op investering en dimensionering van zonne-installaties of batterijen aangepast aan uw gebouw. Installatie uitgevoerd via onze gecertificeerde partner.",
         "solarPanels": "Zonnepanelen",
         "batteries": "Batterijen",
         "button": "Een studie aanvragen"
       },
-      "groupContract": {
-        "title": "Groepscontract",
-        "description": "Sluit u aan bij ons collectieve contract met onze partnerleverancier en profiteer van onderhandelde en stabiele tarieven.",
+      "optimization": {
+        "title": "Optimalisatie van uw energiesituatie",
+        "description": "Volledige analyse van uw huidige contract, hulp bij het begrijpen van uw energierekeningen, en persoonlijke begeleiding om het beste contract te vinden aangepast aan uw werkelijke verbruik.",
         "features": [
-          "Collectief onderhandelde tarieven",
-          "Prijsstabiliteit",
-          "Vertrouwde partnerleverancier"
+          "Volledige analyse van uw huidige contract",
+          "Begeleiding bij leverancierswissel",
+          "Regelmatige opvolging en continue optimalisatie"
         ],
-        "button": "Lid worden van het contract"
+        "button": "Mijn situatie optimaliseren"
       }
     },
     "howItWorks": {
