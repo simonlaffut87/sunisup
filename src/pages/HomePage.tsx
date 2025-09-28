@@ -115,7 +115,7 @@ export default function HomePage() {
                   {t('home.hero.title')}
                 </h1>
                 <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto font-sans font-light">
-                  {t('home.hero.description')}
+                  Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers trois services clés : rejoindre notre communauté d'énergie bruxelloise, optimiser votre situation énergétique globale, et réaliser une étude de rentabilité avec installation de panneaux solaires ou batteries.
                 </p>
               </div>
               
