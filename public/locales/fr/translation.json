@@ -1,0 +1,400 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "services": "Nos Services",
+    "about": "À propos",
+    "quickscan": "Simulation",
+    "howToJoin": "Nous rejoindre"
+  },
+  "header": {
+    "title": "Sun Is Up",
+    "contact": "Nous contacter",
+    "subtitle": "Communauté d'énergie bruxelloise",
+    "memberAccess": "Accès membre",
+    "member": "Membre"
+  },
+  "contact": {
+    "title": "Prendre contact",
+    "servicesTitle": "Services qui vous intéressent",
+    "servicesOptional": "Sélectionnez un ou plusieurs services (optionnel)",
+    "services": {
+      "community": "Rejoindre notre communauté d'énergie",
+      "subCommunity": "Créer une sous-communauté pour mes bâtiments",
+      "platform": "Accéder à la plateforme de gestion et monitoring",
+      "optimization": "Optimisation de contrat d'énergie",
+      "energyOptimization": "Optimisation énergétique (panneaux, batteries, contrats)",
+      "study": "Étude de rentabilité (panneaux solaires/batteries)",
+      "groupContract": "Contrat groupé avec fournisseur partenaire"
+    },
+    "email": "Adresse email",
+    "emailPlaceholder": "votre@email.com",
+    "message": "Message",
+    "messagePlaceholder": "Comment pouvons-nous vous aider ?",
+    "billFile": "Facture de régularisation récente (optionnel)",
+    "billFileText": "Cliquez pour sélectionner",
+    "meterPhoto": "Photo du compteur électrique (optionnel)",
+    "meterPhotoText": "Cliquez pour sélectionner",
+    "additionalDoc": "Document supplémentaire (optionnel)",
+    "additionalDocText": "Document supplémentaire (optionnel)",
+    "submit": "Envoyer ma demande",
+    "submitting": "Envoi en cours...",
+    "success": {
+      "title": "Demande envoyée avec succès !",
+      "message": "Nous vous contacterons rapidement pour la suite du processus."
+    },
+    "errors": {
+      "required": "Veuillez remplir tous les champs requis",
+      "slowDown": "Veuillez prendre le temps de remplir le formulaire correctement",
+      "general": "Une erreur est survenue lors de l'envoi de votre demande. Veuillez réessayer plus tard."
+    }
+  },
+  "about": {
+    "whoAreWe": {
+      "title": "Qui sommes-nous ?",
+      "subtitle": "Deux ingénieurs passionnés par la transition énergétique",
+      "thomas": {
+        "title": "Thomas",
+        "role": "Ingénieur Civil",
+        "qualifications": [
+          "Master en énergie (ULB)\nSpécialisé dans les systèmes énergétiques durables",
+          "Master en Gestion (ICHEC)\nExpertise en gestion de projets énergétiques",
+          "Doctorant à l'ULB\nRecherche sur l'optimisation des communautés d'énergie"
+        ]
+      },
+      "simon": {
+        "title": "Simon",
+        "role": "Ingénieur Industriel",
+        "qualifications": [
+          "Master en électromécanique (ECAM)\nExpert en systèmes électriques et mécaniques",
+          "Chef de projet chez WeSmart\n3 ans d'expérience dans les communautés d'énergie locales"
+        ]
+      },
+      "friendship": {
+        "title": "Une amitié née à l'école",
+        "description": "Thomas et Simon, amis d'enfance animés par des valeurs communes d'innovation et de durabilité, ont fondé ensemble une initiative visant à répondre à un enjeu stratégique pour les entreprises bruxelloises : la hausse et l'instabilité des coûts de l'énergie. Forts d'une complémentarité solide – l'expertise technique de Simon et la vision systémique de Thomas – ils développent des solutions concrètes et accessibles permettant aux PME de s'engager dans une transition énergétique efficace, économiquement viable et socialement responsable."
+      }
+    },
+    "history": {
+      "title": "Notre Histoire",
+      "intro": "Deux ingénieurs, une vision : rendre l'énergie plus locale, plus équitable et plus durable.",
+      "team": {
+        "simon": {
+          "title": "Simon",
+          "role": "Ingénieur Électromécanicien",
+          "description": "3 ans chez WeSmart, expert en communautés d'énergie locales."
+        },
+        "thomas": {
+          "title": "Thomas",
+          "role": "Ingénieur Énergie",
+          "description": "Chercheur à l'ULB, spécialisé en stockage d'énergie."
+        }
+      },
+      "friendship": {
+        "title": "Une amitié née à l'école",
+        "description": "Simon et Thomas se sont rencontrés pendant leurs études. Ensemble, ils ont décidé de relever un véritable défi pour les entreprises bruxelloises : la flambée des prix de l'énergie."
+      },
+      "solution": {
+        "title": "Notre solution : la communauté d'énergie",
+        "description": "Sun Is Up permet aux producteurs et consommateurs d'échanger de l'énergie localement, directement.",
+        "benefits": {
+          "suppliers": "Moins de dépendance aux fournisseurs",
+          "resilience": "Plus de résilience face aux hausses de prix",
+          "sustainable": "Un modèle plus durable et solidaire",
+          "suppliersDescription": "Réduisez votre dépendance aux grands fournisseurs d'énergie en accédant directement à la production locale.",
+          "resilienceDescription": "Protégez-vous contre la volatilité des prix de l'énergie grâce à des tarifs stables et prévisibles.",
+          "sustainableDescription": "Participez à une économie circulaire locale qui favorise l'entraide et la transition écologique."
+        },
+        "cta": "Ensemble, reprenons le contrôle de notre énergie."
+      }
+    },
+    "mission": {
+      "title": "Notre Mission",
+      "communityStats": {
+        "title": "Notre communauté d'énergie en chiffres"
+      },
+      "objectives": {
+        "title": "Objectifs Clés",
+        "items": [
+          "Créer un réseau énergétique de producteurs et consommateurs bruxellois",
+          "Réduire les risques de variation des prix du marché",
+          "Démocratiser l'accès à l'énergie verte"
+        ]
+      },
+      "stats": {
+        "availableEnergy": "MWh disponibles",
+        "activeMembers": "Membres actifs",
+        "averageSavings": "Économies moyennes",
+        "localEnergy": "Énergie locale"
+      }
+    },
+    "partners": {
+      "title": "Nos Partenaires",
+      "subtitle": "",
+      "technical": {
+        "title": "Partenaires Techniques",
+        "list": [
+          "Brugel",
+          "Sibelga"
+        ],
+        "descriptions": {
+          "brugel": "Régulateur bruxellois de l'énergie, garant du cadre réglementaire des communautés d'énergie",
+          "sibelga": "Gestionnaire du réseau de distribution d'électricité bruxellois"
+        }
+      }
+    },
+    "teamSection": {
+      "title": "Qui sommes-nous ?",
+      "subtitle": "Deux ingénieurs passionnés par la transition énergétique"
+    },
+    "cta": {
+      "title": "Rejoignez notre vision",
+      "description": "Ensemble, construisons un avenir énergétique plus durable et solidaire pour Bruxelles",
+      "joinButton": "Nous rejoindre",
+      "procedureButton": "Procédure",
+      "simulateButton": "Simuler mes économies"
+    }
+  },
+  "footer": {
+    "contact": "Contact",
+    "followUs": "Suivez-nous",
+    "copyright": "© 2025 Sun Is Up ASBL. Tous droits réservés.",
+    "description": "Communauté d'énergie bruxelloise pour une transition énergétique locale et durable."
+  },
+  "home": {
+    "hero": {
+      "title": "Nos quatre services dédiés aux entreprises",
+      "description": "Dans le contexte actuel de transition énergétique, les entreprises disposent de solutions concrètes pour réduire leurs coûts et améliorer leur efficacité énergétique. Notre objectif est d'accompagner les entreprises vers des économies d'énergie durables à travers quatre services clés : rejoindre notre communauté d'énergie mère, créer votre propre sous-communauté, utiliser notre plateforme de monitoring, et optimiser votre situation énergétique complète.",
+      "badge": "Solutions énergétiques pour entreprises",
+      "discoverButton": "Découvrir nos services",
+      "simulationButton": "Simulation gratuite",
+      "intro": "Rejoignez notre communauté d'énergie et réduisez vos factures d'électricité jusqu'à 30% grâce au partage d'énergie solaire local.",
+      "features": {
+        "local": {
+          "title": "Production locale",
+          "description": "Énergie produite et consommée localement à Bruxelles"
+        },
+        "price": {
+          "title": "Prix avantageux",
+          "description": "Réduction significative sur votre facture d'électricité"
+        },
+        "transition": {
+          "title": "Transition énergétique",
+          "description": "Participez activement à la transition énergétique"
+        },
+        "green": {
+          "title": "Accès à l'énergie verte",
+          "description": "Profitez de l'énergie renouvelable d'installations déjà existantes"
+        }
+      }
+    },
+    "services": {
+      "title": "Nos quatre services énergétiques",
+      "subtitle": "Des solutions complètes pour optimiser votre stratégie énergétique",
+      "integration": {
+        "title": "Intégration de nos services",
+        "subtitle": "Un écosystème complet pour votre transition énergétique",
+        "approach": {
+          "title": "Une approche intégrée",
+          "description": "Nos quatre services se complètent pour offrir une solution énergétique complète. Que vous souhaitiez rejoindre notre communauté d'énergie mère, créer votre propre sous-communauté, utiliser notre plateforme de monitoring ou optimiser votre situation énergétique, nous vous accompagnons à chaque étape de votre transition énergétique."
+        }
+      },
+      "schemaLabels": {
+        "community": "Communauté",
+        "communitySecond": "d'énergie",
+        "subCommunity": "Sous-",
+        "subCommunitySecond": "communauté",
+        "platform": "Plateforme",
+        "platformSecond": "monitoring",
+        "optimization": "Optimisation",
+        "optimizationSecond": "énergétique"
+      },
+      "community": {
+        "title": "Communauté d'énergie",
+        "description": "Rejoignez notre communauté mère composée de producteurs et consommateurs qui comptabilisent aujourd'hui 1.4 GWh d'énergie disponible et 1.5 GWh de consommation annuelle et profitez d'un tarif stable à 40% des tarifs du marché.",
+        "videoDescription": "Fonctionnement d'une communauté expliqué par Brugel",
+        "button": "En savoir plus"
+      },
+      "subCommunity": {
+        "title": "Sous-communauté",
+        "description": "Profitez de notre structure et nos conseils pour mettre en place un partage d'énergie entre vos bâtiments uniquement.",
+        "features": [
+          "Création de votre propre communauté d'énergie",
+          "Partage d'énergie entre vos propres bâtiments",
+          "Accompagnement technique et réglementaire"
+        ],
+        "button": "Créer ma sous-communauté"
+      },
+      "platform": {
+        "title": "Plateforme de gestion et monitoring",
+        "description": "Plateforme de gestion et de monitoring pour vos projets de partage d'énergie avec suivi en temps réel et optimisation continue.",
+        "features": [
+          "Monitoring temps réel",
+          "Optimisation continue"
+        ],
+        "button": "Découvrir la plateforme"
+      },
+      "optimization": {
+        "title": "Optimisation de votre situation énergétique",
+        "description": "Étude et installation de panneaux solaires, stockage d'énergie et optimisation complète de votre situation énergétique.",
+        "features": [
+          "Étude de rentabilité personnalisée",
+          "Installation panneaux solaires et batteries",
+          "Optimisation contrat et factures"
+        ],
+        "button": "Optimiser ma situation"
+      }
+    },
+    "howItWorks": {
+      "title": "Comment ça marche ?",
+      "description": "Découvrez en vidéo le fonctionnement de notre communauté d'énergie",
+      "watchVideo": "Regarder la vidéo",
+      "videoDescription": "Fonctionnement d'une communauté expliqué par Brugel"
+    },
+    "stats": {
+      "production": {
+        "title": "Énergie disponible",
+        "unit": "MWh/an",
+        "value": "724",
+        "subtitle": "d'énergie disponible (équivalent à la consommation de 240 ménages ou 24 PME)"
+      },
+      "participants": {
+        "title": "Participants",
+        "subtitle": "membres actifs"
+      },
+      "savings": {
+        "title": "Économies moyennes",
+        "subtitle": "réduction moyenne"
+      }
+    },
+    "map": {
+      "title": "Notre réseau à Bruxelles",
+      "description": "Découvrez les producteurs et consommateurs de notre communauté d'énergie",
+      "producers": "Producteurs",
+      "consumers": "Consommateurs",
+      "details": {
+        "peakPower": "Puissance crête",
+        "production": "Production",
+        "consumption": "Consommation",
+        "perYear": "kWh/an"
+      }
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "items": [
+        {
+          "question": "Comment fonctionne la communauté d'énergie ?",
+          "answer": "Notre communauté permet aux producteurs d'énergie solaire de partager leur surplus avec des consommateurs locaux via un contrat direct établi par notre ASBL. Cette approche directe réduit les coûts pour tous les participants."
+        },
+        {
+          "question": "Quelles sont les conditions pour nous rejoindre ?",
+          "answer": "Il suffit d'être situé dans la région de Bruxelles-Capitale et de disposer d'un compteur nouvelle génération (smart meter). Si vous n'en avez pas encore, Sibelga peut l'installer gratuitement sur simple demande."
+        },
+        {
+          "question": "Qu'est-ce qu'un compteur nouvelle génération ?",
+          "answer": "Le compteur nouvelle génération (smart meter) est un compteur électrique intelligent qui permet de mesurer votre consommation et production d'énergie en temps réel. Il est indispensable pour participer à une communauté d'énergie car il permet le partage précis de l'énergie entre les membres. Sibelga, le gestionnaire du réseau bruxellois, l'installe gratuitement."
+        },
+        {
+          "question": "Quelles sont les économies possibles ?",
+          "answer": "Les membres peuvent économiser jusqu'à 30% sur leur facture d'électricité selon leur profil de consommation. Plus vous consommez d'énergie pendant les heures d'ensoleillement, plus vos économies seront importantes."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Prêt à rejoindre la communauté ?",
+      "description": "Commencez à économiser sur votre facture d'électricité dès aujourd'hui"
+    },
+    "energyCta": {
+      "title": "Prêt à optimiser votre énergie ?",
+      "description": "Contactez-nous pour découvrir quelle solution correspond le mieux à votre entreprise",
+      "button": "Contacter nos experts"
+    }
+  },
+  "simulation": {
+    "title": "Simulez vos économies",
+    "heroTitle": "Simulez vos gains en rejoignant la communauté d'énergie",
+    "heroDescription": "Découvrez combien vous pourriez économiser ou gagner en rejoignant notre communauté d'énergie bruxelloise",
+    "heroBadge": "Simulation gains communauté d'énergie",
+    "examplesTitle": "Exemples de valeurs de consommation",
+    "consumer": {
+      "title": "Je suis consommateur",
+      "description": "Calculez vos économies potentielles en rejoignant notre communauté",
+      "consumption": "Consommation annuelle",
+      "currentCost": "Coût actuel",
+      "newCost": "Nouveau coût",
+      "savings": "Économies annuelles",
+      "disclaimer": "Cette simulation est basée sur les prix moyens du marché. Vos économies réelles peuvent varier."
+    },
+    "producer": {
+      "title": "Je suis producteur",
+      "description": "Estimez vos revenus en partageant votre production",
+      "power": "Puissance installée (kWc)",
+      "powerUnknown": "Je ne connais pas ma puissance installée",
+      "panelCount": "Nombre de panneaux",
+      "production": "Production estimée",
+      "revenue": "Revenus estimés",
+      "disclaimer": "Cette estimation est basée sur une production moyenne. Vos revenus réels dépendront de plusieurs facteurs."
+    },
+    "calculate": "Calculer",
+    "contact": "Discuter de mon projet",
+    "examples": {
+      "bar": {
+        "title": "Bar",
+        "consumption": "15 000 kWh/an"
+      },
+      "bakery": {
+        "title": "Boulangerie",
+        "consumption": "45 000 kWh/an"
+      },
+      "office": {
+        "title": "Bureau",
+        "consumption": "25 000 kWh/an"
+      },
+      "workshop": {
+        "title": "Atelier",
+        "consumption": "35 000 kWh/an"
+      }
+    },
+    "badge": "Simulation gratuite",
+    "subtitle": "Découvrez combien vous pourriez économiser ou gagner en rejoignant notre communauté d'énergie",
+    "profileChoice": "Choisissez votre profil",
+    "results": "Vos résultats"
+  },
+  "howToJoin": {
+    "title": "Comment nous rejoindre ?",
+    "intro": "Rejoindre notre communauté d'énergie est simple et rapide. Voici les étapes à suivre :",
+    "badge": "Processus simple et rapide",
+    "steps": {
+      "documents": {
+        "title": "Documents nécessaires",
+        "items": [
+          "Votre dernière facture d'électricité annuelle pour que nous puissions estimer vos économies"
+        ]
+      },
+      "membership": {
+        "title": "Adhésion",
+        "items": [
+          "Signature de la convention de participation",
+          "Installation gratuite d'un compteur nouvelle génération par Sibelga (si nécessaire)"
+        ]
+      },
+      "financial": {
+        "title": "Aspects financiers",
+        "items": [
+          "Cotisation annuelle de 50€",
+          "Pas de frais d'installation",
+          "Pas d'engagement de durée"
+        ]
+      },
+      "activation": {
+        "title": "Activation",
+        "items": [
+          "Début des économies le mois suivant"
+        ]
+      }
+    },
+    "cta": {
+      "title": "Prêt à rejoindre la communauté ?",
+      "description": "Commencez à économiser sur votre facture d'électricité dès aujourd'hui"
+    }
+  }
+}

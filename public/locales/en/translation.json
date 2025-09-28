@@ -19,7 +19,10 @@
     "servicesOptional": "Select one or more services (optional)",
     "services": {
       "community": "Join our energy community",
+      "subCommunity": "Create a sub-community for my buildings",
+      "platform": "Access the management and monitoring platform",
       "optimization": "Energy contract optimization",
+      "energyOptimization": "Energy optimization (solar panels, batteries, contracts)",
       "study": "Profitability study (solar panels/batteries)",
       "groupContract": "Group contract with partner supplier"
     },

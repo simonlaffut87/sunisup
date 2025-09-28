@@ -220,7 +220,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                   t('contact.services.community'),
                   t('contact.services.subCommunity'),
                   t('contact.services.platform'),
-                  t('contact.services.optimization')
+                  t('contact.services.energyOptimization')
                 ].map((service, index) => (
                   <label key={index} className="flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors">
                     <input

@@ -19,7 +19,10 @@
     "servicesOptional": "Selecteer een of meer diensten (optioneel)",
     "services": {
       "community": "Lid worden van onze energiegemeenschap",
+      "subCommunity": "Een sub-gemeenschap creëren voor mijn gebouwen",
+      "platform": "Toegang tot het beheer- en monitoringplatform",
       "optimization": "Optimalisatie van energiecontract",
+      "energyOptimization": "Energie-optimalisatie (zonnepanelen, batterijen, contracten)",
       "study": "Rendabiliteitstudie (zonnepanelen/batterijen)",
       "groupContract": "Groepscontract met partnerleverancier"
     },
