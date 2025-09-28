@@ -85,26 +85,6 @@ function NavigationTabs() {
             >
               {t('nav.about')}
             </Link>
-            <Link
-              to="/simulation"
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                location.pathname === '/simulation'
-                  ? 'text-amber-600 border-b-2 border-amber-600'
-                  : 'text-gray-700 hover:text-amber-600'
-              }`}
-            >
-              {t('nav.quickscan')}
-            </Link>
-            <Link
-              to="/admin"
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                location.pathname === '/admin'
-                  ? 'text-amber-600 border-b-2 border-amber-600'
-                  : 'text-gray-700 hover:text-amber-600'
-              }`}
-            >
-              {t('nav.howToJoin')}
-            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -143,28 +123,6 @@ function NavigationTabs() {
                 }`}
               >
                 {t('nav.about')}
-              </Link>
-              <Link
-                to="/simulation"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-3 text-sm font-medium ${
-                  location.pathname === '/simulation'
-                    ? 'text-amber-600 bg-amber-50'
-                    : 'text-gray-700 hover:text-amber-600'
-                }`}
-              >
-                {t('nav.quickscan')}
-              </Link>
-              <Link
-                to="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-3 text-sm font-medium ${
-                  location.pathname === '/admin'
-                    ? 'text-amber-600 bg-amber-50'
-                    : 'text-gray-700 hover:text-amber-600'
-                }`}
-              >
-                {t('nav.howToJoin')}
               </Link>
             </div>
           </div>
@@ -512,8 +470,6 @@ function NavigationLinks() {
   const links = [
     { path: '/', label: t('nav.home') },
     { path: '/about', label: t('nav.about') },
-    { path: '/simulation', label: t('nav.quickscan') },
-    { path: '/admin', label: t('nav.howToJoin') },
   ];
   
   return (
@@ -528,7 +484,7 @@ function NavigationLinks() {
               : 'text-gray-700 hover:text-amber-600'
           } font-sans`}
         >
-          {link.label}
+          {link.path === '/' ? t('nav.services') : link.label}
           {location.pathname === link.path && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" />
           )}
@@ -546,8 +502,6 @@ function MobileNavigation() {
   const links = [
     { path: '/', label: t('nav.home') },
     { path: '/about', label: t('nav.about') },
-    { path: '/simulation', label: t('nav.quickscan') },
-    { path: '/admin', label: t('nav.howToJoin') },
   ];
   
   return (
