@@ -217,9 +217,10 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
               </label>
               <div className="space-y-2">
                 {[
-                  'Rejoindre notre communauté d\'énergie',
-                  'Optimisation de votre situation énergétique',
-                  'Étude de rentabilité (panneaux solaires/batteries)'
+                  'Rejoindre notre communauté d\'énergie mère',
+                  'Créer une sous-communauté pour mes bâtiments',
+                  'Accéder à la plateforme de gestion et monitoring',
+                  'Optimisation énergétique (panneaux, batteries, contrats)'
                 ].map((service, index) => (
                   <label key={index} className="flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors">
                     <input
