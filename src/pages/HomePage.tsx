@@ -245,12 +245,12 @@ export default function HomePage() {
                     <Sun className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.study.title')}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">Étude de rentabilité et installations</h3>
                     <div className="w-12 h-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full"></div>
                   </div>
                 </div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
-                  {t('home.services.study.description')}
+                  Analyse du retour sur investissement et dimensionnement d'installations solaires ou de batteries adaptées à votre bâtiment. Installation réalisée via notre partenaire certifié.
                 </p>
                 
                 <div className="grid grid-cols-2 gap-4 mb-8">
