@@ -91,24 +91,26 @@ export default function HomePage() {
         logo="https://sunisup.be/images/logo.png"
       />
       <div className="space-y-0 font-sans">
-        {/* Section d'accueil */}
+        {/* Hero Section avec image */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50"></div>
-          
-          {/* Subtle pattern overlay */}
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:24px_24px]"></div>
+          {/* Background image */}
+          <div className="absolute inset-0">
+            <img 
+              src="/images/video-background.png" 
+              alt="Sun Is Up - Communauté d'énergie Bruxelles"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40"></div>
           </div>
           
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10">
             <div className="text-center space-y-8">
               {/* Main title */}
               <div className="space-y-6">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight max-w-5xl mx-auto font-sans tracking-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-5xl mx-auto font-sans tracking-tight drop-shadow-2xl">
                   {t('home.hero.title')}
                 </h1>
-                <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto font-sans font-light">
+                <p className="text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-4xl mx-auto font-sans font-light drop-shadow-lg">
                   {t('home.hero.description')}
                 </p>
               </div>
@@ -117,7 +119,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
                 <button 
                   onClick={() => setShowContactModal(true)}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
                   {t('home.hero.discoverButton')}
                   <ArrowRight className="w-5 h-5" />
