@@ -105,20 +105,23 @@ export default function HomePage() {
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10">
             <div className="text-center space-y-8">
-              {/* Main title */}
+              {/* Hero content */}
               <div className="space-y-6">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-5xl mx-auto font-sans tracking-tight drop-shadow-2xl">
-                  {t('home.hero.title')}
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight max-w-5xl mx-auto font-sans tracking-tight drop-shadow-2xl">
+                  Sun Is Up
                 </h1>
-                <p className="text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-4xl mx-auto font-sans font-light drop-shadow-lg">
-                  {t('home.hero.description')}
+                <p className="text-xl sm:text-2xl lg:text-3xl text-white/90 leading-relaxed max-w-4xl mx-auto font-sans font-light drop-shadow-lg">
+                  Communauté d'énergie bruxelloise
                 </p>
               </div>
               
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
                 <button 
-                  onClick={() => setShowContactModal(true)}
+                  onClick={() => {
+                    const servicesSection = document.getElementById('services-section');
+                    servicesSection?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                   className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
                   {t('home.hero.discoverButton')}
@@ -130,8 +133,18 @@ export default function HomePage() {
         </section>
 
         {/* Section Services */}
-        <section className="py-32 bg-white">
+        <section id="services-section" className="py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Titre et description des services */}
+            <div className="text-center mb-20">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 font-sans tracking-tight">
+                {t('home.hero.title')}
+              </h2>
+              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto font-sans font-light">
+                {t('home.hero.description')}
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
               {/* Service 1: Communauté d'énergie */}
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-10 border border-blue-100 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
