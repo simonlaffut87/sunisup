@@ -339,7 +339,7 @@ function App() {
               {/* Logo */}
               <Link to="/" className="flex items-center space-x-3">
                 <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-8 h-8" />
-                <span className="text-lg sm:text-xl font-bold text-gray-900 font-sans">{t('header.title')}</span>
+                <span className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 font-sans">{t('header.title')}</span>
               </Link>
               
               {/* Desktop Navigation */}
