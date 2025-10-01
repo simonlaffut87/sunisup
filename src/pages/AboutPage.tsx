@@ -212,8 +212,8 @@ export default function AboutPage() {
           <div className="bg-white rounded-3xl shadow-2xl p-12 lg:p-16 border border-gray-100">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div className="text-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <img src="/images/brugel.png" alt="Brugel" className="w-16 h-16 object-contain" />
+                <div className="mx-auto mb-6 flex items-center justify-center">
+                  <img src="/images/brugel.png" alt="Brugel" className="w-40 h-40 object-contain" />
                 </div>
                 <h4 className="text-2xl font-bold text-gray-900 mb-4 font-sans">Brugel</h4>
                 <p className="text-gray-600 text-lg leading-relaxed font-sans">
