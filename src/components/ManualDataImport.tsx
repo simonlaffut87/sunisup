@@ -394,19 +394,19 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           };
           
           // Extraire les coûts réseau pour toutes les lignes (pas seulement HIGH)
-          if (i <= 3) {
+          if (i <= 3 || eanCode === '541448911700029243') {
             addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - EXTRACTION COÛTS RÉSEAU:`);
           }
           
           const networkCosts = {
-            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau], 'Utilisation réseau', networkCostColumns.utilisationReseau) : 0,
-            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges], 'Surcharges', networkCostColumns.surcharges) : 0,
-            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire], 'Tarif capacitaire', networkCostColumns.tarifCapacitaire) : 0,
-            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure], 'Tarif mesure', networkCostColumns.tarifMesure) : 0,
-            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP], 'Tarif OSP', networkCostColumns.tarifOSP) : 0,
-            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA], 'Transport ELIA', networkCostColumns.transportELIA) : 0,
-            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie], 'Redevance voirie', networkCostColumns.redevanceVoirie) : 0,
-            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau], 'Total frais réseau', networkCostColumns.totalFraisReseau) : 0
+            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau] || '', 'Utilisation réseau', networkCostColumns.utilisationReseau) : 0,
+            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges] || '', 'Surcharges', networkCostColumns.surcharges) : 0,
+            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire] || '', 'Tarif capacitaire', networkCostColumns.tarifCapacitaire) : 0,
+            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure] || '', 'Tarif mesure', networkCostColumns.tarifMesure) : 0,
+            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP] || '', 'Tarif OSP', networkCostColumns.tarifOSP) : 0,
+            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA] || '', 'Transport ELIA', networkCostColumns.transportELIA) : 0,
+            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie] || '', 'Redevance voirie', networkCostColumns.redevanceVoirie) : 0,
+            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau] || '', 'Total frais réseau', networkCostColumns.totalFraisReseau) : 0
           };
           
           // ADDITIONNER aux coûts existants (pour sommer HIGH + LOW + TH)
@@ -419,14 +419,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           participantData[finalEan].networkCosts.redevanceVoirie += networkCosts.redevanceVoirie;
           participantData[finalEan].networkCosts.totalFraisReseau += networkCosts.totalFraisReseau;
           
-          if (i <= 3) {
+          if (i <= 3 || eanCode === '541448911700029243') {
             addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - COÛTS ADDITIONNÉS:`);
             addLog(`  Utilisation réseau: +${networkCosts.utilisationReseau}€ = ${participantData[finalEan].networkCosts.utilisationReseau}€ total`);
             addLog(`  Total frais réseau: +${networkCosts.totalFraisReseau}€ = ${participantData[finalEan].networkCosts.totalFraisReseau}€ total`);
           }
           
+          // IMPORTANT: Traiter les données énergétiques même si pas de frais réseau
           // Log détaillé seulement pour les 3 premières lignes avec des valeurs
-          if (i <= 3 && (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0)) {
+          if ((i <= 3 || eanCode === '541448911700029243') && (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0)) {
             addInfo(`Ligne ${i} - ${mappedParticipant.name}:`);
             addInfo(`  Volume Partagé: ${volumePartage} kWh`);
             addInfo(`  Volume Complémentaire: ${volumeComplementaire} kWh`);
@@ -440,7 +441,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           participantData[finalEan].data.injection_partagee += injectionPartage;
           participantData[finalEan].data.injection_complementaire += injectionComplementaire;
           
-          // Debug final pour l'EAN problématique
+          // Debug final pour l'EAN problématique - TOUJOURS
           if (eanCode === '541448911700029243') {
             addLog(`🎯 TOTAUX CUMULÉS pour ${eanCode} après ligne ${i}:`);
             addLog(`  Volume Partagé: ${participantData[finalEan].data.volume_partage}`);
@@ -453,6 +454,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
         } else {
           unknownEans.add(eanCode);
+          
+          // Log spécial pour l'EAN problématique même s'il n'est pas reconnu
+          if (eanCode === '541448911700029243') {
+            addError(`🎯 EAN CIBLE ${eanCode} NON RECONNU dans le mapping !`);
+            addLog(`📋 EANs disponibles dans le mapping: ${Object.keys(participantMapping).slice(0, 10).join(', ')}...`);
+          }
           
           // Log seulement les 3 premiers EAN non reconnus
           if (unknownEans.size <= 3) {

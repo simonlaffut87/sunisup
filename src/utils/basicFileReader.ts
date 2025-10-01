@@ -352,9 +352,10 @@ export class BasicFileReader {
         }
         
         // Extraire les coûts réseau (une seule fois par EAN, pas par registre)
-        if ((registre === 'HI' || registre === 'HIGH') && networkCostColumns.totalFraisReseau >= 0) {
+        if (registre === 'HI' || registre === 'HIGH' || registre === 'TH') {
           const parseNetworkCost = (value: any, columnName?: string) => {
             if (!value) return 0;
+            if (value === '') return 0;
             
             // Log de debug pour voir la valeur brute
             if (columnName && i < 5) {
@@ -367,6 +368,8 @@ export class BasicFileReader {
               .replace(/[^\d.-]/g, '') // Garder seulement chiffres, point et tiret
               .replace(/^-+/, '') // Supprimer les tirets en début
               .replace(/-+$/, ''); // Supprimer les tirets en fin
+            
+            if (cleaned === '' || cleaned === '-') return 0;
             
             if (columnName && i < 5) {
               onLog?.(`🔍 Parsing ${columnName}: valeur nettoyée = "${cleaned}"`);
@@ -384,14 +387,14 @@ export class BasicFileReader {
           
           // Extraire chaque coût réseau avec logging détaillé
           const networkCosts = {
-            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau], 'utilisationReseau') : 0,
-            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges], 'surcharges') : 0,
-            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire], 'tarifCapacitaire') : 0,
-            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure], 'tarifMesure') : 0,
-            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP], 'tarifOSP') : 0,
-            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA], 'transportELIA') : 0,
-            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie], 'redevanceVoirie') : 0,
-            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau], 'totalFraisReseau') : 0,
+            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau] || '', 'utilisationReseau') : 0,
+            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges] || '', 'surcharges') : 0,
+            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire] || '', 'tarifCapacitaire') : 0,
+            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure] || '', 'tarifMesure') : 0,
+            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP] || '', 'tarifOSP') : 0,
+            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA] || '', 'transportELIA') : 0,
+            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie] || '', 'redevanceVoirie') : 0,
+            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau] || '', 'totalFraisReseau') : 0,
             // Stocker aussi les valeurs brutes pour debug
             utilisationReseauRaw: networkCostColumns.utilisationReseau >= 0 ? String(row[networkCostColumns.utilisationReseau] || '') : '',
             surchargesRaw: networkCostColumns.surcharges >= 0 ? String(row[networkCostColumns.surcharges] || '') : '',
@@ -435,14 +438,46 @@ export class BasicFileReader {
           }
         }
         
+        // IMPORTANT: Traiter les données énergétiques pour TOUS les participants, 
+        // même ceux sans frais réseau
         // Extraire les valeurs de la ligne
         const volumePartage = parseFloat(String(row[volumePartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         const volumeComplementaire = parseFloat(String(row[volumeComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         const injectionPartage = parseFloat(String(row[injectionPartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         
+        // Debug spécifique pour l'EAN problématique - TOUJOURS
+        if (eanCode === '541448911700029243') {
+          console.log(`🎯 EAN CIBLE ${eanCode} - LIGNE ${i}:`);
+          onLog?.(`🎯 EAN CIBLE ${eanCode} - LIGNE ${i}:`);
+          console.log(`  📊 Ligne complète:`, row);
+          onLog?.(`  📊 Ligne complète: ${JSON.stringify(row)}`);
+          console.log(`  📍 Registre: "${registre}"`);
+          onLog?.(`  📍 Registre: "${registre}"`);
+          console.log(`  📍 Valeurs brutes:`);
+          onLog?.(`  📍 Valeurs brutes:`);
+          console.log(`    Volume Partagé: "${row[volumePartageIndex]}" (index ${volumePartageIndex})`);
+          onLog?.(`    Volume Partagé: "${row[volumePartageIndex]}" (index ${volumePartageIndex})`);
+          console.log(`    Volume Complémentaire: "${row[volumeComplementaireIndex]}" (index ${volumeComplementaireIndex})`);
+          onLog?.(`    Volume Complémentaire: "${row[volumeComplementaireIndex]}" (index ${volumeComplementaireIndex})`);
+          console.log(`    Injection Partagée: "${row[injectionPartageIndex]}" (index ${injectionPartageIndex})`);
+          onLog?.(`    Injection Partagée: "${row[injectionPartageIndex]}" (index ${injectionPartageIndex})`);
+          console.log(`    Injection Complémentaire: "${row[injectionComplementaireIndex]}" (index ${injectionComplementaireIndex})`);
+          onLog?.(`    Injection Complémentaire: "${row[injectionComplementaireIndex]}" (index ${injectionComplementaireIndex})`);
+          console.log(`  🔢 Valeurs après parsing:`);
+          onLog?.(`  🔢 Valeurs après parsing:`);
+          console.log(`    Volume Partagé: ${volumePartage}`);
+          onLog?.(`    Volume Partagé: ${volumePartage}`);
+          console.log(`    Volume Complémentaire: ${volumeComplementaire}`);
+          onLog?.(`    Volume Complémentaire: ${volumeComplementaire}`);
+          console.log(`    Injection Partagée: ${injectionPartage}`);
+          onLog?.(`    Injection Partagée: ${injectionPartage}`);
+          console.log(`    Injection Complémentaire: ${injectionComplementaire}`);
+          onLog?.(`    Injection Complémentaire: ${injectionComplementaire}`);
+        }
+        
         // Debug: afficher les valeurs extraites pour les premières lignes
-        if (i < 10) {
+        if (i < 10 || eanCode === '541448911700029243') {
           console.log(`🔍 LIGNE ${i} - EAN ${eanCode} (${registre}):`);
           onLog?.(`🔍 LIGNE ${i} - EAN ${eanCode} (${registre}):`);
           console.log('  📊 Ligne complète:', row);
@@ -483,10 +518,25 @@ export class BasicFileReader {
         // Assigner aux bonnes catégories HIGH ou LOW
         const target = registre === 'HI' || registre === 'HIGH' ? eanGroups[eanCode].high : eanGroups[eanCode].low;
         
+        // TOUJOURS traiter les données énergétiques, même sans frais réseau
         target.volume_partage += volumePartage;
         target.volume_complementaire += volumeComplementaire;
         target.injection_partagee += injectionPartage;
         target.injection_complementaire += injectionComplementaire;
+        
+        // Log spécial pour l'EAN problématique
+        if (eanCode === '541448911700029243') {
+          console.log(`🎯 AJOUT POUR EAN ${eanCode} (${registre}):`);
+          onLog?.(`🎯 AJOUT POUR EAN ${eanCode} (${registre}):`);
+          console.log(`  ➕ Volume Partagé: +${volumePartage} = ${target.volume_partage}`);
+          onLog?.(`  ➕ Volume Partagé: +${volumePartage} = ${target.volume_partage}`);
+          console.log(`  ➕ Volume Complémentaire: +${volumeComplementaire} = ${target.volume_complementaire}`);
+          onLog?.(`  ➕ Volume Complémentaire: +${volumeComplementaire} = ${target.volume_complementaire}`);
+          console.log(`  ➕ Injection Partagée: +${injectionPartage} = ${target.injection_partagee}`);
+          onLog?.(`  ➕ Injection Partagée: +${injectionPartage} = ${target.injection_partagee}`);
+          console.log(`  ➕ Injection Complémentaire: +${injectionComplementaire} = ${target.injection_complementaire}`);
+          onLog?.(`  ➕ Injection Complémentaire: +${injectionComplementaire} = ${target.injection_complementaire}`);
+        }
         
         processedRows++;
         
