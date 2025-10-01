@@ -262,22 +262,11 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       for (let i = 1; i < lines.length; i++) {
         const row = lines[i].split('\t').map(cell => cell.trim());
         
-        // Ne pas ignorer les lignes plus courtes - elles peuvent avoir des données valides
-        if (row.length === 0 || !row.some(cell => cell && cell.trim())) {
-          if (i === lines.length - 1) {
-            addLog(`⚠️ DERNIÈRE LIGNE ${i} VIDE - IGNORÉE`);
-          }
-          continue;
-        }
+        if (row.length < headers.length) continue;
 
         const eanCodeRaw = row[eanIndex]?.trim();
         const eanCode = eanCodeRaw?.replace(/[^0-9]/g, ''); // Nettoyer l'EAN
-        if (!eanCode) {
-          if (i === lines.length - 1) {
-            addLog(`⚠️ DERNIÈRE LIGNE ${i} SANS EAN - IGNORÉE`);
-          }
-          continue;
-        }
+        if (!eanCode) continue;
         
         // Récupérer le registre depuis la colonne Registre ou Tarif
         let registre = '';
@@ -285,13 +274,6 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           registre = String(row[registreIndex] || '').trim().toUpperCase();
         } else if (tarifIndex >= 0) {
           registre = String(row[tarifIndex] || '').trim().toUpperCase();
-        }
-        
-        // Debug spécial pour la dernière ligne
-        if (i === lines.length - 1) {
-          addLog(`🔍 DERNIÈRE LIGNE ${i} - EAN: ${eanCode}, Registre: "${registre}"`);
-          addLog(`📋 Ligne complète: [${row.join(' | ')}]`);
-          addLog(`📏 Longueur ligne: ${row.length}, Headers: ${headers.length}`);
         }
         
         // Log détaillé pour les premières lignes
@@ -317,11 +299,6 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         
         if (mappedParticipant) {
           const finalEan = participantMapping[eanCode] ? eanCode : eanCodeRaw;
-          
-          // Debug spécial pour la dernière ligne
-          if (i === lines.length - 1) {
-            addLog(`✅ DERNIÈRE LIGNE - Participant trouvé: ${mappedParticipant.name}`);
-          }
           
           if (!participantData[finalEan]) {
             participantData[finalEan] = {
@@ -350,7 +327,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const parseValue = (value: any) => {
             if (!value) return 0;
             const stringValue = String(value).trim();
-            if (!stringValue || stringValue === '') return 0;
+            if (!stringValue || stringValue === '' || stringValue === '-') return 0;
             
             const cleaned = stringValue
               .replace(/,/g, '.') // Virgule -> point
@@ -365,15 +342,6 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const injectionPartage = parseValue(row[injectionPartageIndex]);
           const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
           
-          // Debug spécial pour la dernière ligne
-          if (i === lines.length - 1) {
-            addLog(`🔍 DERNIÈRE LIGNE - Données énergétiques:`);
-            addLog(`  Volume Partagé: "${row[volumePartageIndex]}" -> ${volumePartage}`);
-            addLog(`  Volume Complémentaire: "${row[volumeComplementaireIndex]}" -> ${volumeComplementaire}`);
-            addLog(`  Injection Partagée: "${row[injectionPartageIndex]}" -> ${injectionPartage}`);
-            addLog(`  Injection Complémentaire: "${row[injectionComplementaireIndex]}" -> ${injectionComplementaire}`);
-          }
-          
           // Debug spécifique pour l'EAN problématique
           if (eanCode === '541448911700029243') {
             addLog(`🎯 PARSING DÉTAILLÉ pour EAN ${eanCode} (ligne ${i}):`);
@@ -382,6 +350,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addLog(`  Volume Complémentaire: "${row[volumeComplementaireIndex]}" -> ${volumeComplementaire}`);
             addLog(`  Injection Partagée: "${row[injectionPartageIndex]}" -> ${injectionPartage}`);
             addLog(`  Injection Complémentaire: "${row[injectionComplementaireIndex]}" -> ${injectionComplementaire}`);
+            addLog(`  Participant trouvé: ${mappedParticipant ? mappedParticipant.name : 'NON'}`);
             
             if (injectionPartage === 0 && row[injectionPartageIndex]) {
               addLog(`⚠️ ATTENTION: Injection Partagée = 0 mais valeur brute = "${row[injectionPartageIndex]}"`);
@@ -398,6 +367,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             
             if (!value || value === '') {
               if (i <= 3) addLog(`  ❌ Valeur vide -> 0€`);
+              return 0;
+            }
+            
+            // Gérer les tirets et valeurs vides
+            if (value === '-' || String(value).trim() === '') {
+              if (i <= 3) addLog(`  ❌ Valeur vide/tiret -> 0€`);
               return 0;
             }
             
@@ -425,7 +400,8 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             return parsed;
           };
           
-          // Extraire les coûts réseau pour toutes les lignes (pas seulement HIGH)
+          // Extraire les coûts réseau SEULEMENT si au moins une colonne existe
+          // MAIS traiter les données énergétiques dans TOUS les cas
           if (i <= 3 || eanCode === '541448911700029243') {
             addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - EXTRACTION COÛTS RÉSEAU:`);
           }
@@ -457,12 +433,11 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addLog(`  Total frais réseau: +${networkCosts.totalFraisReseau}€ = ${participantData[finalEan].networkCosts.totalFraisReseau}€ total`);
           }
           
-          // IMPORTANT: Traiter les données énergétiques même si pas de frais réseau
+          // IMPORTANT: Traiter les données énergétiques INDÉPENDAMMENT des frais réseau
           // Log détaillé seulement pour les 3 premières lignes avec des valeurs
           const hasEnergyData = volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0;
-          const isLastLine = i === lines.length - 1;
           
-          if ((i <= 3 || eanCode === '541448911700029243' || isLastLine) && hasEnergyData) {
+          if ((i <= 3 || eanCode === '541448911700029243') && hasEnergyData) {
             addInfo(`Ligne ${i} - ${mappedParticipant.name}:`);
             addInfo(`  Volume Partagé: ${volumePartage} kWh`);
             addInfo(`  Volume Complémentaire: ${volumeComplementaire} kWh`);
@@ -470,47 +445,51 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addInfo(`  Injection Complémentaire: ${injectionComplementaire} kWh`);
           }
 
-          // TOUJOURS traiter les données énergétiques si le participant est trouvé
-          // même si toutes les valeurs sont à 0 (pour debug)
-          if (hasEnergyData || eanCode === '541448911700029243' || isLastLine) {
-            participantData[finalEan].data.volume_partage += volumePartage;
-            participantData[finalEan].data.volume_complementaire += volumeComplementaire;
-            participantData[finalEan].data.injection_partagee += injectionPartage;
-            participantData[finalEan].data.injection_complementaire += injectionComplementaire;
-            
-            if (eanCode === '541448911700029243' || isLastLine) {
-              addLog(`🎯 DONNÉES AJOUTÉES pour EAN ${eanCode}:`);
-              addLog(`  ➕ Volume Partagé: +${volumePartage} = ${participantData[finalEan].data.volume_partage}`);
-              addLog(`  ➕ Volume Complémentaire: +${volumeComplementaire} = ${participantData[finalEan].data.volume_complementaire}`);
-              addLog(`  ➕ Injection Partagée: +${injectionPartage} = ${participantData[finalEan].data.injection_partagee}`);
-              addLog(`  ➕ Injection Complémentaire: +${injectionComplementaire} = ${participantData[finalEan].data.injection_complementaire}`);
-            }
-          } else if (eanCode === '541448911700029243' || isLastLine) {
-            addWarning(`EAN ${eanCode}: Aucune donnée énergétique détectée (toutes les valeurs sont 0)`);
+          // TOUJOURS additionner les données énergétiques (même si 0)
+          // Cela permet de traiter les participants même sans frais réseau
+          participantData[finalEan].data.volume_partage += volumePartage;
+          participantData[finalEan].data.volume_complementaire += volumeComplementaire;
+          participantData[finalEan].data.injection_partagee += injectionPartage;
+          participantData[finalEan].data.injection_complementaire += injectionComplementaire;
+          
+          if (eanCode === '541448911700029243') {
+            addLog(`🎯 DONNÉES AJOUTÉES pour EAN ${eanCode}:`);
+            addLog(`  ➕ Volume Partagé: +${volumePartage} = ${participantData[finalEan].data.volume_partage}`);
+            addLog(`  ➕ Volume Complémentaire: +${volumeComplementaire} = ${participantData[finalEan].data.volume_complementaire}`);
+            addLog(`  ➕ Injection Partagée: +${injectionPartage} = ${participantData[finalEan].data.injection_partagee}`);
+            addLog(`  ➕ Injection Complémentaire: +${injectionComplementaire} = ${participantData[finalEan].data.injection_complementaire}`);
           }
           
-
-          validRows++;
+          // Compter comme ligne valide si on a traité des données
+          if (hasEnergyData || eanCode === '541448911700029243') {
+            validRows++;
+          }
 
         } else {
           unknownEans.add(eanCode);
           
-          // Debug spécial pour la dernière ligne même si non reconnue
-          if (i === lines.length - 1) {
-            addError(`❌ DERNIÈRE LIGNE - EAN ${eanCode} NON RECONNU !`);
-            addLog(`📋 EANs disponibles: ${Object.keys(participantMapping).slice(0, 10).join(', ')}...`);
-          }
-          
-          // Log spécial pour l'EAN problématique même s'il n'est pas reconnu
+          // Debug spécial pour l'EAN problématique même s'il n'est pas reconnu
           if (eanCode === '541448911700029243') {
             addError(`🎯 EAN CIBLE ${eanCode} NON RECONNU dans le mapping des participants !`);
             addLog(`📋 EANs disponibles dans le mapping: ${Object.keys(participantMapping).slice(0, 10).join(', ')}...`);
             addLog(`🔍 EAN brut: "${eanCodeRaw}", EAN nettoyé: "${eanCode}"`);
-          }
-          
-          // Log seulement les 3 premiers EAN non reconnus
-          if (unknownEans.size <= 3) {
-            addWarning(`EAN non reconnu: ${eanCode}`);
+            
+            // Vérifier si c'est un problème de nettoyage d'EAN
+            const exactMatch = Object.keys(participantMapping).find(mappedEan => 
+              mappedEan === eanCodeRaw || mappedEan === eanCode
+            );
+            if (exactMatch) {
+              addLog(`✅ TROUVÉ ! EAN exact dans mapping: "${exactMatch}"`);
+            } else {
+              addLog(`❌ Aucune correspondance exacte trouvée`);
+              // Chercher des EAN similaires
+              const similarEans = Object.keys(participantMapping).filter(mappedEan => 
+                mappedEan.includes(eanCode.slice(-10)) || eanCode.includes(mappedEan.slice(-10))
+              );
+              if (similarEans.length > 0) {
+                addLog(`🔍 EANs similaires trouvés: ${similarEans.join(', ')}`);
+              }
+            }
           }
         }
       }
@@ -520,6 +499,23 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       addSuccess(`${Object.keys(participantData).length} participants mis à jour`);
       if (unknownEans.size > 0) {
         addWarning(`${unknownEans.size} EAN non reconnus ignorés`);
+        // Afficher les premiers EAN non reconnus pour debug
+        const unknownList = Array.from(unknownEans).slice(0, 5);
+        addLog(`🔍 Premiers EAN non reconnus: ${unknownList.join(', ')}`);
+      }
+
+      // Vérification spéciale pour l'EAN problématique
+      if (participantData['541448911700029243']) {
+        addSuccess(`🎯 EAN 541448911700029243 TROUVÉ ET TRAITÉ !`);
+        const data = participantData['541448911700029243'].data;
+        addLog(`📊 Données finales pour 541448911700029243:`);
+        addLog(`  Volume Partagé: ${data.volume_partage} kWh`);
+        addLog(`  Volume Complémentaire: ${data.volume_complementaire} kWh`);
+        addLog(`  Injection Partagée: ${data.injection_partagee} kWh`);
+        addLog(`  Injection Complémentaire: ${data.injection_complementaire} kWh`);
+      } else {
+        addError(`🎯 EAN 541448911700029243 NON TRAITÉ !`);
+        addLog(`📋 Participants traités: ${Object.keys(participantData).join(', ')}`);
       }
 
       // Mettre à jour la base de données
@@ -564,11 +560,6 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           } catch (e) {
             addWarning(`Erreur parsing données existantes pour ${participantData.name}`);
             existingData = {};
-          }
-        } else {
-          
-          // Log seulement pour les 3 premiers participants trouvés
-          if (Object.keys(participantData).length <= 3) {
           }
         }
 
@@ -621,7 +612,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         };
         
         // Log détaillé seulement pour les 2 premiers participants
-        if (updateSuccessCount + updateErrorCount < 2) {
+        if (updateSuccessCount + updateErrorCount < 2 || eanCode === '541448911700029243') {
           addInfo(`Données pour ${month}:`);
           addInfo(`  Volume Partagé: ${newMonthData.volume_partage} kWh`);
           addInfo(`  Volume Complémentaire: ${newMonthData.volume_complementaire} kWh`);
@@ -646,61 +637,29 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           addSuccess(`Sauvegarde réussie: ${participantData.name} (ID: ${participantData.id})`);
           updateSuccessCount++;
           
-          // Vérification immédiate après chaque sauvegarde
-          addInfo(`Vérification sauvegarde ${participantData.name}...`);
-          
-          // Attendre un peu pour que la base soit à jour
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
-          const { data: verifyData, error: verifyError } = await supabase
-            .from('participants')
-            .select('id, name, monthly_data, billing_data')
-            .eq('id', participantData.id)
-            .single();
-          
-          if (!verifyError && verifyData) {
-            addInfo(`🔍 VÉRIFICATION ${verifyData.name} (ID: ${verifyData.id}):`);
+          // Vérification spéciale pour l'EAN problématique
+          if (eanCode === '541448911700029243') {
+            addLog(`🎯 VÉRIFICATION SPÉCIALE pour EAN ${eanCode}:`);
             
-            if (verifyData.monthly_data && verifyData.monthly_data[month]) {
-              addSuccess(`✅ monthly_data ${month} confirmé en base`);
-              const savedMonthlyData = verifyData.monthly_data[month];
-              addInfo(`📊 Valeurs monthly_data: VP=${savedMonthlyData.volume_partage}, VC=${savedMonthlyData.volume_complementaire}, IP=${savedMonthlyData.injection_partagee}, IC=${savedMonthlyData.injection_complementaire}`);
-            } else {
-              addError(`❌ monthly_data ${month} NON trouvé en base après sauvegarde !`);
-              addInfo(`📊 monthly_data actuel: ${JSON.stringify(Object.keys(verifyData.monthly_data || {}))}`);
-            }
+            // Attendre un peu pour que la base soit à jour
+            await new Promise(resolve => setTimeout(resolve, 200));
             
-            if (verifyData.billing_data && verifyData.billing_data[month]) {
-              addSuccess(`✅ billing_data ${month} confirmé en base`);
-              const savedBillingData = verifyData.billing_data[month];
-              addInfo(`💰 Coûts réseau confirmés: Total=${savedBillingData.networkCosts?.totalFraisReseau || 0}€`);
-              
-              // Afficher le détail des coûts pour ce participant
-              if (savedBillingData.networkCosts) {
-                const costs = savedBillingData.networkCosts;
-                addInfo(`💰 DÉTAIL COÛTS ${participantData.name}:`);
-                addInfo(`  Utilisation réseau: ${costs.utilisationReseau || 0}€`);
-                addInfo(`  Surcharges: ${costs.surcharges || 0}€`);
-                addInfo(`  Tarif capacitaire: ${costs.tarifCapacitaire || 0}€`);
-                addInfo(`  Tarif mesure: ${costs.tarifMesure || 0}€`);
-                addInfo(`  Tarif OSP: ${costs.tarifOSP || 0}€`);
-                addInfo(`  Transport ELIA: ${costs.transportELIA || 0}€`);
-                addInfo(`  Redevance voirie: ${costs.redevanceVoirie || 0}€`);
-                addInfo(`  TOTAL: ${costs.totalFraisReseau || 0}€`);
-              }
-              
-              const nonZeroCosts = Object.entries(savedBillingData.networkCosts || {}).filter(([, value]) => Number(value) > 0);
-              if (nonZeroCosts.length > 0) {
-                addSuccess(`✅ ${nonZeroCosts.length} coûts réseau non-nuls confirmés pour ${participantData.name}`);
+            const { data: verifyData, error: verifyError } = await supabase
+              .from('participants')
+              .select('id, name, monthly_data, billing_data')
+              .eq('id', participantData.id)
+              .single();
+            
+            if (!verifyError && verifyData) {
+              if (verifyData.monthly_data && verifyData.monthly_data[month]) {
+                addSuccess(`🎯 ✅ Données ${month} confirmées en base pour ${verifyData.name} !`);
+                const savedData = verifyData.monthly_data[month];
+                addLog(`📊 Injection Partagée sauvegardée: ${savedData.injection_partagee} kWh`);
+                addLog(`📊 Injection Complémentaire sauvegardée: ${savedData.injection_complementaire} kWh`);
               } else {
-                addWarning(`⚠️ ATTENTION: Tous les coûts réseau sont à 0 pour ${participantData.name} - vérifiez les données source`);
+                addError(`🎯 ❌ Données ${month} NON trouvées en base pour ${verifyData.name} !`);
               }
-            } else {
-              addError(`❌ billing_data ${month} NON trouvé en base après sauvegarde pour ${participantData.name} !`);
-              addInfo(`💰 billing_data actuel: ${JSON.stringify(Object.keys(verifyData.billing_data || {}))}`);
             }
-          } else {
-            addError(`❌ ERREUR VÉRIFICATION ${participantData.name}: ${verifyError?.message || 'Erreur inconnue'}`);
           }
         }
       }
