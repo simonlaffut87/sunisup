@@ -259,14 +259,52 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       addSubSection('TRAITEMENT DES LIGNES DE DONNÉES');
       addInfo(`Traitement de ${lines.length - 1} lignes de données...`);
 
+      // NOUVEAU: Debug complet de TOUTES les lignes
+      addLog('🔍 ANALYSE COMPLÈTE DE TOUTES LES LIGNES:');
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split('\t').map(cell => cell.trim());
+        const eanCodeRaw = row[eanIndex]?.trim();
+        const eanCode = eanCodeRaw?.replace(/[^0-9]/g, '');
+        
+        addLog(`📋 LIGNE ${i}: EAN="${eanCode}", Colonnes=${row.length}, Mapping=${!!participantMapping[eanCode]}`);
+        
+        if (eanCode === '541448911700029243') {
+          addLog(`🎯 LIGNE CIBLE ${i} DÉTECTÉE !`);
+          addLog(`  📊 Ligne complète: [${row.join(' | ')}]`);
+          addLog(`  📍 EAN brut: "${eanCodeRaw}"`);
+          addLog(`  📍 EAN nettoyé: "${eanCode}"`);
+          addLog(`  📍 Dans mapping: ${!!participantMapping[eanCode]}`);
+          addLog(`  📍 Nombre de colonnes: ${row.length} (attendu: ${headers.length})`);
+          
+          if (participantMapping[eanCode]) {
+            addLog(`  👤 Participant: ${participantMapping[eanCode].name}`);
+          } else {
+            addLog(`  ❌ PARTICIPANT NON TROUVÉ !`);
+            addLog(`  📋 EANs disponibles: ${Object.keys(participantMapping).slice(0, 10).join(', ')}`);
+          }
+        }
+      }
+      
       for (let i = 1; i < lines.length; i++) {
         const row = lines[i].split('\t').map(cell => cell.trim());
         
-        if (row.length < headers.length) continue;
+        // CORRECTION: Ne pas ignorer les lignes avec moins de colonnes
+        // car les cellules vides en fin de ligne peuvent être omises
+        if (row.length === 0) continue;
+        
+        addLog(`🔄 TRAITEMENT LIGNE ${i}:`);
+        addLog(`  📊 Nombre de colonnes: ${row.length} (headers: ${headers.length})`);
 
         const eanCodeRaw = row[eanIndex]?.trim();
         const eanCode = eanCodeRaw?.replace(/[^0-9]/g, ''); // Nettoyer l'EAN
-        if (!eanCode) continue;
+        
+        addLog(`  📍 EAN brut: "${eanCodeRaw}"`);
+        addLog(`  📍 EAN nettoyé: "${eanCode}"`);
+        
+        if (!eanCode) {
+          addLog(`  ❌ Pas d'EAN, ligne ignorée`);
+          continue;
+        }
         
         // Récupérer le registre depuis la colonne Registre ou Tarif
         let registre = '';
@@ -276,29 +314,37 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           registre = String(row[tarifIndex] || '').trim().toUpperCase();
         }
         
-        // Log détaillé pour les premières lignes
-        if (i <= 5) {
-          addLog(`🔍 LIGNE ${i} - EAN: ${eanCode}, Registre/Tarif: "${registre}"`);
-          addLog(`📋 Ligne complète: [${row.join(' | ')}]`);
+        addLog(`  📍 Registre/Tarif: "${registre}"`);
+        
+        // Debug spécifique pour l'EAN problématique
+        if (eanCode === '541448911700029243') {
+          addLog(`🎯 EAN CIBLE DÉTECTÉ À LA LIGNE ${i} !`);
+          addLog(`  📊 Ligne complète: [${row.join(' | ')}]`);
+          addLog(`  📍 Registre/Tarif: "${registre}"`);
+          addLog(`  📍 Index des colonnes importantes:`);
+          addLog(`    Volume Partagé: ${volumePartageIndex} (${volumePartageIndex >= 0 ? headers[volumePartageIndex] : 'NON TROUVÉE'})`);
+          addLog(`    Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉE'})`);
+          addLog(`    Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉE'})`);
+          addLog(`    Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);
           
-          // Debug spécifique pour l'EAN problématique
-          if (eanCode === '541448911700029243') {
-            addLog(`🎯 EAN CIBLE DÉTECTÉ: ${eanCode}`);
-            addLog(`📊 Headers disponibles: ${headers.join(' | ')}`);
-            addLog(`📊 Index des colonnes:`);
-            addLog(`  Volume Partagé: ${volumePartageIndex} (${volumePartageIndex >= 0 ? headers[volumePartageIndex] : 'NON TROUVÉE'})`);
-            addLog(`  Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉE'})`);
-            addLog(`  Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉE'})`);
-            addLog(`  Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);
-          }
+          // Vérifier les valeurs dans les colonnes
+          addLog(`  📊 Valeurs brutes extraites:`);
+          addLog(`    Volume Partagé (col ${volumePartageIndex}): "${row[volumePartageIndex] || 'VIDE'}"`);
+          addLog(`    Volume Complémentaire (col ${volumeComplementaireIndex}): "${row[volumeComplementaireIndex] || 'VIDE'}"`);
+          addLog(`    Injection Partagée (col ${injectionPartageIndex}): "${row[injectionPartageIndex] || 'VIDE'}"`);
+          addLog(`    Injection Complémentaire (col ${injectionComplementaireIndex}): "${row[injectionComplementaireIndex] || 'VIDE'}"`);
         }
 
 
         // Essayer d'abord avec l'EAN nettoyé, puis avec l'EAN brut
         const mappedParticipant = participantMapping[eanCode] || participantMapping[eanCodeRaw];
         
+        addLog(`  📍 Participant trouvé: ${!!mappedParticipant} (${mappedParticipant ? mappedParticipant.name : 'NON TROUVÉ'})`);
+        
         if (mappedParticipant) {
           const finalEan = participantMapping[eanCode] ? eanCode : eanCodeRaw;
+          
+          addLog(`  ✅ Traitement du participant: ${mappedParticipant.name} (${finalEan})`);
           
           if (!participantData[finalEan]) {
             participantData[finalEan] = {
@@ -337,135 +383,91 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             return isNaN(parsed) ? 0 : parsed;
           };
           
+          // CORRECTION: Toujours extraire les données énergétiques, même si pas de registre
           const volumePartage = parseValue(row[volumePartageIndex]);
           const volumeComplementaire = parseValue(row[volumeComplementaireIndex]);
           const injectionPartage = parseValue(row[injectionPartageIndex]);
           const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
           
+          addLog(`  🔢 Valeurs parsées:`);
+          addLog(`    Volume Partagé: ${volumePartage}`);
+          addLog(`    Volume Complémentaire: ${volumeComplementaire}`);
+          addLog(`    Injection Partagée: ${injectionPartage}`);
+          addLog(`    Injection Complémentaire: ${injectionComplementaire}`);
+          
           // Debug spécifique pour l'EAN problématique
           if (eanCode === '541448911700029243') {
-            addLog(`🎯 PARSING DÉTAILLÉ pour EAN ${eanCode} (ligne ${i}):`);
-            addLog(`  Registre: "${registre}"`);
-            addLog(`  Volume Partagé: "${row[volumePartageIndex]}" -> ${volumePartage}`);
-            addLog(`  Volume Complémentaire: "${row[volumeComplementaireIndex]}" -> ${volumeComplementaire}`);
-            addLog(`  Injection Partagée: "${row[injectionPartageIndex]}" -> ${injectionPartage}`);
-            addLog(`  Injection Complémentaire: "${row[injectionComplementaireIndex]}" -> ${injectionComplementaire}`);
-            addLog(`  Participant trouvé: ${mappedParticipant ? mappedParticipant.name : 'NON'}`);
+            addLog(`🎯 *** TRAITEMENT SPÉCIAL EAN CIBLE ${eanCode} (ligne ${i}) ***`);
+            addLog(`  📍 C'est la ligne ${i} sur ${lines.length - 1} lignes de données`);
+            addLog(`  📍 C'est ${i === lines.length - 1 ? 'LA DERNIÈRE LIGNE' : 'pas la dernière ligne'}`);
+            addLog(`  📍 Registre/Tarif: "${registre}" (vide: ${!registre})`);
+            addLog(`  📍 Participant trouvé: ${mappedParticipant.name}`);
+            addLog(`  📍 Injection Partagée brute: "${row[injectionPartageIndex]}" -> parsée: ${injectionPartage}`);
+            addLog(`  📍 Injection Réseau brute: "${row[injectionComplementaireIndex]}" -> parsée: ${injectionComplementaire}`);
+          }
+          
+          // NOUVEAU: Traitement des frais réseau (optionnel)
+          if (registre && (registre === 'HI' || registre === 'HIGH' || registre === 'TH')) {
+            // Traiter les frais réseau seulement si on a un registre valide
+            const parseNetworkCost = (value: any) => {
+              if (!value || value === '' || value === '-') return 0;
+              const cleaned = String(value).replace(',', '.').replace(/[^\d.-]/g, '');
+              const parsed = parseFloat(cleaned);
+              return isNaN(parsed) ? 0 : Math.abs(parsed);
+            };
             
-            if (injectionPartage === 0 && row[injectionPartageIndex]) {
-              addLog(`⚠️ ATTENTION: Injection Partagée = 0 mais valeur brute = "${row[injectionPartageIndex]}"`);
-              addLog(`🔍 Tentative de parsing manuel: "${String(row[injectionPartageIndex]).replace(',', '.').replace(/[^\d.-]/g, '')}"`);
+            const networkCosts = {
+              utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau]) : 0,
+              surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges]) : 0,
+              tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire]) : 0,
+              tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure]) : 0,
+              tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP]) : 0,
+              transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA]) : 0,
+              redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie]) : 0,
+              totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau]) : 0
+            };
+            
+            // Additionner aux coûts existants
+            Object.keys(networkCosts).forEach(key => {
+              participantData[finalEan].networkCosts[key] += networkCosts[key];
+            });
+            
+            if (eanCode === '541448911700029243') {
+              addLog(`💰 Frais réseau traités pour ${eanCode} (registre: ${registre})`);
+            }
+          } else {
+            if (eanCode === '541448911700029243') {
+              addLog(`💰 Pas de frais réseau pour ${eanCode} (pas de registre valide: "${registre}")`);
             }
           }
           
-          // Fonction de parsing ultra-simple pour les coûts réseau
-          const parseNetworkCost = (value: any, columnName: string, columnIndex: number) => {
-            if (i <= 3) { // Debug détaillé pour les 3 premières lignes
-              addLog(`🔍 PARSING ${columnName} (index ${columnIndex}):`);
-              addLog(`  📍 Valeur brute: "${value}" (type: ${typeof value})`);
-            }
-            
-            if (!value || value === '') {
-              if (i <= 3) addLog(`  ❌ Valeur vide -> 0€`);
-              return 0;
-            }
-            
-            // Gérer les tirets et valeurs vides
-            if (value === '-' || String(value).trim() === '') {
-              if (i <= 3) addLog(`  ❌ Valeur vide/tiret -> 0€`);
-              return 0;
-            }
-            
-            const stringValue = String(value).trim();
-            if (i <= 3) addLog(`  📝 String: "${stringValue}"`);
-            
-            if (stringValue === '') {
-              if (i <= 3) addLog(`  ❌ String vide après trim -> 0€`);
-              return 0;
-            }
-            
-            // Conversion virgule -> point
-            const withDot = stringValue.replace(',', '.');
-            if (i <= 3) addLog(`  🔄 Après virgule->point: "${withDot}"`);
-            
-            const parsed = parseFloat(withDot);
-            if (i <= 3) addLog(`  🔢 parseFloat("${withDot}") = ${parsed}`);
-            
-            if (isNaN(parsed)) {
-              if (i <= 3) addLog(`  ❌ NaN -> 0€`);
-              return 0;
-            }
-            
-            if (i <= 3) addLog(`  ✅ RÉSULTAT: ${parsed}€`);
-            return parsed;
-          };
+          // NOUVEAU: TOUJOURS traiter les données énergétiques
+          addLog(`  🔋 Ajout des données énergétiques:`);
+          addLog(`    Avant: VP=${participantData[finalEan].data.volume_partage}, VC=${participantData[finalEan].data.volume_complementaire}`);
+          addLog(`    Avant: IP=${participantData[finalEan].data.injection_partagee}, IC=${participantData[finalEan].data.injection_complementaire}`);
           
-          // Extraire les coûts réseau SEULEMENT si au moins une colonne existe
-          // MAIS traiter les données énergétiques dans TOUS les cas
-          if (i <= 3 || eanCode === '541448911700029243') {
-            addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - EXTRACTION COÛTS RÉSEAU:`);
-          }
-          
-          const networkCosts = {
-            utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau] || '', 'Utilisation réseau', networkCostColumns.utilisationReseau) : 0,
-            surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges] || '', 'Surcharges', networkCostColumns.surcharges) : 0,
-            tarifCapacitaire: networkCostColumns.tarifCapacitaire >= 0 ? parseNetworkCost(row[networkCostColumns.tarifCapacitaire] || '', 'Tarif capacitaire', networkCostColumns.tarifCapacitaire) : 0,
-            tarifMesure: networkCostColumns.tarifMesure >= 0 ? parseNetworkCost(row[networkCostColumns.tarifMesure] || '', 'Tarif mesure', networkCostColumns.tarifMesure) : 0,
-            tarifOSP: networkCostColumns.tarifOSP >= 0 ? parseNetworkCost(row[networkCostColumns.tarifOSP] || '', 'Tarif OSP', networkCostColumns.tarifOSP) : 0,
-            transportELIA: networkCostColumns.transportELIA >= 0 ? parseNetworkCost(row[networkCostColumns.transportELIA] || '', 'Transport ELIA', networkCostColumns.transportELIA) : 0,
-            redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie] || '', 'Redevance voirie', networkCostColumns.redevanceVoirie) : 0,
-            totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau] || '', 'Total frais réseau', networkCostColumns.totalFraisReseau) : 0
-          };
-          
-          // ADDITIONNER aux coûts existants (pour sommer HIGH + LOW + TH)
-          participantData[finalEan].networkCosts.utilisationReseau += networkCosts.utilisationReseau;
-          participantData[finalEan].networkCosts.surcharges += networkCosts.surcharges;
-          participantData[finalEan].networkCosts.tarifCapacitaire += networkCosts.tarifCapacitaire;
-          participantData[finalEan].networkCosts.tarifMesure += networkCosts.tarifMesure;
-          participantData[finalEan].networkCosts.tarifOSP += networkCosts.tarifOSP;
-          participantData[finalEan].networkCosts.transportELIA += networkCosts.transportELIA;
-          participantData[finalEan].networkCosts.redevanceVoirie += networkCosts.redevanceVoirie;
-          participantData[finalEan].networkCosts.totalFraisReseau += networkCosts.totalFraisReseau;
-          
-          if (i <= 3 || eanCode === '541448911700029243') {
-            addLog(`💰 LIGNE ${i} - EAN ${finalEan} (${registre}) - COÛTS ADDITIONNÉS:`);
-            addLog(`  Utilisation réseau: +${networkCosts.utilisationReseau}€ = ${participantData[finalEan].networkCosts.utilisationReseau}€ total`);
-            addLog(`  Total frais réseau: +${networkCosts.totalFraisReseau}€ = ${participantData[finalEan].networkCosts.totalFraisReseau}€ total`);
-          }
-          
-          // IMPORTANT: Traiter les données énergétiques INDÉPENDAMMENT des frais réseau
-          // Log détaillé seulement pour les 3 premières lignes avec des valeurs
-          const hasEnergyData = volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0;
-          
-          if ((i <= 3 || eanCode === '541448911700029243') && hasEnergyData) {
-            addInfo(`Ligne ${i} - ${mappedParticipant.name}:`);
-            addInfo(`  Volume Partagé: ${volumePartage} kWh`);
-            addInfo(`  Volume Complémentaire: ${volumeComplementaire} kWh`);
-            addInfo(`  Injection Partagée: ${injectionPartage} kWh`);
-            addInfo(`  Injection Complémentaire: ${injectionComplementaire} kWh`);
-          }
-
-          // TOUJOURS additionner les données énergétiques (même si 0)
-          // Cela permet de traiter les participants même sans frais réseau
           participantData[finalEan].data.volume_partage += volumePartage;
           participantData[finalEan].data.volume_complementaire += volumeComplementaire;
           participantData[finalEan].data.injection_partagee += injectionPartage;
           participantData[finalEan].data.injection_complementaire += injectionComplementaire;
           
-          if (eanCode === '541448911700029243') {
-            addLog(`🎯 DONNÉES AJOUTÉES pour EAN ${eanCode}:`);
-            addLog(`  ➕ Volume Partagé: +${volumePartage} = ${participantData[finalEan].data.volume_partage}`);
-            addLog(`  ➕ Volume Complémentaire: +${volumeComplementaire} = ${participantData[finalEan].data.volume_complementaire}`);
-            addLog(`  ➕ Injection Partagée: +${injectionPartage} = ${participantData[finalEan].data.injection_partagee}`);
-            addLog(`  ➕ Injection Complémentaire: +${injectionComplementaire} = ${participantData[finalEan].data.injection_complementaire}`);
-          }
+          addLog(`    Après: VP=${participantData[finalEan].data.volume_partage}, VC=${participantData[finalEan].data.volume_complementaire}`);
+          addLog(`    Après: IP=${participantData[finalEan].data.injection_partagee}, IC=${participantData[finalEan].data.injection_complementaire}`);
           
-          // Compter comme ligne valide si on a traité des données
-          if (hasEnergyData || eanCode === '541448911700029243') {
-            validRows++;
+          // Compter comme ligne valide
+          validRows++;
+          
+          if (eanCode === '541448911700029243') {
+            addLog(`🎯 *** DONNÉES FINALES POUR ${eanCode} ***`);
+            addLog(`  ✅ Volume Partagé total: ${participantData[finalEan].data.volume_partage} kWh`);
+            addLog(`  ✅ Volume Complémentaire total: ${participantData[finalEan].data.volume_complementaire} kWh`);
+            addLog(`  ✅ Injection Partagée total: ${participantData[finalEan].data.injection_partagee} kWh`);
+            addLog(`  ✅ Injection Réseau total: ${participantData[finalEan].data.injection_complementaire} kWh`);
+            addLog(`  ✅ Ligne comptée comme valide: ${validRows}`);
           }
 
         } else {
+          addLog(`  ❌ Participant non trouvé pour EAN: ${eanCode}`);
           unknownEans.add(eanCode);
           
           // Debug spécial pour l'EAN problématique même s'il n'est pas reconnu
