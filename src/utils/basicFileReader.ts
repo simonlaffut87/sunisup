@@ -355,7 +355,7 @@ export class BasicFileReader {
         if (registre === 'HI' || registre === 'HIGH' || registre === 'TH') {
           const parseNetworkCost = (value: any, columnName?: string) => {
             if (!value) return 0;
-            if (value === '') return 0;
+            if (value === '' || value === '-' || String(value).trim() === '') return 0;
             
             // Log de debug pour voir la valeur brute
             if (columnName && i < 5) {
@@ -438,15 +438,15 @@ export class BasicFileReader {
           }
         }
         
-        // IMPORTANT: Traiter les données énergétiques pour TOUS les participants, 
-        // même ceux sans frais réseau
+        // IMPORTANT: Traiter les données énergétiques pour TOUS les participants
+        // INDÉPENDAMMENT des frais réseau (même si tous les frais sont vides)
         // Extraire les valeurs de la ligne
         const volumePartage = parseFloat(String(row[volumePartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         const volumeComplementaire = parseFloat(String(row[volumeComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         const injectionPartage = parseFloat(String(row[injectionPartageIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         const injectionComplementaire = parseFloat(String(row[injectionComplementaireIndex] || '0').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
         
-        // Vérifier si cette ligne a des données énergétiques (même sans registre)
+        // Vérifier si cette ligne a des données énergétiques
         const hasEnergyData = volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0;
         
         // Debug spécifique pour l'EAN problématique - TOUJOURS
@@ -479,6 +479,12 @@ export class BasicFileReader {
           onLog?.(`    Injection Partagée: ${injectionPartage}`);
           console.log(`    Injection Complémentaire: ${injectionComplementaire}`);
           onLog?.(`    Injection Complémentaire: ${injectionComplementaire}`);
+          console.log(`  📍 Participant trouvé dans mapping: ${!!participantMapping[eanCode]}`);
+          onLog?.(`  📍 Participant trouvé dans mapping: ${!!participantMapping[eanCode]}`);
+          if (participantMapping[eanCode]) {
+            console.log(`  👤 Nom participant: ${participantMapping[eanCode].name}`);
+            onLog?.(`  👤 Nom participant: ${participantMapping[eanCode].name}`);
+          }
         }
         
         // Debug: afficher les valeurs extraites pour les premières lignes
@@ -520,20 +526,19 @@ export class BasicFileReader {
           }
         }
         
-        // Si pas de registre mais des données énergétiques, traiter comme "général"
+        // Déterminer le registre cible (HIGH par défaut si pas de registre)
         let target;
         if (!registre || registre === '') {
-          // Pas de registre spécifique, utiliser "high" par défaut
           target = eanGroups[eanCode].high;
           if (eanCode === '541448911700029243') {
             onLog?.(`🎯 EAN ${eanCode}: Pas de registre, utilisation de 'high' par défaut`);
           }
         } else {
-          // Assigner aux bonnes catégories HIGH ou LOW
-          target = registre === 'HI' || registre === 'HIGH' || registre === 'TH' ? eanGroups[eanCode].high : eanGroups[eanCode].low;
+          target = (registre === 'HI' || registre === 'HIGH' || registre === 'TH') ? eanGroups[eanCode].high : eanGroups[eanCode].low;
         }
         
-        // TOUJOURS traiter les données énergétiques si elles existent
+        // TRAITER LES DONNÉES ÉNERGÉTIQUES même si elles sont à 0 (pour debug)
+        // ou si elles ont des valeurs réelles
         if (hasEnergyData || eanCode === '541448911700029243') {
           target.volume_partage += volumePartage;
           target.volume_complementaire += volumeComplementaire;
@@ -547,8 +552,6 @@ export class BasicFileReader {
             onLog?.(`  ➕ Injection Partagée: +${injectionPartage} = ${target.injection_partagee}`);
             onLog?.(`  ➕ Injection Complémentaire: +${injectionComplementaire} = ${target.injection_complementaire}`);
           }
-        } else if (eanCode === '541448911700029243') {
-          onLog?.(`⚠️ EAN ${eanCode}: Aucune donnée énergétique détectée`);
         }
         
         processedRows++;
@@ -562,6 +565,9 @@ export class BasicFileReader {
         // Debug pour l'EAN problématique même s'il n'est pas dans le mapping
         if (eanCode === '541448911700029243') {
           onLog?.(`❌ EAN CIBLE ${eanCode} NON TROUVÉ dans le mapping des participants !`);
+            onLog?.(`🔍 EAN brut de la ligne: "${eanRaw}"`);
+            onLog?.(`🔍 EAN nettoyé: "${eanCode}"`);
+            onLog?.(`📊 Ligne complète: ${JSON.stringify(row)}`);
           onLog?.(`📋 Mapping disponible: ${Object.keys(participantMapping).slice(0, 10).join(', ')}...`);
         }
       }
