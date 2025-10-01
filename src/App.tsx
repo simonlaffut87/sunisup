@@ -14,24 +14,31 @@ import { LoginModal } from './components/LoginModal';
 import { MemberDashboard } from './components/MemberDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
 import { LanguageSelector } from './components/LanguageSelector';
-import { useAutoLogout } from './hooks/useAutoLogout';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
+
+// Palette appliquée :
+// 🌞 Jaune solaire : #FFC107
+// 🌍 Vert durable : #388E3C
+// 🌊 Bleu confiance : #1565C0
+// ⚫ Gris anthracite : #212121
+// ⚪ Blanc pur : #FFFFFF
+// 🩶 Gris clair : #F5F5F5
 
 function SupabaseConnectionBanner() {
   const [showBanner, setShowBanner] = useState(!isSupabaseConfigured);
   if (!showBanner) return null;
   return (
-    <div className="bg-red-50 border-b border-red-200 px-4 py-3">
+    <div className="bg-[#FFF8E1] border-b border-[#FFC107] px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          <p className="text-sm text-red-800">
-            <strong>Database not connected:</strong> Please configure Supabase environment variables for full functionality
+          <div className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse"></div>
+          <p className="text-sm text-[#212121]">
+            <strong>Database not connected:</strong> Please configure Supabase environment variables
           </p>
         </div>
         <button
           onClick={() => setShowBanner(false)}
-          className="text-red-600 hover:text-red-800 text-sm underline"
+          className="text-[#1565C0] hover:text-[#388E3C] text-sm underline"
         >
           Dismiss
         </button>
@@ -66,8 +73,8 @@ function NavigationTabs() {
               to="/"
               className={`px-3 py-2 text-sm font-medium transition-colors ${
                 location.pathname === '/' 
-                  ? 'text-black border-b-2 border-black'
-                  : 'text-black hover:text-gray-800'
+                  ? 'text-[#FFC107] border-b-2 border-[#FFC107]'
+                  : 'text-[#212121] hover:text-[#1565C0]'
               }`}
             >
               {t('nav.home')}
@@ -76,8 +83,8 @@ function NavigationTabs() {
               to="/about"
               className={`px-3 py-2 text-sm font-medium transition-colors ${
                 location.pathname === '/about'
-                  ? 'text-black border-b-2 border-black'
-                  : 'text-black hover:text-gray-800'
+                  ? 'text-[#FFC107] border-b-2 border-[#FFC107]'
+                  : 'text-[#212121] hover:text-[#1565C0]'
               }`}
             >
               {t('nav.about')}
@@ -88,7 +95,7 @@ function NavigationTabs() {
           <div className="md:hidden flex-shrink-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-black hover:text-gray-800 p-2"
+              className="text-[#212121] hover:text-[#1565C0] p-2"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -97,15 +104,15 @@ function NavigationTabs() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 py-2 bg-white/90">
+          <div className="md:hidden border-t border-[#F5F5F5] py-2 bg-white/95">
             <div className="flex flex-col space-y-2">
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-3 text-sm font-medium ${
+                className={`block px-4 py-3 text-sm font-medium rounded-lg ${
                   location.pathname === '/' 
-                    ? 'text-black bg-gray-100'
-                    : 'text-black hover:text-gray-800'
+                    ? 'text-[#FFC107] bg-[#FFF8E1]'
+                    : 'text-[#212121] hover:text-[#1565C0]'
                 }`}
               >
                 {t('nav.home')}
@@ -113,10 +120,10 @@ function NavigationTabs() {
               <Link
                 to="/about"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-3 text-sm font-medium ${
+                className={`block px-4 py-3 text-sm font-medium rounded-lg ${
                   location.pathname === '/about'
-                    ? 'text-black bg-gray-100'
-                    : 'text-black hover:text-gray-800'
+                    ? 'text-[#FFC107] bg-[#FFF8E1]'
+                    : 'text-[#212121] hover:text-[#1565C0]'
                 }`}
               >
                 {t('nav.about')}
@@ -167,8 +174,6 @@ function App() {
     }
   };
 
-  // ... (tout le reste du code App reste identique, pas touché)
-
   if (showDashboard && user) {
     if (user.email === 'info@sunisup.be') {
       return <AdminDashboard />;
@@ -179,11 +184,11 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50 font-sans">
+      <div className="min-h-screen bg-[#F5F5F5] font-sans">
         <SupabaseConnectionBanner />
 
         {/* Transparent Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 font-sans bg-transparent text-black">
+        <header className="fixed top-0 left-0 right-0 z-50 font-sans bg-transparent text-[#212121]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20 py-2">
               <Link to="/" className="flex items-center space-x-3">
@@ -204,7 +209,7 @@ function App() {
                   <button
                     onClick={() => setShowDashboard(true)}
                     disabled={isLoggingOut}
-                    className="bg-black text-white px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
+                    className="bg-[#1565C0] text-white px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide hover:bg-[#388E3C]"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">Dashboard</span>
@@ -212,7 +217,7 @@ function App() {
                 ) : (
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-black text-white px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
+                    className="bg-[#1565C0] text-white px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide hover:bg-[#388E3C]"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('header.memberAccess')}</span>
@@ -221,7 +226,7 @@ function App() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="bg-black text-white px-6 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
+                  className="bg-[#FFC107] text-[#212121] px-6 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide hover:bg-[#388E3C] hover:text-white"
                 >
                   <span>{t('header.contact')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -245,21 +250,21 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="bg-gray-900 text-white py-16">
+        <footer className="bg-[#212121] text-white py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
                 <div className="flex items-center space-x-3 mb-6">
                   <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-12 h-12" />
                   <div>
-                    <h3 className="text-xl font-bold text-white font-sans">Sun Is Up</h3>
+                    <h3 className="text-xl font-bold text-[#FFC107] font-sans">Sun Is Up</h3>
                     <p className="text-gray-400 text-sm font-sans">{t('footer.description')}</p>
                   </div>
                 </div>
               </div>
               
               <div>
-                <h4 className="text-lg font-semibold text-white mb-4 font-sans">{t('footer.contact')}</h4>
+                <h4 className="text-lg font-semibold text-[#FFC107] mb-4 font-sans">{t('footer.contact')}</h4>
                 <div className="space-y-2 text-gray-300">
                   <p className="font-sans">📧 info@sunisup.be</p>
                   <p className="font-sans">📞 +32 471 31 71 48</p>
@@ -268,17 +273,17 @@ function App() {
               </div>
               
               <div>
-                <h4 className="text-lg font-semibold text-white mb-4 font-sans">{t('footer.followUs')}</h4>
+                <h4 className="text-lg font-semibold text-[#FFC107] mb-4 font-sans">{t('footer.followUs')}</h4>
                 <div className="flex space-x-4">
                   <a href="https://www.linkedin.com/company/sun-is-up" target="_blank" rel="noopener noreferrer" 
-                     className="text-gray-300 hover:text-white transition-colors">
+                     className="text-gray-300 hover:text-[#FFC107] transition-colors">
                     LinkedIn
                   </a>
                 </div>
               </div>
             </div>
             
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center">
+            <div className="border-t border-gray-700 mt-12 pt-8 text-center">
               <p className="text-gray-400 font-sans">{t('footer.copyright')}</p>
             </div>
           </div>
@@ -309,13 +314,13 @@ function NavigationLinks() {
           to={link.path}
           className={`relative px-3 py-2 text-sm font-semibold transition-all duration-200 ${
             location.pathname === link.path
-              ? 'text-black border-b-2 border-black'
-              : 'text-black hover:text-gray-800'
+              ? 'text-[#FFC107] border-b-2 border-[#FFC107]'
+              : 'text-[#212121] hover:text-[#1565C0]'
           } font-sans tracking-wide`}
         >
-          {link.path === '/' ? t('nav.services') : link.label}
+          {link.label}
           {location.pathname === link.path && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFC107] rounded-full" />
           )}
         </Link>
       ))}
@@ -337,9 +342,9 @@ function MobileNavigation() {
     <div className="md:hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-2 border border-gray-200"
+        className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-2 border border-[#F5F5F5]"
       >
-        {isOpen ? <X className="w-5 h-5 text-black" /> : <Menu className="w-5 h-5 text-black" />}
+        {isOpen ? <X className="w-5 h-5 text-[#212121]" /> : <Menu className="w-5 h-5 text-[#212121]" />}
       </button>
 
       {isOpen && (
@@ -354,8 +359,8 @@ function MobileNavigation() {
                     onClick={() => setIsOpen(false)}
                     className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                       location.pathname === link.path
-                        ? 'bg-gray-100 text-black border border-gray-200'
-                        : 'text-black hover:bg-gray-50'
+                        ? 'bg-[#FFF8E1] text-[#FFC107] border border-[#FFC107]'
+                        : 'text-[#212121] hover:bg-[#F5F5F5]'
                     } font-sans`}
                   >
                     {link.label}
