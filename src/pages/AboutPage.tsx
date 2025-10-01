@@ -211,48 +211,48 @@ export default function AboutPage() {
             <div className="flex animate-scroll">
               {/* Premier set de logos */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/brugel.png" alt="Brugel" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-white p-2 rounded-lg shadow-sm" />
+                <img src="/images/brugel.png" alt="Brugel" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border border-gray-100" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/enerinvest.png" alt="Enerinvest" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/ouzerie.png" alt="Ouzerie" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/prehaut.png" alt="Préhaut" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/sibelga.png" alt="Sibelga" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-white p-2 rounded-lg shadow-sm" />
+                <img src="/images/sibelga.png" alt="Sibelga" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/stephenson.png" alt="Stephenson" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/sun4school.png" alt="Sun4school" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Sun4school.png" alt="Sun4school" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               
               {/* Duplication pour l'effet de boucle infinie */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/brugel.png" alt="Brugel" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-white p-2 rounded-lg shadow-sm" />
+                <img src="/images/brugel.png" alt="Brugel" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border border-gray-100" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/enerinvest.png" alt="Enerinvest" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/ouzerie.png" alt="Ouzerie" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/prehaut.png" alt="Préhaut" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/sibelga.png" alt="Sibelga" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-white p-2 rounded-lg shadow-sm" />
+                <img src="/images/sibelga.png" alt="Sibelga" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/stephenson.png" alt="Stephenson" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <img src="/images/sun4school.png" alt="Sun4school" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100" />
+                <img src="/images/Sun4school.png" alt="Sun4school" className="h-32 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-lg shadow-md border-2 border-gray-200" />
               </div>
             </div>
           </div>
