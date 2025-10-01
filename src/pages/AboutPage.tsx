@@ -212,7 +212,7 @@ export default function AboutPage() {
               {/* Premier set de logos */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
                 <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
-                  <img src="/images/brugel.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                  <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
@@ -230,4 +230,70 @@ export default function AboutPage() {
                   <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
-              <div
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                  <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              
+              {/* Deuxième set de logos (duplication pour l'effet de boucle) */}
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                  <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                  <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                  <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                  <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                  <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-amber-500 to-orange-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-8 font-sans">
+            {t('about.cta.title')}
+          </h2>
+          <p className="text-xl lg:text-2xl text-amber-100 mb-12 font-sans">
+            {t('about.cta.description')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <button
+              onClick={() => navigate('/join')}
+              className="bg-white text-amber-600 px-10 py-5 rounded-2xl font-bold text-xl hover:bg-amber-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 font-sans"
+            >
+              {t('about.cta.joinButton')}
+              <ArrowRight className="inline-block ml-3 w-6 h-6" />
+            </button>
+            <button
+              onClick={() => navigate('/contact')}
+              className="border-2 border-white text-white px-10 py-5 rounded-2xl font-bold text-xl hover:bg-white hover:text-amber-600 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 font-sans"
+            >
+              {t('about.cta.contactButton')}
+            </button>
+          </div>
+        </div>
+      </section>
+      </div>
+    </>
+  );
+}
