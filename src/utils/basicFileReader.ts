@@ -227,13 +227,14 @@ export class BasicFileReader {
     
     const injectionPartageIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return (header.includes('partage') || header.includes('partagee')) && header.includes('injection');
+      return (header.includes('partage') || header.includes('partagee') || header.includes('shared')) && 
+             (header.includes('injection') || header.includes('inject'));
     });
     onLog?.(`🔍 Index Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉE'})`);
     
     const injectionComplementaireIndex = headers.findIndex(h => {
       const header = String(h).toLowerCase();
-      return header.includes('injection') && 
+      return (header.includes('injection') || header.includes('inject')) && 
              (header.includes('reseau') || header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel'));
     });
     onLog?.(`🔍 Index Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);

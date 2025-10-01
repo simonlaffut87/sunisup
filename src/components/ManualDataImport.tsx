@@ -112,13 +112,14 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       // Recherche plus flexible pour Injection Partagée
       const injectionPartageIndex = headers.findIndex(h => {
         const header = h.toLowerCase().replace(/[éè]/g, 'e');
-        return (header.includes('partage') || header.includes('partage')) && header.includes('injection');
+        return (header.includes('partage') || header.includes('partagee') || header.includes('shared')) && 
+               (header.includes('injection') || header.includes('inject'));
       });
       
       // Recherche plus flexible pour Injection Complémentaire/Résiduelle
       const injectionComplementaireIndex = headers.findIndex(h => {
         const header = h.toLowerCase().replace(/[éè]/g, 'e');
-        return header.includes('injection') && 
+        return (header.includes('injection') || header.includes('inject')) && 
                (header.includes('reseau') || header.includes('complementaire') || header.includes('residuelle') || header.includes('residuel'));
       });
       
@@ -279,6 +280,17 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         if (i <= 5) {
           addLog(`🔍 LIGNE ${i} - EAN: ${eanCode}, Registre/Tarif: "${registre}"`);
           addLog(`📋 Ligne complète: [${row.join(' | ')}]`);
+          
+          // Debug spécifique pour l'EAN problématique
+          if (eanCode === '541448911700029243') {
+            addLog(`🎯 EAN CIBLE DÉTECTÉ: ${eanCode}`);
+            addLog(`📊 Headers disponibles: ${headers.join(' | ')}`);
+            addLog(`📊 Index des colonnes:`);
+            addLog(`  Volume Partagé: ${volumePartageIndex} (${volumePartageIndex >= 0 ? headers[volumePartageIndex] : 'NON TROUVÉE'})`);
+            addLog(`  Volume Complémentaire: ${volumeComplementaireIndex} (${volumeComplementaireIndex >= 0 ? headers[volumeComplementaireIndex] : 'NON TROUVÉE'})`);
+            addLog(`  Injection Partagée: ${injectionPartageIndex} (${injectionPartageIndex >= 0 ? headers[injectionPartageIndex] : 'NON TROUVÉE'})`);
+            addLog(`  Injection Complémentaire: ${injectionComplementaireIndex} (${injectionComplementaireIndex >= 0 ? headers[injectionComplementaireIndex] : 'NON TROUVÉE'})`);
+          }
         }
 
 
@@ -329,6 +341,21 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const volumeComplementaire = parseValue(row[volumeComplementaireIndex]);
           const injectionPartage = parseValue(row[injectionPartageIndex]);
           const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
+          
+          // Debug spécifique pour l'EAN problématique
+          if (eanCode === '541448911700029243') {
+            addLog(`🎯 PARSING DÉTAILLÉ pour EAN ${eanCode} (ligne ${i}):`);
+            addLog(`  Registre: "${registre}"`);
+            addLog(`  Volume Partagé: "${row[volumePartageIndex]}" -> ${volumePartage}`);
+            addLog(`  Volume Complémentaire: "${row[volumeComplementaireIndex]}" -> ${volumeComplementaire}`);
+            addLog(`  Injection Partagée: "${row[injectionPartageIndex]}" -> ${injectionPartage}`);
+            addLog(`  Injection Complémentaire: "${row[injectionComplementaireIndex]}" -> ${injectionComplementaire}`);
+            
+            if (injectionPartage === 0 && row[injectionPartageIndex]) {
+              addLog(`⚠️ ATTENTION: Injection Partagée = 0 mais valeur brute = "${row[injectionPartageIndex]}"`);
+              addLog(`🔍 Tentative de parsing manuel: "${String(row[injectionPartageIndex]).replace(',', '.').replace(/[^\d.-]/g, '')}"`);
+            }
+          }
           
           // Fonction de parsing ultra-simple pour les coûts réseau
           const parseNetworkCost = (value: any, columnName: string, columnIndex: number) => {
@@ -412,6 +439,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           participantData[finalEan].data.volume_complementaire += volumeComplementaire;
           participantData[finalEan].data.injection_partagee += injectionPartage;
           participantData[finalEan].data.injection_complementaire += injectionComplementaire;
+          
+          // Debug final pour l'EAN problématique
+          if (eanCode === '541448911700029243') {
+            addLog(`🎯 TOTAUX CUMULÉS pour ${eanCode} après ligne ${i}:`);
+            addLog(`  Volume Partagé: ${participantData[finalEan].data.volume_partage}`);
+            addLog(`  Volume Complémentaire: ${participantData[finalEan].data.volume_complementaire}`);
+            addLog(`  Injection Partagée: ${participantData[finalEan].data.injection_partagee}`);
+            addLog(`  Injection Complémentaire: ${participantData[finalEan].data.injection_complementaire}`);
+          }
 
           validRows++;
 

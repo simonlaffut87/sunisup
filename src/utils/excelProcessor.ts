@@ -19,6 +19,7 @@ export class ExcelProcessor {
 
     try {
       console.log('🚀 DÉBUT IMPORT SIMPLIFIÉ');
+      console.log('🎯 RECHERCHE SPÉCIFIQUE EAN: 541448911700029243');
       console.log('📁 Fichier:', file.name, 'Taille:', (file.size / 1024 / 1024).toFixed(2), 'MB');
       
       onProgress?.('Lecture du fichier...', 10);
@@ -57,6 +58,33 @@ export class ExcelProcessor {
       ]);
 
       console.log('✅ Données extraites, lignes:', jsonData.length);
+      
+      // Debug spécifique pour l'EAN problématique
+      if (result.length > 1) {
+        const headers = result[0] as string[];
+        console.log('🔍 HEADERS DÉTECTÉS:', headers);
+        
+        // Chercher les lignes contenant l'EAN problématique
+        const targetEanRows = result.filter((row: any[], index: number) => {
+          if (index === 0) return false; // Skip headers
+          return row.some(cell => String(cell).includes('541448911700029243'));
+        });
+        
+        console.log(`🎯 LIGNES TROUVÉES POUR EAN 541448911700029243: ${targetEanRows.length}`);
+        targetEanRows.forEach((row: any[], index: number) => {
+          console.log(`📋 LIGNE ${index + 1} pour EAN cible:`, row);
+        });
+        
+        // Analyser les colonnes d'injection
+        const injectionColumns = headers.map((header, index) => ({
+          index,
+          header,
+          isInjection: header.toLowerCase().includes('injection') || header.toLowerCase().includes('inject')
+        })).filter(col => col.isInjection);
+        
+        console.log('💉 COLONNES D\'INJECTION DÉTECTÉES:', injectionColumns);
+      }
+      
       onProgress?.('Traitement des participants...', 70);
 
       // Traitement des participants avec timeout
