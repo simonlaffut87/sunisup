@@ -204,7 +204,7 @@ function App() {
                   <button
                     onClick={() => setShowDashboard(true)}
                     disabled={isLoggingOut}
-                    className="bg-black text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
+                    className="bg-black text-white px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">Dashboard</span>
@@ -212,7 +212,7 @@ function App() {
                 ) : (
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-black text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
+                    className="bg-black text-white px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('header.memberAccess')}</span>
@@ -221,7 +221,7 @@ function App() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="bg-black text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
+                  className="bg-black text-white px-6 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
                 >
                   <span>{t('header.contact')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -243,6 +243,46 @@ function App() {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Routes>
         </main>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <div className="flex items-center space-x-3 mb-6">
+                  <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-12 h-12" />
+                  <div>
+                    <h3 className="text-xl font-bold text-white font-sans">Sun Is Up</h3>
+                    <p className="text-gray-400 text-sm font-sans">{t('footer.description')}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-4 font-sans">{t('footer.contact')}</h4>
+                <div className="space-y-2 text-gray-300">
+                  <p className="font-sans">📧 info@sunisup.be</p>
+                  <p className="font-sans">📞 +32 471 31 71 48</p>
+                  <p className="font-sans">📍 Bruxelles, Belgique</p>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-4 font-sans">{t('footer.followUs')}</h4>
+                <div className="flex space-x-4">
+                  <a href="https://www.linkedin.com/company/sun-is-up" target="_blank" rel="noopener noreferrer" 
+                     className="text-gray-300 hover:text-white transition-colors">
+                    LinkedIn
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <div className="border-t border-gray-800 mt-12 pt-8 text-center">
+              <p className="text-gray-400 font-sans">{t('footer.copyright')}</p>
+            </div>
+          </div>
+        </footer>
 
         <Toaster position="top-right" />
 
@@ -267,11 +307,11 @@ function NavigationLinks() {
         <Link
           key={link.path}
           to={link.path}
-          className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 ${
+          className={`relative px-3 py-2 text-sm font-semibold transition-all duration-200 ${
             location.pathname === link.path
               ? 'text-black border-b-2 border-black'
               : 'text-black hover:text-gray-800'
-          } font-sans`}
+          } font-sans tracking-wide`}
         >
           {link.path === '/' ? t('nav.services') : link.label}
           {location.pathname === link.path && (
