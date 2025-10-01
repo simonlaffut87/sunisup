@@ -232,6 +232,11 @@ export default function AboutPage() {
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
                 <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                  <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
                   <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
@@ -255,6 +260,11 @@ export default function AboutPage() {
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
                 <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
                   <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                  <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
