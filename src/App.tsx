@@ -329,7 +329,8 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <>
+      <div className="min-h-screen bg-gray-50 font-sans">
       <SupabaseConnectionBanner />
       
       {/* Header intégré sur toutes les pages */}
@@ -411,6 +412,7 @@ function App() {
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={handleLoginSuccess}
       />
+      </div>
     </div>
       {/* Modern Footer */}
       <footer className="bg-gray-50 border-t border-gray-100">
@@ -462,6 +464,7 @@ function App() {
           </div>
         </div>
       </footer>
+    </>
   );
 }
 
