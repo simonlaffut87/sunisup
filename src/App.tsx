@@ -333,63 +333,8 @@ function AppContent() {
       <div className="min-h-screen bg-gray-50 font-sans">
       <SupabaseConnectionBanner />
       
-      {/* Header intégré sur toutes les pages */}
-      <header className="absolute top-0 left-0 right-0 z-50 font-sans">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <a href="/" className="flex items-center space-x-3">
-              <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-16 h-16 drop-shadow-lg" />
-            </a>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <NavigationLinks />
-            </div>
-            
-            {/* Actions */}
-            <div className="flex items-center space-x-3">
-              <LanguageSelector 
-                currentLanguage={currentLanguage}
-                onLanguageChange={handleLanguageChange}
-              />
-              
-              {user ? (
-                <button
-                  onClick={() => setShowDashboard(true)}
-                  disabled={isLoggingOut}
-                  className="bg-emerald-600/90 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans backdrop-blur-sm shadow-lg"
-                >
-                  <span className="w-4 h-4">👤</span>
-                  <span className="hidden sm:inline">Dashboard</span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => setShowLoginModal(true)}
-                  className="bg-blue-600/90 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans backdrop-blur-sm shadow-lg"
-                >
-                  <span className="w-4 h-4">👤</span>
-                  <span className="hidden sm:inline">{t('header.memberAccess')}</span>
-                </button>
-              )}
-              
-              <button
-                onClick={() => setShowContactModal(true)}
-                className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans backdrop-blur-sm"
-              >
-                <span>{t('header.contact')}</span>
-                <span className="w-4 h-4">→</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Navigation intégré */}
-      <MobileNavigationOverlay />
-      
-      {/* Main Content with top padding for header */}
-      <main className="pt-20">
+      {/* Main Content */}
+      <main>
         <Routes>
           <Route path="/" element={<HomePage 
             user={user} 
@@ -413,56 +358,6 @@ function AppContent() {
         onLoginSuccess={handleLoginSuccess}
       />
       </div>
-      {/* Modern Footer */}
-      <footer className="bg-gray-50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-2">
-              <div className="flex items-center space-x-3 mb-6">
-                <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-10 h-10" />
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 font-sans">Sun Is Up</h3>
-                  <p className="text-gray-600 text-sm font-sans">{t('footer.description')}</p>
-                </div>
-              </div>
-              <p className="text-gray-600 max-w-md font-sans">
-                {t('footer.description')}
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4 font-sans">{t('footer.contact')}</h4>
-              <div className="space-y-3 text-gray-600 text-sm">
-                <div className="flex items-center space-x-2 font-sans">
-                  <span>📞</span>
-                  <span>+32 471 31 71 48</span>
-                </div>
-                <div className="flex items-center space-x-2 font-sans">
-                  <span>✉️</span>
-                  <span>info@sunisup.be</span>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4 font-sans">{t('footer.followUs')}</h4>
-              <a 
-                href="https://www.linkedin.com/company/sun-is-up-asbl" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition-colors text-sm font-sans"
-              >
-                <span>🔗</span>
-                <span>LinkedIn</span>
-              </a>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm font-sans">
-            {t('footer.copyright')}
-          </div>
-        </div>
-      </footer>
     </>
   );
 }
