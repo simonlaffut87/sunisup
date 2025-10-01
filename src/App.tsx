@@ -132,7 +132,7 @@ function NavigationTabs() {
   );
 }
 
-function App() {
+function AppContent() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('fr');
