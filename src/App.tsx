@@ -341,6 +341,11 @@ function AppContent() {
             isLoggingOut={isLoggingOut}
             setShowDashboard={setShowDashboard}
             setShowLoginModal={setShowLoginModal}
+            currentLanguage={currentLanguage}
+            handleLanguageChange={handleLanguageChange}
+            setShowContactModal={setShowContactModal}
+            mobileMenuOpen={mobileMenuOpen}
+            setMobileMenuOpen={setMobileMenuOpen}
           />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/simulation" element={<SimulationPage />} />
