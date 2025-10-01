@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, ArrowRight, CheckCircle, Users, Building2, BarChart3, Sun, Mail, User, Calendar } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 interface ServicesDiscoveryModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface FormData {
 }
 
 export function ServicesDiscoveryModal({ isOpen, onClose }: ServicesDiscoveryModalProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<1 | 2>(1);
   const [formData, setFormData] = useState<FormData>({
     selectedServices: [],
