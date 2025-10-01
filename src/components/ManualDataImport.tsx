@@ -262,11 +262,22 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       for (let i = 1; i < lines.length; i++) {
         const row = lines[i].split('\t').map(cell => cell.trim());
         
-        if (row.length < headers.length) continue;
+        // Ne pas ignorer les lignes plus courtes - elles peuvent avoir des données valides
+        if (row.length === 0 || !row.some(cell => cell && cell.trim())) {
+          if (i === lines.length - 1) {
+            addLog(`⚠️ DERNIÈRE LIGNE ${i} VIDE - IGNORÉE`);
+          }
+          continue;
+        }
 
         const eanCodeRaw = row[eanIndex]?.trim();
         const eanCode = eanCodeRaw?.replace(/[^0-9]/g, ''); // Nettoyer l'EAN
-        if (!eanCode) continue;
+        if (!eanCode) {
+          if (i === lines.length - 1) {
+            addLog(`⚠️ DERNIÈRE LIGNE ${i} SANS EAN - IGNORÉE`);
+          }
+          continue;
+        }
         
         // Récupérer le registre depuis la colonne Registre ou Tarif
         let registre = '';
@@ -274,6 +285,13 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           registre = String(row[registreIndex] || '').trim().toUpperCase();
         } else if (tarifIndex >= 0) {
           registre = String(row[tarifIndex] || '').trim().toUpperCase();
+        }
+        
+        // Debug spécial pour la dernière ligne
+        if (i === lines.length - 1) {
+          addLog(`🔍 DERNIÈRE LIGNE ${i} - EAN: ${eanCode}, Registre: "${registre}"`);
+          addLog(`📋 Ligne complète: [${row.join(' | ')}]`);
+          addLog(`📏 Longueur ligne: ${row.length}, Headers: ${headers.length}`);
         }
         
         // Log détaillé pour les premières lignes
@@ -299,6 +317,11 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         
         if (mappedParticipant) {
           const finalEan = participantMapping[eanCode] ? eanCode : eanCodeRaw;
+          
+          // Debug spécial pour la dernière ligne
+          if (i === lines.length - 1) {
+            addLog(`✅ DERNIÈRE LIGNE - Participant trouvé: ${mappedParticipant.name}`);
+          }
           
           if (!participantData[finalEan]) {
             participantData[finalEan] = {
@@ -341,6 +364,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           const volumeComplementaire = parseValue(row[volumeComplementaireIndex]);
           const injectionPartage = parseValue(row[injectionPartageIndex]);
           const injectionComplementaire = parseValue(row[injectionComplementaireIndex]);
+          
+          // Debug spécial pour la dernière ligne
+          if (i === lines.length - 1) {
+            addLog(`🔍 DERNIÈRE LIGNE - Données énergétiques:`);
+            addLog(`  Volume Partagé: "${row[volumePartageIndex]}" -> ${volumePartage}`);
+            addLog(`  Volume Complémentaire: "${row[volumeComplementaireIndex]}" -> ${volumeComplementaire}`);
+            addLog(`  Injection Partagée: "${row[injectionPartageIndex]}" -> ${injectionPartage}`);
+            addLog(`  Injection Complémentaire: "${row[injectionComplementaireIndex]}" -> ${injectionComplementaire}`);
+          }
           
           // Debug spécifique pour l'EAN problématique
           if (eanCode === '541448911700029243') {
@@ -428,8 +460,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           // IMPORTANT: Traiter les données énergétiques même si pas de frais réseau
           // Log détaillé seulement pour les 3 premières lignes avec des valeurs
           const hasEnergyData = volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0;
+          const isLastLine = i === lines.length - 1;
           
-          if ((i <= 3 || eanCode === '541448911700029243') && hasEnergyData) {
+          if ((i <= 3 || eanCode === '541448911700029243' || isLastLine) && hasEnergyData) {
             addInfo(`Ligne ${i} - ${mappedParticipant.name}:`);
             addInfo(`  Volume Partagé: ${volumePartage} kWh`);
             addInfo(`  Volume Complémentaire: ${volumeComplementaire} kWh`);
@@ -437,21 +470,22 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addInfo(`  Injection Complémentaire: ${injectionComplementaire} kWh`);
           }
 
-          // Additionner les valeurs SEULEMENT si on a des données énergétiques OU si c'est l'EAN spécial
-          if (hasEnergyData || eanCode === '541448911700029243') {
+          // TOUJOURS traiter les données énergétiques si le participant est trouvé
+          // même si toutes les valeurs sont à 0 (pour debug)
+          if (hasEnergyData || eanCode === '541448911700029243' || isLastLine) {
             participantData[finalEan].data.volume_partage += volumePartage;
             participantData[finalEan].data.volume_complementaire += volumeComplementaire;
             participantData[finalEan].data.injection_partagee += injectionPartage;
             participantData[finalEan].data.injection_complementaire += injectionComplementaire;
             
-            if (eanCode === '541448911700029243') {
+            if (eanCode === '541448911700029243' || isLastLine) {
               addLog(`🎯 DONNÉES AJOUTÉES pour EAN ${eanCode}:`);
               addLog(`  ➕ Volume Partagé: +${volumePartage} = ${participantData[finalEan].data.volume_partage}`);
               addLog(`  ➕ Volume Complémentaire: +${volumeComplementaire} = ${participantData[finalEan].data.volume_complementaire}`);
               addLog(`  ➕ Injection Partagée: +${injectionPartage} = ${participantData[finalEan].data.injection_partagee}`);
               addLog(`  ➕ Injection Complémentaire: +${injectionComplementaire} = ${participantData[finalEan].data.injection_complementaire}`);
             }
-          } else if (eanCode === '541448911700029243') {
+          } else if (eanCode === '541448911700029243' || isLastLine) {
             addWarning(`EAN ${eanCode}: Aucune donnée énergétique détectée (toutes les valeurs sont 0)`);
           }
           
@@ -460,6 +494,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
         } else {
           unknownEans.add(eanCode);
+          
+          // Debug spécial pour la dernière ligne même si non reconnue
+          if (i === lines.length - 1) {
+            addError(`❌ DERNIÈRE LIGNE - EAN ${eanCode} NON RECONNU !`);
+            addLog(`📋 EANs disponibles: ${Object.keys(participantMapping).slice(0, 10).join(', ')}...`);
+          }
           
           // Log spécial pour l'EAN problématique même s'il n'est pas reconnu
           if (eanCode === '541448911700029243') {
