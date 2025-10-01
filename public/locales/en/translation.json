@@ -154,6 +154,43 @@
       "simulateButton": "Simulate my savings"
     }
   },
+  "servicesDiscovery": {
+    "title": "Discover our services",
+    "intro": "Several companies have already chosen to join our energy community to reduce their costs and gain autonomy. Why not you?",
+    "step1": {
+      "title": "Step 1 – Services of interest",
+      "description": "Select the services that interest you",
+      "continue": "Continue"
+    },
+    "step2": {
+      "title": "Step 2 – Contact details",
+      "description": "Provide your contact details so we can reach you",
+      "email": "Email *",
+      "name": "Name / Company (optional)",
+      "back": "Back",
+      "submit": "Send my request",
+      "sending": "Sending..."
+    },
+    "services": {
+      "community": {
+        "title": "Energy community",
+        "description": "Join our mother community to benefit from a stable rate at 40% of market rates"
+      },
+      "subcommunity": {
+        "title": "Sub-community",
+        "description": "Create your own energy community between your buildings only"
+      },
+      "platform": {
+        "title": "Management and monitoring platform",
+        "description": "Real-time monitoring and continuous optimization of your energy projects"
+      },
+      "optimization": {
+        "title": "Energy optimization",
+        "description": "Study and installation of solar panels, batteries and complete optimization"
+      }
+    },
+    "success": "Thank you! We will contact you soon to discuss your needs."
+  },
   "footer": {
     "contact": "Contact",
     "followUs": "Follow us",

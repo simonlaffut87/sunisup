@@ -26,29 +26,29 @@ export function ServicesDiscoveryModal({ isOpen, onClose }: ServicesDiscoveryMod
   const services = [
     {
       id: 'community',
-      title: 'Communauté d\'énergie',
-      description: 'Rejoignez notre communauté mère pour bénéficier d\'un tarif stable à 40% des tarifs du marché',
+      title: t('servicesDiscovery.services.community.title'),
+      description: t('servicesDiscovery.services.community.description'),
       icon: Users,
       color: 'from-blue-500 to-indigo-600'
     },
     {
       id: 'subcommunity',
-      title: 'Sous-communauté',
-      description: 'Créez votre propre communauté d\'énergie entre vos bâtiments uniquement',
+      title: t('servicesDiscovery.services.subcommunity.title'),
+      description: t('servicesDiscovery.services.subcommunity.description'),
       icon: Building2,
       color: 'from-emerald-500 to-green-600'
     },
     {
       id: 'platform',
-      title: 'Plateforme de gestion et monitoring',
-      description: 'Monitoring temps réel et optimisation continue de vos projets énergétiques',
+      title: t('servicesDiscovery.services.platform.title'),
+      description: t('servicesDiscovery.services.platform.description'),
       icon: BarChart3,
       color: 'from-amber-500 to-orange-600'
     },
     {
       id: 'optimization',
-      title: 'Optimisation énergétique',
-      description: 'Étude et installation de panneaux solaires, batteries et optimisation complète',
+      title: t('servicesDiscovery.services.optimization.title'),
+      description: t('servicesDiscovery.services.optimization.description'),
       icon: Sun,
       color: 'from-purple-500 to-violet-600'
     }
@@ -107,7 +107,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
       }
 
       // Fermer le modal après succès
-      toast.success('Merci ! Nous vous contacterons rapidement pour discuter de vos besoins.');
+      toast.success(t('servicesDiscovery.success'));
       setTimeout(() => {
         handleClose();
       }, 2000);
@@ -147,7 +147,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                 Découvrir nos services
               </h2>
               <p className="text-gray-600 mt-2 font-sans">
-                Déjà plusieurs entreprises ont choisi de rejoindre notre communauté énergétique pour réduire leurs coûts et gagner en autonomie. Pourquoi pas vous ?
+                {t('servicesDiscovery.intro')}
               </p>
             </div>
             <button
@@ -180,10 +180,10 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
             <div className="space-y-6">
               <div className="text-center">
                 <h3 className="text-xl font-bold text-gray-900 mb-2 font-sans">
-                  Étape 1 – Services intéressés
+                  {t('servicesDiscovery.step1.title')}
                 </h3>
                 <p className="text-gray-600 font-sans">
-                  Sélectionnez les services qui vous intéressent (sélection multiple possible)
+                  {t('servicesDiscovery.step1.description')}
                 </p>
               </div>
 
@@ -230,7 +230,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                   onClick={() => setStep(2)}
                   className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
                 >
-                  Continuer
+                  {t('servicesDiscovery.step1.continue')}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -242,17 +242,17 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
             <div className="space-y-6">
               <div className="text-center">
                 <h3 className="text-xl font-bold text-gray-900 mb-2 font-sans">
-                  Étape 2 – Coordonnées
+                  {t('servicesDiscovery.step2.title')}
                 </h3>
                 <p className="text-gray-600 font-sans">
-                  Renseignez vos coordonnées pour que nous puissions vous contacter
+                  {t('servicesDiscovery.step2.description')}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
-                    Email *
+                    {t('servicesDiscovery.step2.email')}
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -271,7 +271,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
-                    Nom / Société (facultatif)
+                    {t('servicesDiscovery.step2.name')}
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -293,7 +293,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                   onClick={() => setStep(1)}
                   className="text-gray-600 hover:text-gray-800 px-4 py-2 font-sans"
                 >
-                  Retour
+                  {t('servicesDiscovery.step2.back')}
                 </button>
                 <button
                   onClick={handleSubmit}
@@ -303,11 +303,11 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                   {submitting ? (
                     <>
                       <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin" />
-                      Envoi...
+                      {t('servicesDiscovery.step2.sending')}
                     </>
                   ) : (
                     <>
-                      Envoyer ma demande
+                      {t('servicesDiscovery.step2.submit')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}

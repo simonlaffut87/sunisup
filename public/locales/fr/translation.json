@@ -154,6 +154,43 @@
       "simulateButton": "Simuler mes économies"
     }
   },
+  "servicesDiscovery": {
+    "title": "Découvrir nos services",
+    "intro": "Déjà plusieurs entreprises ont choisi de rejoindre notre communauté énergétique pour réduire leurs coûts et gagner en autonomie. Pourquoi pas vous ?",
+    "step1": {
+      "title": "Étape 1 – Services intéressés",
+      "description": "Sélectionnez les services qui vous intéressent",
+      "continue": "Continuer"
+    },
+    "step2": {
+      "title": "Étape 2 – Coordonnées",
+      "description": "Renseignez vos coordonnées pour que nous puissions vous contacter",
+      "email": "Email *",
+      "name": "Nom / Société (facultatif)",
+      "back": "Retour",
+      "submit": "Envoyer ma demande",
+      "sending": "Envoi..."
+    },
+    "services": {
+      "community": {
+        "title": "Communauté d'énergie",
+        "description": "Rejoignez notre communauté mère pour bénéficier d'un tarif stable à 40% des tarifs du marché"
+      },
+      "subcommunity": {
+        "title": "Sous-communauté",
+        "description": "Créez votre propre communauté d'énergie entre vos bâtiments uniquement"
+      },
+      "platform": {
+        "title": "Plateforme de gestion et monitoring",
+        "description": "Monitoring temps réel et optimisation continue de vos projets énergétiques"
+      },
+      "optimization": {
+        "title": "Optimisation énergétique",
+        "description": "Étude et installation de panneaux solaires, batteries et optimisation complète"
+      }
+    },
+    "success": "Merci ! Nous vous contacterons rapidement pour discuter de vos besoins."
+  },
   "footer": {
     "contact": "Contact",
     "followUs": "Suivez-nous",

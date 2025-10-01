@@ -154,6 +154,43 @@
       "simulateButton": "Bereken mijn besparingen"
     }
   },
+  "servicesDiscovery": {
+    "title": "Ontdek onze diensten",
+    "intro": "Verschillende bedrijven hebben er al voor gekozen om lid te worden van onze energiegemeenschap om hun kosten te verlagen en autonomie te winnen. Waarom u niet?",
+    "step1": {
+      "title": "Stap 1 – Interessante diensten",
+      "description": "Selecteer de diensten die u interesseren",
+      "continue": "Doorgaan"
+    },
+    "step2": {
+      "title": "Stap 2 – Contactgegevens",
+      "description": "Geef uw contactgegevens zodat we u kunnen bereiken",
+      "email": "Email *",
+      "name": "Naam / Bedrijf (optioneel)",
+      "back": "Terug",
+      "submit": "Mijn aanvraag versturen",
+      "sending": "Versturen..."
+    },
+    "services": {
+      "community": {
+        "title": "Energiegemeenschap",
+        "description": "Word lid van onze moedergemeenschap om te profiteren van een stabiel tarief van 40% van de markttarieven"
+      },
+      "subcommunity": {
+        "title": "Sub-gemeenschap",
+        "description": "Creëer uw eigen energiegemeenschap tussen alleen uw gebouwen"
+      },
+      "platform": {
+        "title": "Beheer- en monitoringplatform",
+        "description": "Real-time monitoring en continue optimalisatie van uw energieprojecten"
+      },
+      "optimization": {
+        "title": "Energie-optimalisatie",
+        "description": "Studie en installatie van zonnepanelen, batterijen en volledige optimalisatie"
+      }
+    },
+    "success": "Dank u! We nemen binnenkort contact met u op om uw behoeften te bespreken."
+  },
   "footer": {
     "contact": "Contact",
     "followUs": "Volg ons",
