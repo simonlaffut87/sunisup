@@ -64,12 +64,12 @@ body {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 
 .animate-scroll-infinite {
-  animation: scroll-infinite 30s linear infinite;
+  animation: scroll-infinite 20s linear infinite;
 }
 
 .animate-scroll-infinite:hover {
