@@ -289,6 +289,14 @@
         {
           "question": "Quelles sont les conditions pour nous rejoindre ?",
           "answer": "Il suffit d'être situé dans la région de Bruxelles-Capitale et de disposer d'un compteur nouvelle génération (smart meter). Si vous n'en avez pas encore, Sibelga peut l'installer gratuitement sur simple demande."
+        },
+        {
+          "question": "Qu'est-ce qu'un compteur nouvelle génération ?",
+          "answer": "Le compteur nouvelle génération (smart meter) est un compteur électrique intelligent qui permet de mesurer votre consommation et production d'énergie en temps réel. Il est indispensable pour participer à une communauté d'énergie car il permet le partage précis de l'énergie entre les membres. Sibelga, le gestionnaire du réseau bruxellois, l'installe gratuitement."
+        },
+        {
+          "question": "Quelles sont les économies possibles ?",
+          "answer": "Les membres peuvent économiser jusqu'à 30% sur leur facture d'électricité selon leur profil de consommation. Plus vous consommez d'énergie pendant les heures d'ensoleillement, plus vos économies seront importantes."
         }
       ]
     },
