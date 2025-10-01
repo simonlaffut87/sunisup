@@ -96,11 +96,11 @@ export default function HomePage() {
         {/* Hero Section avec image */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           {/* Background image */}
-          <div className="absolute inset-0">
+          <div className="absolute inset-0 -top-16">
             <img 
               src="/images/video-background.png" 
               alt="Sun Is Up - Communauté d'énergie Bruxelles"
-              className="w-full h-full object-cover"
+              className="w-full h-[calc(100%+4rem)] object-cover"
             />
             <div className="absolute inset-0 bg-black/40"></div>
           </div>

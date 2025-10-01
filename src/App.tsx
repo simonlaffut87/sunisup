@@ -206,7 +206,7 @@ function App() {
         {/* Mobile Navigation */}
         <MobileNavigation />
 
-        <main className="pt-16">
+        <main>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
