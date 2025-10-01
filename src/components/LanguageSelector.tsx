@@ -20,7 +20,7 @@ export function LanguageSelector({ currentLanguage, onLanguageChange }: Language
 
   return (
     <div className="relative group">
-      <button className="flex items-center gap-2 text-white/90 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/10 backdrop-blur-sm drop-shadow-lg">
+      <button className="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors px-3 py-2 rounded-lg hover:bg-amber-50">
         <Globe2 className="w-5 h-5" />
         <span className="text-sm font-medium flex items-center gap-2">
           <span className="text-lg">{currentLang?.flag}</span>
@@ -29,13 +29,13 @@ export function LanguageSelector({ currentLanguage, onLanguageChange }: Language
         </span>
       </button>
       
-      <div className="absolute right-0 mt-2 py-2 w-48 bg-white/95 backdrop-blur-md rounded-lg shadow-lg border border-white/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+      <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-lg border border-amber-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
         {languages.map((language) => (
           <button
             key={language.code}
             onClick={() => onLanguageChange(language.code)}
-            className={`w-full px-4 py-3 text-left hover:bg-white/20 transition-colors ${
-              currentLanguage === language.code ? 'text-amber-600 font-medium bg-white/20' : 'text-gray-700'
+            className={`w-full px-4 py-3 text-left hover:bg-amber-50 transition-colors ${
+              currentLanguage === language.code ? 'text-amber-600 font-medium bg-amber-50' : 'text-amber-700'
             } flex items-center justify-between`}
           >
             <div className="flex items-center gap-3">

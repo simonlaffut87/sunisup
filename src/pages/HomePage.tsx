@@ -13,14 +13,7 @@ import AdminPage from './AdminPage';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
-interface HomePageProps {
-  user: any;
-  isLoggingOut: boolean;
-  setShowDashboard: (show: boolean) => void;
-  setShowLoginModal: (show: boolean) => void;
-}
-
-export default function HomePage({ user, isLoggingOut, setShowDashboard, setShowLoginModal }: HomePageProps) {
+export default function HomePage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,107 +105,7 @@ export default function HomePage({ user, isLoggingOut, setShowDashboard, setShow
             <div className="absolute inset-0 bg-black/40"></div>
           </div>
           
-
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10">
-            {/* Header intégré sur l'image de fond */}
-            <header className="absolute top-0 left-0 right-0 z-50 font-sans">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-20">
-                  {/* Logo */}
-                  <a href="/" className="flex items-center space-x-3">
-                    <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-16 h-16 drop-shadow-lg" />
-                  </a>
-                  
-                  {/* Desktop Navigation */}
-                  <div className="hidden md:flex items-center space-x-8">
-                    <Link
-                      to="/"
-                      className="relative px-3 py-2 text-sm font-medium transition-all duration-200 drop-shadow-lg text-white font-sans"
-                    >
-                      Nos Services
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full shadow-lg" />
-                    </Link>
-                    <Link
-                      to="/about"
-                      className="relative px-3 py-2 text-sm font-medium transition-all duration-200 drop-shadow-lg text-white/90 hover:text-white font-sans"
-                    >
-                      À propos
-                    </Link>
-                  </div>
-                  
-                  {/* Actions */}
-                  <div className="flex items-center space-x-3">
-                    <LanguageSelector 
-                      currentLanguage={currentLanguage}
-                      onLanguageChange={handleLanguageChange}
-                    />
-                    
-                    {user ? (
-                      <button
-                        onClick={() => setShowDashboard(true)}
-                        disabled={isLoggingOut}
-                        className="bg-emerald-600/90 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans backdrop-blur-sm shadow-lg"
-                      >
-                        <span className="w-4 h-4">👤</span>
-                        <span className="hidden sm:inline">Dashboard</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setShowLoginModal(true)}
-                        className="bg-blue-600/90 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans backdrop-blur-sm shadow-lg"
-                      >
-                        <span className="w-4 h-4">👤</span>
-                        <span className="hidden sm:inline">{t('header.memberAccess')}</span>
-                      </button>
-                    )}
-                    
-                    <button
-                      onClick={() => setShowContactModal(true)}
-                      className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans backdrop-blur-sm"
-                    >
-                      <span>{t('header.contact')}</span>
-                      <span className="w-4 h-4">→</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </header>
-
-            {/* Mobile Navigation */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="absolute top-6 right-4 z-50 bg-white/20 backdrop-blur-sm shadow-lg rounded-full p-2 border border-white/30"
-              >
-                {mobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
-              </button>
-              
-              {mobileMenuOpen && (
-                <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
-                  <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300">
-                    <div className="p-6 pt-24">
-                      <nav className="space-y-4">
-                        <Link
-                          to="/"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-4 py-3 rounded-lg font-medium transition-colors bg-amber-50 text-amber-600 border border-amber-200 font-sans"
-                        >
-                          Nos Services
-                        </Link>
-                        <Link
-                          to="/about"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-4 py-3 rounded-lg font-medium transition-colors text-gray-700 hover:bg-gray-50 font-sans"
-                        >
-                          À propos
-                        </Link>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
             <div className="text-center space-y-8">
               {/* Hero content */}
               <div className="space-y-6">

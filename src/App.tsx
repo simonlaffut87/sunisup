@@ -132,7 +132,7 @@ function NavigationTabs() {
   );
 }
 
-function AppContent() {
+function App() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('fr');
@@ -141,7 +141,6 @@ function AppContent() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { t, i18n } = useTranslation();
-  const location = useLocation();
 
   useEffect(() => {
     // Detect browser language on first load
@@ -329,41 +328,137 @@ function AppContent() {
   }
 
   return (
-    <>
+    <Router>
       <div className="min-h-screen bg-gray-50 font-sans">
-      <SupabaseConnectionBanner />
-      
-      {/* Main Content */}
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage 
-            user={user} 
-            isLoggingOut={isLoggingOut}
-            setShowDashboard={setShowDashboard}
-            setShowLoginModal={setShowLoginModal}
-            currentLanguage={currentLanguage}
-            handleLanguageChange={handleLanguageChange}
-            setShowContactModal={setShowContactModal}
-            mobileMenuOpen={mobileMenuOpen}
-            setMobileMenuOpen={setMobileMenuOpen}
-          />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/simulation" element={<SimulationPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-        </Routes>
-      </main>
+        <SupabaseConnectionBanner />
+        
+        {/* Modern Header */}
+        <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-50 font-sans">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              {/* Logo */}
+              <Link to="/" className="flex items-center space-x-3">
+                <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-16 h-16" />
+              </Link>
+              
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-8">
+                <NavigationLinks />
+              </div>
+              
+              {/* Actions */}
+              <div className="flex items-center space-x-3">
+                <LanguageSelector
+                  currentLanguage={currentLanguage}
+                  onLanguageChange={handleLanguageChange}
+                />
+                
+                {user ? (
+                  <button
+                    onClick={() => setShowDashboard(true)}
+                    disabled={isLoggingOut}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">Dashboard</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowLoginModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">{t('header.memberAccess')}</span>
+                  </button>
+                )}
+                
+                <button
+                  onClick={() => setShowContactModal(true)}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans"
+                >
+                  <span>{t('header.contact')}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
 
-      <Toaster position="top-right" />
+        {/* Mobile Navigation */}
+        <MobileNavigation />
 
-      <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
-      <LoginModal 
-        isOpen={showLoginModal} 
-        onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={handleLoginSuccess}
-      />
+        {/* Main Content with top padding for fixed header */}
+        <main className="pt-16">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/simulation" element={<SimulationPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          </Routes>
+        </main>
+
+        {/* Modern Footer */}
+        <footer className="bg-gray-50 border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-2">
+                <div className="flex items-center space-x-3 mb-6">
+                  <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-10 h-10" />
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 font-sans">Sun Is Up</h3>
+                    <p className="text-gray-600 text-sm font-sans">{t('footer.description')}</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 max-w-md font-sans">
+                  {t('footer.description')}
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4 font-sans">{t('footer.contact')}</h4>
+                <div className="space-y-3 text-gray-600 text-sm">
+                  <div className="flex items-center space-x-2 font-sans">
+                    <span>📞</span>
+                    <span>+32 471 31 71 48</span>
+                  </div>
+                  <div className="flex items-center space-x-2 font-sans">
+                    <span>✉️</span>
+                    <span>info@sunisup.be</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4 font-sans">{t('footer.followUs')}</h4>
+                <a 
+                  href="https://www.linkedin.com/company/sun-is-up-asbl" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition-colors text-sm font-sans"
+                >
+                  <span>🔗</span>
+                  <span>LinkedIn</span>
+                </a>
+              </div>
+            </div>
+            
+            <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm font-sans">
+              {t('footer.copyright')}
+            </div>
+          </div>
+        </footer>
+
+        <Toaster position="top-right" />
+
+        <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
+        <LoginModal 
+          isOpen={showLoginModal} 
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={handleLoginSuccess}
+        />
       </div>
-    </>
+    </Router>
   );
 }
 
@@ -382,15 +477,15 @@ function NavigationLinks() {
         <Link
           key={link.path}
           to={link.path}
-          className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 drop-shadow-lg ${
+          className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 ${
             location.pathname === link.path
-              ? 'text-white font-bold'
-              : 'text-white/90 hover:text-white'
+              ? 'text-amber-600'
+              : 'text-gray-700 hover:text-amber-600'
           } font-sans`}
         >
           {link.path === '/' ? t('nav.services') : link.label}
           {location.pathname === link.path && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full shadow-lg" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" />
           )}
         </Link>
       ))}
@@ -398,7 +493,7 @@ function NavigationLinks() {
   );
 }
 
-function MobileNavigationOverlay() {
+function MobileNavigation() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { t } = useTranslation();
@@ -412,15 +507,15 @@ function MobileNavigationOverlay() {
     <div className="md:hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="absolute top-6 right-4 z-50 bg-white/20 backdrop-blur-sm shadow-lg rounded-full p-2 border border-white/30"
+        className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-2 border border-gray-200"
       >
-        {isOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
+        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
       
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsOpen(false)}>
           <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300">
-            <div className="p-6 pt-24">
+            <div className="p-6 pt-20">
               <nav className="space-y-4">
                 {links.map((link) => (
                   <Link
@@ -442,14 +537,6 @@ function MobileNavigationOverlay() {
         </div>
       )}
     </div>
-  );
-}
-
-function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
   );
 }
 
