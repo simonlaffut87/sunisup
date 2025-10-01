@@ -425,13 +425,6 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         </div>
         <div className="flex space-x-3">
           <button
-            onClick={handleClearAllData}
-            className="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm hover:shadow-md"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Nettoyer tout
-          </button>
-          <button
             onClick={() => setShowManualImport(true)}
             className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm hover:shadow-md"
           >
