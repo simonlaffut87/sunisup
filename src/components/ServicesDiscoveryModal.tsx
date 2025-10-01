@@ -15,7 +15,7 @@ interface FormData {
 }
 
 export function ServicesDiscoveryModal({ isOpen, onClose }: ServicesDiscoveryModalProps) {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2>(1);
   const [formData, setFormData] = useState<FormData>({
     selectedServices: [],
     email: '',
@@ -106,7 +106,11 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
         throw new Error('Erreur lors de l\'envoi');
       }
 
-      setStep(3);
+      // Fermer le modal après succès
+      toast.success('Merci ! Nous vous contacterons rapidement pour discuter de vos besoins.');
+      setTimeout(() => {
+        handleClose();
+      }, 2000);
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error('Erreur lors de l\'envoi. Veuillez réessayer.');
@@ -162,17 +166,11 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
               }`}>
                 1
               </div>
-              <div className={`w-16 h-1 ${step >= 2 ? 'bg-amber-500' : 'bg-gray-200'}`}></div>
+              <div className={`w-32 h-1 ${step >= 2 ? 'bg-amber-500' : 'bg-gray-200'}`}></div>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 step >= 2 ? 'bg-amber-500 text-white' : 'bg-gray-200 text-gray-600'
               }`}>
                 2
-              </div>
-              <div className={`w-16 h-1 ${step >= 3 ? 'bg-amber-500' : 'bg-gray-200'}`}></div>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step >= 3 ? 'bg-amber-500 text-white' : 'bg-gray-200 text-gray-600'
-              }`}>
-                3
               </div>
             </div>
           </div>
@@ -318,42 +316,6 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
             </div>
           )}
 
-          {/* Step 3: Success */}
-          {step === 3 && (
-            <div className="text-center space-y-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="w-10 h-10 text-green-500" />
-              </div>
-              
-              <div>
-                <h3 className="text-xl font-bold text-green-900 mb-2 font-sans">
-                  Merci !
-                </h3>
-                <p className="text-gray-700 font-sans">
-                  Réservez un créneau pour un échange personnalisé avec notre équipe.
-                </p>
-              </div>
-
-              <button
-                onClick={() => {
-                  // Ouvrir Calendly ou autre système de réservation
-                  window.open('https://calendly.com/sunisup', '_blank');
-                  handleClose();
-                }}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl flex items-center gap-3 mx-auto font-sans"
-              >
-                <Calendar className="w-5 h-5" />
-                Réserver un créneau
-              </button>
-
-              <button
-                onClick={handleClose}
-                className="text-gray-600 hover:text-gray-800 text-sm font-sans"
-              >
-                Fermer
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
