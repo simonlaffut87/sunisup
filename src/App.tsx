@@ -412,7 +412,7 @@ function App() {
                   </div>
                 </div>
                 <p className="text-gray-600 max-w-md font-sans">
-                  Communauté d'énergie bruxelloise pour une transition énergétique locale et durable.
+                  {t('footer.description')}
                 </p>
               </div>
               
