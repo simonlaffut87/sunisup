@@ -1,301 +1,159 @@
 import React from 'react';
-import { 
-  Award, 
-  Target, 
-  MapPin, 
-  Users, 
-  Lightbulb, 
-  Leaf,
-  Zap,
-  CheckCircle,
-  ArrowRight,
-  Building,
-  Calculator,
-  FileText
-} from 'lucide-react';
+import { Users, Lightbulb, Zap, MapPin, CheckCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '../components/SEOHead';
-import { useNavigate } from 'react-router-dom';
 
 export default function AboutPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   return (
     <>
       <SEOHead 
-        title="À Propos Communauté d'Énergie Bruxelles | Sun Is Up - Thomas et Simon, Ingénieurs Transition Énergétique"
-        description="Découvrez Sun Is Up, communauté d'énergie Bruxelles fondée par Thomas et Simon, ingénieurs passionnés. Notre mission : démocratiser le partage d'énergie solaire et la réduction des factures électricité à Bruxelles et en Belgique."
-        keywords="communauté d'énergie bruxelles, communauté d'énergie belgique, partage d'énergie bruxelles, Thomas Simon ingénieurs, histoire Sun Is Up, mission transition énergétique belgique, energy community brussels founders, energiegemeenschap brussel oprichters, réduction facture électricité belgique, énergie renouvelable bruxelles"
+        title="À Propos Communauté d'Énergie Bruxelles | Sun Is Up"
+        description="Découvrez Sun Is Up, communauté d'énergie à Bruxelles fondée par Thomas et Simon. Notre mission : démocratiser le partage d'énergie solaire."
         url="https://sunisup.be/about"
-        logo="https://sunisup.be/images/logo.png"
+        logo="/images/logo-v2.png"
       />
-      <div className="min-h-screen bg-white font-sans">
-      {/* Hero Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-6 font-sans">
-              {t('about.whoAreWe.title')}
-            </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto font-sans">
-              {t('about.whoAreWe.subtitle')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-center">
-            {/* Thomas - Left side */}
-            <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 hover:shadow-3xl transition-all duration-300">
-              <div className="text-center mb-8">
-                <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Users className="w-12 h-12 text-white" />
-                </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">{t('about.whoAreWe.thomas.title')}</h3>
-                <p className="text-blue-600 font-semibold text-lg font-sans">{t('about.whoAreWe.thomas.role')}</p>
-              </div>
-              
-              <div className="space-y-6">
-                {t('about.whoAreWe.thomas.qualifications', { returnObjects: true }).map((qualification: string, index: number) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      {qualification.includes('\n') ? (
-                        <div>
-                          <p className="font-bold text-gray-900 text-lg font-sans">{qualification.split('\n')[0]}</p>
-                          <p className="text-gray-600 mt-2 font-sans">{qualification.split('\n')[1]}</p>
-                        </div>
-                      ) : (
-                        <p className="text-gray-700 font-sans"><strong className="text-gray-900">{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Photo - Center */}
-            <div className="relative lg:order-first lg:col-span-1">
-              <div className="aspect-[4/5] rounded-3xl shadow-3xl overflow-hidden relative">
-                <img
-                  src="/images/about.jpg"
-                  alt="Thomas et Simon, fondateurs de Sun Is Up"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-              </div>
-              <div className="absolute -bottom-8 -right-8 bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
-                <div className="flex items-center space-x-3">
-                  <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
-                    <Lightbulb className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-900 text-lg">Décembre 2024</p>
-                    <p className="text-gray-600">Création de Sun Is Up</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Simon - Right side */}
-            <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 hover:shadow-3xl transition-all duration-300">
-              <div className="text-center mb-8">
-                <div className="w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Zap className="w-12 h-12 text-white" />
-                </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">{t('about.whoAreWe.simon.title')}</h3>
-                <p className="text-amber-600 font-semibold text-lg font-sans">{t('about.whoAreWe.simon.role')}</p>
-              </div>
-              
-              <div className="space-y-6">
-                {t('about.whoAreWe.simon.qualifications', { returnObjects: true }).map((qualification: string, index: number) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className="w-3 h-3 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      {qualification.includes('\n') ? (
-                        <div>
-                          <p className="font-bold text-gray-900 text-lg font-sans">{qualification.split('\n')[0]}</p>
-                          <p className="text-gray-600 mt-2 font-sans">{qualification.split('\n')[1]}</p>
-                        </div>
-                      ) : (
-                        <p className="text-gray-700 font-sans"><strong className="text-gray-900">{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Solution Section */}
-
-      {/* Mission Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
-              {t('about.mission.communityStats.title')}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <p className="text-xl lg:text-2xl text-gray-600 mb-10 leading-relaxed font-sans">
-                {t('about.history.solution.description')}
+      <div className="min-h-screen bg-[#FFFFFF] font-sans">
+        {/* Hero Section */}
+        <section className="py-20 lg:py-32 bg-gradient-to-br from-[#F5F5F5] to-white">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-20">
+              <h1 className="text-5xl lg:text-6xl font-bold text-[#212121] mb-6">
+                {t('about.whoAreWe.title')}
+              </h1>
+              <p className="text-xl text-[#212121]/70 max-w-3xl mx-auto">
+                {t('about.whoAreWe.subtitle')}
               </p>
-              
-              <div className="space-y-6">
-                {t('about.mission.objectives.items', { returnObjects: true }).map((item: string, index: number) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <CheckCircle className="w-7 h-7 text-emerald-500 flex-shrink-0 mt-1" />
-                    <p className="text-gray-700 text-xl font-sans">{item}</p>
-                  </div>
-                ))}
-              </div>
             </div>
 
-            <div className="relative">
-              <div className="bg-white rounded-3xl p-12 shadow-2xl border border-gray-100">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-center">
+              {/* Thomas */}
+              <div className="bg-[#FFFFFF] rounded-3xl shadow-xl p-10 border border-[#F5F5F5] hover:shadow-2xl">
+                <div className="text-center mb-8">
+                  <div className="w-24 h-24 bg-[#1565C0] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <Users className="w-12 h-12 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-[#212121] mb-3">{t('about.whoAreWe.thomas.title')}</h3>
+                  <p className="text-[#1565C0] font-semibold text-lg">{t('about.whoAreWe.thomas.role')}</p>
+                </div>
+              </div>
+
+              {/* Photo */}
+              <div className="relative lg:order-first lg:col-span-1">
+                <div className="aspect-[4/5] rounded-3xl shadow-2xl overflow-hidden relative">
+                  <img
+                    src="/images/about.jpg"
+                    alt="Thomas et Simon"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/20"></div>
+                </div>
+                <div className="absolute -bottom-8 -right-8 bg-[#FFFFFF] rounded-2xl shadow-xl p-6 border border-[#F5F5F5]">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-14 h-14 bg-[#FFC107] rounded-xl flex items-center justify-center">
+                      <Lightbulb className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#212121] text-lg">Décembre 2024</p>
+                      <p className="text-[#212121]/70">Création de Sun Is Up</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Simon */}
+              <div className="bg-[#FFFFFF] rounded-3xl shadow-xl p-10 border border-[#F5F5F5] hover:shadow-2xl">
+                <div className="text-center mb-8">
+                  <div className="w-24 h-24 bg-[#FFC107] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <Zap className="w-12 h-12 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-[#212121] mb-3">{t('about.whoAreWe.simon.title')}</h3>
+                  <p className="text-[#FFC107] font-semibold text-lg">{t('about.whoAreWe.simon.role')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Mission Section */}
+        <section className="py-20 bg-[#FFFFFF]">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-5xl font-bold text-[#212121] mb-6">
+                {t('about.mission.communityStats.title')}
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <p className="text-xl text-[#212121]/70 mb-10 leading-relaxed">
+                  {t('about.history.solution.description')}
+                </p>
+                <div className="space-y-6">
+                  {t('about.mission.objectives.items', { returnObjects: true }).map((item: string, index: number) => (
+                    <div key={index} className="flex items-start space-x-4">
+                      <CheckCircle className="w-7 h-7 text-[#388E3C] mt-1" />
+                      <p className="text-[#212121] text-lg">{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-[#FFFFFF] rounded-3xl p-12 shadow-xl border border-[#F5F5F5]">
                 <div className="grid grid-cols-2 gap-8">
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 bg-[#FFC107] rounded-2xl flex items-center justify-center mx-auto mb-6">
                       <Zap className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">1300</h3>
-                    <p className="text-gray-600 font-medium font-sans">{t('about.mission.stats.availableEnergy')}</p>
+                    <h3 className="text-3xl font-bold text-[#212121] mb-3">1300</h3>
+                    <p className="text-[#212121]/70">{t('about.mission.stats.availableEnergy')}</p>
                   </div>
-                  
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 bg-[#1565C0] rounded-2xl flex items-center justify-center mx-auto mb-6">
                       <Users className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">15</h3>
-                    <p className="text-gray-600 font-medium font-sans">{t('about.mission.stats.activeMembers')}</p>
+                    <h3 className="text-3xl font-bold text-[#212121] mb-3">15</h3>
+                    <p className="text-[#212121]/70">{t('about.mission.stats.activeMembers')}</p>
                   </div>
-                  
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 bg-[#388E3C] rounded-2xl flex items-center justify-center mx-auto mb-6">
                       <span className="text-3xl font-bold text-white">€</span>
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">15%</h3>
-                    <p className="text-gray-600 font-medium font-sans">{t('about.mission.stats.averageSavings')}</p>
+                    <h3 className="text-3xl font-bold text-[#212121] mb-3">15%</h3>
+                    <p className="text-[#212121]/70">{t('about.mission.stats.averageSavings')}</p>
                   </div>
-                  
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 bg-[#212121] rounded-2xl flex items-center justify-center mx-auto mb-6">
                       <MapPin className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-3 font-sans">100%</h3>
-                    <p className="text-gray-600 font-medium font-sans">{t('about.mission.stats.localEnergy')}</p>
+                    <h3 className="text-3xl font-bold text-[#212121] mb-3">100%</h3>
+                    <p className="text-[#212121]/70">{t('about.mission.stats.localEnergy')}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Partners Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
-              {t('about.partners.title')}
-            </h2>
-          </div>
-
-          {/* Carrousel de logos partenaires - directement sur le fond */}
-          <div className="relative overflow-hidden py-12">
-            <div className="flex animate-scroll-infinite space-x-8" style={{ width: 'calc(200%)' }}>
-              {/* Premier set de logos */}
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/carrefour.png" alt="Carrefour" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              
-              {/* Deuxième set de logos (duplication pour boucle infinie) */}
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/carrefour.png" alt="Carrefour" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
-                  <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </div>
+        {/* Partners Section */}
+        <section className="py-20 bg-[#F5F5F5]">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-5xl font-bold text-[#212121] mb-6">
+                {t('about.partners.title')}
+              </h2>
+            </div>
+            <div className="flex flex-wrap justify-center gap-12">
+              <img src="/images/brugel2.png" alt="Brugel" className="h-20 object-contain opacity-90 hover:opacity-100" />
+              <img src="/images/carrefour.png" alt="Carrefour" className="h-20 object-contain opacity-90 hover:opacity-100" />
+              <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-20 object-contain opacity-90 hover:opacity-100" />
+              <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-20 object-contain opacity-90 hover:opacity-100" />
+              <img src="/images/Prehaut.png" alt="Préhaut" className="h-20 object-contain opacity-90 hover:opacity-100" />
+              <img src="/images/Stephenson.png" alt="Stephenson" className="h-20 object-contain opacity-90 hover:opacity-100" />
+              <img src="/images/Sun4school.png" alt="Sun4School" className="h-20 object-contain opacity-90 hover:opacity-100" />
+              <img src="/images/sibelga2.png" alt="Sibelga" className="h-20 object-contain opacity-90 hover:opacity-100" />
             </div>
           </div>
-        </div>
-      </section>
+        </section>
       </div>
     </>
   );
