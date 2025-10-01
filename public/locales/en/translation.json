@@ -236,14 +236,6 @@
         {
           "question": "What are the conditions to join?",
           "answer": "You simply need to be located in the Brussels-Capital region and have a new generation meter (smart meter). If you don't have one yet, Sibelga can install it for free upon request."
-        },
-        {
-          "question": "What is a new generation meter?",
-          "answer": "The new generation meter (smart meter) is an intelligent electricity meter that measures your energy consumption and production in real time. It is essential for participating in an energy community as it enables precise energy sharing between members. Sibelga, the Brussels network operator, installs it for free."
-        },
-        {
-          "question": "How much can I save?",
-          "answer": "Members can save up to 30% on their electricity bill depending on their consumption profile. The more energy you consume during sunlight hours, the higher your savings will be."
         }
       ]
     },
