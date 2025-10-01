@@ -13,7 +13,14 @@ import AdminPage from './AdminPage';
 
 type Participant = Database['public']['Tables']['participants']['Row'];
 
-export default function HomePage() {
+interface HomePageProps {
+  user: any;
+  isLoggingOut: boolean;
+  setShowDashboard: (show: boolean) => void;
+  setShowLoginModal: (show: boolean) => void;
+}
+
+export default function HomePage({ user, isLoggingOut, setShowDashboard, setShowLoginModal }: HomePageProps) {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
