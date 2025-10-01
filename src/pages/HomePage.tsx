@@ -110,21 +110,36 @@ export default function HomePage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between h-20">
                 {/* Logo */}
-                <Link to="/" className="flex items-center space-x-3">
+                <a href="/" className="flex items-center space-x-3">
                   <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-16 h-16 drop-shadow-lg" />
-                </Link>
+                </a>
                 
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex items-center space-x-8">
-                  <NavigationLinks />
+                  <a
+                    href="/"
+                    className="relative px-3 py-2 text-sm font-medium transition-all duration-200 drop-shadow-lg text-white font-bold font-sans"
+                  >
+                    {t('nav.services')}
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full shadow-lg" />
+                  </a>
+                  <a
+                    href="/about"
+                    className="relative px-3 py-2 text-sm font-medium transition-all duration-200 drop-shadow-lg text-white/90 hover:text-white font-sans"
+                  >
+                    {t('nav.about')}
+                  </a>
                 </div>
                 
                 {/* Actions */}
                 <div className="flex items-center space-x-3">
-                  <LanguageSelector
-                    currentLanguage={currentLanguage}
-                    onLanguageChange={handleLanguageChange}
-                  />
+                  <div className="relative group">
+                    <button className="flex items-center gap-2 text-white/90 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/10 backdrop-blur-sm drop-shadow-lg">
+                      <span className="text-lg">🇫🇷</span>
+                      <span className="hidden sm:inline">Français</span>
+                      <span className="sm:hidden">FR</span>
+                    </button>
+                  </div>
                   
                   {user ? (
                     <button
@@ -132,7 +147,7 @@ export default function HomePage() {
                       disabled={isLoggingOut}
                       className="bg-emerald-600/90 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans backdrop-blur-sm shadow-lg"
                     >
-                      <User className="w-4 h-4" />
+                      <span className="w-4 h-4">👤</span>
                       <span className="hidden sm:inline">Dashboard</span>
                     </button>
                   ) : (
@@ -140,7 +155,7 @@ export default function HomePage() {
                       onClick={() => setShowLoginModal(true)}
                       className="bg-blue-600/90 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans backdrop-blur-sm shadow-lg"
                     >
-                      <User className="w-4 h-4" />
+                      <span className="w-4 h-4">👤</span>
                       <span className="hidden sm:inline">{t('header.memberAccess')}</span>
                     </button>
                   )}
@@ -150,7 +165,7 @@ export default function HomePage() {
                     className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans backdrop-blur-sm"
                   >
                     <span>{t('header.contact')}</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span className="w-4 h-4">→</span>
                   </button>
                 </div>
               </div>
@@ -158,7 +173,11 @@ export default function HomePage() {
           </header>
 
           {/* Mobile Navigation intégré */}
-          <MobileNavigationOverlay />
+          <div className="md:hidden">
+            <button className="absolute top-6 right-4 z-50 bg-white/20 backdrop-blur-sm shadow-lg rounded-full p-2 border border-white/30">
+              <span className="w-5 h-5 text-white block">☰</span>
+            </button>
+          </div>
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10">
             <div className="text-center space-y-8">
