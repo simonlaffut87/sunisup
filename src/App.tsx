@@ -332,63 +332,8 @@ function App() {
       <div className="min-h-screen bg-gray-50 font-sans">
         <SupabaseConnectionBanner />
         
-        {/* Modern Header */}
-        <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-50 font-sans">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <Link to="/" className="flex items-center space-x-3">
-                <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-16 h-16" />
-              </Link>
-              
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-8">
-                <NavigationLinks />
-              </div>
-              
-              {/* Actions */}
-              <div className="flex items-center space-x-3">
-                <LanguageSelector
-                  currentLanguage={currentLanguage}
-                  onLanguageChange={handleLanguageChange}
-                />
-                
-                {user ? (
-                  <button
-                    onClick={() => setShowDashboard(true)}
-                    disabled={isLoggingOut}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
-                  >
-                    <User className="w-4 h-4" />
-                    <span className="hidden sm:inline">Dashboard</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans"
-                  >
-                    <User className="w-4 h-4" />
-                    <span className="hidden sm:inline">{t('header.memberAccess')}</span>
-                  </button>
-                )}
-                
-                <button
-                  onClick={() => setShowContactModal(true)}
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans"
-                >
-                  <span>{t('header.contact')}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Mobile Navigation */}
-        <MobileNavigation />
-
-        {/* Main Content with top padding for fixed header */}
-        <main className="pt-16">
+        {/* Main Content without top padding */}
+        <main>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -477,15 +422,15 @@ function NavigationLinks() {
         <Link
           key={link.path}
           to={link.path}
-          className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 ${
+          className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 drop-shadow-lg ${
             location.pathname === link.path
-              ? 'text-amber-600'
-              : 'text-gray-700 hover:text-amber-600'
+              ? 'text-white font-bold'
+              : 'text-white/90 hover:text-white'
           } font-sans`}
         >
           {link.path === '/' ? t('nav.services') : link.label}
           {location.pathname === link.path && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full shadow-lg" />
           )}
         </Link>
       ))}
@@ -493,7 +438,7 @@ function NavigationLinks() {
   );
 }
 
-function MobileNavigation() {
+function MobileNavigationOverlay() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { t } = useTranslation();
@@ -507,15 +452,15 @@ function MobileNavigation() {
     <div className="md:hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-2 border border-gray-200"
+        className="absolute top-6 right-4 z-50 bg-white/20 backdrop-blur-sm shadow-lg rounded-full p-2 border border-white/30"
       >
-        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        {isOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
       </button>
       
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsOpen(false)}>
           <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300">
-            <div className="p-6 pt-20">
+            <div className="p-6 pt-24">
               <nav className="space-y-4">
                 {links.map((link) => (
                   <Link

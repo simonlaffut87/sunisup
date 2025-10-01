@@ -105,6 +105,61 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-black/40"></div>
           </div>
           
+          {/* Header intégré sur l'image de fond */}
+          <header className="absolute top-0 left-0 right-0 z-50 font-sans">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-20">
+                {/* Logo */}
+                <Link to="/" className="flex items-center space-x-3">
+                  <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-16 h-16 drop-shadow-lg" />
+                </Link>
+                
+                {/* Desktop Navigation */}
+                <div className="hidden md:flex items-center space-x-8">
+                  <NavigationLinks />
+                </div>
+                
+                {/* Actions */}
+                <div className="flex items-center space-x-3">
+                  <LanguageSelector
+                    currentLanguage={currentLanguage}
+                    onLanguageChange={handleLanguageChange}
+                  />
+                  
+                  {user ? (
+                    <button
+                      onClick={() => setShowDashboard(true)}
+                      disabled={isLoggingOut}
+                      className="bg-emerald-600/90 hover:bg-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans backdrop-blur-sm shadow-lg"
+                    >
+                      <User className="w-4 h-4" />
+                      <span className="hidden sm:inline">Dashboard</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowLoginModal(true)}
+                      className="bg-blue-600/90 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm font-sans backdrop-blur-sm shadow-lg"
+                    >
+                      <User className="w-4 h-4" />
+                      <span className="hidden sm:inline">{t('header.memberAccess')}</span>
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={() => setShowContactModal(true)}
+                    className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 text-sm shadow-lg hover:shadow-xl font-sans backdrop-blur-sm"
+                  >
+                    <span>{t('header.contact')}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Mobile Navigation intégré */}
+          <MobileNavigationOverlay />
+          
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10">
             <div className="text-center space-y-8">
               {/* Hero content */}
