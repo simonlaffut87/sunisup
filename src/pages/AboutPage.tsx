@@ -213,7 +213,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div className="text-center">
                 <div className="w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Award className="w-12 h-12 text-white" />
+                  <img src="/images/brugel.png" alt="Brugel" className="w-16 h-16 object-contain" />
                 </div>
                 <h4 className="text-2xl font-bold text-gray-900 mb-4 font-sans">Brugel</h4>
                 <p className="text-gray-600 text-lg leading-relaxed font-sans">
