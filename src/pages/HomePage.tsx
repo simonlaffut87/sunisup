@@ -7,6 +7,7 @@ import type { Database } from '../types/supabase';
 import { toast } from 'react-hot-toast';
 import { ContactModal } from '../components/ContactModal';
 import { SEOHead } from '../components/SEOHead';
+import { ServicesDiscoveryModal } from '../components/ServicesDiscoveryModal';
 import SimulationPage from './SimulationPage';
 import AdminPage from './AdminPage';
 
@@ -21,6 +22,7 @@ export default function HomePage() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
   const [showProcedure, setShowProcedure] = useState(false);
+  const [showServicesModal, setShowServicesModal] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -118,10 +120,7 @@ export default function HomePage() {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
                 <button 
-                  onClick={() => {
-                    const servicesSection = document.getElementById('services-section');
-                    servicesSection?.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                  onClick={() => setShowServicesModal(true)}
                   className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
                   {t('home.hero.discoverButton')}
@@ -456,6 +455,11 @@ export default function HomePage() {
         </section>
 
         <ContactModal isOpen={showContactModal} onClose={() => setShowContactModal(false)} />
+
+        <ServicesDiscoveryModal 
+          isOpen={showServicesModal} 
+          onClose={() => setShowServicesModal(false)} 
+        />
 
         {/* Simulation Overlay */}
         {showSimulation && (
