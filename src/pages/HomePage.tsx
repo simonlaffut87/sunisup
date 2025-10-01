@@ -320,7 +320,7 @@ export default function HomePage() {
 
             {/* Diagramme en croix */}
             <div className="relative max-w-4xl mx-auto px-4">
-              <div className="relative aspect-square max-w-xl mx-auto scale-75 sm:scale-75 lg:scale-100">
+              <div className="relative aspect-square max-w-xl mx-auto scale-80 sm:scale-75 lg:scale-100">
                 {/* Centre du diagramme */}
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                   <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-32 h-32 drop-shadow-2xl" />
