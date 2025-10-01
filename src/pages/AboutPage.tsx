@@ -222,8 +222,8 @@ export default function AboutPage() {
               </div>
 
               <div className="text-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Award className="w-12 h-12 text-white" />
+                <div className="mx-auto mb-6 flex items-center justify-center">
+                  <img src="/images/sibelga.png" alt="Sibelga" className="w-60 h-60 object-contain" />
                 </div>
                 <h4 className="text-2xl font-bold text-gray-900 mb-4 font-sans">Sibelga</h4>
                 <p className="text-gray-600 text-lg leading-relaxed font-sans">
