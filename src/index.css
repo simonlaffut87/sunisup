@@ -59,7 +59,7 @@ body {
 }
 
 /* Animation pour le carrousel de partenaires */
-@keyframes scroll {
+@keyframes scroll-infinite {
   0% {
     transform: translateX(0);
   }
@@ -68,11 +68,11 @@ body {
   }
 }
 
-.animate-scroll {
-  animation: scroll 20s linear infinite;
+.animate-scroll-infinite {
+  animation: scroll-infinite 30s linear infinite;
 }
 
-.animate-scroll:hover {
+.animate-scroll-infinite:hover {
   animation-play-state: paused;
 }
 
