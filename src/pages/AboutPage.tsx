@@ -204,31 +204,55 @@ export default function AboutPage() {
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
               {t('about.partners.title')}
             </h2>
-            <p className="text-xl lg:text-2xl text-gray-600 font-sans">
-              {t('about.partners.subtitle')}
-            </p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-2xl p-12 lg:p-16 border border-gray-100">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div className="text-center">
-                <div className="mx-auto mb-6 flex items-center justify-center">
-                  <img src="/images/brugel.png" alt="Brugel" className="w-40 h-40 object-contain" />
-                </div>
-                <h4 className="text-2xl font-bold text-gray-900 mb-4 font-sans">Brugel</h4>
-                <p className="text-gray-600 text-lg leading-relaxed font-sans">
-                  {t('about.partners.technical.descriptions.brugel')}
-                </p>
+          {/* Carrousel de logos partenaires */}
+          <div className="relative overflow-hidden bg-white rounded-3xl shadow-2xl border border-gray-100 py-12">
+            <div className="flex animate-scroll">
+              {/* Premier set de logos */}
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/brugel.png" alt="Brugel" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
               </div>
-
-              <div className="text-center">
-                <div className="mx-auto mb-6 flex items-center justify-center">
-                  <img src="/images/sibelga.png" alt="Sibelga" className="w-60 h-60 object-contain" />
-                </div>
-                <h4 className="text-2xl font-bold text-gray-900 mb-4 font-sans">Sibelga</h4>
-                <p className="text-gray-600 text-lg leading-relaxed font-sans">
-                  {t('about.partners.technical.descriptions.sibelga')}
-                </p>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/enerinvest.png" alt="Enerinvest" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/ouzerie.png" alt="Ouzerie" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/prehaut.png" alt="Préhaut" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/sibelga.png" alt="Sibelga" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/stephenson.png" alt="Stephenson" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/sun4school.png" alt="Sun4school" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              
+              {/* Duplication pour l'effet de boucle infinie */}
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/brugel.png" alt="Brugel" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/enerinvest.png" alt="Enerinvest" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/ouzerie.png" alt="Ouzerie" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/prehaut.png" alt="Préhaut" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/sibelga.png" alt="Sibelga" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/stephenson.png" alt="Stephenson" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <img src="/images/sun4school.png" alt="Sun4school" className="h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300" />
               </div>
             </div>
           </div>

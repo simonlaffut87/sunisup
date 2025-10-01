@@ -58,6 +58,24 @@ body {
   box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
 }
 
+/* Animation pour le carrousel de partenaires */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 20s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
 /* Smooth transitions */
 * {
   transition-property: transform, box-shadow, background-color, border-color;
