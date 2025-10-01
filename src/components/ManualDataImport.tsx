@@ -427,7 +427,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           
           // IMPORTANT: Traiter les données énergétiques même si pas de frais réseau
           // Log détaillé seulement pour les 3 premières lignes avec des valeurs
-          if ((i <= 3 || eanCode === '541448911700029243') && (volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0)) {
+          const hasEnergyData = volumePartage > 0 || volumeComplementaire > 0 || injectionPartage > 0 || injectionComplementaire > 0;
+          
+          if ((i <= 3 || eanCode === '541448911700029243') && hasEnergyData) {
             addInfo(`Ligne ${i} - ${mappedParticipant.name}:`);
             addInfo(`  Volume Partagé: ${volumePartage} kWh`);
             addInfo(`  Volume Complémentaire: ${volumeComplementaire} kWh`);
@@ -435,20 +437,24 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             addInfo(`  Injection Complémentaire: ${injectionComplementaire} kWh`);
           }
 
-          // Additionner les valeurs (utiliser finalEan pour la cohérence)
-          participantData[finalEan].data.volume_partage += volumePartage;
-          participantData[finalEan].data.volume_complementaire += volumeComplementaire;
-          participantData[finalEan].data.injection_partagee += injectionPartage;
-          participantData[finalEan].data.injection_complementaire += injectionComplementaire;
-          
-          // Debug final pour l'EAN problématique - TOUJOURS
-          if (eanCode === '541448911700029243') {
-            addLog(`🎯 TOTAUX CUMULÉS pour ${eanCode} après ligne ${i}:`);
-            addLog(`  Volume Partagé: ${participantData[finalEan].data.volume_partage}`);
-            addLog(`  Volume Complémentaire: ${participantData[finalEan].data.volume_complementaire}`);
-            addLog(`  Injection Partagée: ${participantData[finalEan].data.injection_partagee}`);
-            addLog(`  Injection Complémentaire: ${participantData[finalEan].data.injection_complementaire}`);
+          // Additionner les valeurs SEULEMENT si on a des données énergétiques OU si c'est l'EAN spécial
+          if (hasEnergyData || eanCode === '541448911700029243') {
+            participantData[finalEan].data.volume_partage += volumePartage;
+            participantData[finalEan].data.volume_complementaire += volumeComplementaire;
+            participantData[finalEan].data.injection_partagee += injectionPartage;
+            participantData[finalEan].data.injection_complementaire += injectionComplementaire;
+            
+            if (eanCode === '541448911700029243') {
+              addLog(`🎯 DONNÉES AJOUTÉES pour EAN ${eanCode}:`);
+              addLog(`  ➕ Volume Partagé: +${volumePartage} = ${participantData[finalEan].data.volume_partage}`);
+              addLog(`  ➕ Volume Complémentaire: +${volumeComplementaire} = ${participantData[finalEan].data.volume_complementaire}`);
+              addLog(`  ➕ Injection Partagée: +${injectionPartage} = ${participantData[finalEan].data.injection_partagee}`);
+              addLog(`  ➕ Injection Complémentaire: +${injectionComplementaire} = ${participantData[finalEan].data.injection_complementaire}`);
+            }
+          } else if (eanCode === '541448911700029243') {
+            addWarning(`EAN ${eanCode}: Aucune donnée énergétique détectée (toutes les valeurs sont 0)`);
           }
+          
 
           validRows++;
 
@@ -457,8 +463,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           
           // Log spécial pour l'EAN problématique même s'il n'est pas reconnu
           if (eanCode === '541448911700029243') {
-            addError(`🎯 EAN CIBLE ${eanCode} NON RECONNU dans le mapping !`);
+            addError(`🎯 EAN CIBLE ${eanCode} NON RECONNU dans le mapping des participants !`);
             addLog(`📋 EANs disponibles dans le mapping: ${Object.keys(participantMapping).slice(0, 10).join(', ')}...`);
+            addLog(`🔍 EAN brut: "${eanCodeRaw}", EAN nettoyé: "${eanCode}"`);
           }
           
           // Log seulement les 3 premiers EAN non reconnus
