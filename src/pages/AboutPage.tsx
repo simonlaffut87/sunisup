@@ -211,64 +211,74 @@ export default function AboutPage() {
             <div className="flex animate-scroll-infinite space-x-8" style={{ width: 'calc(200%)' }}>
               {/* Premier set de logos */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
+                  <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               
               {/* Deuxième set de logos (duplication pour boucle infinie) */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
+                  <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
+                <div className="bg-orange-100 p-3 rounded-lg shadow-sm border border-orange-300">
                   <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
