@@ -208,7 +208,7 @@ export default function AboutPage() {
 
           {/* Carrousel de logos partenaires - directement sur le fond */}
           <div className="relative overflow-hidden py-12">
-            <div className="flex animate-scroll-infinite space-x-8" style={{ width: 'calc(200% + 2rem)' }}>
+            <div className="flex animate-scroll-infinite space-x-8" style={{ width: 'calc(200%)' }}>
               {/* Premier set de logos */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
                 <div className="bg-orange-50 p-3 rounded-lg shadow-sm border border-orange-200">
