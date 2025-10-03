@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { MemberDashboard } from './MemberDashboard';
 import { toast } from 'react-hot-toast';
-import { Users, Plus, Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail, 
-  Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye, FileText, X } from 'lucide-react';
+import { Users, Plus, FileEdit as Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail, Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye, FileText, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database as DB } from '../types/supabase';
