@@ -21,17 +21,17 @@ function SupabaseConnectionBanner() {
   const [showBanner, setShowBanner] = useState(!isSupabaseConfigured);
   if (!showBanner) return null;
   return (
-    <div className="bg-red-50 border-b border-red-200 px-4 py-3">
+    <div className="bg-rose-50 border-b border-rose-200 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          <p className="text-sm text-red-800">
+          <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+          <p className="text-sm text-rose-700">
             <strong>Database not connected:</strong> Please configure Supabase environment variables for full functionality
           </p>
         </div>
         <button
           onClick={() => setShowBanner(false)}
-          className="text-red-600 hover:text-red-800 text-sm underline"
+          className="text-rose-600 hover:text-rose-700 text-sm underline"
         >
           Dismiss
         </button>
@@ -204,7 +204,7 @@ function App() {
                   <button
                     onClick={() => setShowDashboard(true)}
                     disabled={isLoggingOut}
-                    className="bg-black text-white px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">Dashboard</span>
@@ -212,7 +212,7 @@ function App() {
                 ) : (
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-black text-white px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
+                    className="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('header.memberAccess')}</span>
@@ -221,7 +221,7 @@ function App() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="bg-black text-white px-6 py-2 rounded-full font-semibold transition-all duration-200 flex items-center gap-2 text-sm font-sans tracking-wide"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
                 >
                   <span>{t('header.contact')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -307,15 +307,15 @@ function NavigationLinks() {
         <Link
           key={link.path}
           to={link.path}
-          className={`relative px-3 py-2 text-sm font-semibold transition-all duration-200 ${
+          className={`relative px-3 py-2 text-sm font-medium transition-colors ${
             location.pathname === link.path
-              ? 'text-black border-b-2 border-black'
-              : 'text-black hover:text-gray-800'
-          } font-sans tracking-wide`}
+              ? 'text-gray-800 border-b-2 border-blue-600'
+              : 'text-gray-700 hover:text-gray-900'
+          } font-sans`}
         >
           {link.path === '/' ? t('nav.services') : link.label}
           {location.pathname === link.path && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
           )}
         </Link>
       ))}
@@ -354,8 +354,8 @@ function MobileNavigation() {
                     onClick={() => setIsOpen(false)}
                     className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                       location.pathname === link.path
-                        ? 'bg-gray-100 text-black border border-gray-200'
-                        : 'text-black hover:bg-gray-50'
+                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                        : 'text-gray-700 hover:bg-gray-50'
                     } font-sans`}
                   >
                     {link.label}
