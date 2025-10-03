@@ -132,36 +132,35 @@ export default function HomePage() {
         </section>
 
         {/* Section Services */}
-        <section id="services-section" className="py-32 bg-white">
+        <section id="services-section" className="py-24 bg-gradient-to-b from-gray-50 to-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Titre et description des services */}
-            <div className="text-center mb-20">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 font-sans tracking-tight">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-gray-800 mb-6 font-sans">
                 {t('home.hero.title')}
               </h2>
-              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto font-sans font-light">
+              <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto font-sans">
                 {t('home.hero.description')}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
               {/* Service 1: Communauté d'énergie */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-10 border border-blue-100 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-                <div className="flex items-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-200">
-                    <Users className="w-8 h-8 text-white" />
+              <div className="bg-white rounded-lg p-8 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Users className="w-6 h-6 text-slate-700" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.community.title')}</h3>
-                    <div className="w-12 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.community.title')}</h3>
                   </div>
                 </div>
-                <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
+                <p className="text-gray-600 text-sm leading-relaxed mb-6 font-sans">
                   {t('home.services.community.description')}
                 </p>
-                
+
                 {/* Vidéo explicative */}
-                <div className="relative aspect-video rounded-2xl overflow-hidden shadow-lg mb-6">
+                <div className="relative aspect-video rounded-lg overflow-hidden mb-4 border border-gray-200">
                   <video
                     controls
                     poster="/images/video-background.png"
@@ -172,135 +171,124 @@ export default function HomePage() {
                     Votre navigateur ne supporte pas la lecture vidéo.
                   </video>
                 </div>
-                <p className="text-gray-600 text-center text-sm font-sans">
+                <p className="text-gray-500 text-center text-xs font-sans mb-6">
                   {t('home.services.community.videoDescription')}
                 </p>
-                
-                <div className="flex justify-center mt-8">
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button 
-                      onClick={() => window.location.href = '/simulation'}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
-                    >
-                      <Calculator className="w-4 h-4" />
-                      {t('about.cta.simulateButton')}
-                    </button>
-                    <button 
-                      onClick={() => window.location.href = '/admin'}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
-                    >
-                      <FileText className="w-4 h-4" />
-                      {t('about.cta.joinButton')}
-                    </button>
-                  </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => window.location.href = '/simulation'}
+                    className="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  >
+                    <Calculator className="w-4 h-4" />
+                    {t('about.cta.simulateButton')}
+                  </button>
+                  <button
+                    onClick={() => window.location.href = '/admin'}
+                    className="bg-white hover:bg-gray-50 text-slate-700 border border-gray-300 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  >
+                    <FileText className="w-4 h-4" />
+                    {t('about.cta.joinButton')}
+                  </button>
                 </div>
               </div>
 
               {/* Service 2: Sous-communauté */}
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-3xl p-10 border border-emerald-100 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-                <div className="flex items-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-200">
-                    <Building2 className="w-8 h-8 text-white" />
+              <div className="bg-white rounded-lg p-8 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Building2 className="w-6 h-6 text-slate-700" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.subCommunity.title')}</h3>
-                    <div className="w-12 h-1 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full"></div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.subCommunity.title')}</h3>
                   </div>
                 </div>
-                <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
+                <p className="text-gray-600 text-sm leading-relaxed mb-6 font-sans">
                   {t('home.services.subCommunity.description')}
                 </p>
-                
-                <div className="space-y-4 mb-8">
+
+                <div className="space-y-3 mb-6">
                   {t('home.services.subCommunity.features', { returnObjects: true }).map((feature: string, index: number) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-emerald-600" />
-                      <span className="text-gray-700 font-sans">{feature}</span>
+                    <div key={index} className="flex items-start space-x-3">
+                      <CheckCircle className="w-4 h-4 text-slate-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-600 text-sm font-sans">{feature}</span>
                     </div>
                   ))}
                 </div>
-                
-                <div className="flex justify-center">
-                  <button 
-                    onClick={() => setShowContactModal(true)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
-                  >
-                    {t('home.services.subCommunity.button')}
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
+
+                <button
+                  onClick={() => setShowContactModal(true)}
+                  className="w-full bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                >
+                  {t('home.services.subCommunity.button')}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
 
               {/* Service 3: Plateforme de gestion */}
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-10 border border-amber-100 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-                <div className="flex items-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-200">
-                    <BarChart3 className="w-8 h-8 text-white" />
+              <div className="bg-white rounded-lg p-8 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <BarChart3 className="w-6 h-6 text-slate-700" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.platform.title')}</h3>
-                    <div className="w-12 h-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full"></div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.platform.title')}</h3>
                   </div>
                 </div>
-                <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
+                <p className="text-gray-600 text-sm leading-relaxed mb-6 font-sans">
                   {t('home.services.platform.description')}
                 </p>
-                
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="bg-white p-4 rounded-xl border border-amber-200 text-center">
-                    <BarChart3 className="w-8 h-8 text-amber-600 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-900 font-sans">{t('home.services.platform.features', { returnObjects: true })[0]}</p>
+
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <BarChart3 className="w-6 h-6 text-slate-600 mx-auto mb-2" />
+                    <p className="text-xs font-medium text-gray-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[0]}</p>
                   </div>
-                  <div className="bg-white p-4 rounded-xl border border-amber-200 text-center">
-                    <TrendingUp className="w-8 h-8 text-amber-600 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-900 font-sans">{t('home.services.platform.features', { returnObjects: true })[1]}</p>
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <TrendingUp className="w-6 h-6 text-slate-600 mx-auto mb-2" />
+                    <p className="text-xs font-medium text-gray-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[1]}</p>
                   </div>
                 </div>
-                
-                <div className="flex justify-center">
-                  <button 
-                    onClick={() => setShowContactModal(true)}
-                    className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
-                  >
-                    {t('home.services.platform.button')}
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
+
+                <button
+                  onClick={() => setShowContactModal(true)}
+                  className="w-full bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                >
+                  {t('home.services.platform.button')}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
 
               {/* Service 4: Optimisation situation énergétique */}
-              <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-3xl p-10 border border-purple-100 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-                <div className="flex items-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-200">
-                    <Sun className="w-8 h-8 text-white" />
+              <div className="bg-white rounded-lg p-8 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Sun className="w-6 h-6 text-slate-700" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 font-sans">{t('home.services.optimization.title')}</h3>
-                    <div className="w-12 h-1 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full"></div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.optimization.title')}</h3>
                   </div>
                 </div>
-                <p className="text-gray-700 text-lg leading-relaxed mb-8 font-sans font-light">
+                <p className="text-gray-600 text-sm leading-relaxed mb-6 font-sans">
                   {t('home.services.optimization.description')}
                 </p>
-                
-                <div className="space-y-4 mb-8">
+
+                <div className="space-y-3 mb-6">
                   {t('home.services.optimization.features', { returnObjects: true }).map((feature: string, index: number) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-purple-600" />
-                      <span className="text-gray-700 font-sans">{feature}</span>
+                    <div key={index} className="flex items-start space-x-3">
+                      <CheckCircle className="w-4 h-4 text-slate-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-600 text-sm font-sans">{feature}</span>
                     </div>
                   ))}
                 </div>
-                
-                <div className="flex justify-center">
-                  <button 
-                    onClick={() => setShowContactModal(true)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
-                  >
-                    {t('home.services.optimization.button')}
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
+
+                <button
+                  onClick={() => setShowContactModal(true)}
+                  className="w-full bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                >
+                  {t('home.services.optimization.button')}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
