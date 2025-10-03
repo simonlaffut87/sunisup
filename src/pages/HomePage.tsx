@@ -121,7 +121,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
                 <button
                   onClick={() => setShowServicesModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
+                  className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
                   {t('home.hero.discoverButton')}
                   <ArrowRight className="w-5 h-5" />
@@ -146,10 +146,10 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
               {/* Service 1: Communauté d'énergie */}
-              <div className="bg-white rounded-lg p-8 border border-blue-100 hover:border-blue-200 transition-all duration-200 hover:shadow-md">
+              <div className="bg-white rounded-lg p-8 border border-teal-100 hover:border-teal-200 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Users className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-teal-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Users className="w-6 h-6 text-teal-600" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.community.title')}</h3>
@@ -160,7 +160,7 @@ export default function HomePage() {
                 </p>
 
                 {/* Vidéo explicative */}
-                <div className="relative aspect-video rounded-lg overflow-hidden mb-4 border border-blue-100">
+                <div className="relative aspect-video rounded-lg overflow-hidden mb-4 border border-teal-100">
                   <video
                     controls
                     poster="/images/video-background.png"
@@ -178,14 +178,14 @@ export default function HomePage() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => window.location.href = '/simulation'}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                    className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                   >
                     <Calculator className="w-4 h-4" />
                     {t('about.cta.simulateButton')}
                   </button>
                   <button
                     onClick={() => window.location.href = '/admin'}
-                    className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                    className="bg-white hover:bg-amber-50 text-amber-700 border border-amber-200 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                   >
                     <FileText className="w-4 h-4" />
                     {t('about.cta.joinButton')}
@@ -316,7 +316,7 @@ export default function HomePage() {
 
                 {/* Service 1 - Top */}
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl">
+                  <div className="w-20 h-20 bg-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
                     <Users className="w-6 h-6 text-white" />
                   </div>
                   <div className="mt-4 text-center">
@@ -406,7 +406,7 @@ export default function HomePage() {
                   >
                     <h3 className="text-base font-semibold text-gray-800 pr-4 font-sans">{item.question}</h3>
                     {expandedFAQ === index ? (
-                      <ChevronUp className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                      <ChevronUp className="w-5 h-5 text-teal-600 flex-shrink-0" />
                     ) : (
                       <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     )}
@@ -433,7 +433,7 @@ export default function HomePage() {
             </p>
             <button
               onClick={() => setShowContactModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 mx-auto text-base font-sans"
+              className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 mx-auto text-base font-sans"
             >
               {t('home.energyCta.button')}
               <ArrowRight className="w-5 h-5" />

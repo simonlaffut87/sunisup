@@ -479,7 +479,7 @@ export function AdminDashboard() {
                 </div>
                 <button
                   onClick={verifyAdminConnection}
-                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-3 py-1 text-sm bg-teal-600 text-white rounded hover:bg-teal-700"
                 >
                   Revérifier
                 </button>
@@ -507,7 +507,7 @@ export function AdminDashboard() {
                         msg.includes('❌') ? 'text-rose-600' :
                         msg.includes('✅') ? 'text-green-600' :
                         msg.includes('⚠️') ? 'text-orange-600' :
-                        msg.includes('🔍') ? 'text-blue-600' :
+                        msg.includes('🔍') ? 'text-teal-600' :
                         'text-gray-700'
                       }`}>
                         {msg}
@@ -756,7 +756,7 @@ export function AdminDashboard() {
                             </button>
                             <button
                               onClick={() => handleGroupAction('dashboard', groupParticipants)}
-                              className="text-blue-600 hover:text-blue-900 transition-colors"
+                              className="text-teal-600 hover:text-blue-900 transition-colors"
                               title="Voir dashboard groupe"
                             >
                               <Eye className="w-4 h-4" />
@@ -827,7 +827,7 @@ export function AdminDashboard() {
                                 </button>
                                 <button
                                   onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée.`)}
-                                  className="text-blue-600 hover:text-blue-900 transition-colors"
+                                  className="text-teal-600 hover:text-blue-900 transition-colors"
                                   title={participant.email ? "Voir le dashboard" : "Email manquant"}
                                   disabled={!participant.email}
                                 >
@@ -928,7 +928,7 @@ export function AdminDashboard() {
                             </button>
                             <button
                               onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée. Modifiez le participant pour ajouter une adresse email.`)}
-                              className="text-blue-600 hover:text-blue-900 transition-colors"
+                              className="text-teal-600 hover:text-blue-900 transition-colors"
                               title={participant.email ? "Voir le dashboard" : "Email manquant"}
                               disabled={!participant.email}
                             >
@@ -1009,14 +1009,14 @@ export function AdminDashboard() {
               </div>
 
               <div className="space-y-4 mb-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
-                    <User className="w-4 h-4 text-blue-600" />
+                    <User className="w-4 h-4 text-teal-600" />
                     <span className="font-medium text-blue-900">
                       {selectedParticipantForInvoice.name}
                     </span>
                   </div>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm text-teal-700">
                     Sélectionnez la période pour laquelle générer la facture
                   </p>
                 </div>

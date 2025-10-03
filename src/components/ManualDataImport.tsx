@@ -806,7 +806,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
         <div className="p-6 space-y-6">
           {/* Instructions */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
             <h3 className="font-medium text-blue-900 mb-2">📋 Instructions :</h3>
             <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
               <li>Ouvrez votre fichier Excel</li>
@@ -882,7 +882,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                       log.includes('❌') ? 'text-rose-600' :
                       log.includes('✅') ? 'text-green-600' :
                       log.includes('⚠️') ? 'text-orange-600' :
-                      log.includes('ℹ️') ? 'text-blue-600' :
+                      log.includes('ℹ️') ? 'text-teal-600' :
                       log.includes('===') ? 'text-purple-600 font-bold' :
                       log.includes('---') ? 'text-indigo-600 font-medium' :
                       'text-gray-700'
@@ -926,7 +926,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                 </div>
                 <div className="bg-white p-3 rounded border">
                   <div className="text-sm text-gray-600">Lignes valides</div>
-                  <div className="text-xl font-bold text-blue-600">{results.stats.validRowsImported}</div>
+                  <div className="text-xl font-bold text-teal-600">{results.stats.validRowsImported}</div>
                 </div>
                 <div className="bg-white p-3 rounded border">
                   <div className="text-sm text-gray-600">EANs ignorés</div>
@@ -978,7 +978,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                   navigator.clipboard.writeText(logText);
                   toast.success('Logs copiés dans le presse-papiers');
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center space-x-2"
               >
                 <Copy className="w-4 h-4" />
                 <span>Copier les logs</span>

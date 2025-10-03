@@ -296,8 +296,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           </div>
 
           {mode === 'reset' && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-700 font-sans">
+            <div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-lg">
+              <p className="text-sm text-teal-700 font-sans">
                 Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
               </p>
             </div>

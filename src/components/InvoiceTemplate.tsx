@@ -916,7 +916,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <button
               onClick={handlePrint}
               disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center space-x-2"
             >
               <Printer className="w-4 h-4" />
               <span>Imprimer</span>
@@ -1130,12 +1130,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         <td className="px-4 py-3 text-sm font-bold text-gray-900" colSpan={2}>
                           TOTAL GROUPE
                         </td>
-                        <td className="px-4 py-4 text-sm text-right font-bold text-blue-600">
+                        <td className="px-4 py-4 text-sm text-right font-bold text-teal-600">
                           {(groupParticipants.reduce((sum, member) => 
                             sum + ((member.calculatedTotals?.volume_partage || 0) / 1000), 0
                           )).toFixed(3)} MWh
                         </td>
-                        <td className="px-4 py-4 text-sm text-right font-bold text-blue-600">
+                        <td className="px-4 py-4 text-sm text-right font-bold text-teal-600">
                           {(groupParticipants.reduce((sum, member) => 
                             sum + ((member.calculatedTotals?.volume_complementaire || 0) / 1000), 0
                           )).toFixed(3)} MWh
@@ -1159,18 +1159,18 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Consommation */}
-              <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+              <div className="bg-teal-50 p-6 rounded-lg border border-teal-200">
                 <h4 className="font-medium text-blue-900 mb-3">Consommation</h4>
                 <div className="space-y-2 text-sm text-blue-800">
                   <div className="flex justify-between">
                     <span>Énergie partagée :</span>
                     <span className="font-medium">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh</span>
                   </div>
-                  <div className="flex justify-between border-t border-blue-200 pt-2 mt-2">
+                  <div className="flex justify-between border-t border-teal-200 pt-2 mt-2">
                     <span>Énergie réseau (achat au fournisseur) :</span>
-                    <span className="font-medium text-blue-600">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
+                    <span className="font-medium text-teal-600">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
                   </div>
-                  <div className="text-xs text-blue-600 italic mt-2 p-2 bg-blue-100 rounded">
+                  <div className="text-xs text-teal-600 italic mt-2 p-2 bg-blue-100 rounded">
                     * Énergie réseau : indicatif, non facturée par Sun Is Up
                   </div>
                 </div>
@@ -1423,7 +1423,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       </td>
                     </tr>
                   )}
-                  <tr className="border-b-2 border-gray-400 bg-blue-50 font-semibold">
+                  <tr className="border-b-2 border-gray-400 bg-teal-50 font-semibold">
                     <td className="px-4 py-3 text-sm font-bold text-blue-900 border-r border-gray-300">
                       SOUS-TOTAL COÛTS
                     </td>

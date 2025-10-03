@@ -354,9 +354,9 @@ export function ExcelImportModal({
           </div>
 
           {/* Instructions et template */}
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="mb-6 p-4 bg-teal-50 border border-teal-200 rounded-lg">
             <div className="flex items-start">
-              <Info className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+              <Info className="w-5 h-5 text-teal-600 mt-0.5 mr-3 flex-shrink-0" />
               <div className="flex-1">
                 <h3 className="font-medium text-blue-900 mb-2">Format de fichier requis</h3>
                 <div className="text-sm text-blue-800 space-y-2">
@@ -372,7 +372,7 @@ export function ExcelImportModal({
                   <div className="mt-3">
                     <button
                       onClick={downloadTemplate}
-                      className="inline-flex items-center px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="inline-flex items-center px-3 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Télécharger le template Excel
@@ -438,9 +438,9 @@ export function ExcelImportModal({
                   <div className="text-2xl font-bold text-green-600">{validationResult.summary.validRows}</div>
                   <div className="text-sm text-gray-600">Lignes valides</div>
                 </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="bg-teal-50 p-4 rounded-lg">
                   <div className="text-sm font-medium text-blue-900">Période</div>
-                  <div className="text-xs text-blue-700">
+                  <div className="text-xs text-teal-700">
                     {validationResult.summary.dateRange ? (
                       <>
                         <div>Du: {validationResult.summary.dateRange.start}</div>

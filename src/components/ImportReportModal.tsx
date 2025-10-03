@@ -99,15 +99,15 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
         <div className="p-6">
           {/* Statistiques principales */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+            <div className="bg-teal-50 p-4 rounded-lg border border-blue-100">
               <div className="flex items-center space-x-3 mb-2">
-                <BarChart3 className="w-5 h-5 text-blue-600" />
+                <BarChart3 className="w-5 h-5 text-teal-600" />
                 <h3 className="font-medium text-blue-900">Lignes</h3>
               </div>
               <p className="text-xl font-bold text-blue-800">
                 {report.stats.validRowsImported.toLocaleString()}
               </p>
-              <p className="text-xs text-blue-600">sur {report.stats.totalRowsProcessed.toLocaleString()} lignes</p>
+              <p className="text-xs text-teal-600">sur {report.stats.totalRowsProcessed.toLocaleString()} lignes</p>
             </div>
             
             <div className="bg-green-50 p-4 rounded-lg border border-green-100">
@@ -233,7 +233,7 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
           <div className="flex justify-end space-x-3 mt-6">
             <button
               onClick={downloadErrorReport}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center space-x-2"
             >
               <Download className="w-4 h-4" />
               <span>Télécharger le rapport</span>

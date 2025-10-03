@@ -45,19 +45,19 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-center">
             {/* Thomas - Left side */}
-            <div className="bg-white rounded-lg shadow-md p-8 border border-blue-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
+            <div className="bg-white rounded-lg shadow-md p-8 border border-blue-100 hover:border-teal-200 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-blue-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-10 h-10 text-blue-600" />
+                <div className="w-20 h-20 bg-teal-50 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-10 h-10 text-teal-600" />
                 </div>
                 <h3 className="text-2xl font-semibold text-gray-800 mb-2 font-sans">{t('about.whoAreWe.thomas.title')}</h3>
-                <p className="text-blue-600 font-medium text-base font-sans">{t('about.whoAreWe.thomas.role')}</p>
+                <p className="text-teal-600 font-medium text-base font-sans">{t('about.whoAreWe.thomas.role')}</p>
               </div>
               
               <div className="space-y-6">
                 {t('about.whoAreWe.thomas.qualifications', { returnObjects: true }).map((qualification: string, index: number) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-teal-600 rounded-full mt-2 flex-shrink-0"></div>
                     <div>
                       {qualification.includes('\n') ? (
                         <div>
@@ -168,8 +168,8 @@ export default function AboutPage() {
                   </div>
 
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-8 h-8 text-blue-600" />
+                    <div className="w-16 h-16 bg-teal-50 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-8 h-8 text-teal-600" />
                     </div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">15</h3>
                     <p className="text-gray-600 text-sm font-medium font-sans">{t('about.mission.stats.activeMembers')}</p>

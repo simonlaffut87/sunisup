@@ -361,7 +361,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-rose-600">Participant non trouvé</p>
-          <button onClick={handleLogout} className="mt-4 text-blue-600 hover:text-blue-800">
+          <button onClick={handleLogout} className="mt-4 text-teal-600 hover:text-blue-800">
             Retour à l'accueil
           </button>
         </div>
@@ -461,7 +461,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-blue-600" />
+                  <BarChart3 className="w-5 h-5 text-teal-600" />
                 </div>
               </div>
               <div className="ml-4">
@@ -634,7 +634,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                                 {groupParticipant.type === 'producer' ? (
                                   <Sun className={`w-5 h-5 ${isCurrentUser ? 'text-amber-700' : 'text-amber-600'}`} />
                                 ) : (
-                                  <Building2 className={`w-5 h-5 ${isCurrentUser ? 'text-blue-700' : 'text-blue-600'}`} />
+                                  <Building2 className={`w-5 h-5 ${isCurrentUser ? 'text-teal-700' : 'text-teal-600'}`} />
                                 )}
                               </div>
                             </div>
