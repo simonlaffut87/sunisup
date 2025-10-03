@@ -146,10 +146,10 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
               {/* Service 1: Communauté d'énergie */}
-              <div className="bg-white rounded-lg p-8 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+              <div className="bg-white rounded-lg p-8 border border-blue-100 hover:border-blue-200 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Users className="w-6 h-6 text-slate-700" />
+                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Users className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.community.title')}</h3>
@@ -160,7 +160,7 @@ export default function HomePage() {
                 </p>
 
                 {/* Vidéo explicative */}
-                <div className="relative aspect-video rounded-lg overflow-hidden mb-4 border border-gray-200">
+                <div className="relative aspect-video rounded-lg overflow-hidden mb-4 border border-blue-100">
                   <video
                     controls
                     poster="/images/video-background.png"
@@ -178,14 +178,14 @@ export default function HomePage() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => window.location.href = '/simulation'}
-                    className="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                   >
                     <Calculator className="w-4 h-4" />
                     {t('about.cta.simulateButton')}
                   </button>
                   <button
                     onClick={() => window.location.href = '/admin'}
-                    className="bg-white hover:bg-gray-50 text-slate-700 border border-gray-300 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                    className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                   >
                     <FileText className="w-4 h-4" />
                     {t('about.cta.joinButton')}
@@ -194,10 +194,10 @@ export default function HomePage() {
               </div>
 
               {/* Service 2: Sous-communauté */}
-              <div className="bg-white rounded-lg p-8 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+              <div className="bg-white rounded-lg p-8 border border-teal-100 hover:border-teal-200 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Building2 className="w-6 h-6 text-slate-700" />
+                  <div className="w-12 h-12 bg-teal-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Building2 className="w-6 h-6 text-teal-600" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.subCommunity.title')}</h3>
@@ -210,7 +210,7 @@ export default function HomePage() {
                 <div className="space-y-3 mb-6">
                   {t('home.services.subCommunity.features', { returnObjects: true }).map((feature: string, index: number) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <CheckCircle className="w-4 h-4 text-slate-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" />
                       <span className="text-gray-600 text-sm font-sans">{feature}</span>
                     </div>
                   ))}
@@ -218,7 +218,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="w-full bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                 >
                   {t('home.services.subCommunity.button')}
                   <ArrowRight className="w-4 h-4" />
@@ -226,10 +226,10 @@ export default function HomePage() {
               </div>
 
               {/* Service 3: Plateforme de gestion */}
-              <div className="bg-white rounded-lg p-8 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+              <div className="bg-white rounded-lg p-8 border border-amber-100 hover:border-amber-200 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <BarChart3 className="w-6 h-6 text-slate-700" />
+                  <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <BarChart3 className="w-6 h-6 text-amber-600" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.platform.title')}</h3>
@@ -240,19 +240,19 @@ export default function HomePage() {
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <BarChart3 className="w-6 h-6 text-slate-600 mx-auto mb-2" />
+                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                    <BarChart3 className="w-6 h-6 text-amber-600 mx-auto mb-2" />
                     <p className="text-xs font-medium text-gray-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[0]}</p>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <TrendingUp className="w-6 h-6 text-slate-600 mx-auto mb-2" />
+                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                    <TrendingUp className="w-6 h-6 text-amber-600 mx-auto mb-2" />
                     <p className="text-xs font-medium text-gray-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[1]}</p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="w-full bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                 >
                   {t('home.services.platform.button')}
                   <ArrowRight className="w-4 h-4" />
@@ -260,10 +260,10 @@ export default function HomePage() {
               </div>
 
               {/* Service 4: Optimisation situation énergétique */}
-              <div className="bg-white rounded-lg p-8 border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+              <div className="bg-white rounded-lg p-8 border border-rose-100 hover:border-rose-200 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Sun className="w-6 h-6 text-slate-700" />
+                  <div className="w-12 h-12 bg-rose-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Sun className="w-6 h-6 text-rose-600" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.optimization.title')}</h3>
@@ -276,7 +276,7 @@ export default function HomePage() {
                 <div className="space-y-3 mb-6">
                   {t('home.services.optimization.features', { returnObjects: true }).map((feature: string, index: number) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <CheckCircle className="w-4 h-4 text-slate-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0" />
                       <span className="text-gray-600 text-sm font-sans">{feature}</span>
                     </div>
                   ))}
@@ -284,7 +284,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="w-full bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  className="w-full bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                 >
                   {t('home.services.optimization.button')}
                   <ArrowRight className="w-4 h-4" />
