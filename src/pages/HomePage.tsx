@@ -121,7 +121,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
                 <button
                   onClick={() => setShowServicesModal(true)}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
+                  className="bg-brand-teal hover:bg-brand-teal-light text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 text-lg font-sans"
                 >
                   {t('home.hero.discoverButton')}
                   <ArrowRight className="w-5 h-5" />
@@ -148,8 +148,8 @@ export default function HomePage() {
               {/* Service 1: Communauté d'énergie */}
               <div className="bg-white rounded-lg p-8 border border-teal-100 hover:border-teal-200 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-teal-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Users className="w-6 h-6 text-teal-600" />
+                  <div className="w-12 h-12 bg-brand-teal/10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Users className="w-6 h-6 text-brand-teal" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.community.title')}</h3>
@@ -178,14 +178,14 @@ export default function HomePage() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => window.location.href = '/simulation'}
-                    className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                    className="bg-brand-teal hover:bg-brand-teal-light text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                   >
                     <Calculator className="w-4 h-4" />
                     {t('about.cta.simulateButton')}
                   </button>
                   <button
                     onClick={() => window.location.href = '/admin'}
-                    className="bg-white hover:bg-amber-50 text-amber-700 border border-amber-200 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                    className="bg-white hover:bg-brand-gold/10 text-brand-gold border border-brand-gold/30 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                   >
                     <FileText className="w-4 h-4" />
                     {t('about.cta.joinButton')}
@@ -197,7 +197,7 @@ export default function HomePage() {
               <div className="bg-white rounded-lg p-8 border border-teal-100 hover:border-teal-200 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
                   <div className="w-12 h-12 bg-teal-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Building2 className="w-6 h-6 text-teal-600" />
+                    <Building2 className="w-6 h-6 text-brand-teal" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.subCommunity.title')}</h3>
@@ -210,7 +210,7 @@ export default function HomePage() {
                 <div className="space-y-3 mb-6">
                   {t('home.services.subCommunity.features', { returnObjects: true }).map((feature: string, index: number) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <CheckCircle className="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-brand-teal mt-0.5 flex-shrink-0" />
                       <span className="text-gray-600 text-sm font-sans">{feature}</span>
                     </div>
                   ))}
@@ -218,7 +218,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="w-full bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  className="w-full bg-brand-teal hover:bg-brand-teal-light text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                 >
                   {t('home.services.subCommunity.button')}
                   <ArrowRight className="w-4 h-4" />
@@ -226,9 +226,9 @@ export default function HomePage() {
               </div>
 
               {/* Service 3: Plateforme de gestion */}
-              <div className="bg-white rounded-lg p-8 border border-amber-100 hover:border-amber-200 transition-all duration-200 hover:shadow-md">
+              <div className="bg-white rounded-lg p-8 border border-amber-100 hover:border-brand-gold/30 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <div className="w-12 h-12 bg-brand-gold/10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                     <BarChart3 className="w-6 h-6 text-amber-600" />
                   </div>
                   <div>
@@ -240,11 +240,11 @@ export default function HomePage() {
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
-                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                  <div className="bg-brand-gold/10 p-4 rounded-lg border border-amber-100">
                     <BarChart3 className="w-6 h-6 text-amber-600 mx-auto mb-2" />
                     <p className="text-xs font-medium text-gray-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[0]}</p>
                   </div>
-                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                  <div className="bg-brand-gold/10 p-4 rounded-lg border border-amber-100">
                     <TrendingUp className="w-6 h-6 text-amber-600 mx-auto mb-2" />
                     <p className="text-xs font-medium text-gray-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[1]}</p>
                   </div>
@@ -252,7 +252,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  className="w-full bg-brand-gold hover:bg-brand-gold-light text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                 >
                   {t('home.services.platform.button')}
                   <ArrowRight className="w-4 h-4" />
@@ -260,10 +260,10 @@ export default function HomePage() {
               </div>
 
               {/* Service 4: Optimisation situation énergétique */}
-              <div className="bg-white rounded-lg p-8 border border-rose-100 hover:border-rose-200 transition-all duration-200 hover:shadow-md">
+              <div className="bg-white rounded-lg p-8 border border-orange-100 hover:border-orange-200 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-rose-50 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Sun className="w-6 h-6 text-rose-600" />
+                  <div className="w-12 h-12 bg-brand-flame/10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Sun className="w-6 h-6 text-brand-flame" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.optimization.title')}</h3>
@@ -316,7 +316,7 @@ export default function HomePage() {
 
                 {/* Service 1 - Top */}
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-20 h-20 bg-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
+                  <div className="w-20 h-20 bg-brand-teal rounded-2xl flex items-center justify-center shadow-xl">
                     <Users className="w-6 h-6 text-white" />
                   </div>
                   <div className="mt-4 text-center">
@@ -327,7 +327,7 @@ export default function HomePage() {
 
                 {/* Service 2 - Right */}
                 <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
-                  <div className="w-20 h-20 bg-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
+                  <div className="w-20 h-20 bg-brand-teal rounded-2xl flex items-center justify-center shadow-xl">
                     <Building2 className="w-6 h-6 text-white" />
                   </div>
                   <div className="mt-4 text-center">
@@ -338,7 +338,7 @@ export default function HomePage() {
 
                 {/* Service 3 - Bottom */}
                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-                  <div className="w-20 h-20 bg-amber-600 rounded-2xl flex items-center justify-center shadow-xl">
+                  <div className="w-20 h-20 bg-brand-gold rounded-2xl flex items-center justify-center shadow-xl">
                     <BarChart3 className="w-6 h-6 text-white" />
                   </div>
                   <div className="mb-4 text-center">
@@ -349,7 +349,7 @@ export default function HomePage() {
 
                 {/* Service 4 - Left */}
                 <div className="absolute top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-20 h-20 bg-rose-500 rounded-2xl flex items-center justify-center shadow-xl">
+                  <div className="w-20 h-20 bg-brand-flame rounded-2xl flex items-center justify-center shadow-xl">
                     <Sun className="w-6 h-6 text-white" />
                   </div>
                   <div className="mt-4 text-center">
@@ -406,7 +406,7 @@ export default function HomePage() {
                   >
                     <h3 className="text-base font-semibold text-gray-800 pr-4 font-sans">{item.question}</h3>
                     {expandedFAQ === index ? (
-                      <ChevronUp className="w-5 h-5 text-teal-600 flex-shrink-0" />
+                      <ChevronUp className="w-5 h-5 text-brand-teal flex-shrink-0" />
                     ) : (
                       <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     )}
@@ -433,7 +433,7 @@ export default function HomePage() {
             </p>
             <button
               onClick={() => setShowContactModal(true)}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 mx-auto text-base font-sans"
+              className="bg-brand-gold hover:bg-brand-gold-light text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-3 mx-auto text-base font-sans"
             >
               {t('home.energyCta.button')}
               <ArrowRight className="w-5 h-5" />

@@ -297,7 +297,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
           {mode === 'reset' && (
             <div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-lg">
-              <p className="text-sm text-teal-700 font-sans">
+              <p className="text-sm text-brand-teal font-sans">
                 Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
               </p>
             </div>
@@ -312,8 +312,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           )}
 
           {mode === 'login' && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-amber-700 font-sans">
+            <div className="mb-4 p-3 bg-brand-gold/10 border border-brand-gold/30 rounded-lg">
+              <p className="text-sm text-brand-gold font-sans">
                 <strong>Accès réservé aux membres.</strong> Si vous n'avez pas encore de compte, créez-en un avec votre code EAN.
               </p>
             </div>
@@ -440,7 +440,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-sans"
+              className="w-full bg-brand-gold/100 hover:bg-brand-gold text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-sans"
             >
               {loading ? (
                 <>
@@ -466,7 +466,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             {mode === 'login' && (
               <button
                 onClick={() => switchMode('register')}
-                className="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center justify-center gap-2 font-sans"
+                className="text-sm text-amber-600 hover:text-brand-gold font-medium flex items-center justify-center gap-2 font-sans"
               >
                 <UserPlus className="w-4 h-4" />
                 Créer un compte avec mon code EAN
@@ -478,7 +478,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                 {mode === 'register' ? 'Déjà un compte ?' : 'Pas encore membre ?'}{' '}
                 <button
                   onClick={mode === 'register' ? () => switchMode('login') : onClose}
-                  className="text-amber-600 hover:text-amber-700 font-medium font-sans"
+                  className="text-amber-600 hover:text-brand-gold font-medium font-sans"
                 >
                   {mode === 'register' ? 'Se connecter' : 'Contactez-nous pour rejoindre la communauté'}
                 </button>

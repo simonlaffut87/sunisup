@@ -593,7 +593,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                           handleInputChange('groupe', group);
                           setShowGroupSuggestions(false);
                         }}
-                        className="w-full text-left px-4 py-2 hover:bg-amber-50 transition-colors border-b border-gray-100 last:border-b-0"
+                        className="w-full text-left px-4 py-2 hover:bg-brand-gold/10 transition-colors border-b border-gray-100 last:border-b-0"
                       >
                         <div className="flex items-center space-x-2">
                           <Users className="w-4 h-4 text-amber-600" />
@@ -659,7 +659,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
             <button
               type="submit"
               disabled={loading || !isFormValid()}
-              className="inline-flex items-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm hover:shadow-md"
+              className="inline-flex items-center px-6 py-3 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm hover:shadow-md"
             >
               {loading ? (
                 <>

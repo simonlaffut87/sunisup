@@ -171,7 +171,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             <h2 className="text-xl md:text-2xl font-bold text-amber-900 font-sans">{t('contact.title')}</h2>
             <button
               onClick={onClose}
-              className="text-amber-700 hover:text-amber-900 transition-colors p-2"
+              className="text-brand-gold hover:text-amber-900 transition-colors p-2"
             >
               <X className="w-6 h-6" />
             </button>
@@ -179,7 +179,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
 
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
+              <label className="block text-sm font-medium text-brand-gold mb-2 font-sans">
                 {t('contact.email')}
               </label>
               <div className="relative">
@@ -190,7 +190,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                   type="email"
                   value={contactForm.email}
                   onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                  className="w-full pl-10 pr-4 py-2 border border-brand-gold/30 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
                   placeholder={t('contact.emailPlaceholder')}
                   required
                 />
@@ -212,7 +212,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
+              <label className="block text-sm font-medium text-brand-gold mb-2 font-sans">
                 {t('contact.servicesTitle')}
               </label>
               <div className="space-y-2">
@@ -222,7 +222,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                   t('contact.services.platform'),
                   t('contact.services.energyOptimization')
                 ].map((service, index) => (
-                  <label key={index} className="flex items-center space-x-3 p-3 border border-amber-200 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors">
+                  <label key={index} className="flex items-center space-x-3 p-3 border border-brand-gold/30 rounded-lg hover:bg-brand-gold/10 cursor-pointer transition-colors">
                     <input
                       type="checkbox"
                       checked={contactForm.selectedServices.includes(service)}
@@ -241,7 +241,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                       }}
                       className="w-4 h-4 text-amber-600 border-amber-300 rounded focus:ring-amber-500"
                     />
-                    <span className="text-sm text-amber-700 font-sans">{service}</span>
+                    <span className="text-sm text-brand-gold font-sans">{service}</span>
                   </label>
                 ))}
               </div>
@@ -251,7 +251,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
+              <label className="block text-sm font-medium text-brand-gold mb-2 font-sans">
                 {t('contact.message')}
               </label>
               <div className="relative">
@@ -261,7 +261,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                 <textarea
                   value={contactForm.message}
                   onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent min-h-[100px] bg-white text-gray-900"
+                  className="w-full pl-10 pr-4 py-2 border border-brand-gold/30 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent min-h-[100px] bg-white text-gray-900"
                   placeholder={t('contact.messagePlaceholder')}
                   required
                 />
@@ -269,13 +269,13 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
+              <label className="block text-sm font-medium text-brand-gold mb-2 font-sans">
                 {t('contact.billFile')}
               </label>
               <div className="flex items-center justify-center w-full">
                 <label className={`w-full flex flex-col items-center px-4 py-4 md:py-6 bg-white rounded-lg border-2 ${
                   contactForm.billFile ? 'border-amber-500' : 'border-amber-300 border-dashed'
-                } cursor-pointer hover:bg-amber-50`}>
+                } cursor-pointer hover:bg-brand-gold/10`}>
                   <Upload className="w-6 h-6 md:w-8 md:h-8 text-amber-500 mb-2" />
                   <span className="text-sm text-amber-600 text-center font-sans">
                     {contactForm.billFile ? contactForm.billFile.name : t('contact.billFileText')}
@@ -291,13 +291,13 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
+              <label className="block text-sm font-medium text-brand-gold mb-2 font-sans">
                 {t('contact.meterPhoto')}
               </label>
               <div className="flex items-center justify-center w-full">
                 <label className={`w-full flex flex-col items-center px-4 py-4 md:py-6 bg-white rounded-lg border-2 ${
                   contactForm.meterFile ? 'border-amber-500' : 'border-amber-300 border-dashed'
-                } cursor-pointer hover:bg-amber-50`}>
+                } cursor-pointer hover:bg-brand-gold/10`}>
                   <Upload className="w-6 h-6 md:w-8 md:h-8 text-amber-500 mb-2" />
                   <span className="text-sm text-amber-600 text-center font-sans">
                     {contactForm.meterFile ? contactForm.meterFile.name : t('contact.meterPhotoText')}
@@ -313,13 +313,13 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-amber-700 mb-2 font-sans">
+              <label className="block text-sm font-medium text-brand-gold mb-2 font-sans">
                 {t('contact.additionalDoc')}
               </label>
               <div className="flex items-center justify-center w-full">
                 <label className={`w-full flex flex-col items-center px-4 py-4 md:py-6 bg-white rounded-lg border-2 ${
                   contactForm.additionalFile ? 'border-amber-500' : 'border-amber-300 border-dashed'
-                } cursor-pointer hover:bg-amber-50`}>
+                } cursor-pointer hover:bg-brand-gold/10`}>
                   <Upload className="w-6 h-6 md:w-8 md:h-8 text-amber-500 mb-2" />
                   <span className="text-sm text-amber-600 text-center font-sans">
                     {contactForm.additionalFile ? contactForm.additionalFile.name : t('contact.additionalDocText')}
@@ -337,7 +337,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-sans"
+              className="w-full bg-brand-gold/100 hover:bg-brand-gold text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-sans"
             >
               {submitting ? (
                 <>

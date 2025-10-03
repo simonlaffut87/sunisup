@@ -164,13 +164,13 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center space-x-4">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step >= 1 ? 'bg-amber-500 text-white' : 'bg-gray-200 text-gray-600'
+                step >= 1 ? 'bg-brand-gold/100 text-white' : 'bg-gray-200 text-gray-600'
               }`}>
                 1
               </div>
-              <div className={`w-32 h-1 ${step >= 2 ? 'bg-amber-500' : 'bg-gray-200'}`}></div>
+              <div className={`w-32 h-1 ${step >= 2 ? 'bg-brand-gold/100' : 'bg-gray-200'}`}></div>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step >= 2 ? 'bg-amber-500 text-white' : 'bg-gray-200 text-gray-600'
+                step >= 2 ? 'bg-brand-gold/100 text-white' : 'bg-gray-200 text-gray-600'
               }`}>
                 2
               </div>
@@ -200,7 +200,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                       onClick={() => handleServiceToggle(service.id)}
                       className={`p-6 rounded-xl border-2 transition-all duration-200 text-left ${
                         isSelected
-                          ? 'border-amber-500 bg-amber-50 shadow-lg scale-105'
+                          ? 'border-amber-500 bg-brand-gold/10 shadow-lg scale-105'
                           : 'border-gray-200 hover:border-amber-300 hover:shadow-md hover:scale-102'
                       }`}
                     >
@@ -230,7 +230,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
               <div className="flex justify-end">
                 <button
                   onClick={() => setStep(2)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
+                  className="bg-brand-gold/100 hover:bg-brand-gold text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-sans"
                 >
                   {t('servicesDiscovery.step1.continue')}
                   <ArrowRight className="w-4 h-4" />
@@ -300,7 +300,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                 <button
                   onClick={handleSubmit}
                   disabled={!formData.email || submitting}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-sans"
+                  className="bg-brand-gold/100 hover:bg-brand-gold text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-sans"
                 >
                   {submitting ? (
                     <>

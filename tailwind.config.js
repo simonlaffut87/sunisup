@@ -3,6 +3,16 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      colors: {
+        brand: {
+          teal: '#1D8181',
+          gold: '#BD9B4B',
+          flame: '#D75D2D',
+          'teal-light': '#2A9D9D',
+          'gold-light': '#D4B366',
+          'flame-light': '#E87A50',
+        },
+      },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
         serif: ['Fraunces', 'serif'],

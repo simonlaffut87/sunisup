@@ -264,7 +264,7 @@ export function MonthlyFileUploadModal({
           {/* Instructions */}
           <div className="mb-6 p-4 bg-teal-50 border border-teal-200 rounded-lg">
             <div className="flex items-start">
-              <Info className="w-5 h-5 text-teal-600 mt-0.5 mr-3 flex-shrink-0" />
+              <Info className="w-5 h-5 text-brand-teal mt-0.5 mr-3 flex-shrink-0" />
               <div className="flex-1">
                 <h3 className="font-medium text-blue-900 mb-2">🚀 Import Haute Performance</h3>
                 <div className="text-sm text-blue-800 space-y-2">
@@ -279,7 +279,7 @@ export function MonthlyFileUploadModal({
                     <button
                       onClick={downloadTemplate}
                       disabled={uploading}
-                      className="inline-flex items-center px-3 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center px-3 py-2 text-sm bg-brand-teal text-white rounded-lg hover:bg-brand-teal-light transition-colors disabled:opacity-50"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Template Excel
@@ -336,7 +336,7 @@ export function MonthlyFileUploadModal({
               <div className="max-w-md mx-auto mb-4">
                 <div className="bg-gray-200 rounded-full h-2">
                   <div 
-                    className="bg-teal-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-brand-teal h-2 rounded-full transition-all duration-300"
                     style={{ width: `${progressPercentage}%` }}
                   ></div>
                 </div>
@@ -346,7 +346,7 @@ export function MonthlyFileUploadModal({
               {progress && (
                 <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 max-w-md mx-auto">
                   <div className="flex items-center justify-center">
-                    <Loader2 className="w-4 h-4 animate-spin mr-2 text-teal-600" />
+                    <Loader2 className="w-4 h-4 animate-spin mr-2 text-brand-teal" />
                     <span className="text-sm font-medium text-blue-900">{progress}</span>
                   </div>
                 </div>

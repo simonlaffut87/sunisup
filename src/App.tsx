@@ -204,7 +204,7 @@ function App() {
                   <button
                     onClick={() => setShowDashboard(true)}
                     disabled={isLoggingOut}
-                    className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
+                    className="bg-brand-teal hover:bg-brand-teal-light text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">Dashboard</span>
@@ -221,7 +221,7 @@ function App() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
+                  className="bg-brand-gold hover:bg-brand-gold-light text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
                 >
                   <span>{t('header.contact')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -309,13 +309,13 @@ function NavigationLinks() {
           to={link.path}
           className={`relative px-3 py-2 text-sm font-medium transition-colors ${
             location.pathname === link.path
-              ? 'text-gray-800 border-b-2 border-teal-600'
+              ? 'text-gray-800 border-b-2 border-brand-teal'
               : 'text-gray-700 hover:text-gray-900'
           } font-sans`}
         >
           {link.path === '/' ? t('nav.services') : link.label}
           {location.pathname === link.path && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 rounded-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-teal rounded-full" />
           )}
         </Link>
       ))}
@@ -354,7 +354,7 @@ function MobileNavigation() {
                     onClick={() => setIsOpen(false)}
                     className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                       location.pathname === link.path
-                        ? 'bg-teal-50 text-teal-700 border border-teal-200'
+                        ? 'bg-teal-50 text-brand-teal border border-teal-200'
                         : 'text-gray-700 hover:bg-gray-50'
                     } font-sans`}
                   >

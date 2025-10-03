@@ -479,7 +479,7 @@ export function AdminDashboard() {
                 </div>
                 <button
                   onClick={verifyAdminConnection}
-                  className="px-3 py-1 text-sm bg-teal-600 text-white rounded hover:bg-teal-700"
+                  className="px-3 py-1 text-sm bg-brand-teal text-white rounded hover:bg-brand-teal-light"
                 >
                   Revérifier
                 </button>
@@ -507,7 +507,7 @@ export function AdminDashboard() {
                         msg.includes('❌') ? 'text-rose-600' :
                         msg.includes('✅') ? 'text-green-600' :
                         msg.includes('⚠️') ? 'text-orange-600' :
-                        msg.includes('🔍') ? 'text-teal-600' :
+                        msg.includes('🔍') ? 'text-brand-teal' :
                         'text-gray-700'
                       }`}>
                         {msg}
@@ -640,7 +640,7 @@ export function AdminDashboard() {
                 
                 <button
                   onClick={handleAdd}
-                  className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Ajouter un participant
@@ -756,7 +756,7 @@ export function AdminDashboard() {
                             </button>
                             <button
                               onClick={() => handleGroupAction('dashboard', groupParticipants)}
-                              className="text-teal-600 hover:text-blue-900 transition-colors"
+                              className="text-brand-teal hover:text-blue-900 transition-colors"
                               title="Voir dashboard groupe"
                             >
                               <Eye className="w-4 h-4" />
@@ -827,7 +827,7 @@ export function AdminDashboard() {
                                 </button>
                                 <button
                                   onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée.`)}
-                                  className="text-teal-600 hover:text-blue-900 transition-colors"
+                                  className="text-brand-teal hover:text-blue-900 transition-colors"
                                   title={participant.email ? "Voir le dashboard" : "Email manquant"}
                                   disabled={!participant.email}
                                 >
@@ -928,7 +928,7 @@ export function AdminDashboard() {
                             </button>
                             <button
                               onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée. Modifiez le participant pour ajouter une adresse email.`)}
-                              className="text-teal-600 hover:text-blue-900 transition-colors"
+                              className="text-brand-teal hover:text-blue-900 transition-colors"
                               title={participant.email ? "Voir le dashboard" : "Email manquant"}
                               disabled={!participant.email}
                             >
@@ -1011,12 +1011,12 @@ export function AdminDashboard() {
               <div className="space-y-4 mb-6">
                 <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
-                    <User className="w-4 h-4 text-teal-600" />
+                    <User className="w-4 h-4 text-brand-teal" />
                     <span className="font-medium text-blue-900">
                       {selectedParticipantForInvoice.name}
                     </span>
                   </div>
-                  <p className="text-sm text-teal-700">
+                  <p className="text-sm text-brand-teal">
                     Sélectionnez la période pour laquelle générer la facture
                   </p>
                 </div>
@@ -1056,7 +1056,7 @@ export function AdminDashboard() {
                 </button>
                 <button
                   onClick={handlePeriodConfirm}
-                  className="px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors flex items-center space-x-2"
+                  className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors flex items-center space-x-2"
                 >
                   <FileText className="w-4 h-4" />
                   <span>Générer la facture</span>

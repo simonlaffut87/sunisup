@@ -30,7 +30,7 @@ export default function AdminPage() {
       {/* Modern Hero Section */}
       <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg mb-8 font-sans">
+          <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-brand-gold/30 rounded-full text-brand-gold font-medium shadow-lg mb-8 font-sans">
             <Users className="w-4 h-4 mr-2" />
             {t('howToJoin.badge')}
           </div>

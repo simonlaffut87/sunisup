@@ -101,13 +101,13 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-teal-50 p-4 rounded-lg border border-blue-100">
               <div className="flex items-center space-x-3 mb-2">
-                <BarChart3 className="w-5 h-5 text-teal-600" />
+                <BarChart3 className="w-5 h-5 text-brand-teal" />
                 <h3 className="font-medium text-blue-900">Lignes</h3>
               </div>
               <p className="text-xl font-bold text-blue-800">
                 {report.stats.validRowsImported.toLocaleString()}
               </p>
-              <p className="text-xs text-teal-600">sur {report.stats.totalRowsProcessed.toLocaleString()} lignes</p>
+              <p className="text-xs text-brand-teal">sur {report.stats.totalRowsProcessed.toLocaleString()} lignes</p>
             </div>
             
             <div className="bg-green-50 p-4 rounded-lg border border-green-100">
@@ -121,7 +121,7 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
               <p className="text-xs text-green-600">points de données</p>
             </div>
             
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+            <div className="bg-brand-gold/10 p-4 rounded-lg border border-amber-100">
               <div className="flex items-center space-x-3 mb-2">
                 <Users className="w-5 h-5 text-amber-600" />
                 <h3 className="font-medium text-amber-900">Participants</h3>
@@ -233,7 +233,7 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
           <div className="flex justify-end space-x-3 mt-6">
             <button
               onClick={downloadErrorReport}
-              className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal-light transition-colors flex items-center space-x-2"
             >
               <Download className="w-4 h-4" />
               <span>Télécharger le rapport</span>

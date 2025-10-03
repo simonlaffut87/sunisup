@@ -330,7 +330,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 <div className="flex justify-end">
                   <button
                     onClick={processFile}
-                    className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors flex items-center space-x-2"
+                    className="bg-brand-gold text-white px-6 py-2 rounded-lg hover:bg-brand-gold-light transition-colors flex items-center space-x-2"
                   >
                     <BarChart3 className="w-4 h-4" />
                     <span>Commencer l'import</span>
@@ -349,7 +349,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                     {state.status === 'paused' ? (
                       <Pause className="w-5 h-5 text-orange-600" />
                     ) : (
-                      <Loader2 className="w-5 h-5 text-teal-600 animate-spin" />
+                      <Loader2 className="w-5 h-5 text-brand-teal animate-spin" />
                     )}
                     <span className="font-medium text-blue-800">
                       {state.status === 'reading' && 'Lecture du fichier...'}
@@ -392,7 +392,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 <div className="space-y-3">
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-teal-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-brand-teal h-2 rounded-full transition-all duration-300"
                       style={{ width: `${state.progress}%` }}
                     />
                   </div>
@@ -460,8 +460,8 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                     <div className="text-green-600">Lignes traitées</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-medium text-teal-700">{Object.keys(state.participants).length}</div>
-                    <div className="text-teal-600">Participants trouvés</div>
+                    <div className="font-medium text-brand-teal">{Object.keys(state.participants).length}</div>
+                    <div className="text-brand-teal">Participants trouvés</div>
                   </div>
                   <div className="text-center">
                     <div className="font-medium text-green-700">{state.mesuresCount || Object.keys(state.participants).length}</div>
@@ -497,7 +497,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 <div className="flex justify-center">
                   <button
                     onClick={downloadErrorReport}
-                    className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors flex items-center space-x-2"
+                    className="bg-brand-teal text-white px-4 py-2 rounded-lg hover:bg-brand-teal-light transition-colors flex items-center space-x-2"
                   >
                     <Download className="w-4 h-4" />
                     <span>Télécharger le rapport</span>
@@ -530,7 +530,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
               <div className="flex justify-center space-x-3 mt-6">
                 <button
                   onClick={downloadTemplate}
-                  className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors flex items-center space-x-2"
+                  className="bg-brand-teal text-white px-4 py-2 rounded-lg hover:bg-brand-teal-light transition-colors flex items-center space-x-2"
                 >
                   <Download className="w-4 h-4" />
                   <span>Télécharger le template</span>
@@ -569,7 +569,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                     a.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="text-teal-600 hover:text-blue-800 text-sm underline"
+                  className="text-brand-teal hover:text-blue-800 text-sm underline"
                 >
                   Télécharger les logs
                 </button>
@@ -581,10 +581,10 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           {state.status === 'idle' && (
             <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mt-6">
               <div className="flex items-start space-x-3">
-                <Info className="w-5 h-5 text-teal-600 mt-0.5" />
+                <Info className="w-5 h-5 text-brand-teal mt-0.5" />
                 <div className="text-sm text-blue-800">
                   <p className="font-medium mb-2">Format attendu (les EAN non reconnus seront ignorés) :</p>
-                  <ul className="list-disc list-inside space-y-1 text-teal-700">
+                  <ul className="list-disc list-inside space-y-1 text-brand-teal">
                     <li>Fichier Excel (.xlsx ou .xls)</li>
                     <li>Colonnes : EAN, Date, Type de flux, Volume (kWh)</li>
                     <li>Codes EAN de 18 chiffres (ex: 541448000000000001)</li>
@@ -593,7 +593,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                   <div className="mt-3">
                     <button
                       onClick={downloadTemplate}
-                      className="text-teal-600 hover:text-blue-800 underline text-sm flex items-center space-x-1"
+                      className="text-brand-teal hover:text-blue-800 underline text-sm flex items-center space-x-1"
                     >
                       <Download className="w-3 h-3" />
                       <span>Télécharger le template d'exemple</span>

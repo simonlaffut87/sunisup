@@ -852,7 +852,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
             <button
               onClick={handleProcess}
               disabled={processing || !textData.trim()}
-              className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="bg-brand-gold text-white px-6 py-2 rounded-lg hover:bg-brand-gold-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {processing ? (
                 <>
@@ -882,7 +882,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                       log.includes('❌') ? 'text-rose-600' :
                       log.includes('✅') ? 'text-green-600' :
                       log.includes('⚠️') ? 'text-orange-600' :
-                      log.includes('ℹ️') ? 'text-teal-600' :
+                      log.includes('ℹ️') ? 'text-brand-teal' :
                       log.includes('===') ? 'text-purple-600 font-bold' :
                       log.includes('---') ? 'text-indigo-600 font-medium' :
                       'text-gray-700'
@@ -926,7 +926,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                 </div>
                 <div className="bg-white p-3 rounded border">
                   <div className="text-sm text-gray-600">Lignes valides</div>
-                  <div className="text-xl font-bold text-teal-600">{results.stats.validRowsImported}</div>
+                  <div className="text-xl font-bold text-brand-teal">{results.stats.validRowsImported}</div>
                 </div>
                 <div className="bg-white p-3 rounded border">
                   <div className="text-sm text-gray-600">EANs ignorés</div>
@@ -978,7 +978,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                   navigator.clipboard.writeText(logText);
                   toast.success('Logs copiés dans le presse-papiers');
                 }}
-                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal-light transition-colors flex items-center space-x-2"
               >
                 <Copy className="w-4 h-4" />
                 <span>Copier les logs</span>

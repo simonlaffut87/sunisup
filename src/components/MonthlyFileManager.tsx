@@ -440,7 +440,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
-              <BarChart3 className="w-6 h-6 text-teal-600 mr-3" />
+              <BarChart3 className="w-6 h-6 text-brand-teal mr-3" />
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Volumes mensuels</h3>
                 <p className="text-sm text-gray-600">
@@ -630,7 +630,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           {chartData && chartData.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-amber-500 rounded mr-2"></div>
+                <div className="w-4 h-4 bg-brand-gold/100 rounded mr-2"></div>
                 <span className="text-sm text-gray-700">Injection Partagée</span>
               </div>
               <div className="flex items-center">
@@ -666,7 +666,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                   <div className="font-bold text-gray-900">{item.month}</div>
                   <div>VP: {item['Volume Partagé']} MWh | VC: {item['Volume Complémentaire']} MWh</div>
                   <div>IP: {item['Injection Partagée']} MWh | IR: {item['Injection Réseau']} MWh</div>
-                  <div className="text-teal-600">Participants: {item.participants}</div>
+                  <div className="text-brand-teal">Participants: {item.participants}</div>
                 </div>
               ))}
             </div>
@@ -679,7 +679,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
             <div className="flex items-center">
-              <FileSpreadsheet className="w-8 h-8 text-teal-600 mr-3" />
+              <FileSpreadsheet className="w-8 h-8 text-brand-teal mr-3" />
               <div>
                 <div className="text-2xl font-bold text-gray-900">{files.length}</div>
                 <div className="text-sm text-gray-600">Fichiers importés</div>
@@ -765,19 +765,19 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <div className="text-teal-700">Participants</div>
+                      <div className="text-brand-teal">Participants</div>
                       <div className="font-bold text-blue-900">{Object.keys(viewingData.participants || {}).length}</div>
                     </div>
                     <div>
-                      <div className="text-teal-700">Mesures</div>
+                      <div className="text-brand-teal">Mesures</div>
                       <div className="font-bold text-blue-900">{(viewingData.mesures?.length || 0).toLocaleString()}</div>
                     </div>
                     <div>
-                      <div className="text-teal-700">Date d'import</div>
+                      <div className="text-brand-teal">Date d'import</div>
                       <div className="font-bold text-blue-900">{format(new Date(viewingData.upload_date), 'dd/MM/yyyy', { locale: fr })}</div>
                     </div>
                     <div>
-                      <div className="text-teal-700">Fichier</div>
+                      <div className="text-brand-teal">Fichier</div>
                       <div className="font-bold text-blue-900 truncate max-w-[150px]">{viewingData.filename}</div>
                     </div>
                   </div>
@@ -787,7 +787,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               {/* Totaux */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-teal-50 p-4 rounded-lg">
-                  <div className="text-sm text-teal-600">Volume Complémentaire</div>
+                  <div className="text-sm text-brand-teal">Volume Complémentaire</div>
                   <div className="text-xl font-bold text-blue-900">
                     {(viewingData.totals.total_volume_complementaire / 1000).toFixed(3)} MWh
                   </div>
@@ -798,7 +798,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                     {(viewingData.totals.total_volume_partage / 1000).toFixed(3)} MWh
                   </div>
                 </div>
-                <div className="bg-amber-50 p-4 rounded-lg">
+                <div className="bg-brand-gold/10 p-4 rounded-lg">
                   <div className="text-sm text-amber-600">Injection Complémentaire</div>
                   <div className="text-xl font-bold text-amber-900">
                     {(viewingData.totals.total_injection_complementaire / 1000).toFixed(3)} MWh
@@ -837,7 +837,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <div className="flex items-center">
-                          <span className="text-teal-600">📥</span>
+                          <span className="text-brand-teal">📥</span>
                           <span className="ml-1">Volume Compl.</span>
                         </div>
                       </th>
@@ -863,7 +863,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {Object.entries(viewingData.participants || {}).map(([eanCode, participant]: [string, any]) => (
-                      <tr key={eanCode} className="hover:bg-amber-50 transition-colors">
+                      <tr key={eanCode} className="hover:bg-brand-gold/10 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className="text-sm font-medium text-gray-900">{participant.name}</div>
@@ -881,7 +881,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <span className="text-teal-600 mr-2">📥</span>
+                            <span className="text-brand-teal mr-2">📥</span>
                             <div>
                               <div className="text-sm font-medium text-gray-900">
                                 {(participant.data.volume_complementaire / 1000).toFixed(3)} MWh

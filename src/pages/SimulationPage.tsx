@@ -159,7 +159,7 @@ export default function SimulationPage() {
         {/* Modern Hero Section */}
         <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-amber-200 rounded-full text-amber-700 font-medium shadow-lg mb-8 font-sans">
+            <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-brand-gold/30 rounded-full text-brand-gold font-medium shadow-lg mb-8 font-sans">
               <Calculator className="w-4 h-4 mr-2" />
               {t('simulation.heroBadge')}
             </div>
@@ -257,7 +257,7 @@ export default function SimulationPage() {
                 }}
                 className={`p-10 rounded-2xl border-2 transition-all duration-200 ${
                   simulationType === 'producer'
-                    ? 'border-amber-500 bg-amber-50 shadow-xl scale-105'
+                    ? 'border-amber-500 bg-brand-gold/10 shadow-xl scale-105'
                     : 'border-gray-200 hover:border-amber-300 hover:shadow-lg hover:scale-102'
                 }`}
               >
@@ -373,7 +373,7 @@ export default function SimulationPage() {
             {/* Results */}
             {showResults && (
               <div className={`mt-12 p-10 rounded-3xl shadow-2xl ${
-                simulationType === 'consumer' ? 'bg-emerald-50 border border-emerald-100' : 'bg-amber-50 border border-amber-100'
+                simulationType === 'consumer' ? 'bg-emerald-50 border border-emerald-100' : 'bg-brand-gold/10 border border-amber-100'
               }`}>
                 <div className="flex items-center gap-4 mb-8">
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
@@ -411,27 +411,27 @@ export default function SimulationPage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <div className="bg-white p-8 rounded-2xl border border-amber-200 shadow-lg">
-                      <p className="text-amber-700 font-semibold mb-3 text-lg font-sans">{t('simulation.producer.production')}</p>
+                    <div className="bg-white p-8 rounded-2xl border border-brand-gold/30 shadow-lg">
+                      <p className="text-brand-gold font-semibold mb-3 text-lg font-sans">{t('simulation.producer.production')}</p>
                       <p className="text-3xl font-bold text-amber-900 font-sans">{calculateSimulation()?.estimatedProduction} kWh</p>
                     </div>
 
                     <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-8 rounded-2xl border border-amber-300 shadow-lg">
-                      <p className="text-amber-700 font-semibold mb-3 text-lg font-sans">{t('simulation.producer.revenue')}</p>
+                      <p className="text-brand-gold font-semibold mb-3 text-lg font-sans">{t('simulation.producer.revenue')}</p>
                       <p className="text-4xl font-bold text-amber-600 font-sans">{calculateSimulation()?.revenue} €</p>
                     </div>
                   </div>
                 )}
 
                 <div className={`p-6 rounded-2xl border ${
-                  simulationType === 'consumer' ? 'bg-emerald-100 border-emerald-200' : 'bg-amber-100 border-amber-200'
+                  simulationType === 'consumer' ? 'bg-emerald-100 border-emerald-200' : 'bg-amber-100 border-brand-gold/30'
                 } mb-8`}>
                   <div className="flex items-start gap-4">
                     <InfoCircle className={`w-6 h-6 flex-shrink-0 mt-1 ${
                       simulationType === 'consumer' ? 'text-emerald-600' : 'text-amber-600'
                     }`} />
                     <p className={`text-lg font-sans ${
-                      simulationType === 'consumer' ? 'text-emerald-700' : 'text-amber-700'
+                      simulationType === 'consumer' ? 'text-emerald-700' : 'text-brand-gold'
                     }`}>
                       {simulationType === 'consumer' 
                         ? t('simulation.consumer.disclaimer')

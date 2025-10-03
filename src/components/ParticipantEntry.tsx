@@ -61,7 +61,7 @@ export function ParticipantEntry() {
               type="text"
               value={formData.name || ''}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-amber-200 rounded-lg"
+              className="w-full px-4 py-2 border border-brand-gold/30 rounded-lg"
               required
             />
           </div>
@@ -73,7 +73,7 @@ export function ParticipantEntry() {
             <select
               value={formData.type || 'consumer'}
               onChange={(e) => setFormData({ ...formData, type: e.target.value as 'producer' | 'consumer' })}
-              className="w-full px-4 py-2 border border-amber-200 rounded-lg"
+              className="w-full px-4 py-2 border border-brand-gold/30 rounded-lg"
               required
             >
               <option value="consumer">Consommateur</option>
@@ -89,7 +89,7 @@ export function ParticipantEntry() {
               type="text"
               value={formData.address || ''}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full px-4 py-2 border border-amber-200 rounded-lg"
+              className="w-full px-4 py-2 border border-brand-gold/30 rounded-lg"
               required
             />
           </div>
@@ -103,7 +103,7 @@ export function ParticipantEntry() {
               step="0.0001"
               value={formData.lat || ''}
               onChange={(e) => setFormData({ ...formData, lat: parseFloat(e.target.value) })}
-              className="w-full px-4 py-2 border border-amber-200 rounded-lg"
+              className="w-full px-4 py-2 border border-brand-gold/30 rounded-lg"
               required
             />
           </div>
@@ -117,7 +117,7 @@ export function ParticipantEntry() {
               step="0.0001"
               value={formData.lng || ''}
               onChange={(e) => setFormData({ ...formData, lng: parseFloat(e.target.value) })}
-              className="w-full px-4 py-2 border border-amber-200 rounded-lg"
+              className="w-full px-4 py-2 border border-brand-gold/30 rounded-lg"
               required
             />
           </div>
@@ -133,7 +133,7 @@ export function ParticipantEntry() {
                   step="0.1"
                   value={formData.peak_power || ''}
                   onChange={(e) => setFormData({ ...formData, peak_power: parseFloat(e.target.value) })}
-                  className="w-full px-4 py-2 border border-amber-200 rounded-lg"
+                  className="w-full px-4 py-2 border border-brand-gold/30 rounded-lg"
                   required
                 />
               </div>
@@ -146,7 +146,7 @@ export function ParticipantEntry() {
                   type="number"
                   value={formData.annual_production || ''}
                   onChange={(e) => setFormData({ ...formData, annual_production: parseFloat(e.target.value) })}
-                  className="w-full px-4 py-2 border border-amber-200 rounded-lg"
+                  className="w-full px-4 py-2 border border-brand-gold/30 rounded-lg"
                   required
                 />
               </div>
@@ -161,7 +161,7 @@ export function ParticipantEntry() {
               type="number"
               value={formData.annual_consumption || ''}
               onChange={(e) => setFormData({ ...formData, annual_consumption: parseFloat(e.target.value) })}
-              className="w-full px-4 py-2 border border-amber-200 rounded-lg"
+              className="w-full px-4 py-2 border border-brand-gold/30 rounded-lg"
               required
             />
           </div>
@@ -170,7 +170,7 @@ export function ParticipantEntry() {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 flex items-center gap-2"
+            className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
             Enregistrer

@@ -158,7 +158,7 @@ export default function ResetPasswordPage() {
             <div className="space-y-3">
               <button
                 onClick={() => navigate("/")}
-                className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-brand-gold/100 hover:bg-brand-gold text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <ArrowLeft className="w-5 h-5" />
                 Retour à l'accueil
@@ -251,7 +251,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading || !password || !confirmPassword || password !== confirmPassword}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 font-sans"
+              className="w-full bg-brand-gold/100 hover:bg-brand-gold text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 font-sans"
             >
               {loading ? "Chargement..." : "Réinitialiser le mot de passe"}
             </button>

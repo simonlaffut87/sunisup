@@ -48,16 +48,16 @@ export default function AboutPage() {
             <div className="bg-white rounded-lg shadow-md p-8 border border-blue-100 hover:border-teal-200 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-teal-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-10 h-10 text-teal-600" />
+                  <Users className="w-10 h-10 text-brand-teal" />
                 </div>
                 <h3 className="text-2xl font-semibold text-gray-800 mb-2 font-sans">{t('about.whoAreWe.thomas.title')}</h3>
-                <p className="text-teal-600 font-medium text-base font-sans">{t('about.whoAreWe.thomas.role')}</p>
+                <p className="text-brand-teal font-medium text-base font-sans">{t('about.whoAreWe.thomas.role')}</p>
               </div>
               
               <div className="space-y-6">
                 {t('about.whoAreWe.thomas.qualifications', { returnObjects: true }).map((qualification: string, index: number) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-teal-600 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-brand-teal rounded-full mt-2 flex-shrink-0"></div>
                     <div>
                       {qualification.includes('\n') ? (
                         <div>
@@ -83,10 +83,10 @@ export default function AboutPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
-              <div className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4 border border-amber-100">
+              <div className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4 border border-yellow-100">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center">
-                    <Lightbulb className="w-6 h-6 text-amber-600" />
+                  <div className="w-12 h-12 bg-brand-gold/10 rounded-lg flex items-center justify-center">
+                    <Lightbulb className="w-6 h-6 text-brand-gold" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-800 text-base">Décembre 2024</p>
@@ -97,9 +97,9 @@ export default function AboutPage() {
             </div>
 
             {/* Simon - Right side */}
-            <div className="bg-white rounded-lg shadow-md p-8 border border-amber-100 hover:border-amber-200 hover:shadow-lg transition-all duration-300">
+            <div className="bg-white rounded-lg shadow-md p-8 border border-amber-100 hover:border-brand-gold/30 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-amber-50 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 bg-brand-gold/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-10 h-10 text-amber-600" />
                 </div>
                 <h3 className="text-2xl font-semibold text-gray-800 mb-2 font-sans">{t('about.whoAreWe.simon.title')}</h3>
@@ -109,7 +109,7 @@ export default function AboutPage() {
               <div className="space-y-6">
                 {t('about.whoAreWe.simon.qualifications', { returnObjects: true }).map((qualification: string, index: number) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-amber-600 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
                     <div>
                       {qualification.includes('\n') ? (
                         <div>
@@ -149,7 +149,7 @@ export default function AboutPage() {
               <div className="space-y-6">
                 {t('about.mission.objectives.items', { returnObjects: true }).map((item: string, index: number) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle className="w-5 h-5 text-brand-teal flex-shrink-0 mt-0.5" />
                     <p className="text-gray-600 text-base font-sans">{item}</p>
                   </div>
                 ))}
@@ -160,7 +160,7 @@ export default function AboutPage() {
               <div className="bg-white rounded-lg p-8 shadow-md border border-gray-200">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-amber-50 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-brand-gold/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <Zap className="w-8 h-8 text-amber-600" />
                     </div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">1300</h3>
@@ -168,8 +168,8 @@ export default function AboutPage() {
                   </div>
 
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-teal-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-8 h-8 text-teal-600" />
+                    <div className="w-16 h-16 bg-brand-teal/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-8 h-8 text-brand-teal" />
                     </div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">15</h3>
                     <p className="text-gray-600 text-sm font-medium font-sans">{t('about.mission.stats.activeMembers')}</p>
@@ -177,15 +177,15 @@ export default function AboutPage() {
 
                   <div className="text-center">
                     <div className="w-16 h-16 bg-teal-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl font-bold text-teal-600">€</span>
+                      <span className="text-2xl font-bold text-brand-teal">€</span>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">15%</h3>
                     <p className="text-gray-600 text-sm font-medium font-sans">{t('about.mission.stats.averageSavings')}</p>
                   </div>
 
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-rose-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <MapPin className="w-8 h-8 text-rose-500" />
+                    <div className="w-16 h-16 bg-brand-flame/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <MapPin className="w-8 h-8 text-brand-flame" />
                     </div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">100%</h3>
                     <p className="text-gray-600 text-sm font-medium font-sans">{t('about.mission.stats.localEnergy')}</p>
@@ -211,84 +211,84 @@ export default function AboutPage() {
             <div className="flex animate-scroll-infinite space-x-8" style={{ width: 'calc(200%)' }}>
               {/* Premier set de logos */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/carrefour.png" alt="Carrefour" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               
               {/* Deuxième set de logos (duplication pour boucle infinie) */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/carrefour.png" alt="Carrefour" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-amber-50 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
                   <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
