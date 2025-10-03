@@ -113,7 +113,7 @@ export default function HomePage() {
                   Sun Is Up
                 </h1>
                 <p className="text-xl sm:text-2xl lg:text-3xl text-white/90 leading-relaxed max-w-4xl mx-auto font-sans font-light drop-shadow-lg">
-                  Construisons ensemble un avenir énergétique durable pour votre entreprise
+                  {t('home.hero.subtitle')}
                 </p>
               </div>
               
