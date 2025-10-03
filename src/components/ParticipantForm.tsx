@@ -365,10 +365,10 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
       {Object.keys(errors).length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center mb-2">
-            <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-            <h4 className="font-medium text-red-900">Erreurs dans le formulaire</h4>
+            <AlertCircle className="w-5 h-5 text-rose-600 mr-2" />
+            <h4 className="font-medium text-rose-800">Erreurs dans le formulaire</h4>
           </div>
-          <ul className="text-sm text-red-800 space-y-1">
+          <ul className="text-sm text-rose-700 space-y-1">
             {Object.values(errors).map((error, index) => (
               <li key={index}>• {error}</li>
             ))}
@@ -396,7 +396,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 placeholder="Ex: Boulangerie Martin"
                 required
               />
-              {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
+              {errors.name && <p className="text-sm text-rose-600 mt-1">{errors.name}</p>}
             </div>
 
             <div>
@@ -415,7 +415,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 <option value="consumer">Consommateur</option>
                 <option value="producer">Producteur</option>
               </select>
-              {errors.type && <p className="text-sm text-red-600 mt-1">{errors.type}</p>}
+              {errors.type && <p className="text-sm text-rose-600 mt-1">{errors.type}</p>}
             </div>
           </div>
 
@@ -434,7 +434,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               placeholder="Ex: Rue de la Science 14B, 1040 Bruxelles"
               required
             />
-            {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
+            {errors.address && <p className="text-sm text-rose-600 mt-1">{errors.address}</p>}
           </div>
 
         </div>
@@ -457,7 +457,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 }`}
                 required
               />
-              {errors.entry_date && <p className="text-sm text-red-600 mt-1">{errors.entry_date}</p>}
+              {errors.entry_date && <p className="text-sm text-rose-600 mt-1">{errors.entry_date}</p>}
             </div>
 
             <div>
@@ -474,7 +474,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 }`}
                 placeholder="Ex: contact@boulangerie-martin.be"
               />
-              {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
+              {errors.email && <p className="text-sm text-rose-600 mt-1">{errors.email}</p>}
               <p className="text-xs text-gray-500 mt-1">
                 Optionnel - Laissez vide si le participant n'a pas encore de compte membre
               </p>
@@ -498,7 +498,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 maxLength={18}
                 required
               />
-              {errors.ean_code && <p className="text-sm text-red-600 mt-1">{errors.ean_code}</p>}
+              {errors.ean_code && <p className="text-sm text-rose-600 mt-1">{errors.ean_code}</p>}
               {!errors.ean_code && formData.ean_code && formData.ean_code.length < 18 && (
                 <p className="text-sm text-gray-500 mt-1">
                   {18 - formData.ean_code.length} chiffres restants
@@ -526,7 +526,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                   <span className="text-gray-500 text-sm font-medium">€/MWh</span>
                 </div>
               </div>
-              {errors.commodity_rate && <p className="text-sm text-red-600 mt-1">{errors.commodity_rate}</p>}
+              {errors.commodity_rate && <p className="text-sm text-rose-600 mt-1">{errors.commodity_rate}</p>}
             </div>
           </div>
 
@@ -555,7 +555,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                   <span className="text-gray-500 text-sm font-medium">€/MWh</span>
                 </div>
               </div>
-              {errors.shared_energy_price && <p className="text-sm text-red-600 mt-1">{errors.shared_energy_price}</p>}
+              {errors.shared_energy_price && <p className="text-sm text-rose-600 mt-1">{errors.shared_energy_price}</p>}
             </div>
           </div>
 
@@ -624,7 +624,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
               }`}
               placeholder="Ex: BE 0123.456.789"
             />
-            {errors.company_number && <p className="text-sm text-red-600 mt-1">{errors.company_number}</p>}
+            {errors.company_number && <p className="text-sm text-rose-600 mt-1">{errors.company_number}</p>}
             <p className="text-xs text-gray-500 mt-1">
               Format belge: BE suivi de 10 chiffres (ex: BE 0123.456.789)
             </p>
@@ -638,7 +638,7 @@ export function ParticipantForm({ participant, onSuccess, onCancel }: Participan
                 type="button"
                 onClick={handleDelete}
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 text-red-600 hover:text-red-700 disabled:opacity-50 transition-colors"
+                className="inline-flex items-center px-4 py-2 text-rose-600 hover:text-rose-600 disabled:opacity-50 transition-colors"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Supprimer

@@ -439,7 +439,7 @@ export function AdminDashboard() {
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-rose-500 hover:bg-rose-600 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
@@ -463,7 +463,7 @@ export function AdminDashboard() {
                 }`}></div>
                 <div className="flex-1">
                   <h3 className={`font-medium ${
-                    connectionStatus.canAccessParticipants ? 'text-gray-900' : 'text-red-900'
+                    connectionStatus.canAccessParticipants ? 'text-gray-900' : 'text-rose-800'
                   }`}>
                     Status Connexion Admin
                   </h3>
@@ -472,7 +472,7 @@ export function AdminDashboard() {
                     <div>🔐 Session: {connectionStatus.hasValidSession ? '✅ Valide' : '❌ Invalide'}</div>
                     <div>🗄️ Accès participants: {connectionStatus.canAccessParticipants ? '✅ Autorisé' : '❌ Refusé'}</div>
                     {connectionStatus.errorDetails && (
-                      <div className="text-red-700 font-mono text-xs bg-red-100 p-2 rounded mt-2">
+                      <div className="text-rose-600 font-mono text-xs bg-rose-50 p-2 rounded mt-2">
                         {connectionStatus.errorDetails}
                       </div>
                     )}
@@ -505,7 +505,7 @@ export function AdminDashboard() {
                   <div className="space-y-1 text-xs font-mono">
                     {debugMessages.map((msg, index) => (
                       <div key={index} className={`${
-                        msg.includes('❌') ? 'text-red-600' :
+                        msg.includes('❌') ? 'text-rose-600' :
                         msg.includes('✅') ? 'text-green-600' :
                         msg.includes('⚠️') ? 'text-orange-600' :
                         msg.includes('🔍') ? 'text-blue-600' :
@@ -589,7 +589,7 @@ export function AdminDashboard() {
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-rose-500 hover:bg-rose-600 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
@@ -863,7 +863,7 @@ export function AdminDashboard() {
                                       }
                                     }
                                   }}
-                                  className="text-red-600 hover:text-red-900 transition-colors"
+                                  className="text-rose-600 hover:text-rose-800 transition-colors"
                                   title="Supprimer"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -964,7 +964,7 @@ export function AdminDashboard() {
                                   }
                                 }
                               }}
-                              className="text-red-600 hover:text-red-900 transition-colors"
+                              className="text-rose-600 hover:text-rose-800 transition-colors"
                               title="Supprimer"
                             >
                               <Trash2 className="w-4 h-4" />

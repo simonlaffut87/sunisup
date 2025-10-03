@@ -457,10 +457,10 @@ export function ExcelImportModal({
               {validationResult.errors.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-center mb-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                    <h4 className="font-medium text-red-900">Erreurs ({validationResult.errors.length})</h4>
+                    <AlertCircle className="w-5 h-5 text-rose-600 mr-2" />
+                    <h4 className="font-medium text-rose-800">Erreurs ({validationResult.errors.length})</h4>
                   </div>
-                  <ul className="text-sm text-red-800 space-y-1">
+                  <ul className="text-sm text-rose-700 space-y-1">
                     {validationResult.errors.map((error, index) => (
                       <li key={index}>• {error}</li>
                     ))}

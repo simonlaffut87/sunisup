@@ -360,7 +360,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">Participant non trouvé</p>
+          <p className="text-rose-600">Participant non trouvé</p>
           <button onClick={handleLogout} className="mt-4 text-blue-600 hover:text-blue-800">
             Retour à l'accueil
           </button>
@@ -423,7 +423,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-rose-500 hover:bg-rose-600 disabled:bg-gray-400"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}

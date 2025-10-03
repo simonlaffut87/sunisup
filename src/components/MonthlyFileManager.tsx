@@ -389,7 +389,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         );
       case 'error':
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-rose-50 text-rose-700">
             <AlertCircle className="w-3 h-3 mr-1" />
             Erreur
           </span>

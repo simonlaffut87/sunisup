@@ -863,14 +863,14 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl shadow-xl p-8 text-center max-w-md">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <X className="w-8 h-8 text-red-600" />
+          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-rose-600" />
           </div>
-          <h3 className="text-lg font-semibold text-red-900 mb-2">Erreur</h3>
-          <p className="text-red-700 mb-4">{error}</p>
+          <h3 className="text-lg font-semibold text-rose-800 mb-2">Erreur</h3>
+          <p className="text-rose-600 mb-4">{error}</p>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
           >
             Fermer
           </button>
@@ -1205,9 +1205,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             {Object.keys(invoiceData.billingData).length === 0 ? (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center">
-                  <span className="font-medium text-red-900">Aucune donnée de coûts réseau trouvée</span>
+                  <span className="font-medium text-rose-800">Aucune donnée de coûts réseau trouvée</span>
                 </div>
-                <p className="text-sm text-red-800 mt-2">
+                <p className="text-sm text-rose-700 mt-2">
                   Les coûts réseau n'ont pas été importés pour cette période. 
                   Assurez-vous d'importer un fichier Excel contenant les colonnes de coûts réseau.
                 </p>

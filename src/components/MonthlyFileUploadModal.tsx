@@ -398,14 +398,14 @@ export function MonthlyFileUploadModal({
           {/* Error */}
           {step === 'error' && (
             <div className="text-center py-8">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-10 h-10 text-red-600" />
+              <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-10 h-10 text-rose-600" />
               </div>
-              <h3 className="text-lg font-semibold text-red-900 mb-2">Erreur d'import</h3>
-              <p className="text-red-700 mb-4">{errorMessage}</p>
+              <h3 className="text-lg font-semibold text-rose-800 mb-2">Erreur d'import</h3>
+              <p className="text-rose-600 mb-4">{errorMessage}</p>
               <button
                 onClick={handleRetry}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
               >
                 Réessayer
               </button>

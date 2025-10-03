@@ -380,7 +380,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                       )}
                       <button
                         onClick={stopProcessing}
-                        className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors flex items-center space-x-1"
+                        className="bg-rose-500 text-white px-3 py-1 rounded text-sm hover:bg-rose-600 transition-colors flex items-center space-x-1"
                       >
                         <Square className="w-3 h-3" />
                         <span>Arrêter</span>
@@ -411,7 +411,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                       <div className="text-gray-500">Lignes valides</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-medium text-red-600">{state.errorRows.toLocaleString()}</div>
+                      <div className="font-medium text-rose-600">{state.errorRows.toLocaleString()}</div>
                       <div className="text-gray-500">Erreurs</div>
                     </div>
                   </div>
@@ -428,15 +428,15 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
               {state.errors.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-h-40 overflow-y-auto">
                   <div className="flex items-center space-x-2 mb-2">
-                    <AlertCircle className="w-4 h-4 text-red-600" />
-                    <span className="font-medium text-red-800">Erreurs récentes</span>
+                    <AlertCircle className="w-4 h-4 text-rose-600" />
+                    <span className="font-medium text-rose-700">Erreurs récentes</span>
                   </div>
-                  <div className="space-y-1 text-sm text-red-700">
+                  <div className="space-y-1 text-sm text-rose-600">
                     {state.errors.slice(-5).map((error, index) => (
                       <div key={index}>{error}</div>
                     ))}
                     {state.errors.length > 5 && (
-                      <div className="text-red-500 italic">
+                      <div className="text-rose-500 italic">
                         ... et {state.errors.length - 5} autres erreurs
                       </div>
                     )}
@@ -511,8 +511,8 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           {state.status === 'error' && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <AlertCircle className="w-6 h-6 text-red-600" />
-                <h3 className="text-lg font-semibold text-red-800">
+                <AlertCircle className="w-6 h-6 text-rose-600" />
+                <h3 className="text-lg font-semibold text-rose-700">
                   Erreur lors de l'import
                 </h3>
               </div>
@@ -520,7 +520,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
               <div className="space-y-4">
                 {state.errors.map((error, index) => (
                   <div key={index} className="bg-white border border-red-200 rounded p-4">
-                    <pre className="text-sm text-red-700 whitespace-pre-wrap font-mono overflow-x-auto">
+                    <pre className="text-sm text-rose-600 whitespace-pre-wrap font-mono overflow-x-auto">
                       {error}
                     </pre>
                   </div>
@@ -537,7 +537,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 </button>
                 <button
                   onClick={() => setState(prev => ({ ...prev, status: 'idle', errors: [], warnings: [] }))}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                  className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors"
                 >
                   Réessayer
                 </button>

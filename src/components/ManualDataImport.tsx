@@ -879,7 +879,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                 <div className="space-y-1 text-xs font-mono">
                   {debugLogs.map((log, index) => (
                     <div key={index} className={`${
-                      log.includes('❌') ? 'text-red-600' :
+                      log.includes('❌') ? 'text-rose-600' :
                       log.includes('✅') ? 'text-green-600' :
                       log.includes('⚠️') ? 'text-orange-600' :
                       log.includes('ℹ️') ? 'text-blue-600' :

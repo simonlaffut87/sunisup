@@ -147,8 +147,8 @@ export default function ResetPasswordPage() {
         />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-8 h-8 text-red-600" />
+            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-rose-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Lien invalide ou expiré</h1>
             <p className="text-gray-600 mb-6">
@@ -244,7 +244,7 @@ export default function ResetPasswordPage() {
 
             {password && confirmPassword && password !== confirmPassword && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-700 font-sans">Les mots de passe ne correspondent pas</p>
+                <p className="text-sm text-rose-600 font-sans">Les mots de passe ne correspondent pas</p>
               </div>
             )}
 
