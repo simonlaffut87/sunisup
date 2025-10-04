@@ -127,10 +127,10 @@ export default function ResetPasswordPage() {
           description="Réinitialisez votre mot de passe pour accéder à votre compte membre Sun Is Up"
           noIndex={true}
         />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Vérification du lien de réinitialisation...</p>
+            <p className="text-neutral-600">Vérification du lien de réinitialisation...</p>
           </div>
         </div>
       </>
@@ -145,13 +145,13 @@ export default function ResetPasswordPage() {
           description="Le lien de réinitialisation est invalide ou a expiré"
           noIndex={true}
         />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-white flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-8 h-8 text-rose-600" />
+            <div className="w-16 h-16 bg-brand-flame/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-brand-flame" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Lien invalide ou expiré</h1>
-            <p className="text-gray-600 mb-6">
+            <h1 className="text-2xl font-bold text-neutral-900 mb-4">Lien invalide ou expiré</h1>
+            <p className="text-neutral-600 mb-6">
               Ce lien de réinitialisation est invalide ou a expiré.
               Veuillez demander un nouveau lien de réinitialisation.
             </p>
@@ -163,7 +163,7 @@ export default function ResetPasswordPage() {
                 <ArrowLeft className="w-5 h-5" />
                 Retour à l'accueil
               </button>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-neutral-500">
                 Vous pouvez demander un nouveau lien depuis la page de connexion
               </p>
             </div>
@@ -180,19 +180,19 @@ export default function ResetPasswordPage() {
         description="Définissez votre nouveau mot de passe pour votre compte membre Sun Is Up"
         noIndex={true}
       />
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4 font-sans">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-amber-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2 font-sans">Nouveau mot de passe</h1>
-            <p className="text-gray-600 font-sans">Définissez un nouveau mot de passe sécurisé pour votre compte</p>
+            <h1 className="text-2xl font-bold text-neutral-900 mb-2 font-sans">Nouveau mot de passe</h1>
+            <p className="text-neutral-600 font-sans">Définissez un nouveau mot de passe sécurisé pour votre compte</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">Nouveau mot de passe</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-2 font-sans">Nouveau mot de passe</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
@@ -201,7 +201,7 @@ export default function ResetPasswordPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                  className="w-full pl-10 pr-12 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900"
                   placeholder="••••••••"
                   required
                   minLength={6}
@@ -214,11 +214,11 @@ export default function ResetPasswordPage() {
                   {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1 font-sans">Minimum 6 caractères</p>
+              <p className="text-xs text-neutral-500 mt-1 font-sans">Minimum 6 caractères</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">Confirmer le mot de passe</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-2 font-sans">Confirmer le mot de passe</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
@@ -227,7 +227,7 @@ export default function ResetPasswordPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                  className="w-full pl-10 pr-12 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900"
                   placeholder="••••••••"
                   required
                   minLength={6}
@@ -243,8 +243,8 @@ export default function ResetPasswordPage() {
             </div>
 
             {password && confirmPassword && password !== confirmPassword && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-rose-600 font-sans">Les mots de passe ne correspondent pas</p>
+              <div className="bg-brand-flame border border-brand-flame rounded-lg p-3">
+                <p className="text-sm text-brand-flame font-sans">Les mots de passe ne correspondent pas</p>
               </div>
             )}
 

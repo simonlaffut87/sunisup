@@ -71,25 +71,25 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-neutral-300">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-green-100 rounded-full">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="p-2 bg-brand-teal rounded-full">
+                <CheckCircle className="w-6 h-6 text-brand-teal" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Import réussi</h2>
-                <p className="text-sm text-gray-600">
+                <h2 className="text-xl font-bold text-neutral-900">Import réussi</h2>
+                <p className="text-sm text-neutral-600">
                   {format(new Date(report.month + '-01'), 'MMMM yyyy', { locale: fr })}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-neutral-500 mt-1">
                   Importé le {format(new Date(), 'dd/MM/yyyy à HH:mm', { locale: fr })}
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-neutral-600 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -99,26 +99,26 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
         <div className="p-6">
           {/* Statistiques principales */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-teal-50 p-4 rounded-lg border border-blue-100">
+            <div className="bg-teal-50 p-4 rounded-lg border border-brand-teal">
               <div className="flex items-center space-x-3 mb-2">
                 <BarChart3 className="w-5 h-5 text-brand-teal" />
-                <h3 className="font-medium text-blue-900">Lignes</h3>
+                <h3 className="font-medium text-brand-teal">Lignes</h3>
               </div>
-              <p className="text-xl font-bold text-blue-800">
+              <p className="text-xl font-bold text-brand-teal">
                 {report.stats.validRowsImported.toLocaleString()}
               </p>
               <p className="text-xs text-brand-teal">sur {report.stats.totalRowsProcessed.toLocaleString()} lignes</p>
             </div>
             
-            <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+            <div className="bg-brand-teal p-4 rounded-lg border border-brand-teal">
               <div className="flex items-center space-x-3 mb-2">
-                <Database className="w-5 h-5 text-green-600" />
-                <h3 className="font-medium text-green-900">Mesures</h3>
+                <Database className="w-5 h-5 text-brand-teal" />
+                <h3 className="font-medium text-brand-teal">Mesures</h3>
               </div>
-              <p className="text-xl font-bold text-green-800">
+              <p className="text-xl font-bold text-brand-teal">
                 {report.stats.mesuresCount?.toLocaleString() || 0}
               </p>
-              <p className="text-xs text-green-600">points de données</p>
+              <p className="text-xs text-brand-teal">points de données</p>
             </div>
             
             <div className="bg-brand-gold/10 p-4 rounded-lg border border-amber-100">
@@ -132,78 +132,78 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
               <p className="text-xs text-amber-600">avec code EAN reconnu</p>
             </div>
             
-            <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
+            <div className="bg-brand-teal p-4 rounded-lg border border-brand-teal">
               <div className="flex items-center space-x-3 mb-2">
-                <AlertCircle className="w-5 h-5 text-purple-600" />
-                <h3 className="font-medium text-purple-900">EANs ignorés</h3>
+                <AlertCircle className="w-5 h-5 text-brand-teal" />
+                <h3 className="font-medium text-brand-teal">EANs ignorés</h3>
               </div>
-              <p className="text-xl font-bold text-purple-800">
+              <p className="text-xl font-bold text-brand-teal">
                 {report.stats.unknownEansSkipped?.toLocaleString() || 0}
               </p>
-              <p className="text-xs text-purple-600">non reconnus dans le système</p>
+              <p className="text-xs text-brand-teal">non reconnus dans le système</p>
             </div>
           </div>
 
           {/* Statistiques détaillées */}
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-            <h3 className="font-medium text-gray-900 mb-3">Statistiques détaillées</h3>
+          <div className="bg-white p-4 rounded-lg border border-neutral-300 mb-6">
+            <h3 className="font-medium text-neutral-900 mb-3">Statistiques détaillées</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-gray-600">Lignes traitées</p>
-                <p className="font-medium text-gray-900">{report.stats.totalRowsProcessed.toLocaleString()}</p>
+                <p className="text-neutral-600">Lignes traitées</p>
+                <p className="font-medium text-neutral-900">{report.stats.totalRowsProcessed.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-gray-600">Lignes importées</p>
-                <p className="font-medium text-gray-900">{report.stats.validRowsImported.toLocaleString()}</p>
+                <p className="text-neutral-600">Lignes importées</p>
+                <p className="font-medium text-neutral-900">{report.stats.validRowsImported.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-gray-600">Lignes ignorées</p>
-                <p className="font-medium text-gray-900">{report.stats.errorRowsSkipped.toLocaleString()}</p>
+                <p className="text-neutral-600">Lignes ignorées</p>
+                <p className="font-medium text-neutral-900">{report.stats.errorRowsSkipped.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-gray-600">Taux de réussite</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-neutral-600">Taux de réussite</p>
+                <p className="font-medium text-neutral-900">
                   {report.stats.totalRowsProcessed > 0 
                     ? Math.round((report.stats.validRowsImported / report.stats.totalRowsProcessed) * 100)
                     : 0}%
                 </p>
               </div>
               <div>
-                <p className="text-gray-600">Participants trouvés</p>
-                <p className="font-medium text-gray-900">{report.stats.participantsFound.toLocaleString()}</p>
+                <p className="text-neutral-600">Participants trouvés</p>
+                <p className="font-medium text-neutral-900">{report.stats.participantsFound.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-gray-600">EANs non reconnus</p>
-                <p className="font-medium text-gray-900">{report.stats.unknownEansSkipped.toLocaleString()}</p>
+                <p className="text-neutral-600">EANs non reconnus</p>
+                <p className="font-medium text-neutral-900">{report.stats.unknownEansSkipped.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
           {/* Liste des participants */}
           <div className="mb-6">
-            <h3 className="font-medium text-gray-900 mb-3">Participants importés ({Object.keys(report.participants).length})</h3>
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <h3 className="font-medium text-neutral-900 mb-3">Participants importés ({Object.keys(report.participants).length})</h3>
+            <div className="bg-white border border-neutral-300 rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-white">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code EAN</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume Compl.</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume Partagé</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Injection Compl.</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Injection Part.</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Code EAN</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Nom</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Volume Compl.</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Volume Partagé</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Injection Compl.</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Injection Part.</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {Object.entries(report.participants).map(([ean, data]: [string, any]) => (
-                      <tr key={ean} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm font-mono text-gray-900">{ean}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{data.name}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{data.data.volume_complementaire.toFixed(2)} kWh</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{data.data.volume_partage.toFixed(2)} kWh</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{data.data.injection_complementaire.toFixed(2)} kWh</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{data.data.injection_partagee.toFixed(2)} kWh</td>
+                      <tr key={ean} className="hover:bg-white">
+                        <td className="px-4 py-3 text-sm font-mono text-neutral-900">{ean}</td>
+                        <td className="px-4 py-3 text-sm text-neutral-900">{data.name}</td>
+                        <td className="px-4 py-3 text-sm text-neutral-900">{data.data.volume_complementaire.toFixed(2)} kWh</td>
+                        <td className="px-4 py-3 text-sm text-neutral-900">{data.data.volume_partage.toFixed(2)} kWh</td>
+                        <td className="px-4 py-3 text-sm text-neutral-900">{data.data.injection_complementaire.toFixed(2)} kWh</td>
+                        <td className="px-4 py-3 text-sm text-neutral-900">{data.data.injection_partagee.toFixed(2)} kWh</td>
                       </tr>
                     ))}
                   </tbody>
@@ -215,9 +215,9 @@ export function ImportReportModal({ isOpen, onClose, report }: ImportReportModal
           {/* Avertissements */}
           {report.warnings && report.warnings.length > 0 && (
             <div className="mb-6">
-              <h3 className="font-medium text-gray-900 mb-3">Avertissements ({report.warnings.length})</h3>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-h-40 overflow-y-auto">
-                <div className="space-y-1 text-sm text-yellow-800">
+              <h3 className="font-medium text-neutral-900 mb-3">Avertissements ({report.warnings.length})</h3>
+              <div className="bg-brand-gold border border-brand-gold rounded-lg p-4 max-h-40 overflow-y-auto">
+                <div className="space-y-1 text-sm text-brand-gold">
                   {report.warnings.map((warning, index) => (
                     <div key={index} className="flex items-start space-x-2">
                       <span>•</span>

@@ -35,22 +35,22 @@ export default function AboutPage() {
       <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-6 font-sans">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-neutral-900 mb-6 font-sans">
               {t('about.whoAreWe.title')}
             </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto font-sans">
+            <p className="text-lg sm:text-xl lg:text-2xl text-neutral-600 max-w-3xl mx-auto font-sans">
               {t('about.whoAreWe.subtitle')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-center">
             {/* Thomas - Left side */}
-            <div className="bg-white rounded-lg shadow-md p-8 border border-blue-100 hover:border-teal-200 hover:shadow-lg transition-all duration-300">
+            <div className="bg-white rounded-lg shadow-md p-8 border border-brand-teal hover:border-teal-200 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-teal-50 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Users className="w-10 h-10 text-brand-teal" />
                 </div>
-                <h3 className="text-2xl font-semibold text-gray-800 mb-2 font-sans">{t('about.whoAreWe.thomas.title')}</h3>
+                <h3 className="text-2xl font-semibold text-neutral-800 mb-2 font-sans">{t('about.whoAreWe.thomas.title')}</h3>
                 <p className="text-brand-teal font-medium text-base font-sans">{t('about.whoAreWe.thomas.role')}</p>
               </div>
               
@@ -61,11 +61,11 @@ export default function AboutPage() {
                     <div>
                       {qualification.includes('\n') ? (
                         <div>
-                          <p className="font-bold text-gray-900 text-lg font-sans">{qualification.split('\n')[0]}</p>
-                          <p className="text-gray-600 mt-2 font-sans">{qualification.split('\n')[1]}</p>
+                          <p className="font-bold text-neutral-900 text-lg font-sans">{qualification.split('\n')[0]}</p>
+                          <p className="text-neutral-600 mt-2 font-sans">{qualification.split('\n')[1]}</p>
                         </div>
                       ) : (
-                        <p className="text-gray-700 font-sans"><strong className="text-gray-900">{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
+                        <p className="text-neutral-700 font-sans"><strong className="text-neutral-900">{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
                       )}
                     </div>
                   </div>
@@ -83,14 +83,14 @@ export default function AboutPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
-              <div className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4 border border-yellow-100">
+              <div className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4 border border-brand-gold">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-brand-gold/10 rounded-lg flex items-center justify-center">
                     <Lightbulb className="w-6 h-6 text-brand-gold" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800 text-base">Décembre 2024</p>
-                    <p className="text-gray-600 text-sm">Création de Sun Is Up</p>
+                    <p className="font-semibold text-neutral-800 text-base">Décembre 2024</p>
+                    <p className="text-neutral-600 text-sm">Création de Sun Is Up</p>
                   </div>
                 </div>
               </div>
@@ -102,7 +102,7 @@ export default function AboutPage() {
                 <div className="w-20 h-20 bg-brand-gold/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-10 h-10 text-amber-600" />
                 </div>
-                <h3 className="text-2xl font-semibold text-gray-800 mb-2 font-sans">{t('about.whoAreWe.simon.title')}</h3>
+                <h3 className="text-2xl font-semibold text-neutral-800 mb-2 font-sans">{t('about.whoAreWe.simon.title')}</h3>
                 <p className="text-amber-600 font-medium text-base font-sans">{t('about.whoAreWe.simon.role')}</p>
               </div>
               
@@ -113,11 +113,11 @@ export default function AboutPage() {
                     <div>
                       {qualification.includes('\n') ? (
                         <div>
-                          <p className="font-bold text-gray-900 text-lg font-sans">{qualification.split('\n')[0]}</p>
-                          <p className="text-gray-600 mt-2 font-sans">{qualification.split('\n')[1]}</p>
+                          <p className="font-bold text-neutral-900 text-lg font-sans">{qualification.split('\n')[0]}</p>
+                          <p className="text-neutral-600 mt-2 font-sans">{qualification.split('\n')[1]}</p>
                         </div>
                       ) : (
-                        <p className="text-gray-700 font-sans"><strong className="text-gray-900">{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
+                        <p className="text-neutral-700 font-sans"><strong className="text-neutral-900">{qualification.split(' - ')[0]}</strong> - {qualification.split(' - ')[1]}</p>
                       )}
                     </div>
                   </div>
@@ -135,14 +135,14 @@ export default function AboutPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
+            <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6 font-sans">
               {t('about.mission.communityStats.title')}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-xl lg:text-2xl text-gray-600 mb-10 leading-relaxed font-sans">
+              <p className="text-xl lg:text-2xl text-neutral-600 mb-10 leading-relaxed font-sans">
                 {t('about.history.solution.description')}
               </p>
               
@@ -150,45 +150,45 @@ export default function AboutPage() {
                 {t('about.mission.objectives.items', { returnObjects: true }).map((item: string, index: number) => (
                   <div key={index} className="flex items-start space-x-3">
                     <CheckCircle className="w-5 h-5 text-brand-teal flex-shrink-0 mt-0.5" />
-                    <p className="text-gray-600 text-base font-sans">{item}</p>
+                    <p className="text-neutral-600 text-base font-sans">{item}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="relative">
-              <div className="bg-white rounded-lg p-8 shadow-md border border-gray-200">
+              <div className="bg-white rounded-lg p-8 shadow-md border border-neutral-300">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center">
                     <div className="w-16 h-16 bg-brand-gold/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <Zap className="w-8 h-8 text-amber-600" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">1300</h3>
-                    <p className="text-gray-600 text-sm font-medium font-sans">{t('about.mission.stats.availableEnergy')}</p>
+                    <h3 className="text-2xl font-bold text-neutral-800 mb-2 font-sans">1300</h3>
+                    <p className="text-neutral-600 text-sm font-medium font-sans">{t('about.mission.stats.availableEnergy')}</p>
                   </div>
 
                   <div className="text-center">
                     <div className="w-16 h-16 bg-brand-teal/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <Users className="w-8 h-8 text-brand-teal" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">15</h3>
-                    <p className="text-gray-600 text-sm font-medium font-sans">{t('about.mission.stats.activeMembers')}</p>
+                    <h3 className="text-2xl font-bold text-neutral-800 mb-2 font-sans">15</h3>
+                    <p className="text-neutral-600 text-sm font-medium font-sans">{t('about.mission.stats.activeMembers')}</p>
                   </div>
 
                   <div className="text-center">
                     <div className="w-16 h-16 bg-teal-50 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <span className="text-2xl font-bold text-brand-teal">€</span>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">15%</h3>
-                    <p className="text-gray-600 text-sm font-medium font-sans">{t('about.mission.stats.averageSavings')}</p>
+                    <h3 className="text-2xl font-bold text-neutral-800 mb-2 font-sans">15%</h3>
+                    <p className="text-neutral-600 text-sm font-medium font-sans">{t('about.mission.stats.averageSavings')}</p>
                   </div>
 
                   <div className="text-center">
                     <div className="w-16 h-16 bg-brand-flame/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <MapPin className="w-8 h-8 text-brand-flame" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2 font-sans">100%</h3>
-                    <p className="text-gray-600 text-sm font-medium font-sans">{t('about.mission.stats.localEnergy')}</p>
+                    <h3 className="text-2xl font-bold text-neutral-800 mb-2 font-sans">100%</h3>
+                    <p className="text-neutral-600 text-sm font-medium font-sans">{t('about.mission.stats.localEnergy')}</p>
                   </div>
                 </div>
               </div>
@@ -198,10 +198,10 @@ export default function AboutPage() {
       </section>
 
       {/* Partners Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans">
+            <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6 font-sans">
               {t('about.partners.title')}
             </h2>
           </div>

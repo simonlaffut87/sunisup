@@ -104,7 +104,7 @@ export function SimulationModal({ isOpen, onClose }: SimulationModalProps) {
                 
                 <div>
                   <p className="text-brand-gold">Coût avec la communauté</p>
-                  <p className="text-2xl font-bold text-green-600">{results.newCost} €</p>
+                  <p className="text-2xl font-bold text-brand-teal">{results.newCost} €</p>
                 </div>
 
                 <div className="pt-4 border-t border-brand-gold/30">

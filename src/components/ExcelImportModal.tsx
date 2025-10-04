@@ -340,14 +340,14 @@ export function ExcelImportModal({
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Import de données Excel</h2>
-              <p className="text-gray-600 mt-1">
+              <h2 className="text-2xl font-bold text-neutral-900">Import de données Excel</h2>
+              <p className="text-neutral-600 mt-1">
                 {participantName} ({participantType === 'producer' ? 'Producteur' : 'Consommateur'})
               </p>
             </div>
             <button
               onClick={handleClose}
-              className="text-gray-500 hover:text-gray-700 transition-colors p-2"
+              className="text-neutral-500 hover:text-neutral-700 transition-colors p-2"
             >
               <X className="w-6 h-6" />
             </button>
@@ -358,8 +358,8 @@ export function ExcelImportModal({
             <div className="flex items-start">
               <Info className="w-5 h-5 text-brand-teal mt-0.5 mr-3 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="font-medium text-blue-900 mb-2">Format de fichier requis</h3>
-                <div className="text-sm text-blue-800 space-y-2">
+                <h3 className="font-medium text-brand-teal mb-2">Format de fichier requis</h3>
+                <div className="text-sm text-brand-teal space-y-2">
                   <p>Votre fichier Excel doit contenir les colonnes suivantes :</p>
                   <ul className="list-disc list-inside ml-4 space-y-1">
                     <li><strong>Date/Heure</strong> : Format YYYY-MM-DD HH:MM ou DD/MM/YYYY HH:MM</li>
@@ -386,7 +386,7 @@ export function ExcelImportModal({
           {/* Step 1: Upload */}
           {step === 'upload' && (
             <div className="space-y-6">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+              <div className="border-2 border-dashed border-neutral-300 rounded-lg p-8 text-center hover:border-neutral-300 transition-colors">
                 <input
                   type="file"
                   accept=".xlsx,.xls,.csv"
@@ -401,13 +401,13 @@ export function ExcelImportModal({
                 />
                 <label htmlFor="excel-upload" className="cursor-pointer">
                   <FileSpreadsheet className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
                     Sélectionner un fichier Excel
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-neutral-600">
                     Formats supportés: .xlsx, .xls, .csv
                   </p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-neutral-500 mt-2">
                     Cliquez ici ou glissez-déposez votre fichier
                   </p>
                 </label>
@@ -419,10 +419,10 @@ export function ExcelImportModal({
           {step === 'validate' && validationResult && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Résultats de validation</h3>
+                <h3 className="text-lg font-semibold text-neutral-900">Résultats de validation</h3>
                 <button
                   onClick={() => setStep('upload')}
-                  className="text-gray-600 hover:text-gray-800 text-sm"
+                  className="text-neutral-600 hover:text-neutral-800 text-sm"
                 >
                   Changer de fichier
                 </button>
@@ -430,16 +430,16 @@ export function ExcelImportModal({
 
               {/* Summary */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900">{validationResult.summary.totalRows}</div>
-                  <div className="text-sm text-gray-600">Lignes totales</div>
+                <div className="bg-white p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-neutral-900">{validationResult.summary.totalRows}</div>
+                  <div className="text-sm text-neutral-600">Lignes totales</div>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{validationResult.summary.validRows}</div>
-                  <div className="text-sm text-gray-600">Lignes valides</div>
+                <div className="bg-brand-teal p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-brand-teal">{validationResult.summary.validRows}</div>
+                  <div className="text-sm text-neutral-600">Lignes valides</div>
                 </div>
                 <div className="bg-teal-50 p-4 rounded-lg">
-                  <div className="text-sm font-medium text-blue-900">Période</div>
+                  <div className="text-sm font-medium text-brand-teal">Période</div>
                   <div className="text-xs text-brand-teal">
                     {validationResult.summary.dateRange ? (
                       <>
@@ -455,12 +455,12 @@ export function ExcelImportModal({
 
               {/* Errors */}
               {validationResult.errors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="bg-brand-flame border border-brand-flame rounded-lg p-4">
                   <div className="flex items-center mb-2">
-                    <AlertCircle className="w-5 h-5 text-rose-600 mr-2" />
-                    <h4 className="font-medium text-rose-800">Erreurs ({validationResult.errors.length})</h4>
+                    <AlertCircle className="w-5 h-5 text-brand-flame mr-2" />
+                    <h4 className="font-medium text-brand-flame">Erreurs ({validationResult.errors.length})</h4>
                   </div>
-                  <ul className="text-sm text-rose-700 space-y-1">
+                  <ul className="text-sm text-brand-flame space-y-1">
                     {validationResult.errors.map((error, index) => (
                       <li key={index}>• {error}</li>
                     ))}
@@ -470,18 +470,18 @@ export function ExcelImportModal({
 
               {/* Warnings */}
               {validationResult.warnings.length > 0 && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="bg-brand-gold border border-brand-gold rounded-lg p-4">
                   <div className="flex items-center mb-2">
-                    <AlertCircle className="w-5 h-5 text-yellow-600 mr-2" />
-                    <h4 className="font-medium text-yellow-900">Avertissements ({validationResult.warnings.length})</h4>
+                    <AlertCircle className="w-5 h-5 text-brand-gold mr-2" />
+                    <h4 className="font-medium text-brand-gold">Avertissements ({validationResult.warnings.length})</h4>
                   </div>
                   <div className="max-h-32 overflow-y-auto">
-                    <ul className="text-sm text-yellow-800 space-y-1">
+                    <ul className="text-sm text-brand-gold space-y-1">
                       {validationResult.warnings.slice(0, 10).map((warning, index) => (
                         <li key={index}>• {warning}</li>
                       ))}
                       {validationResult.warnings.length > 10 && (
-                        <li className="text-yellow-600 italic">... et {validationResult.warnings.length - 10} autres avertissements</li>
+                        <li className="text-brand-gold italic">... et {validationResult.warnings.length - 10} autres avertissements</li>
                       )}
                     </ul>
                   </div>
@@ -490,12 +490,12 @@ export function ExcelImportModal({
 
               {/* Success */}
               {validationResult.isValid && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="bg-brand-teal border border-brand-teal rounded-lg p-4">
                   <div className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                    <h4 className="font-medium text-green-900">Validation réussie</h4>
+                    <CheckCircle className="w-5 h-5 text-brand-teal mr-2" />
+                    <h4 className="font-medium text-brand-teal">Validation réussie</h4>
                   </div>
-                  <p className="text-sm text-green-800 mt-1">
+                  <p className="text-sm text-brand-teal mt-1">
                     Le fichier est prêt à être importé. {validationResult.summary.validRows} lignes de données seront ajoutées.
                   </p>
                 </div>
@@ -505,7 +505,7 @@ export function ExcelImportModal({
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={handleClose}
-                  className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                  className="px-4 py-2 text-neutral-700 hover:text-neutral-900"
                 >
                   Annuler
                 </button>
@@ -513,7 +513,7 @@ export function ExcelImportModal({
                   <button
                     onClick={handleImport}
                     disabled={uploading}
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                    className="px-6 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                   >
                     {uploading ? (
                       <>
@@ -535,9 +535,9 @@ export function ExcelImportModal({
           {/* Step 3: Import Progress */}
           {step === 'import' && (
             <div className="text-center py-8">
-              <div className="w-16 h-16 border-t-4 border-b-4 border-green-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Import en cours...</h3>
-              <p className="text-gray-600">
+              <div className="w-16 h-16 border-t-4 border-b-4 border-brand-teal rounded-full animate-spin mx-auto mb-4"></div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Import en cours...</h3>
+              <p className="text-neutral-600">
                 Veuillez patienter pendant l'import des données dans la base de données.
               </p>
             </div>

@@ -420,25 +420,25 @@ export function AdminDashboard() {
 
   if (showForm) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm border-b border-gray-200">
+      <div className="min-h-screen bg-white">
+        <header className="bg-white shadow-sm border-b border-neutral-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <button
                   onClick={() => setShowForm(false)}
-                  className="mr-4 p-2 text-gray-600 hover:text-gray-900"
+                  className="mr-4 p-2 text-neutral-600 hover:text-neutral-900"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-neutral-900">
                   {editingParticipant ? 'Modifier le participant' : 'Ajouter un participant'}
                 </h1>
               </div>
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-rose-500 hover:bg-rose-600 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-flame/10 hover:bg-brand-flame/10 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
@@ -453,25 +453,25 @@ export function AdminDashboard() {
             {/* Status de connexion principal */}
             <div className={`p-4 rounded-lg border ${
               connectionStatus.canAccessParticipants 
-                ? 'bg-green-50 border-green-200' 
-                : 'bg-red-50 border-red-200'
+                ? 'bg-brand-teal border-brand-teal' 
+                : 'bg-brand-flame border-brand-flame'
             }`}>
               <div className="flex items-center space-x-3">
                 <div className={`w-3 h-3 rounded-full ${
-                  connectionStatus.canAccessParticipants ? 'bg-green-500' : 'bg-red-500'
+                  connectionStatus.canAccessParticipants ? 'bg-brand-teal' : 'bg-brand-flame'
                 }`}></div>
                 <div className="flex-1">
                   <h3 className={`font-medium ${
-                    connectionStatus.canAccessParticipants ? 'text-gray-900' : 'text-rose-800'
+                    connectionStatus.canAccessParticipants ? 'text-neutral-900' : 'text-brand-flame'
                   }`}>
                     Status Connexion Admin
                   </h3>
-                  <div className="text-sm space-y-1 mt-2 text-gray-800">
+                  <div className="text-sm space-y-1 mt-2 text-neutral-800">
                     <div>📧 Email: {connectionStatus.userEmail || 'Non connecté'}</div>
                     <div>🔐 Session: {connectionStatus.hasValidSession ? '✅ Valide' : '❌ Invalide'}</div>
                     <div>🗄️ Accès participants: {connectionStatus.canAccessParticipants ? '✅ Autorisé' : '❌ Refusé'}</div>
                     {connectionStatus.errorDetails && (
-                      <div className="text-rose-600 font-mono text-xs bg-rose-50 p-2 rounded mt-2">
+                      <div className="text-brand-flame font-mono text-xs bg-brand-flame/10 p-2 rounded mt-2">
                         {connectionStatus.errorDetails}
                       </div>
                     )}
@@ -488,27 +488,27 @@ export function AdminDashboard() {
 
             {/* Debug messages en temps réel */}
             {showDebugInfo && debugMessages.length > 0 && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="bg-brand-gold border border-brand-gold rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium text-yellow-900 flex items-center">
+                  <h4 className="font-medium text-brand-gold flex items-center">
                     🔍 Debug Connexion Admin ({debugMessages.length} messages)
                   </h4>
                   <button
                     onClick={() => setShowDebugInfo(!showDebugInfo)}
-                    className="text-yellow-600 hover:text-yellow-800 text-sm"
+                    className="text-brand-gold hover:text-brand-gold text-sm"
                   >
                     {showDebugInfo ? 'Masquer' : 'Afficher'}
                   </button>
                 </div>
-                <div className="bg-white border border-yellow-200 rounded p-3 max-h-40 overflow-y-auto">
+                <div className="bg-white border border-brand-gold rounded p-3 max-h-40 overflow-y-auto">
                   <div className="space-y-1 text-xs font-mono">
                     {debugMessages.map((msg, index) => (
                       <div key={index} className={`${
-                        msg.includes('❌') ? 'text-rose-600' :
-                        msg.includes('✅') ? 'text-green-600' :
+                        msg.includes('❌') ? 'text-brand-flame' :
+                        msg.includes('✅') ? 'text-brand-teal' :
                         msg.includes('⚠️') ? 'text-orange-600' :
                         msg.includes('🔍') ? 'text-brand-teal' :
-                        'text-gray-700'
+                        'text-neutral-700'
                       }`}>
                         {msg}
                       </div>
@@ -518,7 +518,7 @@ export function AdminDashboard() {
                 <div className="mt-2 flex justify-end">
                   <button
                     onClick={() => setDebugMessages([])}
-                    className="text-yellow-600 hover:text-yellow-800 text-xs"
+                    className="text-brand-gold hover:text-brand-gold text-xs"
                   >
                     Effacer les logs
                   </button>
@@ -527,7 +527,7 @@ export function AdminDashboard() {
             )}
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+          <div className="bg-white rounded-xl shadow-lg border border-neutral-300 p-8">
             <ParticipantForm
               participant={editingParticipant}
               onSuccess={handleFormSuccess}
@@ -550,7 +550,7 @@ export function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
       </div>
     );
@@ -558,8 +558,8 @@ export function AdminDashboard() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <div className="min-h-screen bg-white">
+      <header className="bg-white shadow-sm border-b border-neutral-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -567,10 +567,10 @@ export function AdminDashboard() {
                 <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-12 w-12" />
               </div>
               <div className="ml-4">
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-neutral-900">
                   Tableau de bord administrateur
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-neutral-600">
                   Gestion des participants Sun Is Up
                 </p>
               </div>
@@ -579,7 +579,7 @@ export function AdminDashboard() {
               <button
                 onClick={handleRefreshData}
                 disabled={refreshing}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-3 py-2 border border-neutral-300 text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Actualiser les données"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
@@ -588,7 +588,7 @@ export function AdminDashboard() {
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-rose-500 hover:bg-rose-600 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-flame/10 hover:bg-brand-flame/10 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
@@ -604,14 +604,14 @@ export function AdminDashboard() {
 
 
         {/* Participants Table */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-xl shadow-lg border border-neutral-300">
+          <div className="px-6 py-4 border-b border-neutral-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Users className="w-6 h-6 text-amber-600 mr-3" />
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Participants de la communauté</h2>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h2 className="text-xl font-semibold text-neutral-900">Participants de la communauté</h2>
+                  <p className="text-sm text-neutral-600 mt-1">
                     {participants.length} participant(s) • {participants.filter(p => p.ean_code).length} avec code EAN
                   </p>
                 </div>
@@ -619,7 +619,7 @@ export function AdminDashboard() {
               <div className="flex items-center space-x-4">
                 {/* Options de tri */}
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">Trier par :</span>
+                  <span className="text-sm text-neutral-600">Trier par :</span>
                   <select
                     value={`${sortBy}-${sortOrder}`}
                     onChange={(e) => {
@@ -627,7 +627,7 @@ export function AdminDashboard() {
                       setSortBy(column);
                       setSortOrder(order);
                     }}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="px-3 py-1 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   >
                     <option value="name-asc">Nom (A-Z)</option>
                     <option value="name-desc">Nom (Z-A)</option>
@@ -651,30 +651,30 @@ export function AdminDashboard() {
 
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-white">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     <div className="flex items-center">
                       <User className="w-4 h-4 mr-2" />
                       Nom
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-2" />
                       Adresse
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2" />
                       Date d'entrée
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -687,7 +687,7 @@ export function AdminDashboard() {
                   if (!hasData) {
                     return (
                       <tr>
-                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                        <td colSpan={6} className="px-6 py-12 text-center text-neutral-500">
                           <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                           <p className="text-lg font-medium mb-2">Aucun participant enregistré</p>
                           <p className="text-sm">Ajoutez votre premier participant pour commencer</p>
@@ -708,7 +708,7 @@ export function AdminDashboard() {
 
                     // Ligne du groupe
                     rows.push(
-                      <tr key={`group-${groupName}`} className="bg-gray-50 hover:bg-gray-100">
+                      <tr key={`group-${groupName}`} className="bg-white hover:bg-neutral-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <button
@@ -716,32 +716,32 @@ export function AdminDashboard() {
                               className="flex items-center space-x-2 text-left"
                             >
                               <div className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
-                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Users className="w-5 h-5 text-amber-600" />
                                 <div>
-                                  <div className="text-sm font-bold text-gray-900">{groupName}</div>
-                                  <div className="text-xs text-gray-500">{groupParticipants.length} membre(s)</div>
+                                  <div className="text-sm font-bold text-neutral-900">{groupName}</div>
+                                  <div className="text-xs text-neutral-500">{groupParticipants.length} membre(s)</div>
                                 </div>
                               </div>
                             </button>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-brand-teal text-brand-teal">
                             {groupTypeDisplay}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500 italic">
+                          <div className="text-sm text-neutral-500 italic">
                             Groupe de {groupParticipants.length} participants
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500 italic">
+                          <div className="text-sm text-neutral-500 italic">
                             Voir détails
                           </div>
                         </td>
@@ -749,14 +749,14 @@ export function AdminDashboard() {
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => handleGroupAction('invoice', groupParticipants)}
-                              className="text-purple-600 hover:text-purple-900 transition-colors"
+                              className="text-brand-teal hover:text-brand-teal transition-colors"
                               title="Générer facture groupe"
                             >
                               <FileText className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleGroupAction('dashboard', groupParticipants)}
-                              className="text-brand-teal hover:text-blue-900 transition-colors"
+                              className="text-brand-teal hover:text-brand-teal transition-colors"
                               title="Voir dashboard groupe"
                             >
                               <Eye className="w-4 h-4" />
@@ -777,15 +777,15 @@ export function AdminDashboard() {
                     if (isExpanded) {
                       groupParticipants.forEach(participant => {
                         rows.push(
-                          <tr key={participant.id} className="hover:bg-gray-50 bg-white">
+                          <tr key={participant.id} className="hover:bg-white bg-white">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center pl-8">
-                                <div className="text-sm font-medium text-gray-700">
+                                <div className="text-sm font-medium text-neutral-700">
                                   └ {participant.name}
                                 </div>
                                 {participant.ean_code && (
                                   <div className="ml-2">
-                                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-brand-teal text-brand-teal">
                                       <Database className="w-3 h-3 mr-1" />
                                       Prêt import
                                     </span>
@@ -797,18 +797,18 @@ export function AdminDashboard() {
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                 participant.type === 'producer' 
                                   ? 'bg-amber-100 text-amber-800' 
-                                  : 'bg-blue-100 text-blue-800'
+                                  : 'bg-brand-teal text-brand-teal'
                               }`}>
                                 {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-600 max-w-xs truncate" title={participant.address}>
+                              <div className="text-sm text-neutral-600 max-w-xs truncate" title={participant.address}>
                                 {participant.address}
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-600">
+                              <div className="text-sm text-neutral-600">
                                 {participant.entry_date ? (
                                   format(new Date(participant.entry_date), 'dd/MM/yyyy', { locale: fr })
                                 ) : (
@@ -820,14 +820,14 @@ export function AdminDashboard() {
                               <div className="flex items-center space-x-2">
                                 <button
                                   onClick={() => handleShowInvoice(participant)}
-                                  className="text-purple-600 hover:text-purple-900 transition-colors"
+                                  className="text-brand-teal hover:text-brand-teal transition-colors"
                                   title="Générer facture individuelle"
                                 >
                                   <FileText className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée.`)}
-                                  className="text-brand-teal hover:text-blue-900 transition-colors"
+                                  className="text-brand-teal hover:text-brand-teal transition-colors"
                                   title={participant.email ? "Voir le dashboard" : "Email manquant"}
                                   disabled={!participant.email}
                                 >
@@ -862,7 +862,7 @@ export function AdminDashboard() {
                                       }
                                     }
                                   }}
-                                  className="text-rose-600 hover:text-rose-800 transition-colors"
+                                  className="text-brand-flame hover:text-brand-flame transition-colors"
                                   title="Supprimer"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -878,13 +878,13 @@ export function AdminDashboard() {
                   // Afficher les participants sans groupe
                   ungrouped.forEach(participant => {
                     rows.push(
-                      <tr key={participant.id} className="hover:bg-gray-50">
+                      <tr key={participant.id} className="hover:bg-white">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="text-sm font-medium text-gray-900">{participant.name}</div>
+                            <div className="text-sm font-medium text-neutral-900">{participant.name}</div>
                             {participant.ean_code && (
                               <div className="ml-2">
-                                <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-brand-teal text-brand-teal">
                                   <Database className="w-3 h-3 mr-1" />
                                   Prêt import
                                 </span>
@@ -896,18 +896,18 @@ export function AdminDashboard() {
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             participant.type === 'producer' 
                               ? 'bg-amber-100 text-amber-800' 
-                              : 'bg-blue-100 text-blue-800'
+                              : 'bg-brand-teal text-brand-teal'
                           }`}>
                             {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 max-w-xs truncate" title={participant.address}>
+                          <div className="text-sm text-neutral-900 max-w-xs truncate" title={participant.address}>
                             {participant.address}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
+                          <div className="text-sm text-neutral-900">
                             {participant.entry_date ? (
                               format(new Date(participant.entry_date), 'dd/MM/yyyy', { locale: fr })
                             ) : (
@@ -921,14 +921,14 @@ export function AdminDashboard() {
                               onClick={() => handleShowInvoice(participant)}
                               onMouseDown={() => console.log('🖱️ MOUSE DOWN sur bouton facture')}
                               onMouseUp={() => console.log('🖱️ MOUSE UP sur bouton facture')}
-                              className="text-purple-600 hover:text-purple-900 transition-colors"
+                              className="text-brand-teal hover:text-brand-teal transition-colors"
                               title="Générer facture"
                             >
                               <FileText className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => participant.email ? handleViewParticipantDashboard(participant) : toast.error(`${participant.name} n'a pas d'adresse email configurée. Modifiez le participant pour ajouter une adresse email.`)}
-                              className="text-brand-teal hover:text-blue-900 transition-colors"
+                              className="text-brand-teal hover:text-brand-teal transition-colors"
                               title={participant.email ? "Voir le dashboard" : "Email manquant"}
                               disabled={!participant.email}
                             >
@@ -963,7 +963,7 @@ export function AdminDashboard() {
                                   }
                                 }
                               }}
-                              className="text-rose-600 hover:text-rose-800 transition-colors"
+                              className="text-brand-flame hover:text-brand-flame transition-colors"
                               title="Supprimer"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -996,13 +996,13 @@ export function AdminDashboard() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <Calendar className="w-6 h-6 text-amber-600" />
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-xl font-semibold text-neutral-900">
                     Période de facturation
                   </h3>
                 </div>
                 <button
                   onClick={() => setShowPeriodSelection(false)}
-                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                  className="text-neutral-500 hover:text-neutral-700 transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -1012,7 +1012,7 @@ export function AdminDashboard() {
                 <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <User className="w-4 h-4 text-brand-teal" />
-                    <span className="font-medium text-blue-900">
+                    <span className="font-medium text-brand-teal">
                       {selectedParticipantForInvoice.name}
                     </span>
                   </div>
@@ -1022,26 +1022,26 @@ export function AdminDashboard() {
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Mois de début
                     </label>
                     <input
                       type="month"
                       value={selectedPeriod.startMonth}
                       onChange={(e) => setSelectedPeriod(prev => ({ ...prev, startMonth: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Mois de fin
                     </label>
                     <input
                       type="month"
                       value={selectedPeriod.endMonth}
                       onChange={(e) => setSelectedPeriod(prev => ({ ...prev, endMonth: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -1050,7 +1050,7 @@ export function AdminDashboard() {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowPeriodSelection(false)}
-                  className="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                  className="px-4 py-2 text-neutral-700 hover:text-neutral-900 transition-colors"
                 >
                   Annuler
                 </button>

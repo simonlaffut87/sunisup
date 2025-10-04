@@ -150,11 +150,11 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-md w-full mx-4 text-center">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-green-500 animate-[scale_0.5s_ease-in-out]" />
+            <div className="w-16 h-16 bg-brand-teal rounded-full flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-brand-teal animate-[scale_0.5s_ease-in-out]" />
             </div>
-            <h3 className="text-xl font-bold text-green-900">{t('contact.success.title')}</h3>
-            <p className="text-green-700">
+            <h3 className="text-xl font-bold text-brand-teal">{t('contact.success.title')}</h3>
+            <p className="text-brand-teal">
               {t('contact.success.message')}
             </p>
           </div>
@@ -190,7 +190,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                   type="email"
                   value={contactForm.email}
                   onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-2 border border-brand-gold/30 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                  className="w-full pl-10 pr-4 py-2 border border-brand-gold/30 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900"
                   placeholder={t('contact.emailPlaceholder')}
                   required
                 />
@@ -261,7 +261,7 @@ export function ContactModal({ isOpen, onClose, initialMessage = '' }: ContactMo
                 <textarea
                   value={contactForm.message}
                   onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-2 border border-brand-gold/30 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent min-h-[100px] bg-white text-gray-900"
+                  className="w-full pl-10 pr-4 py-2 border border-brand-gold/30 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent min-h-[100px] bg-white text-neutral-900"
                   placeholder={t('contact.messagePlaceholder')}
                   required
                 />

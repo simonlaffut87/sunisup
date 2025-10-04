@@ -278,7 +278,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-neutral-600 transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -289,16 +289,16 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           {state.status === 'idle' && (
             <div className="space-y-6">
               <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-400 transition-colors cursor-pointer"
+                className="border-2 border-dashed border-neutral-300 rounded-lg p-8 text-center hover:border-brand-teal transition-colors cursor-pointer"
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-lg font-medium text-gray-700 mb-2">
+                <p className="text-lg font-medium text-neutral-700 mb-2">
                   Glissez votre fichier Excel APR2025 ici
                 </p>
-                <p className="text-gray-500 mb-4">
+                <p className="text-neutral-500 mb-4">
                   ou cliquez pour sélectionner un fichier
                 </p>
                 <p className="text-sm text-gray-400">
@@ -315,11 +315,11 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
               />
 
               {file && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="bg-brand-teal border border-brand-teal rounded-lg p-4">
                   <div className="flex items-center space-x-3">
-                    <FileSpreadsheet className="w-5 h-5 text-green-600" />
-                    <span className="font-medium text-green-800">{file.name}</span>
-                    <span className="text-sm text-green-600">
+                    <FileSpreadsheet className="w-5 h-5 text-brand-teal" />
+                    <span className="font-medium text-brand-teal">{file.name}</span>
+                    <span className="text-sm text-brand-teal">
                       ({(file.size / 1024 / 1024).toFixed(2)} MB)
                     </span>
                   </div>
@@ -351,7 +351,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                     ) : (
                       <Loader2 className="w-5 h-5 text-brand-teal animate-spin" />
                     )}
-                    <span className="font-medium text-blue-800">
+                    <span className="font-medium text-brand-teal">
                       {state.status === 'reading' && 'Lecture du fichier...'}
                       {state.status === 'processing' && 'Traitement en cours...'}
                       {state.status === 'paused' && 'Traitement en pause'}
@@ -372,7 +372,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                       {state.status === 'paused' && (
                         <button
                           onClick={resumeProcessing}
-                          className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors flex items-center space-x-1"
+                          className="bg-brand-teal text-white px-3 py-1 rounded text-sm hover:bg-brand-teal transition-colors flex items-center space-x-1"
                         >
                           <Play className="w-3 h-3" />
                           <span>Reprendre</span>
@@ -380,7 +380,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                       )}
                       <button
                         onClick={stopProcessing}
-                        className="bg-rose-500 text-white px-3 py-1 rounded text-sm hover:bg-rose-600 transition-colors flex items-center space-x-1"
+                        className="bg-brand-flame/10 text-white px-3 py-1 rounded text-sm hover:bg-brand-flame/10 transition-colors flex items-center space-x-1"
                       >
                         <Square className="w-3 h-3" />
                         <span>Arrêter</span>
@@ -390,7 +390,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 </div>
 
                 <div className="space-y-3">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-neutral-100 rounded-full h-2">
                     <div
                       className="bg-brand-teal h-2 rounded-full transition-all duration-300"
                       style={{ width: `${state.progress}%` }}
@@ -399,25 +399,25 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div className="text-center">
-                      <div className="font-medium text-gray-700">{state.progress}%</div>
-                      <div className="text-gray-500">Progression</div>
+                      <div className="font-medium text-neutral-700">{state.progress}%</div>
+                      <div className="text-neutral-500">Progression</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-medium text-gray-700">{state.currentRow.toLocaleString()}</div>
-                      <div className="text-gray-500">Ligne actuelle</div>
+                      <div className="font-medium text-neutral-700">{state.currentRow.toLocaleString()}</div>
+                      <div className="text-neutral-500">Ligne actuelle</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-medium text-green-600">{state.validRows.toLocaleString()}</div>
-                      <div className="text-gray-500">Lignes valides</div>
+                      <div className="font-medium text-brand-teal">{state.validRows.toLocaleString()}</div>
+                      <div className="text-neutral-500">Lignes valides</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-medium text-rose-600">{state.errorRows.toLocaleString()}</div>
-                      <div className="text-gray-500">Erreurs</div>
+                      <div className="font-medium text-brand-flame">{state.errorRows.toLocaleString()}</div>
+                      <div className="text-neutral-500">Erreurs</div>
                     </div>
                   </div>
 
                   {state.totalBatches > 0 && (
-                    <div className="text-center text-sm text-gray-600">
+                    <div className="text-center text-sm text-neutral-600">
                       Lot {state.batchesProcessed} / {state.totalBatches}
                     </div>
                   )}
@@ -426,17 +426,17 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
               {/* Live Errors */}
               {state.errors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-h-40 overflow-y-auto">
+                <div className="bg-brand-flame border border-brand-flame rounded-lg p-4 max-h-40 overflow-y-auto">
                   <div className="flex items-center space-x-2 mb-2">
-                    <AlertCircle className="w-4 h-4 text-rose-600" />
-                    <span className="font-medium text-rose-700">Erreurs récentes</span>
+                    <AlertCircle className="w-4 h-4 text-brand-flame" />
+                    <span className="font-medium text-brand-flame">Erreurs récentes</span>
                   </div>
-                  <div className="space-y-1 text-sm text-rose-600">
+                  <div className="space-y-1 text-sm text-brand-flame">
                     {state.errors.slice(-5).map((error, index) => (
                       <div key={index}>{error}</div>
                     ))}
                     {state.errors.length > 5 && (
-                      <div className="text-rose-500 italic">
+                      <div className="text-brand-flame italic">
                         ... et {state.errors.length - 5} autres erreurs
                       </div>
                     )}
@@ -449,37 +449,37 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           {/* Completion Status */}
           {state.status === 'completed' && (
             <div className="space-y-6">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-                <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-green-800 mb-2">
+              <div className="bg-brand-teal border border-brand-teal rounded-lg p-6 text-center">
+                <CheckCircle className="w-12 h-12 text-brand-teal mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-brand-teal mb-2">
                   Import terminé avec succès!
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                   <div className="text-center">
-                    <div className="font-medium text-green-700">{state.validRows.toLocaleString()}</div>
-                    <div className="text-green-600">Lignes traitées</div>
+                    <div className="font-medium text-brand-teal">{state.validRows.toLocaleString()}</div>
+                    <div className="text-brand-teal">Lignes traitées</div>
                   </div>
                   <div className="text-center">
                     <div className="font-medium text-brand-teal">{Object.keys(state.participants).length}</div>
                     <div className="text-brand-teal">Participants trouvés</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-medium text-green-700">{state.mesuresCount || Object.keys(state.participants).length}</div>
-                    <div className="text-green-600">Participants mis à jour</div>
+                    <div className="font-medium text-brand-teal">{state.mesuresCount || Object.keys(state.participants).length}</div>
+                    <div className="text-brand-teal">Participants mis à jour</div>
                   </div>
                   <div className="text-center">
                     <div className="font-medium text-orange-700">{state.errorRows.toLocaleString()}</div>
                     <div className="text-orange-600">EANs ignorés</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-medium text-purple-700">{state.totalRows.toLocaleString()}</div>
-                    <div className="text-purple-600">Lignes totales</div>
+                    <div className="font-medium text-brand-teal">{state.totalRows.toLocaleString()}</div>
+                    <div className="text-brand-teal">Lignes totales</div>
                   </div>
                 </div>
                 
                 {/* Message de résumé */}
-                <div className="mt-4 p-4 bg-white border border-green-200 rounded-lg">
-                  <p className="text-green-800 font-medium">
+                <div className="mt-4 p-4 bg-white border border-brand-teal rounded-lg">
+                  <p className="text-brand-teal font-medium">
                     ✅ {Object.keys(state.participants).length} participant(s) ont eu leurs données mises à jour avec succès
                   </p>
                   {state.errorRows > 0 && (
@@ -487,7 +487,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                       ⚠️ {state.errorRows} EAN(s) non reconnu(s) ont été ignoré(s)
                     </p>
                   )}
-                  <div className="mt-3 text-sm text-gray-600">
+                  <div className="mt-3 text-sm text-neutral-600">
                     💡 Les logs de debug ci-dessous montrent le détail du traitement
                   </div>
                 </div>
@@ -509,18 +509,18 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
           {/* Error Status */}
           {state.status === 'error' && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <div className="bg-brand-flame border border-brand-flame rounded-lg p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <AlertCircle className="w-6 h-6 text-rose-600" />
-                <h3 className="text-lg font-semibold text-rose-700">
+                <AlertCircle className="w-6 h-6 text-brand-flame" />
+                <h3 className="text-lg font-semibold text-brand-flame">
                   Erreur lors de l'import
                 </h3>
               </div>
               
               <div className="space-y-4">
                 {state.errors.map((error, index) => (
-                  <div key={index} className="bg-white border border-red-200 rounded p-4">
-                    <pre className="text-sm text-rose-600 whitespace-pre-wrap font-mono overflow-x-auto">
+                  <div key={index} className="bg-white border border-brand-flame rounded p-4">
+                    <pre className="text-sm text-brand-flame whitespace-pre-wrap font-mono overflow-x-auto">
                       {error}
                     </pre>
                   </div>
@@ -537,7 +537,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                 </button>
                 <button
                   onClick={() => setState(prev => ({ ...prev, status: 'idle', errors: [], warnings: [] }))}
-                  className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors"
+                  className="bg-brand-flame/10 text-white px-4 py-2 rounded-lg hover:bg-brand-flame/10 transition-colors"
                 >
                   Réessayer
                 </button>
@@ -547,13 +547,13 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
           {/* Debug Logs */}
           {debugLogs.length > 0 && (state.status === 'processing' || state.status === 'completed' || state.status === 'error') && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-6">
-              <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+            <div className="bg-white border border-neutral-300 rounded-lg p-4 mt-6">
+              <h4 className="font-medium text-neutral-900 mb-3 flex items-center">
                 <Info className="w-4 h-4 mr-2" />
                 Logs de debug ({debugLogs.length} entrées)
               </h4>
-              <div className="bg-white border border-gray-200 rounded p-3 max-h-60 overflow-y-auto">
-                <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
+              <div className="bg-white border border-neutral-300 rounded p-3 max-h-60 overflow-y-auto">
+                <pre className="text-xs text-neutral-700 whitespace-pre-wrap font-mono">
                   {debugLogs.join('\n')}
                 </pre>
               </div>
@@ -569,7 +569,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                     a.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="text-brand-teal hover:text-blue-800 text-sm underline"
+                  className="text-brand-teal hover:text-brand-teal text-sm underline"
                 >
                   Télécharger les logs
                 </button>
@@ -582,7 +582,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
             <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mt-6">
               <div className="flex items-start space-x-3">
                 <Info className="w-5 h-5 text-brand-teal mt-0.5" />
-                <div className="text-sm text-blue-800">
+                <div className="text-sm text-brand-teal">
                   <p className="font-medium mb-2">Format attendu (les EAN non reconnus seront ignorés) :</p>
                   <ul className="list-disc list-inside space-y-1 text-brand-teal">
                     <li>Fichier Excel (.xlsx ou .xls)</li>
@@ -593,7 +593,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
                   <div className="mt-3">
                     <button
                       onClick={downloadTemplate}
-                      className="text-brand-teal hover:text-blue-800 underline text-sm flex items-center space-x-1"
+                      className="text-brand-teal hover:text-brand-teal underline text-sm flex items-center space-x-1"
                     >
                       <Download className="w-3 h-3" />
                       <span>Télécharger le template d'exemple</span>

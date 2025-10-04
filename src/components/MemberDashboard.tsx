@@ -347,10 +347,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement de vos données...</p>
+          <p className="text-neutral-600">Chargement de vos données...</p>
         </div>
       </div>
     );
@@ -358,10 +358,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
   if (!participant) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <p className="text-rose-600">Participant non trouvé</p>
-          <button onClick={handleLogout} className="mt-4 text-brand-teal hover:text-blue-800">
+          <p className="text-brand-flame">Participant non trouvé</p>
+          <button onClick={handleLogout} className="mt-4 text-brand-teal hover:text-brand-teal">
             Retour à l'accueil
           </button>
         </div>
@@ -373,9 +373,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const dashboardTitle = isGroupDashboard ? `Groupe ${participant.groupe}` : participant.name;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-sm border-b border-neutral-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -383,7 +383,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 <img src="/images/logo-v2.png" alt="Sun Is Up Logo" className="h-12 w-12" />
               </div>
               <div className="ml-4">
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-neutral-900">
                   {dashboardTitle}
                 </h1>
               </div>
@@ -391,11 +391,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             
             <div className="flex items-center space-x-3">
               <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4 text-gray-500" />
+                <Calendar className="w-4 h-4 text-neutral-500" />
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="px-3 py-1 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="2024">2024</option>
                   <option value="2025">2025</option>
@@ -405,7 +405,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               
               <button
                 onClick={onLogout}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-3 py-2 border border-neutral-300 text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-white"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour admin
@@ -414,7 +414,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                className="inline-flex items-center px-3 py-2 border border-neutral-300 text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-white disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 {refreshing ? 'Actualisation...' : 'Actualiser'}
@@ -423,7 +423,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-rose-500 hover:bg-rose-600 disabled:bg-gray-400"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-flame/10 hover:bg-brand-flame/10 disabled:bg-gray-400"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
@@ -436,18 +436,18 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Cartes de statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 bg-brand-teal rounded-lg flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-brand-teal" />
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-xs font-medium text-gray-500">
+                <p className="text-xs font-medium text-neutral-500">
                   {isConsumerGroup ? 'Consommation partagée' : 'Injection partagée'}
                 </p>
-                <p className="text-xl font-semibold text-gray-900">
+                <p className="text-xl font-semibold text-neutral-900">
                   {isConsumerGroup 
                     ? `${(yearlyTotals.volume_partage / 1000).toFixed(2)} MWh`
                     : `${(yearlyTotals.injection_partagee / 1000).toFixed(2)} MWh`
@@ -457,18 +457,18 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-brand-teal rounded-lg flex items-center justify-center">
                   <BarChart3 className="w-5 h-5 text-brand-teal" />
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-xs font-medium text-gray-500">
+                <p className="text-xs font-medium text-neutral-500">
                   {isConsumerGroup ? 'Consommation réseau' : 'Injection réseau'}
                 </p>
-                <p className="text-xl font-semibold text-gray-900">
+                <p className="text-xl font-semibold text-neutral-900">
                   {isConsumerGroup 
                     ? `${(yearlyTotals.volume_complementaire / 1000).toFixed(2)} MWh`
                     : `${(yearlyTotals.injection_complementaire / 1000).toFixed(2)} MWh`
@@ -478,18 +478,18 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-purple-600" />
+                <div className="w-10 h-10 bg-brand-teal rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-brand-teal" />
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-xs font-medium text-gray-500">
+                <p className="text-xs font-medium text-neutral-500">
                   {isConsumerGroup ? '% Consommation partagée' : '% Injection partagée'}
                 </p>
-                <p className="text-xl font-semibold text-gray-900">
+                <p className="text-xl font-semibold text-neutral-900">
                   {isConsumerGroup 
                     ? `${consumptionSharedPercentage.toFixed(1)}%`
                     : `${injectionSharedPercentage.toFixed(1)}%`
@@ -499,7 +499,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
@@ -507,10 +507,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-xs font-medium text-gray-500">
+                <p className="text-xs font-medium text-neutral-500">
                   {isGroupDashboard ? 'Participants' : 'Statut'}
                 </p>
-                <p className="text-xl font-semibold text-gray-900">
+                <p className="text-xl font-semibold text-neutral-900">
                   {isGroupDashboard ? groupParticipants.length : 'Individuel'}
                 </p>
               </div>
@@ -519,13 +519,13 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
         </div>
 
         {/* Graphique */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-neutral-900">
                 {isGroupDashboard ? `Évolution du groupe ${participant.groupe}` : 'Votre évolution énergétique'}
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-neutral-600">
                 Données mensuelles pour l'année {selectedYear}
               </p>
             </div>
@@ -559,7 +559,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-12">
+            <div className="text-center text-neutral-500 py-12">
               <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-lg font-medium mb-2">Aucune donnée disponible</p>
               <p className="text-sm">Aucune donnée trouvée pour l'année {selectedYear}</p>
@@ -569,13 +569,13 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
         {/* Tableau détaillé des participants du groupe */}
         {isGroupDashboard && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-neutral-900">
                   Détail par participant - Groupe {participant.groupe}
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-neutral-600">
                   Données individuelles pour l'année {selectedYear}
                 </p>
               </div>
@@ -583,24 +583,24 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
 
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-white">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                       Participant
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                       Type
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                       Cons. Partagée
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                       Cons. Réseau
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                       Inj. Partagée
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                       Inj. Réseau
                     </th>
                   </tr>
@@ -624,12 +624,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     const isCurrentUser = groupParticipant.email === user.email;
 
                     return (
-                      <tr key={groupParticipant.id} className={isCurrentUser ? 'bg-brand-gold/10' : 'hover:bg-gray-50'}>
+                      <tr key={groupParticipant.id} className={isCurrentUser ? 'bg-brand-gold/10' : 'hover:bg-white'}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 w-10 h-10">
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                groupParticipant.type === 'producer' ? 'bg-amber-100' : 'bg-blue-100'
+                                groupParticipant.type === 'producer' ? 'bg-amber-100' : 'bg-brand-teal'
                               }`}>
                                 {groupParticipant.type === 'producer' ? (
                                   <Sun className={`w-5 h-5 ${isCurrentUser ? 'text-brand-gold' : 'text-amber-600'}`} />
@@ -640,7 +640,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                             </div>
                             <div className="ml-4">
                               <div className="flex items-center space-x-2">
-                                <div className="text-sm font-medium text-gray-900">
+                                <div className="text-sm font-medium text-neutral-900">
                                   {groupParticipant.name}
                                 </div>
                                 {isCurrentUser && (
@@ -650,7 +650,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                                 )}
                               </div>
                               {groupParticipant.ean_code && (
-                                <div className="text-xs text-gray-500 font-mono">
+                                <div className="text-xs text-neutral-500 font-mono">
                                   {groupParticipant.ean_code}
                                 </div>
                               )}
@@ -661,21 +661,21 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             groupParticipant.type === 'producer' 
                               ? 'bg-amber-100 text-amber-800' 
-                              : 'bg-blue-100 text-blue-800'
+                              : 'bg-brand-teal text-brand-teal'
                           }`}>
                             {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
                           {(individualTotals.volume_partage / 1000).toFixed(2)} MWh
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
                           {(individualTotals.volume_complementaire / 1000).toFixed(2)} MWh
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
                           {(individualTotals.injection_partagee / 1000).toFixed(2)} MWh
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
                           {(individualTotals.injection_complementaire / 1000).toFixed(2)} MWh
                         </td>
                       </tr>

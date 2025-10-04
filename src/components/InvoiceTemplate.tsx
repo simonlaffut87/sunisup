@@ -617,7 +617,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 .mb-8 { margin-bottom: 2rem; }
                 .mt-4 { margin-top: 1rem; }
                 .p-4 { padding: 1rem; }
-                .bg-gray-50 { background-color: #f9fafb !important; }
+                .bg-white { background-color: #f9fafb !important; }
                 .border { border: 1px solid #333 !important; }
                 .rounded { border-radius: 0.375rem; }
                 .total-row {
@@ -853,7 +853,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl shadow-xl p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-800">Génération de la facture...</p>
+          <p className="text-neutral-800">Génération de la facture...</p>
         </div>
       </div>
     );
@@ -863,14 +863,14 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl shadow-xl p-8 text-center max-w-md">
-          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <X className="w-8 h-8 text-rose-600" />
+          <div className="w-16 h-16 bg-brand-flame/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-brand-flame" />
           </div>
-          <h3 className="text-lg font-semibold text-rose-800 mb-2">Erreur</h3>
-          <p className="text-rose-600 mb-4">{error}</p>
+          <h3 className="text-lg font-semibold text-brand-flame mb-2">Erreur</h3>
+          <p className="text-brand-flame mb-4">{error}</p>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
+            className="px-4 py-2 bg-brand-flame/10 text-white rounded-lg hover:bg-brand-flame/10 transition-colors"
           >
             Fermer
           </button>
@@ -883,7 +883,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl shadow-xl p-8 text-center max-w-md">
-          <p className="text-gray-800">Aucune donnée disponible pour cette période</p>
+          <p className="text-neutral-800">Aucune donnée disponible pour cette période</p>
           <button
             onClick={onClose}
             className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
@@ -899,12 +899,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         {/* Header avec boutons d'action */}
-        <div className="no-print flex items-center justify-between p-6 border-b border-gray-300 bg-gray-100">
+        <div className="no-print flex items-center justify-between p-6 border-b border-neutral-300 bg-neutral-50">
           <div className="flex items-center space-x-3">
             <FileText className="w-6 h-6 text-amber-600" />
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Facture énergétique</h2>
-              <p className="text-sm text-gray-700">
+              <h2 className="text-xl font-bold text-neutral-900">Facture énergétique</h2>
+              <p className="text-sm text-neutral-700">
                 {format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}
                 {invoiceData.period.startMonth !== invoiceData.period.endMonth && 
                   ` - ${format(parseISO(invoiceData.period.endDate), 'MMMM yyyy', { locale: fr })}`
@@ -924,7 +924,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <button
               onClick={handleDownload}
               disabled={saving}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <>
@@ -957,7 +957,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             </button>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 transition-colors p-2"
+              className="text-neutral-500 hover:text-neutral-700 transition-colors p-2"
             >
               <X className="w-6 h-6" />
             </button>
@@ -967,9 +967,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         {/* Debug Info - Visible seulement en développement */}
 
         {/* Contenu de la facture */}
-        <div id="invoice-content" className="p-8 bg-white text-gray-900 max-w-none">
+        <div id="invoice-content" className="p-8 bg-white text-neutral-900 max-w-none">
           {/* En-tête de la facture */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-6 border-b-2 border-gray-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-6 border-b-2 border-neutral-300">
             <div>
               <div className="flex items-center space-x-4 mb-4">
                 <img 
@@ -979,19 +979,19 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   style={{ objectFit: 'contain' }}
                 />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Sun Is Up ASBL</h1>
-                  <p className="text-gray-700">Communauté d'énergie bruxelloise</p>
+                  <h1 className="text-2xl font-bold text-neutral-900">Sun Is Up ASBL</h1>
+                  <p className="text-neutral-700">Communauté d'énergie bruxelloise</p>
                 </div>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-neutral-600 mt-2">
                   info@sunisup.be • +32 471 31 71 48
                 </p>
               </div>
             </div>
             <div className="text-left md:text-right">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">FACTURE ÉNERGÉTIQUE</h2>
-              <div className="text-sm text-gray-700 space-y-1">
+              <h2 className="text-xl font-bold text-neutral-900 mb-2">FACTURE ÉNERGÉTIQUE</h2>
+              <div className="text-sm text-neutral-700 space-y-1">
                 <div className="flex items-center justify-start md:justify-end space-x-2">
                   <span>
                     {format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}
@@ -1000,7 +1000,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     }
                   </span>
                 </div>
-                <div className="text-gray-600">
+                <div className="text-neutral-600">
                   Facture N° {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}
                 </div>
               </div>
@@ -1008,8 +1008,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           </div>
 
           {/* Informations du participant */}
-          <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-300">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <div className="mb-8 p-6 bg-white rounded-lg border border-neutral-300">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
               {isGroupInvoice ? (
                 <>
                   <Users className="w-5 h-5 mr-2 text-amber-600" />
@@ -1022,36 +1022,36 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 </>
               )}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-800">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-neutral-800">
               <div>
                 <div className="space-y-2">
-                  <div><strong className="text-gray-900">Nom :</strong> {isGroupInvoice ? `Groupe ${participant.groupe}` : invoiceData.participant.name}</div>
-                  <div><strong className="text-gray-900">Adresse :</strong> {isGroupInvoice ? 
+                  <div><strong className="text-neutral-900">Nom :</strong> {isGroupInvoice ? `Groupe ${participant.groupe}` : invoiceData.participant.name}</div>
+                  <div><strong className="text-neutral-900">Adresse :</strong> {isGroupInvoice ? 
                     `Groupe ${participant.groupe}\n${groupParticipants.map(p => `• ${p.name} - ${p.address}`).join('\n')}` :
                     invoiceData.participant.address
                   }</div>
                   {invoiceData.participant.email && (
-                    <div><strong className="text-gray-900">Email :</strong> {invoiceData.participant.email}</div>
+                    <div><strong className="text-neutral-900">Email :</strong> {invoiceData.participant.email}</div>
                   )}
                 </div>
               </div>
               <div>
                 <div className="space-y-2">
-                  <div><strong className="text-gray-900">Code EAN :</strong> {invoiceData.participant.ean_code}</div>
+                  <div><strong className="text-neutral-900">Code EAN :</strong> {invoiceData.participant.ean_code}</div>
                   <div>
-                    <strong className="text-gray-900">Type :</strong> 
+                    <strong className="text-neutral-900">Type :</strong> 
                     <span className="ml-2">
                       {invoiceData.participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                     </span>
                   </div>
                   {invoiceData.participant.company_number && (
-                    <div><strong className="text-gray-900">N° entreprise :</strong> {invoiceData.participant.company_number}</div>
+                    <div><strong className="text-neutral-900">N° entreprise :</strong> {invoiceData.participant.company_number}</div>
                   )}
                   {isGroupInvoice && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-sm font-medium text-gray-700 mb-2">Participants du groupe:</p>
+                    <div className="mt-3 pt-3 border-t border-neutral-300">
+                      <p className="text-sm font-medium text-neutral-700 mb-2">Participants du groupe:</p>
                       {groupParticipants.map((p: any, index: number) => (
-                        <div key={p.id} className="text-xs text-gray-600 mb-1">
+                        <div key={p.id} className="text-xs text-neutral-600 mb-1">
                           {index + 1}. {p.name} {p.ean_code && `(${p.ean_code})`}
                         </div>
                       ))}
@@ -1064,24 +1064,24 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
           {/* Détail énergétique */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail énergétique</h3>
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Détail énergétique</h3>
             
             {/* Affichage détaillé pour les groupes */}
             {isGroupInvoice && groupParticipants && (
               <div className="mb-6">
-                <h4 className="text-md font-semibold text-gray-800 mb-3">
+                <h4 className="text-md font-semibold text-neutral-800 mb-3">
                   Détail par participant ({groupParticipants.length} membres)
                 </h4>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full border border-gray-200 rounded-lg">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full border border-neutral-300 rounded-lg">
+                    <thead className="bg-white">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Participant</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cons. Partagée</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cons. Réseau</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Inj. Partagée</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Inj. Réseau</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Participant</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Type</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">Cons. Partagée</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">Cons. Réseau</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">Inj. Partagée</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">Inj. Réseau</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -1094,18 +1094,18 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                         };
                         
                         return (
-                          <tr key={index} className="hover:bg-gray-50">
+                          <tr key={index} className="hover:bg-white">
                             <td className="px-4 py-3">
                               <div>
-                                <div className="text-sm font-medium text-gray-900">{groupParticipant.name}</div>
-                                <div className="text-xs text-gray-500">{groupParticipant.ean_code}</div>
+                                <div className="text-sm font-medium text-neutral-900">{groupParticipant.name}</div>
+                                <div className="text-xs text-neutral-500">{groupParticipant.ean_code}</div>
                               </div>
                             </td>
                             <td className="px-4 py-3">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                 groupParticipant.type === 'producer' 
                                   ? 'bg-amber-100 text-amber-800' 
-                                  : 'bg-blue-100 text-blue-800'
+                                  : 'bg-brand-teal text-brand-teal'
                               }`}>
                                 {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                               </span>
@@ -1127,7 +1127,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       })}
                       {/* Ligne de total */}
                       <tr className="bg-brand-gold/10 border-t-2 border-brand-gold/30 font-semibold">
-                        <td className="px-4 py-3 text-sm font-bold text-gray-900" colSpan={2}>
+                        <td className="px-4 py-3 text-sm font-bold text-neutral-900" colSpan={2}>
                           TOTAL GROUPE
                         </td>
                         <td className="px-4 py-4 text-sm text-right font-bold text-brand-teal">
@@ -1160,8 +1160,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Consommation */}
               <div className="bg-teal-50 p-6 rounded-lg border border-teal-200">
-                <h4 className="font-medium text-blue-900 mb-3">Consommation</h4>
-                <div className="space-y-2 text-sm text-blue-800">
+                <h4 className="font-medium text-brand-teal mb-3">Consommation</h4>
+                <div className="space-y-2 text-sm text-brand-teal">
                   <div className="flex justify-between">
                     <span>Énergie partagée :</span>
                     <span className="font-medium">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh</span>
@@ -1170,7 +1170,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                     <span>Énergie réseau (achat au fournisseur) :</span>
                     <span className="font-medium text-brand-teal">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
                   </div>
-                  <div className="text-xs text-brand-teal italic mt-2 p-2 bg-blue-100 rounded">
+                  <div className="text-xs text-brand-teal italic mt-2 p-2 bg-brand-teal rounded">
                     * Énergie réseau : indicatif, non facturée par Sun Is Up
                   </div>
                 </div>
@@ -1199,147 +1199,147 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
           {/* Détail des coûts réseau - AMÉLIORÉ */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail des coûts réseau</h3>
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Détail des coûts réseau</h3>
             
             {/* Vérification des données billing */}
             {Object.keys(invoiceData.billingData).length === 0 ? (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <div className="bg-brand-flame border border-brand-flame rounded-lg p-4 mb-4">
                 <div className="flex items-center">
-                  <span className="font-medium text-rose-800">Aucune donnée de coûts réseau trouvée</span>
+                  <span className="font-medium text-brand-flame">Aucune donnée de coûts réseau trouvée</span>
                 </div>
-                <p className="text-sm text-rose-700 mt-2">
+                <p className="text-sm text-brand-flame mt-2">
                   Les coûts réseau n'ont pas été importés pour cette période. 
                   Assurez-vous d'importer un fichier Excel contenant les colonnes de coûts réseau.
                 </p>
               </div>
             ) : null}
 
-            <div className="overflow-x-auto border border-gray-300 rounded-lg">
+            <div className="overflow-x-auto border border-neutral-300 rounded-lg">
               <table className="min-w-full">
                 <thead>
-                  <tr className="bg-gray-100 border-b border-gray-300">
-                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-r border-gray-300">
+                  <tr className="bg-neutral-50 border-b border-neutral-300">
+                    <th className="px-4 py-3 text-left text-sm font-bold text-neutral-900 border-r border-neutral-300">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">
+                    <th className="px-4 py-3 text-center text-sm font-bold text-neutral-900 border-r border-neutral-300">
                       Taux TVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
+                    <th className="px-4 py-3 text-right text-sm font-bold text-neutral-900 border-r border-neutral-300">
                       Montant HTVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                    <th className="px-4 py-3 text-right text-sm font-bold text-neutral-900">
                       Montant TVAC
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Utilisation du réseau</div>
+                        <div className="font-medium text-neutral-900">Utilisation du réseau</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.totals.networkCosts.utilisationReseau.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {(invoiceData.totals.networkCosts.utilisationReseau * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Surcharges</div>
+                        <div className="font-medium text-neutral-900">Surcharges</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.totals.networkCosts.surcharges.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {(invoiceData.totals.networkCosts.surcharges * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Tarif capacitaire</div>
+                        <div className="font-medium text-neutral-900">Tarif capacitaire</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.totals.networkCosts.tarifCapacitaire.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {(invoiceData.totals.networkCosts.tarifCapacitaire * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Tarif mesure & comptage</div>
+                        <div className="font-medium text-neutral-900">Tarif mesure & comptage</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.totals.networkCosts.tarifMesure.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {(invoiceData.totals.networkCosts.tarifMesure * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Tarif OSP</div>
+                        <div className="font-medium text-neutral-900">Tarif OSP</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.totals.networkCosts.tarifOSP.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {(invoiceData.totals.networkCosts.tarifOSP * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Transport ELIA</div>
+                        <div className="font-medium text-neutral-900">Transport ELIA</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.totals.networkCosts.transportELIA.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {(invoiceData.totals.networkCosts.transportELIA * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Redevance voirie</div>
+                        <div className="font-medium text-neutral-900">Redevance voirie</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.totals.networkCosts.redevanceVoirie.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {(invoiceData.totals.networkCosts.redevanceVoirie * 1.21).toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="bg-gray-100 border-t-2 border-gray-400">
-                    <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-300">
+                  <tr className="bg-neutral-50 border-t-2 border-neutral-300">
+                    <td className="px-4 py-3 text-sm font-bold text-neutral-900 border-r border-neutral-300">
                       TOTAL FRAIS RÉSEAU
                     </td>
-                    <td className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm font-bold text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-neutral-900 border-r border-neutral-300">
                       {invoiceData.totals.networkCosts.totalFraisReseau.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-bold text-neutral-900">
                       {(invoiceData.totals.networkCosts.totalFraisReseau * 1.21).toFixed(2)} €
                     </td>
                   </tr>
@@ -1350,112 +1350,112 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
           {/* Récapitulatif financier */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">
               Récapitulatif financier
             </h3>
-            <div className="overflow-x-auto border border-gray-300 rounded-lg">
+            <div className="overflow-x-auto border border-neutral-300 rounded-lg">
               <table className="min-w-full">
                 <thead>
-                  <tr className="bg-gray-100 border-b border-gray-300">
-                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border-r border-gray-300">
+                  <tr className="bg-neutral-50 border-b border-neutral-300">
+                    <th className="px-4 py-3 text-left text-sm font-bold text-neutral-900 border-r border-neutral-300">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border-r border-gray-300">
+                    <th className="px-4 py-3 text-center text-sm font-bold text-neutral-900 border-r border-neutral-300">
                       Taux TVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900 border-r border-gray-300">
+                    <th className="px-4 py-3 text-right text-sm font-bold text-neutral-900 border-r border-neutral-300">
                       Montant HTVA
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                    <th className="px-4 py-3 text-right text-sm font-bold text-neutral-900">
                       Montant TVAC
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Énergie partagée</div>
-                        <div className="text-xs text-gray-600">
+                        <div className="font-medium text-neutral-900">Énergie partagée</div>
+                        <div className="text-xs text-neutral-600">
                           {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh HTVA
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">
                       {(invoiceData.calculations.vatRate * 100).toFixed(0)}%
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.calculations.energySharedCostHTVA.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {invoiceData.calculations.energySharedCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Coûts réseau</div>
-                        <div className="text-xs text-gray-600">Frais remboursés à Sibelga</div>
+                        <div className="font-medium text-neutral-900">Coûts réseau</div>
+                        <div className="text-xs text-neutral-600">Frais remboursés à Sibelga</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                       {invoiceData.calculations.networkCostTotal.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                       {invoiceData.calculations.networkCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
                   {invoiceData.calculations.isFirstInvoiceOfYear && (
-                    <tr className="border-b border-gray-300">
-                      <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                    <tr className="border-b border-neutral-300">
+                      <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                         <div>
-                          <div className="font-medium text-gray-900">Frais d'adhésion annuels</div>
-                          <div className="text-xs text-gray-600">Cotisation membre 2025</div>
+                          <div className="font-medium text-neutral-900">Frais d'adhésion annuels</div>
+                          <div className="text-xs text-neutral-600">Cotisation membre 2025</div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">21%</td>
-                      <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 border-r border-gray-300">
+                      <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">21%</td>
+                      <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900 border-r border-neutral-300">
                         {invoiceData.calculations.membershipFeeHTVA.toFixed(2)} €
                       </td>
-                      <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
+                      <td className="px-4 py-3 text-right text-sm font-medium text-neutral-900">
                         {invoiceData.calculations.membershipFeeTVAC.toFixed(2)} €
                       </td>
                     </tr>
                   )}
-                  <tr className="border-b-2 border-gray-400 bg-teal-50 font-semibold">
-                    <td className="px-4 py-3 text-sm font-bold text-blue-900 border-r border-gray-300">
+                  <tr className="border-b-2 border-neutral-300 bg-teal-50 font-semibold">
+                    <td className="px-4 py-3 text-sm font-bold text-brand-teal border-r border-neutral-300">
                       SOUS-TOTAL COÛTS
                     </td>
-                    <td className="px-4 py-3 text-center text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-900">
+                    <td className="px-4 py-3 text-center text-sm font-bold text-brand-teal border-r border-neutral-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-brand-teal border-r border-neutral-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-brand-teal">
                       {invoiceData.calculations.totalCostTVAC.toFixed(2)} €
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-300">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-300">
+                  <tr className="border-b border-neutral-300">
+                    <td className="px-4 py-3 text-sm text-neutral-900 border-r border-neutral-300">
                       <div>
-                        <div className="font-medium text-gray-900">Revenus injection</div>
-                        <div className="text-xs text-gray-600">
+                        <div className="font-medium text-neutral-900">Revenus injection</div>
+                        <div className="text-xs text-neutral-600">
                           {(((invoiceData.totals.injection_partagee || 0) + (invoiceData.totals.injection_complementaire || 0)) / 1000).toFixed(3)} MWh × {invoiceData.participant.purchase_rate || 70}€/MWh
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700 border-r border-gray-300">
+                    <td className="px-4 py-3 text-center text-sm text-neutral-900 border-r border-neutral-300">-</td>
+                    <td className="px-4 py-3 text-right text-sm font-medium text-brand-teal border-r border-neutral-300">
                       -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-green-700">
+                    <td className="px-4 py-3 text-right text-sm font-medium text-brand-teal">
                       -{invoiceData.calculations.injectionRevenue.toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="bg-amber-100 border-t-2 border-amber-400">
-                    <td className="px-4 py-3 text-lg font-bold text-amber-900 border-r border-gray-300">
+                    <td className="px-4 py-3 text-lg font-bold text-amber-900 border-r border-neutral-300">
                       MONTANT NET À PAYER
                     </td>
-                    <td className="px-4 py-3 text-center text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
-                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900 border-r border-gray-300">-</td>
+                    <td className="px-4 py-3 text-center text-lg font-bold text-amber-900 border-r border-neutral-300">-</td>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-amber-900 border-r border-neutral-300">-</td>
                     <td className="px-4 py-3 text-right text-lg font-bold text-amber-900">
                       {invoiceData.calculations.netAmount.toFixed(2)} €
                     </td>
@@ -1466,9 +1466,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           </div>
 
           {/* Conditions de paiement */}
-          <div className="mt-8 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
-            <h4 className="font-semibold text-gray-900 mb-2">Conditions de paiement</h4>
-            <div className="text-sm text-gray-700 space-y-1">
+          <div className="mt-8 p-4 bg-neutral-50 rounded-lg border-2 border-neutral-300">
+            <h4 className="font-semibold text-neutral-900 mb-2">Conditions de paiement</h4>
+            <div className="text-sm text-neutral-700 space-y-1">
               <p>• Paiement à 30 jours, soit au plus tard le {format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}</p>
               <p>• Virement bancaire : BE96 0020 1192 6005</p>
               <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>

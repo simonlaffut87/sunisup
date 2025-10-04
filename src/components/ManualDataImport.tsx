@@ -798,7 +798,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-neutral-600 transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -807,8 +807,8 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
         <div className="p-6 space-y-6">
           {/* Instructions */}
           <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-            <h3 className="font-medium text-blue-900 mb-2">📋 Instructions :</h3>
-            <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+            <h3 className="font-medium text-brand-teal mb-2">📋 Instructions :</h3>
+            <ol className="text-sm text-brand-teal space-y-1 list-decimal list-inside">
               <li>Ouvrez votre fichier Excel</li>
               <li>Sélectionnez TOUTES les données (Ctrl+A)</li>
               <li>Copiez (Ctrl+C)</li>
@@ -819,30 +819,30 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
           {/* Month Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
               Mois des données
             </label>
             <input
               type="month"
               value={month}
               onChange={(e) => setMonth(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+              className="px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
           {/* Text Area */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
               Données Excel (copiées-collées)
             </label>
             <textarea
               value={textData}
               onChange={(e) => setTextData(e.target.value)}
               placeholder="Collez ici les données copiées depuis Excel..."
-              className="w-full h-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 font-mono text-sm"
+              className="w-full h-40 px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 font-mono text-sm"
               disabled={processing}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-neutral-500 mt-1">
               {textData.split('\n').length - 1} lignes collées
             </p>
           </div>
@@ -870,23 +870,23 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
           {/* Debug Logs */}
           {debugLogs.length > 0 && (
-            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                <AlertCircle className="w-5 h-5 mr-2 text-yellow-600" />
+            <div className="bg-brand-gold border-2 border-brand-gold rounded-lg p-4">
+              <h4 className="font-medium text-neutral-900 mb-3 flex items-center">
+                <AlertCircle className="w-5 h-5 mr-2 text-brand-gold" />
                 📋 LOGS D'IMPORT ({debugLogs.length} entrées)
               </h4>
-              <div className="bg-white border-2 border-yellow-200 rounded p-4 max-h-80 overflow-y-auto">
+              <div className="bg-white border-2 border-brand-gold rounded p-4 max-h-80 overflow-y-auto">
                 <div className="space-y-1 text-xs font-mono">
                   {debugLogs.map((log, index) => (
                     <div key={index} className={`${
-                      log.includes('❌') ? 'text-rose-600' :
-                      log.includes('✅') ? 'text-green-600' :
+                      log.includes('❌') ? 'text-brand-flame' :
+                      log.includes('✅') ? 'text-brand-teal' :
                       log.includes('⚠️') ? 'text-orange-600' :
                       log.includes('ℹ️') ? 'text-brand-teal' :
-                      log.includes('===') ? 'text-purple-600 font-bold' :
-                      log.includes('---') ? 'text-indigo-600 font-medium' :
-                      'text-gray-700'
-                    } p-1 ${log.includes('===') || log.includes('---') ? 'border-b border-gray-200' : ''}`}>
+                      log.includes('===') ? 'text-brand-teal font-bold' :
+                      log.includes('---') ? 'text-brand-teal font-medium' :
+                      'text-neutral-700'
+                    } p-1 ${log.includes('===') || log.includes('---') ? 'border-b border-neutral-300' : ''}`}>
                       {log}
                     </div>
                   ))}
@@ -899,7 +899,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                     navigator.clipboard.writeText(logText);
                     toast.success('Logs copiés dans le presse-papiers');
                   }}
-                  className="text-yellow-600 hover:text-yellow-800 text-sm underline flex items-center justify-center gap-1"
+                  className="text-brand-gold hover:text-brand-gold text-sm underline flex items-center justify-center gap-1"
                 >
                   <Copy className="w-3 h-3" />
                   Copier tous les logs
@@ -909,34 +909,34 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           )}
           {/* Results */}
           {results && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+            <div className="bg-brand-teal border border-brand-teal rounded-lg p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-                <h3 className="text-lg font-semibold text-green-800">Import réussi !</h3>
+                <CheckCircle className="w-6 h-6 text-brand-teal" />
+                <h3 className="text-lg font-semibold text-brand-teal">Import réussi !</h3>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <div className="bg-white p-3 rounded border">
-                  <div className="text-sm text-gray-600">Lignes traitées</div>
-                  <div className="text-xl font-bold text-gray-900">{results.stats.totalRowsProcessed}</div>
+                  <div className="text-sm text-neutral-600">Lignes traitées</div>
+                  <div className="text-xl font-bold text-neutral-900">{results.stats.totalRowsProcessed}</div>
                 </div>
                 <div className="bg-white p-3 rounded border">
-                  <div className="text-sm text-gray-600">Participants trouvés</div>
-                  <div className="text-xl font-bold text-green-600">{results.stats.participantsFound}</div>
+                  <div className="text-sm text-neutral-600">Participants trouvés</div>
+                  <div className="text-xl font-bold text-brand-teal">{results.stats.participantsFound}</div>
                 </div>
                 <div className="bg-white p-3 rounded border">
-                  <div className="text-sm text-gray-600">Lignes valides</div>
+                  <div className="text-sm text-neutral-600">Lignes valides</div>
                   <div className="text-xl font-bold text-brand-teal">{results.stats.validRowsImported}</div>
                 </div>
                 <div className="bg-white p-3 rounded border">
-                  <div className="text-sm text-gray-600">EANs ignorés</div>
+                  <div className="text-sm text-neutral-600">EANs ignorés</div>
                   <div className="text-xl font-bold text-orange-600">{results.stats.unknownEansSkipped}</div>
                 </div>
               </div>
 
               {/* Debug Info */}
-              <div className="bg-white border border-gray-200 rounded p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Informations de debug :</h4>
+              <div className="bg-white border border-neutral-300 rounded p-4">
+                <h4 className="font-medium text-neutral-900 mb-2">Informations de debug :</h4>
                 <div className="text-sm space-y-1">
                   <div><strong>Headers trouvés :</strong> {JSON.stringify(results.headers)}</div>
                   <div><strong>Index EAN :</strong> {results.columnIndices.ean}</div>
@@ -950,12 +950,12 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
               {/* Participants Data */}
               {Object.keys(results.participants).length > 0 && (
                 <div className="mt-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Participants mis à jour :</h4>
+                  <h4 className="font-medium text-neutral-900 mb-2">Participants mis à jour :</h4>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {Object.entries(results.participants).map(([ean, data]: [string, any]) => (
-                      <div key={ean} className="bg-white border border-gray-200 rounded p-3 text-sm">
+                      <div key={ean} className="bg-white border border-neutral-300 rounded p-3 text-sm">
                         <div className="font-medium">{data.name} ({ean})</div>
-                        <div className="grid grid-cols-2 gap-2 mt-1 text-xs text-gray-600">
+                        <div className="grid grid-cols-2 gap-2 mt-1 text-xs text-neutral-600">
                           <div>Vol. Partagé: {data.data.volume_partage.toFixed(2)} kWh</div>
                           <div>Vol. Complémentaire: {data.data.volume_complementaire.toFixed(2)} kWh</div>
                           <div>Inj. Partagée: {data.data.injection_partagee.toFixed(2)} kWh</div>
@@ -971,7 +971,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
 
           {/* Boutons d'action après traitement */}
           {results && (
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-300">
               <button
                 onClick={() => {
                   const logText = debugLogs.join('\n');
@@ -988,7 +988,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
                   onSuccess(results);
                   onClose();
                 }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                className="px-6 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal transition-colors flex items-center space-x-2"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>Confirmer et fermer</span>

@@ -21,17 +21,17 @@ function SupabaseConnectionBanner() {
   const [showBanner, setShowBanner] = useState(!isSupabaseConfigured);
   if (!showBanner) return null;
   return (
-    <div className="bg-rose-50 border-b border-rose-200 px-4 py-3">
+    <div className="bg-brand-flame/10 border-b border-brand-flame px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
-          <p className="text-sm text-rose-700">
+          <div className="w-2 h-2 bg-brand-flame/10 rounded-full animate-pulse"></div>
+          <p className="text-sm text-brand-flame">
             <strong>Database not connected:</strong> Please configure Supabase environment variables for full functionality
           </p>
         </div>
         <button
           onClick={() => setShowBanner(false)}
-          className="text-rose-600 hover:text-rose-700 text-sm underline"
+          className="text-brand-flame hover:text-brand-flame text-sm underline"
         >
           Dismiss
         </button>
@@ -67,7 +67,7 @@ function NavigationTabs() {
               className={`px-3 py-2 text-sm font-medium transition-colors ${
                 location.pathname === '/' 
                   ? 'text-black border-b-2 border-black'
-                  : 'text-black hover:text-gray-800'
+                  : 'text-black hover:text-neutral-800'
               }`}
             >
               {t('nav.home')}
@@ -77,7 +77,7 @@ function NavigationTabs() {
               className={`px-3 py-2 text-sm font-medium transition-colors ${
                 location.pathname === '/about'
                   ? 'text-black border-b-2 border-black'
-                  : 'text-black hover:text-gray-800'
+                  : 'text-black hover:text-neutral-800'
               }`}
             >
               {t('nav.about')}
@@ -88,7 +88,7 @@ function NavigationTabs() {
           <div className="md:hidden flex-shrink-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-black hover:text-gray-800 p-2"
+              className="text-black hover:text-neutral-800 p-2"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -97,15 +97,15 @@ function NavigationTabs() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 py-2 bg-white/90">
+          <div className="md:hidden border-t border-neutral-300 py-2 bg-white/90">
             <div className="flex flex-col space-y-2">
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-4 py-3 text-sm font-medium ${
                   location.pathname === '/' 
-                    ? 'text-black bg-gray-100'
-                    : 'text-black hover:text-gray-800'
+                    ? 'text-black bg-neutral-50'
+                    : 'text-black hover:text-neutral-800'
                 }`}
               >
                 {t('nav.home')}
@@ -115,8 +115,8 @@ function NavigationTabs() {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-4 py-3 text-sm font-medium ${
                   location.pathname === '/about'
-                    ? 'text-black bg-gray-100'
-                    : 'text-black hover:text-gray-800'
+                    ? 'text-black bg-neutral-50'
+                    : 'text-black hover:text-neutral-800'
                 }`}
               >
                 {t('nav.about')}
@@ -179,7 +179,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50 font-sans">
+      <div className="min-h-screen bg-white font-sans">
         <SupabaseConnectionBanner />
 
         {/* Transparent Header */}
@@ -212,7 +212,7 @@ function App() {
                 ) : (
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
+                    className="bg-brand-flame hover:bg-brand-flame-light text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm font-sans"
                   >
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">{t('header.memberAccess')}</span>
@@ -245,7 +245,7 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="bg-gray-900 text-white py-16">
+        <footer className="bg-neutral-900 text-white py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
@@ -253,14 +253,14 @@ function App() {
                   <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-12 h-12" />
                   <div>
                     <h3 className="text-xl font-bold text-white font-sans">Sun Is Up</h3>
-                    <p className="text-gray-400 text-sm font-sans">{t('footer.description')}</p>
+                    <p className="text-neutral-400 text-sm font-sans">{t('footer.description')}</p>
                   </div>
                 </div>
               </div>
               
               <div>
                 <h4 className="text-lg font-semibold text-white mb-4 font-sans">{t('footer.contact')}</h4>
-                <div className="space-y-2 text-gray-300">
+                <div className="space-y-2 text-neutral-300">
                   <p className="font-sans">📧 info@sunisup.be</p>
                   <p className="font-sans">📞 +32 471 31 71 48</p>
                   <p className="font-sans">📍 Bruxelles, Belgique</p>
@@ -271,15 +271,15 @@ function App() {
                 <h4 className="text-lg font-semibold text-white mb-4 font-sans">{t('footer.followUs')}</h4>
                 <div className="flex space-x-4">
                   <a href="https://www.linkedin.com/company/sun-is-up" target="_blank" rel="noopener noreferrer" 
-                     className="text-gray-300 hover:text-white transition-colors">
+                     className="text-neutral-300 hover:text-white transition-colors">
                     LinkedIn
                   </a>
                 </div>
               </div>
             </div>
             
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-              <p className="text-gray-400 font-sans">{t('footer.copyright')}</p>
+            <div className="border-t border-neutral-300 mt-12 pt-8 text-center">
+              <p className="text-neutral-400 font-sans">{t('footer.copyright')}</p>
             </div>
           </div>
         </footer>
@@ -309,8 +309,8 @@ function NavigationLinks() {
           to={link.path}
           className={`relative px-3 py-2 text-sm font-medium transition-colors ${
             location.pathname === link.path
-              ? 'text-gray-800 border-b-2 border-brand-teal'
-              : 'text-gray-700 hover:text-gray-900'
+              ? 'text-neutral-800 border-b-2 border-brand-teal'
+              : 'text-neutral-700 hover:text-neutral-900'
           } font-sans`}
         >
           {link.path === '/' ? t('nav.services') : link.label}
@@ -337,7 +337,7 @@ function MobileNavigation() {
     <div className="md:hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-2 border border-gray-200"
+        className="fixed top-4 right-4 z-50 bg-white shadow-lg rounded-full p-2 border border-neutral-300"
       >
         {isOpen ? <X className="w-5 h-5 text-black" /> : <Menu className="w-5 h-5 text-black" />}
       </button>
@@ -355,7 +355,7 @@ function MobileNavigation() {
                     className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                       location.pathname === link.path
                         ? 'bg-teal-50 text-brand-teal border border-teal-200'
-                        : 'text-gray-700 hover:bg-gray-50'
+                        : 'text-neutral-700 hover:bg-white'
                     } font-sans`}
                   >
                     {link.label}

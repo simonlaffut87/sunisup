@@ -145,16 +145,16 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 font-sans">
+              <h2 className="text-2xl md:text-3xl font-bold text-neutral-900 font-sans">
                 {t('servicesDiscovery.title')}
               </h2>
-              <p className="text-gray-600 mt-2 font-sans">
+              <p className="text-neutral-600 mt-2 font-sans">
                 {t('servicesDiscovery.intro')}
               </p>
             </div>
             <button
               onClick={handleClose}
-              className="text-gray-500 hover:text-gray-700 transition-colors p-2"
+              className="text-neutral-500 hover:text-neutral-700 transition-colors p-2"
             >
               <X className="w-6 h-6" />
             </button>
@@ -164,13 +164,13 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center space-x-4">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step >= 1 ? 'bg-brand-gold/100 text-white' : 'bg-gray-200 text-gray-600'
+                step >= 1 ? 'bg-brand-gold/100 text-white' : 'bg-neutral-100 text-neutral-600'
               }`}>
                 1
               </div>
-              <div className={`w-32 h-1 ${step >= 2 ? 'bg-brand-gold/100' : 'bg-gray-200'}`}></div>
+              <div className={`w-32 h-1 ${step >= 2 ? 'bg-brand-gold/100' : 'bg-neutral-100'}`}></div>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step >= 2 ? 'bg-brand-gold/100 text-white' : 'bg-gray-200 text-gray-600'
+                step >= 2 ? 'bg-brand-gold/100 text-white' : 'bg-neutral-100 text-neutral-600'
               }`}>
                 2
               </div>
@@ -181,10 +181,10 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
           {step === 1 && (
             <div className="space-y-6">
               <div className="text-center">
-                <h3 className="text-xl font-bold text-gray-900 mb-2 font-sans">
+                <h3 className="text-xl font-bold text-neutral-900 mb-2 font-sans">
                   {t('servicesDiscovery.step1.title')}
                 </h3>
-                <p className="text-gray-600 font-sans">
+                <p className="text-neutral-600 font-sans">
                   {t('servicesDiscovery.step1.description')}
                 </p>
               </div>
@@ -201,7 +201,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                       className={`p-6 rounded-xl border-2 transition-all duration-200 text-left ${
                         isSelected
                           ? 'border-amber-500 bg-brand-gold/10 shadow-lg scale-105'
-                          : 'border-gray-200 hover:border-amber-300 hover:shadow-md hover:scale-102'
+                          : 'border-neutral-300 hover:border-amber-300 hover:shadow-md hover:scale-102'
                       }`}
                     >
                       <div className="flex items-start space-x-4">
@@ -210,14 +210,14 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-lg font-semibold text-gray-900 font-sans">
+                            <h4 className="text-lg font-semibold text-neutral-900 font-sans">
                               {service.title}
                             </h4>
                             {isSelected && (
                               <CheckCircle className="w-5 h-5 text-amber-500" />
                             )}
                           </div>
-                          <p className="text-gray-600 text-sm font-sans">
+                          <p className="text-neutral-600 text-sm font-sans">
                             {service.description}
                           </p>
                         </div>
@@ -243,17 +243,17 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
           {step === 2 && (
             <div className="space-y-6">
               <div className="text-center">
-                <h3 className="text-xl font-bold text-gray-900 mb-2 font-sans">
+                <h3 className="text-xl font-bold text-neutral-900 mb-2 font-sans">
                   {t('servicesDiscovery.step2.title')}
                 </h3>
-                <p className="text-gray-600 font-sans">
+                <p className="text-neutral-600 font-sans">
                   {t('servicesDiscovery.step2.description')}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2 font-sans">
                     {t('servicesDiscovery.step2.email')}
                   </label>
                   <div className="relative">
@@ -264,7 +264,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                      className="w-full pl-10 pr-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900"
                       placeholder="votre@email.com"
                       required
                     />
@@ -272,7 +272,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2 font-sans">
                     {t('servicesDiscovery.step2.name')}
                   </label>
                   <div className="relative">
@@ -283,7 +283,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                      className="w-full pl-10 pr-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900"
                       placeholder="Votre nom ou nom de votre société"
                     />
                   </div>
@@ -293,7 +293,7 @@ Cette personne souhaite réserver un créneau pour un échange personnalisé ave
               <div className="flex justify-between">
                 <button
                   onClick={() => setStep(1)}
-                  className="text-gray-600 hover:text-gray-800 px-4 py-2 font-sans"
+                  className="text-neutral-600 hover:text-neutral-800 px-4 py-2 font-sans"
                 >
                   {t('servicesDiscovery.step2.back')}
                 </button>

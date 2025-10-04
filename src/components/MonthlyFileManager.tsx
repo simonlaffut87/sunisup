@@ -375,28 +375,28 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
     switch (status) {
       case 'processed':
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-brand-teal text-brand-teal">
             <CheckCircle className="w-3 h-3 mr-1" />
             Traité
           </span>
         );
       case 'uploaded':
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-brand-teal text-brand-teal">
             <Calendar className="w-3 h-3 mr-1" />
             En attente
           </span>
         );
       case 'error':
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-rose-50 text-rose-700">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-brand-flame/10 text-brand-flame">
             <AlertCircle className="w-3 h-3 mr-1" />
             Erreur
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-neutral-50 text-neutral-800">
             Inconnu
           </span>
         );
@@ -418,15 +418,15 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Fichiers mensuels</h2>
-          <p className="text-gray-600 text-sm mt-1">
+          <h2 className="text-xl font-semibold text-neutral-900">Fichiers mensuels</h2>
+          <p className="text-neutral-600 text-sm mt-1">
             Gestion des imports de données mensuelles
           </p>
         </div>
         <div className="flex space-x-3">
           <button
             onClick={() => setShowManualImport(true)}
-            className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm hover:shadow-md"
+            className="inline-flex items-center px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal transition-colors shadow-sm hover:shadow-md"
           >
             <Plus className="w-4 h-4 mr-2" />
             Import Manuel
@@ -437,20 +437,20 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       {/* Graphique des totaux mensuels */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Graphique des Volumes */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <BarChart3 className="w-6 h-6 text-brand-teal mr-3" />
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Volumes mensuels</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-lg font-semibold text-neutral-900">Volumes mensuels</h3>
+                <p className="text-sm text-neutral-600">
                   Consommation partagée vs complémentaire
                 </p>
               </div>
             </div>
             <button
               onClick={loadChartDataFromParticipants}
-              className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
+              className="text-neutral-500 hover:text-neutral-700 p-2 rounded-full hover:bg-neutral-50"
               title="Actualiser les données"
             >
               <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
@@ -520,7 +520,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-12">
+            <div className="text-center text-neutral-500 py-12">
               <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-lg font-medium mb-2">Aucune donnée de volume</p>
               <p className="text-sm">Importez des fichiers Excel pour voir les volumes</p>
@@ -531,25 +531,25 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           {chartData && chartData.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-700">Consommation Partagée</span>
+                <div className="w-4 h-4 bg-brand-teal rounded mr-2"></div>
+                <span className="text-sm text-neutral-700">Consommation Partagée</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 bg-teal-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-700">Consommation Réseau</span>
+                <span className="text-sm text-neutral-700">Consommation Réseau</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Graphique des Injections */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <BarChart3 className="w-6 h-6 text-amber-600 mr-3" />
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Injections mensuelles</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-lg font-semibold text-neutral-900">Injections mensuelles</h3>
+                <p className="text-sm text-neutral-600">
                   Production partagée vs résiduelle
                 </p>
               </div>
@@ -619,7 +619,7 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-12">
+            <div className="text-center text-neutral-500 py-12">
               <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-lg font-medium mb-2">Aucune donnée d'injection</p>
               <p className="text-sm">Importez des fichiers Excel pour voir les injections</p>
@@ -631,11 +631,11 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="flex items-center">
                 <div className="w-4 h-4 bg-brand-gold/100 rounded mr-2"></div>
-                <span className="text-sm text-gray-700">Injection Partagée</span>
+                <span className="text-sm text-neutral-700">Injection Partagée</span>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-700">Injection Réseau</span>
+                <div className="w-4 h-4 bg-brand-teal rounded mr-2"></div>
+                <span className="text-sm text-neutral-700">Injection Réseau</span>
               </div>
             </div>
           )}
@@ -647,10 +647,10 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
         <div>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
-              <Database className="w-6 h-6 text-gray-600 mr-3" />
+              <Database className="w-6 h-6 text-neutral-600 mr-3" />
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Debug - Données calculées</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-lg font-semibold text-neutral-900">Debug - Données calculées</h3>
+                <p className="text-sm text-neutral-600">
                   Vérification des totaux par mois
                 </p>
               </div>
@@ -658,12 +658,12 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           </div>
           
           {/* Debug info */}
-          <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-2">Données calculées :</h4>
-            <div className="text-xs text-gray-600 space-y-1 max-h-32 overflow-y-auto">
+          <div className="mb-4 p-3 bg-white border border-neutral-300 rounded-lg">
+            <h4 className="font-medium text-neutral-900 mb-2">Données calculées :</h4>
+            <div className="text-xs text-neutral-600 space-y-1 max-h-32 overflow-y-auto">
               {chartData.map((item, index) => (
                 <div key={index} className="font-mono bg-white p-2 rounded border">
-                  <div className="font-bold text-gray-900">{item.month}</div>
+                  <div className="font-bold text-neutral-900">{item.month}</div>
                   <div>VP: {item['Volume Partagé']} MWh | VC: {item['Volume Complémentaire']} MWh</div>
                   <div>IP: {item['Injection Partagée']} MWh | IR: {item['Injection Réseau']} MWh</div>
                   <div className="text-brand-teal">Participants: {item.participants}</div>
@@ -677,45 +677,45 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
       {/* Statistiques */}
       {files.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <div className="bg-white p-4 rounded-lg border border-neutral-300 shadow-sm">
             <div className="flex items-center">
               <FileSpreadsheet className="w-8 h-8 text-brand-teal mr-3" />
               <div>
-                <div className="text-2xl font-bold text-gray-900">{files.length}</div>
-                <div className="text-sm text-gray-600">Fichiers importés</div>
+                <div className="text-2xl font-bold text-neutral-900">{files.length}</div>
+                <div className="text-sm text-neutral-600">Fichiers importés</div>
               </div>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <div className="bg-white p-4 rounded-lg border border-neutral-300 shadow-sm">
             <div className="flex items-center">
-              <CheckCircle className="w-8 h-8 text-green-600 mr-3" />
+              <CheckCircle className="w-8 h-8 text-brand-teal mr-3" />
               <div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-2xl font-bold text-neutral-900">
                   {files.filter(f => f.status === 'processed').length}
                 </div>
-                <div className="text-sm text-gray-600">Fichiers traités</div>
+                <div className="text-sm text-neutral-600">Fichiers traités</div>
               </div>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <div className="bg-white p-4 rounded-lg border border-neutral-300 shadow-sm">
             <div className="flex items-center">
-              <Database className="w-8 h-8 text-purple-600 mr-3" />
+              <Database className="w-8 h-8 text-brand-teal mr-3" />
               <div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-2xl font-bold text-neutral-900">
                   {Math.max(...files.map(f => f.participant_count), 0)}
                 </div>
-                <div className="text-sm text-gray-600">Participants max</div>
+                <div className="text-sm text-neutral-600">Participants max</div>
               </div>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <div className="bg-white p-4 rounded-lg border border-neutral-300 shadow-sm">
             <div className="flex items-center">
               <Database className="w-8 h-8 text-amber-600 mr-3" />
               <div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-2xl font-bold text-neutral-900">
                   {files.reduce((sum, f) => sum + (f.mesures_count || 0), 0).toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600">Mesures mensuelles</div>
+                <div className="text-sm text-neutral-600">Mesures mensuelles</div>
               </div>
             </div>
           </div>
@@ -743,12 +743,12 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
+                <h3 className="text-xl font-semibold text-neutral-900">
                   Données - {format(new Date(viewingData.month + '-01'), 'MMMM yyyy', { locale: fr })}
                 </h3>
                 <button
                   onClick={() => setViewingData(null)}
-                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                  className="text-neutral-500 hover:text-neutral-700 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -759,26 +759,26 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               {/* Statistiques */}
               <div className="mb-6">
                 <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-900 mb-2 flex items-center">
+                  <h4 className="font-medium text-brand-teal mb-2 flex items-center">
                     <Database className="w-4 h-4 mr-2" />
                     Statistiques d'import
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                       <div className="text-brand-teal">Participants</div>
-                      <div className="font-bold text-blue-900">{Object.keys(viewingData.participants || {}).length}</div>
+                      <div className="font-bold text-brand-teal">{Object.keys(viewingData.participants || {}).length}</div>
                     </div>
                     <div>
                       <div className="text-brand-teal">Mesures</div>
-                      <div className="font-bold text-blue-900">{(viewingData.mesures?.length || 0).toLocaleString()}</div>
+                      <div className="font-bold text-brand-teal">{(viewingData.mesures?.length || 0).toLocaleString()}</div>
                     </div>
                     <div>
                       <div className="text-brand-teal">Date d'import</div>
-                      <div className="font-bold text-blue-900">{format(new Date(viewingData.upload_date), 'dd/MM/yyyy', { locale: fr })}</div>
+                      <div className="font-bold text-brand-teal">{format(new Date(viewingData.upload_date), 'dd/MM/yyyy', { locale: fr })}</div>
                     </div>
                     <div>
                       <div className="text-brand-teal">Fichier</div>
-                      <div className="font-bold text-blue-900 truncate max-w-[150px]">{viewingData.filename}</div>
+                      <div className="font-bold text-brand-teal truncate max-w-[150px]">{viewingData.filename}</div>
                     </div>
                   </div>
                 </div>
@@ -788,13 +788,13 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-teal-50 p-4 rounded-lg">
                   <div className="text-sm text-brand-teal">Volume Complémentaire</div>
-                  <div className="text-xl font-bold text-blue-900">
+                  <div className="text-xl font-bold text-brand-teal">
                     {(viewingData.totals.total_volume_complementaire / 1000).toFixed(3)} MWh
                   </div>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="text-sm text-green-600">Volume Partagé</div>
-                  <div className="text-xl font-bold text-green-900">
+                <div className="bg-brand-teal p-4 rounded-lg">
+                  <div className="text-sm text-brand-teal">Volume Partagé</div>
+                  <div className="text-xl font-bold text-brand-teal">
                     {(viewingData.totals.total_volume_partage / 1000).toFixed(3)} MWh
                   </div>
                 </div>
@@ -804,58 +804,58 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                     {(viewingData.totals.total_injection_complementaire / 1000).toFixed(3)} MWh
                   </div>
                 </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <div className="text-sm text-purple-600">Injection Partagée</div>
-                  <div className="text-xl font-bold text-purple-900">
+                <div className="bg-brand-teal p-4 rounded-lg">
+                  <div className="text-sm text-brand-teal">Injection Partagée</div>
+                  <div className="text-xl font-bold text-brand-teal">
                     {(viewingData.totals.total_injection_partagee / 1000).toFixed(3)} MWh
                   </div>
                 </div>
               </div>
 
               {/* Détail par participant */}
-              <div className="overflow-x-auto bg-gray-50 rounded-lg border border-gray-200">
-                <div className="p-4 border-b border-gray-200 bg-white">
-                  <h4 className="font-medium text-gray-900 flex items-center">
+              <div className="overflow-x-auto bg-white rounded-lg border border-neutral-300">
+                <div className="p-4 border-b border-neutral-300 bg-white">
+                  <h4 className="font-medium text-neutral-900 flex items-center">
                     <BarChart3 className="w-5 h-5 mr-2 text-amber-600" />
                     Détail par participant ({Object.keys(viewingData.participants || {}).length})
                   </h4>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-neutral-600 mt-1">
                     Données mensuelles importées pour {format(new Date(viewingData.month + '-01'), 'MMMM yyyy', { locale: fr })}
                   </p>
                 </div>
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-white">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         <div className="flex items-center">
                           <Users className="w-4 h-4 mr-2" />
                           Participant
                         </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Type
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         <div className="flex items-center">
                           <span className="text-brand-teal">📥</span>
                           <span className="ml-1">Volume Compl.</span>
                         </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         <div className="flex items-center">
-                          <span className="text-green-600">🔄</span>
+                          <span className="text-brand-teal">🔄</span>
                           <span className="ml-1">Volume Partagé</span>
                         </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         <div className="flex items-center">
                           <span className="text-amber-600">📤</span>
                           <span className="ml-1">Injection Compl.</span>
                         </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         <div className="flex items-center">
-                          <span className="text-purple-600">⚡</span>
+                          <span className="text-brand-teal">⚡</span>
                           <span className="ml-1">Injection Partagée</span>
                         </div>
                       </th>
@@ -866,15 +866,15 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                       <tr key={eanCode} className="hover:bg-brand-gold/10 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{participant.name}</div>
-                            <div className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">{eanCode}</div>
+                            <div className="text-sm font-medium text-neutral-900">{participant.name}</div>
+                            <div className="text-xs text-neutral-500 font-mono bg-neutral-50 px-2 py-1 rounded">{eanCode}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             participant.type === 'producer' 
                               ? 'bg-amber-100 text-amber-800' 
-                              : 'bg-blue-100 text-blue-800'
+                              : 'bg-brand-teal text-brand-teal'
                           }`}>
                             {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                           </span>
@@ -883,21 +883,21 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                           <div className="flex items-center">
                             <span className="text-brand-teal mr-2">📥</span>
                             <div>
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-neutral-900">
                                 {(participant.data.volume_complementaire / 1000).toFixed(3)} MWh
                               </div>
-                              <div className="text-xs text-gray-500">Réseau traditionnel</div>
+                              <div className="text-xs text-neutral-500">Réseau traditionnel</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <span className="text-green-600 mr-2">🔄</span>
+                            <span className="text-brand-teal mr-2">🔄</span>
                             <div>
-                              <div className="text-sm font-medium text-green-700">
+                              <div className="text-sm font-medium text-brand-teal">
                                 {(participant.data.volume_partage / 1000).toFixed(3)} MWh
                               </div>
-                              <div className="text-xs text-gray-500">Énergie communautaire</div>
+                              <div className="text-xs text-neutral-500">Énergie communautaire</div>
                             </div>
                           </div>
                         </td>
@@ -905,21 +905,21 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                           <div className="flex items-center">
                             <span className="text-amber-600 mr-2">📤</span>
                             <div>
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-neutral-900">
                                 {(participant.data.injection_complementaire / 1000).toFixed(3)} MWh
                               </div>
-                              <div className="text-xs text-gray-500">Vers le réseau</div>
+                              <div className="text-xs text-neutral-500">Vers le réseau</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <span className="text-purple-600 mr-2">⚡</span>
+                            <span className="text-brand-teal mr-2">⚡</span>
                             <div>
-                              <div className="text-sm font-medium text-purple-700">
+                              <div className="text-sm font-medium text-brand-teal">
                                 {(participant.data.injection_partagee / 1000).toFixed(3)} MWh
                               </div>
-                              <div className="text-xs text-gray-500">Vers la communauté</div>
+                              <div className="text-xs text-neutral-500">Vers la communauté</div>
                             </div>
                           </div>
                         </td>

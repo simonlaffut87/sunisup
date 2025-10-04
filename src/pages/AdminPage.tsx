@@ -26,18 +26,18 @@ export default function AdminPage() {
         url="https://sunisup.be/admin"
         logo="https://sunisup.be/images/logo.png"
       />
-      <div className="min-h-screen bg-gray-50 font-sans">
+      <div className="min-h-screen bg-white font-sans">
       {/* Modern Hero Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white">
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-white to-neutral-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-brand-gold/30 rounded-full text-brand-gold font-medium shadow-lg mb-8 font-sans">
             <Users className="w-4 h-4 mr-2" />
             {t('howToJoin.badge')}
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-6 sm:mb-8 font-sans leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-neutral-900 mb-6 sm:mb-8 font-sans leading-tight">
             {t('howToJoin.title')}
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto font-sans leading-relaxed px-2">
+          <p className="text-base sm:text-lg lg:text-xl text-neutral-600 max-w-4xl mx-auto font-sans leading-relaxed px-2">
             {t('howToJoin.intro')}
           </p>
         </div>
@@ -47,25 +47,25 @@ export default function AdminPage() {
         {/* Steps Section */}
         <div className="space-y-8 sm:space-y-12">
           {/* Step 1 */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-gray-100 p-6 sm:p-8 lg:p-12 hover:shadow-3xl transition-all duration-300">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-neutral-300 p-6 sm:p-8 lg:p-12 hover:shadow-3xl transition-all duration-300">
             <div className="flex flex-col sm:flex-row items-start space-y-6 sm:space-y-0 sm:space-x-8">
               <div className="flex-shrink-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto sm:mx-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-brand-teal rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto sm:mx-0">
                   <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 </div>
               </div>
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-                  <span className="bg-blue-100 text-blue-800 font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
+                  <span className="bg-brand-teal text-brand-teal font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
                     Étape 1
                   </span>
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 font-sans">{t('howToJoin.steps.documents.title')}</h3>
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 font-sans">{t('howToJoin.steps.documents.title')}</h3>
                 </div>
                 <ul className="space-y-3 sm:space-y-4">
                   {t('howToJoin.steps.documents.items', { returnObjects: true }).map((item: string, index: number) => (
                     <li key={index} className="flex items-start space-x-3 sm:space-x-4">
-                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 flex-shrink-0 mt-0.5 sm:mt-1" />
-                      <span className="text-gray-700 text-base sm:text-lg font-sans">{item}</span>
+                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-brand-teal flex-shrink-0 mt-0.5 sm:mt-1" />
+                      <span className="text-neutral-700 text-base sm:text-lg font-sans">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -74,25 +74,25 @@ export default function AdminPage() {
           </div>
 
           {/* Step 2 */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-gray-100 p-6 sm:p-8 lg:p-12 hover:shadow-3xl transition-all duration-300">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-neutral-300 p-6 sm:p-8 lg:p-12 hover:shadow-3xl transition-all duration-300">
             <div className="flex flex-col sm:flex-row items-start space-y-6 sm:space-y-0 sm:space-x-8">
               <div className="flex-shrink-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto sm:mx-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-brand-teal rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto sm:mx-0">
                   <Users className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 </div>
               </div>
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-                  <span className="bg-green-100 text-green-800 font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
+                  <span className="bg-brand-teal text-brand-teal font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
                     Étape 2
                   </span>
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 font-sans">{t('howToJoin.steps.membership.title')}</h3>
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 font-sans">{t('howToJoin.steps.membership.title')}</h3>
                 </div>
                 <ul className="space-y-3 sm:space-y-4">
                   {t('howToJoin.steps.membership.items', { returnObjects: true }).map((item: string, index: number) => (
                     <li key={index} className="flex items-start space-x-3 sm:space-x-4">
-                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 flex-shrink-0 mt-0.5 sm:mt-1" />
-                      <span className="text-gray-700 text-base sm:text-lg font-sans">{item}</span>
+                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-brand-teal flex-shrink-0 mt-0.5 sm:mt-1" />
+                      <span className="text-neutral-700 text-base sm:text-lg font-sans">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -101,25 +101,25 @@ export default function AdminPage() {
           </div>
 
           {/* Step 3 */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-gray-100 p-6 sm:p-8 lg:p-12 hover:shadow-3xl transition-all duration-300">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-neutral-300 p-6 sm:p-8 lg:p-12 hover:shadow-3xl transition-all duration-300">
             <div className="flex flex-col sm:flex-row items-start space-y-6 sm:space-y-0 sm:space-x-8">
               <div className="flex-shrink-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto sm:mx-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-brand-flame rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto sm:mx-0">
                   <Wallet className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 </div>
               </div>
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-                  <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
+                  <span className="bg-brand-teal text-brand-teal font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
                     Étape 3
                   </span>
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 font-sans">{t('howToJoin.steps.financial.title')}</h3>
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 font-sans">{t('howToJoin.steps.financial.title')}</h3>
                 </div>
                 <ul className="space-y-3 sm:space-y-4">
                   {t('howToJoin.steps.financial.items', { returnObjects: true }).map((item: string, index: number) => (
                     <li key={index} className="flex items-start space-x-3 sm:space-x-4">
-                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 flex-shrink-0 mt-0.5 sm:mt-1" />
-                      <span className="text-gray-700 text-base sm:text-lg font-sans">{item}</span>
+                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-brand-teal flex-shrink-0 mt-0.5 sm:mt-1" />
+                      <span className="text-neutral-700 text-base sm:text-lg font-sans">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -128,10 +128,10 @@ export default function AdminPage() {
           </div>
 
           {/* Step 4 */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-gray-100 p-6 sm:p-8 lg:p-12 hover:shadow-3xl transition-all duration-300">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-neutral-300 p-6 sm:p-8 lg:p-12 hover:shadow-3xl transition-all duration-300">
             <div className="flex flex-col sm:flex-row items-start space-y-6 sm:space-y-0 sm:space-x-8">
               <div className="flex-shrink-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto sm:mx-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-brand-gold rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto sm:mx-0">
                   <Zap className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 </div>
               </div>
@@ -140,13 +140,13 @@ export default function AdminPage() {
                   <span className="bg-amber-100 text-amber-800 font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
                     Étape 4
                   </span>
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 font-sans">{t('howToJoin.steps.activation.title')}</h3>
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 font-sans">{t('howToJoin.steps.activation.title')}</h3>
                 </div>
                 <ul className="space-y-3 sm:space-y-4">
                   {t('howToJoin.steps.activation.items', { returnObjects: true }).map((item: string, index: number) => (
                     <li key={index} className="flex items-start space-x-3 sm:space-x-4">
-                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 flex-shrink-0 mt-0.5 sm:mt-1" />
-                      <span className="text-gray-700 text-base sm:text-lg font-sans">{item}</span>
+                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-brand-teal flex-shrink-0 mt-0.5 sm:mt-1" />
+                      <span className="text-neutral-700 text-base sm:text-lg font-sans">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -156,7 +156,7 @@ export default function AdminPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="mt-12 sm:mt-16 lg:mt-20 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-2xl sm:rounded-3xl shadow-2xl p-8 sm:p-12 lg:p-16 text-center text-white relative overflow-hidden">
+        <div className="mt-12 sm:mt-16 lg:mt-20 bg-gradient-to-r from-brand-teal via-brand-gold to-brand-flame rounded-2xl sm:rounded-3xl shadow-2xl p-8 sm:p-12 lg:p-16 text-center text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-black/10"></div>
           <div className="relative">
             <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 sm:mb-6 font-sans leading-tight">
@@ -168,7 +168,7 @@ export default function AdminPage() {
 
           <button 
             onClick={() => setShowContactModal(true)}
-              className="bg-white hover:bg-gray-50 text-gray-900 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-full font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:scale-105 flex items-center gap-2 sm:gap-3 mx-auto text-base sm:text-lg font-sans"
+              className="bg-white hover:bg-white text-neutral-900 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-full font-bold transition-all duration-200 shadow-2xl hover:shadow-3xl hover:scale-105 flex items-center gap-2 sm:gap-3 mx-auto text-base sm:text-lg font-sans"
           >
              {t('howToJoin.cta.title')}
               <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />

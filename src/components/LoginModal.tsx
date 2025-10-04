@@ -278,18 +278,18 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
               {mode !== 'login' && (
                 <button
                   onClick={() => switchMode('login')}
-                  className="text-gray-500 hover:text-gray-700 transition-colors p-1"
+                  className="text-neutral-500 hover:text-neutral-700 transition-colors p-1"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
               )}
-              <h2 className="text-2xl font-bold text-gray-900 font-sans">
+              <h2 className="text-2xl font-bold text-neutral-900 font-sans">
                 {getTitle()}
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 transition-colors p-2"
+              className="text-neutral-500 hover:text-neutral-700 transition-colors p-2"
             >
               <X className="w-6 h-6" />
             </button>
@@ -304,8 +304,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           )}
 
           {mode === 'register' && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-700 font-sans">
+            <div className="mb-4 p-3 bg-brand-teal border border-brand-teal rounded-lg">
+              <p className="text-sm text-brand-teal font-sans">
                 <strong>Création de compte membre.</strong> Votre code EAN doit être enregistré dans notre système.
               </p>
             </div>
@@ -321,7 +321,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
+              <label className="block text-sm font-medium text-neutral-700 mb-2 font-sans">
                 Email
               </label>
               <div className="relative">
@@ -332,7 +332,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                  className="w-full pl-10 pr-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900"
                   placeholder="votre@email.com"
                   required
                 />
@@ -341,7 +341,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
             {mode === 'register' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
+                <label className="block text-sm font-medium text-neutral-700 mb-2 font-sans">
                   Code EAN (18 chiffres)
                 </label>
                 <div className="relative">
@@ -357,14 +357,14 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                         setEanCode(value);
                       }
                     }}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-mono"
+                    className="w-full pl-10 pr-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900 font-mono"
                     placeholder="541448000000000000"
                     maxLength={18}
                     required
                   />
                 </div>
                 {eanCode && eanCode.length < 18 && (
-                  <p className="text-sm text-gray-500 mt-1 font-sans">
+                  <p className="text-sm text-neutral-500 mt-1 font-sans">
                     {18 - eanCode.length} chiffres restants
                   </p>
                 )}
@@ -373,7 +373,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
             {mode !== 'reset' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
+                <label className="block text-sm font-medium text-neutral-700 mb-2 font-sans">
                   Mot de passe
                 </label>
                 <div className="relative">
@@ -384,7 +384,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full pl-10 pr-12 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900"
                     placeholder="••••••••"
                     required
                     minLength={6}
@@ -406,7 +406,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
             {mode === 'register' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
+                <label className="block text-sm font-medium text-neutral-700 mb-2 font-sans">
                   Confirmer le mot de passe
                 </label>
                 <div className="relative">
@@ -417,7 +417,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full pl-10 pr-12 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-neutral-900"
                     placeholder="••••••••"
                     required
                     minLength={6}
@@ -457,7 +457,7 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             {mode === 'login' && (
               <button
                 onClick={() => switchMode('reset')}
-                className="text-sm text-gray-600 hover:text-gray-800 block font-sans"
+                className="text-sm text-neutral-600 hover:text-neutral-800 block font-sans"
               >
                 Mot de passe oublié ?
               </button>
@@ -473,8 +473,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
               </button>
             )}
             
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 text-center font-sans">
+            <div className="pt-4 border-t border-neutral-300">
+              <p className="text-sm text-neutral-600 text-center font-sans">
                 {mode === 'register' ? 'Déjà un compte ?' : 'Pas encore membre ?'}{' '}
                 <button
                   onClick={mode === 'register' ? () => switchMode('login') : onClose}

@@ -247,15 +247,15 @@ export function MonthlyFileUploadModal({
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Import Excel Illimité</h2>
-              <p className="text-gray-600 mt-1">
+              <h2 className="text-2xl font-bold text-neutral-900">Import Excel Illimité</h2>
+              <p className="text-neutral-600 mt-1">
                 Import sécurisé jusqu'à 300 000 lignes avec filtrage automatique
               </p>
             </div>
             <button
               onClick={handleClose}
               disabled={uploading}
-              className="text-gray-500 hover:text-gray-700 transition-colors p-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-neutral-500 hover:text-neutral-700 transition-colors p-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <X className="w-6 h-6" />
             </button>
@@ -266,8 +266,8 @@ export function MonthlyFileUploadModal({
             <div className="flex items-start">
               <Info className="w-5 h-5 text-brand-teal mt-0.5 mr-3 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="font-medium text-blue-900 mb-2">🚀 Import Haute Performance</h3>
-                <div className="text-sm text-blue-800 space-y-2">
+                <h3 className="font-medium text-brand-teal mb-2">🚀 Import Haute Performance</h3>
+                <div className="text-sm text-brand-teal space-y-2">
                   <p><strong>✅ Capacités :</strong></p>
                   <ul className="list-disc list-inside ml-4 space-y-1">
                     <li>📊 <strong>Jusqu'à 300 000 lignes</strong> traitées</li>
@@ -293,7 +293,7 @@ export function MonthlyFileUploadModal({
           {/* Upload */}
           {step === 'upload' && (
             <div className="space-y-6">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+              <div className="border-2 border-dashed border-neutral-300 rounded-lg p-8 text-center hover:border-neutral-300 transition-colors">
                 <input
                   type="file"
                   accept=".xlsx,.xls"
@@ -309,13 +309,13 @@ export function MonthlyFileUploadModal({
                 />
                 <label htmlFor="excel-upload" className={`cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <FileSpreadsheet className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
                     Sélectionner le fichier Excel
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-neutral-600">
                     Formats supportés: .xlsx, .xls
                   </p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-neutral-500 mt-2">
                     📊 Jusqu'à 300 000 lignes • 🔍 Filtrage automatique EAN
                   </p>
                 </label>
@@ -326,28 +326,28 @@ export function MonthlyFileUploadModal({
           {/* Processing */}
           {step === 'processing' && (
             <div className="text-center py-8">
-              <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Import en cours...</h3>
-              <p className="text-gray-600 mb-4">
+              <div className="w-16 h-16 border-t-4 border-b-4 border-brand-teal rounded-full animate-spin mx-auto mb-4"></div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Import en cours...</h3>
+              <p className="text-neutral-600 mb-4">
                 Traitement des données et sauvegarde.
               </p>
               
               {/* Barre de progression */}
               <div className="max-w-md mx-auto mb-4">
-                <div className="bg-gray-200 rounded-full h-2">
+                <div className="bg-neutral-100 rounded-full h-2">
                   <div 
                     className="bg-brand-teal h-2 rounded-full transition-all duration-300"
                     style={{ width: `${progressPercentage}%` }}
                   ></div>
                 </div>
-                <div className="text-sm text-gray-500 mt-1">{progressPercentage.toFixed(0)}%</div>
+                <div className="text-sm text-neutral-500 mt-1">{progressPercentage.toFixed(0)}%</div>
               </div>
 
               {progress && (
                 <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 max-w-md mx-auto">
                   <div className="flex items-center justify-center">
                     <Loader2 className="w-4 h-4 animate-spin mr-2 text-brand-teal" />
-                    <span className="text-sm font-medium text-blue-900">{progress}</span>
+                    <span className="text-sm font-medium text-brand-teal">{progress}</span>
                   </div>
                 </div>
               )}
@@ -357,37 +357,37 @@ export function MonthlyFileUploadModal({
           {/* Success */}
           {step === 'success' && (
             <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-10 h-10 text-green-600" />
+              <div className="w-16 h-16 bg-brand-teal rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-10 h-10 text-brand-teal" />
               </div>
-              <h3 className="text-lg font-semibold text-green-900 mb-2">🎉 Import réussi !</h3>
-              <p className="text-green-700 mb-4">
+              <h3 className="text-lg font-semibold text-brand-teal mb-2">🎉 Import réussi !</h3>
+              <p className="text-brand-teal mb-4">
                 Les données ont été importées et sauvegardées avec succès.
               </p>
               
               {/* Statistiques d'import */}
               {importStats && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md mx-auto">
+                <div className="bg-brand-teal border border-brand-teal rounded-lg p-4 max-w-md mx-auto">
                   <div className="flex items-center justify-center mb-3">
-                    <BarChart3 className="w-5 h-5 text-green-600 mr-2" />
-                    <span className="font-medium text-green-900">Statistiques d'import</span>
+                    <BarChart3 className="w-5 h-5 text-brand-teal mr-2" />
+                    <span className="font-medium text-brand-teal">Statistiques d'import</span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <div className="text-green-600">Lignes traitées</div>
-                      <div className="font-bold text-green-900">{importStats.totalRowsProcessed?.toLocaleString()}</div>
+                      <div className="text-brand-teal">Lignes traitées</div>
+                      <div className="font-bold text-brand-teal">{importStats.totalRowsProcessed?.toLocaleString()}</div>
                     </div>
                     <div>
-                      <div className="text-green-600">Lignes importées</div>
-                      <div className="font-bold text-green-900">{importStats.validRowsImported?.toLocaleString()}</div>
+                      <div className="text-brand-teal">Lignes importées</div>
+                      <div className="font-bold text-brand-teal">{importStats.validRowsImported?.toLocaleString()}</div>
                     </div>
                     <div>
-                      <div className="text-green-600">Participants</div>
-                      <div className="font-bold text-green-900">{importStats.participantsFound}</div>
+                      <div className="text-brand-teal">Participants</div>
+                      <div className="font-bold text-brand-teal">{importStats.participantsFound}</div>
                     </div>
                     <div>
-                      <div className="text-green-600">EAN ignorés</div>
-                      <div className="font-bold text-green-900">{importStats.unknownEansSkipped}</div>
+                      <div className="text-brand-teal">EAN ignorés</div>
+                      <div className="font-bold text-brand-teal">{importStats.unknownEansSkipped}</div>
                     </div>
                   </div>
                 </div>
@@ -398,14 +398,14 @@ export function MonthlyFileUploadModal({
           {/* Error */}
           {step === 'error' && (
             <div className="text-center py-8">
-              <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-10 h-10 text-rose-600" />
+              <div className="w-16 h-16 bg-brand-flame/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-10 h-10 text-brand-flame" />
               </div>
-              <h3 className="text-lg font-semibold text-rose-800 mb-2">Erreur d'import</h3>
-              <p className="text-rose-600 mb-4">{errorMessage}</p>
+              <h3 className="text-lg font-semibold text-brand-flame mb-2">Erreur d'import</h3>
+              <p className="text-brand-flame mb-4">{errorMessage}</p>
               <button
                 onClick={handleRetry}
-                className="px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
+                className="px-4 py-2 bg-brand-flame/10 text-white rounded-lg hover:bg-brand-flame/10 transition-colors"
               >
                 Réessayer
               </button>

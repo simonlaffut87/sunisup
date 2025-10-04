@@ -76,8 +76,8 @@ export default function HomePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-sans">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-teal mx-auto mb-4"></div>
+          <p className="text-neutral-600 font-sans">Chargement...</p>
         </div>
       </div>
     );
@@ -136,10 +136,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Titre et description des services */}
             <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-gray-800 mb-6 font-sans">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-neutral-800 mb-6 font-sans">
                 {t('home.hero.title')}
               </h2>
-              <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto font-sans">
+              <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-3xl mx-auto font-sans">
                 {t('home.hero.description')}
               </p>
             </div>
@@ -152,10 +152,10 @@ export default function HomePage() {
                     <Users className="w-6 h-6 text-brand-teal" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.community.title')}</h3>
+                    <h3 className="text-xl font-semibold text-neutral-800 mb-1 font-sans">{t('home.services.community.title')}</h3>
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm leading-relaxed mb-6 font-sans">
+                <p className="text-neutral-600 text-sm leading-relaxed mb-6 font-sans">
                   {t('home.services.community.description')}
                 </p>
 
@@ -171,7 +171,7 @@ export default function HomePage() {
                     Votre navigateur ne supporte pas la lecture vidéo.
                   </video>
                 </div>
-                <p className="text-gray-500 text-center text-xs font-sans mb-6">
+                <p className="text-neutral-500 text-center text-xs font-sans mb-6">
                   {t('home.services.community.videoDescription')}
                 </p>
 
@@ -200,10 +200,10 @@ export default function HomePage() {
                     <Building2 className="w-6 h-6 text-brand-teal" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.subCommunity.title')}</h3>
+                    <h3 className="text-xl font-semibold text-neutral-800 mb-1 font-sans">{t('home.services.subCommunity.title')}</h3>
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm leading-relaxed mb-6 font-sans">
+                <p className="text-neutral-600 text-sm leading-relaxed mb-6 font-sans">
                   {t('home.services.subCommunity.description')}
                 </p>
 
@@ -211,7 +211,7 @@ export default function HomePage() {
                   {t('home.services.subCommunity.features', { returnObjects: true }).map((feature: string, index: number) => (
                     <div key={index} className="flex items-start space-x-3">
                       <CheckCircle className="w-4 h-4 text-brand-teal mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-600 text-sm font-sans">{feature}</span>
+                      <span className="text-neutral-600 text-sm font-sans">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -232,21 +232,21 @@ export default function HomePage() {
                     <BarChart3 className="w-6 h-6 text-amber-600" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.platform.title')}</h3>
+                    <h3 className="text-xl font-semibold text-neutral-800 mb-1 font-sans">{t('home.services.platform.title')}</h3>
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm leading-relaxed mb-6 font-sans">
+                <p className="text-neutral-600 text-sm leading-relaxed mb-6 font-sans">
                   {t('home.services.platform.description')}
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   <div className="bg-brand-gold/10 p-4 rounded-lg border border-amber-100">
                     <BarChart3 className="w-6 h-6 text-amber-600 mx-auto mb-2" />
-                    <p className="text-xs font-medium text-gray-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[0]}</p>
+                    <p className="text-xs font-medium text-neutral-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[0]}</p>
                   </div>
                   <div className="bg-brand-gold/10 p-4 rounded-lg border border-amber-100">
                     <TrendingUp className="w-6 h-6 text-amber-600 mx-auto mb-2" />
-                    <p className="text-xs font-medium text-gray-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[1]}</p>
+                    <p className="text-xs font-medium text-neutral-700 text-center font-sans">{t('home.services.platform.features', { returnObjects: true })[1]}</p>
                   </div>
                 </div>
 
@@ -266,25 +266,25 @@ export default function HomePage() {
                     <Sun className="w-6 h-6 text-brand-flame" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-1 font-sans">{t('home.services.optimization.title')}</h3>
+                    <h3 className="text-xl font-semibold text-neutral-800 mb-1 font-sans">{t('home.services.optimization.title')}</h3>
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm leading-relaxed mb-6 font-sans">
+                <p className="text-neutral-600 text-sm leading-relaxed mb-6 font-sans">
                   {t('home.services.optimization.description')}
                 </p>
 
                 <div className="space-y-3 mb-6">
                   {t('home.services.optimization.features', { returnObjects: true }).map((feature: string, index: number) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <CheckCircle className="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-600 text-sm font-sans">{feature}</span>
+                      <CheckCircle className="w-4 h-4 text-brand-flame mt-0.5 flex-shrink-0" />
+                      <span className="text-neutral-600 text-sm font-sans">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="w-full bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  className="w-full bg-brand-flame/10 hover:bg-brand-flame/10 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                 >
                   {t('home.services.optimization.button')}
                   <ArrowRight className="w-4 h-4" />
@@ -295,13 +295,13 @@ export default function HomePage() {
         </section>
 
         {/* Schéma illustratif */}
-        <section className="py-32 bg-gray-50">
+        <section className="py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
-              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans tracking-tight">
+              <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6 font-sans tracking-tight">
                 {t('home.services.integration.title')}
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto font-sans font-light">
+              <p className="text-xl text-neutral-600 max-w-3xl mx-auto font-sans font-light">
                 {t('home.services.integration.subtitle')}
               </p>
             </div>
@@ -320,8 +320,8 @@ export default function HomePage() {
                     <Users className="w-6 h-6 text-white" />
                   </div>
                   <div className="mt-4 text-center">
-                    <p className="font-bold text-gray-900 text-xs font-sans">{t('home.services.schemaLabels.community')}</p>
-                    <p className="font-bold text-gray-900 text-xs font-sans">{t('home.services.schemaLabels.communitySecond')}</p>
+                    <p className="font-bold text-neutral-900 text-xs font-sans">{t('home.services.schemaLabels.community')}</p>
+                    <p className="font-bold text-neutral-900 text-xs font-sans">{t('home.services.schemaLabels.communitySecond')}</p>
                   </div>
                 </div>
 
@@ -331,8 +331,8 @@ export default function HomePage() {
                     <Building2 className="w-6 h-6 text-white" />
                   </div>
                   <div className="mt-4 text-center">
-                    <p className="font-bold text-gray-900 text-xs font-sans">{t('home.services.schemaLabels.subCommunity')}</p>
-                    <p className="font-bold text-gray-900 text-xs font-sans">{t('home.services.schemaLabels.subCommunitySecond')}</p>
+                    <p className="font-bold text-neutral-900 text-xs font-sans">{t('home.services.schemaLabels.subCommunity')}</p>
+                    <p className="font-bold text-neutral-900 text-xs font-sans">{t('home.services.schemaLabels.subCommunitySecond')}</p>
                   </div>
                 </div>
 
@@ -342,8 +342,8 @@ export default function HomePage() {
                     <BarChart3 className="w-6 h-6 text-white" />
                   </div>
                   <div className="mb-4 text-center">
-                    <p className="font-bold text-gray-900 text-xs font-sans">{t('home.services.schemaLabels.platform')}</p>
-                    <p className="font-bold text-gray-900 text-xs font-sans">{t('home.services.schemaLabels.platformSecond')}</p>
+                    <p className="font-bold text-neutral-900 text-xs font-sans">{t('home.services.schemaLabels.platform')}</p>
+                    <p className="font-bold text-neutral-900 text-xs font-sans">{t('home.services.schemaLabels.platformSecond')}</p>
                   </div>
                 </div>
 
@@ -353,8 +353,8 @@ export default function HomePage() {
                     <Sun className="w-6 h-6 text-white" />
                   </div>
                   <div className="mt-4 text-center">
-                    <p className="font-bold text-gray-900 text-xs font-sans">{t('home.services.schemaLabels.optimization')}</p>
-                    <p className="font-bold text-gray-900 text-xs font-sans">{t('home.services.schemaLabels.optimizationSecond')}</p>
+                    <p className="font-bold text-neutral-900 text-xs font-sans">{t('home.services.schemaLabels.optimization')}</p>
+                    <p className="font-bold text-neutral-900 text-xs font-sans">{t('home.services.schemaLabels.optimizationSecond')}</p>
                   </div>
                 </div>
 
@@ -378,9 +378,9 @@ export default function HomePage() {
 
             {/* Texte explicatif du schéma */}
             <div className="text-center mt-16">
-              <div className="bg-white rounded-lg p-8 shadow-md border border-gray-200 max-w-3xl mx-auto">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4 font-sans">{t('home.services.integration.approach.title')}</h3>
-                <p className="text-gray-600 text-base leading-relaxed font-sans">
+              <div className="bg-white rounded-lg p-8 shadow-md border border-neutral-300 max-w-3xl mx-auto">
+                <h3 className="text-xl font-semibold text-neutral-800 mb-4 font-sans">{t('home.services.integration.approach.title')}</h3>
+                <p className="text-neutral-600 text-base leading-relaxed font-sans">
                   {t('home.services.integration.approach.description')}
                 </p>
               </div>
@@ -392,19 +392,19 @@ export default function HomePage() {
         <section className="py-32 bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
-              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 font-sans tracking-tight">
+              <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6 font-sans tracking-tight">
                 {t('home.faq.title')}
               </h2>
             </div>
             
             <div className="space-y-3">
               {faqItems.map((item, index) => (
-                <div key={index} className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200">
+                <div key={index} className="bg-white rounded-lg border border-neutral-300 hover:border-neutral-300 hover:shadow-md transition-all duration-200">
                   <button
                     onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
-                    className="w-full flex items-center justify-between text-left p-6 hover:bg-gray-50 transition-colors rounded-lg"
+                    className="w-full flex items-center justify-between text-left p-6 hover:bg-white transition-colors rounded-lg"
                   >
-                    <h3 className="text-base font-semibold text-gray-800 pr-4 font-sans">{item.question}</h3>
+                    <h3 className="text-base font-semibold text-neutral-800 pr-4 font-sans">{item.question}</h3>
                     {expandedFAQ === index ? (
                       <ChevronUp className="w-5 h-5 text-brand-teal flex-shrink-0" />
                     ) : (
@@ -413,7 +413,7 @@ export default function HomePage() {
                   </button>
                   {expandedFAQ === index && (
                     <div className="px-6 pb-6">
-                      <p className="text-gray-600 leading-relaxed text-sm font-sans">{item.answer}</p>
+                      <p className="text-neutral-600 leading-relaxed text-sm font-sans">{item.answer}</p>
                     </div>
                   )}
                 </div>
@@ -423,12 +423,12 @@ export default function HomePage() {
         </section>
 
         {/* Modern CTA Section */}
-        <section className="py-24 bg-gradient-to-br from-blue-50 to-teal-50 relative overflow-hidden">
+        <section className="py-24 bg-gradient-to-br from-brand-teal/10 to-brand-gold/10 relative overflow-hidden">
           <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl lg:text-4xl font-semibold text-gray-800 mb-4 font-sans">
+            <h2 className="text-3xl lg:text-4xl font-semibold text-neutral-800 mb-4 font-sans">
               {t('home.energyCta.title')}
             </h2>
-            <p className="text-base lg:text-lg text-gray-600 mb-8 max-w-3xl mx-auto font-sans">
+            <p className="text-base lg:text-lg text-neutral-600 mb-8 max-w-3xl mx-auto font-sans">
               {t('home.energyCta.description')}
             </p>
             <button
@@ -452,11 +452,11 @@ export default function HomePage() {
         {showSimulation && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-2xl">
-                <h2 className="text-xl font-bold text-gray-900 font-sans">Simulation</h2>
+              <div className="sticky top-0 bg-white border-b border-neutral-300 p-4 flex items-center justify-between rounded-t-2xl">
+                <h2 className="text-xl font-bold text-neutral-900 font-sans">Simulation</h2>
                 <button
                   onClick={() => setShowSimulation(false)}
-                  className="text-gray-500 hover:text-gray-700 transition-colors p-2"
+                  className="text-neutral-500 hover:text-neutral-700 transition-colors p-2"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -472,11 +472,11 @@ export default function HomePage() {
         {showProcedure && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-2xl">
-                <h2 className="text-xl font-bold text-gray-900 font-sans">Procédure d'adhésion</h2>
+              <div className="sticky top-0 bg-white border-b border-neutral-300 p-4 flex items-center justify-between rounded-t-2xl">
+                <h2 className="text-xl font-bold text-neutral-900 font-sans">Procédure d'adhésion</h2>
                 <button
                   onClick={() => setShowProcedure(false)}
-                  className="text-gray-500 hover:text-gray-700 transition-colors p-2"
+                  className="text-neutral-500 hover:text-neutral-700 transition-colors p-2"
                 >
                   <X className="w-6 h-6" />
                 </button>
