@@ -439,8 +439,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-brand-teal rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-brand-teal" />
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  isConsumerGroup ? 'bg-emerald-100' : 'bg-amber-100'
+                }`}>
+                  <Zap className={`w-5 h-5 ${
+                    isConsumerGroup ? 'text-emerald-600' : 'text-amber-600'
+                  }`} />
                 </div>
               </div>
               <div className="ml-4">
@@ -448,7 +452,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   {isConsumerGroup ? 'Consommation partagée' : 'Injection partagée'}
                 </p>
                 <p className="text-xl font-semibold text-neutral-900">
-                  {isConsumerGroup 
+                  {isConsumerGroup
                     ? `${(yearlyTotals.volume_partage / 1000).toFixed(2)} MWh`
                     : `${(yearlyTotals.injection_partagee / 1000).toFixed(2)} MWh`
                   }
@@ -460,8 +464,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-brand-teal rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-brand-teal" />
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  isConsumerGroup ? 'bg-blue-100' : 'bg-purple-100'
+                }`}>
+                  <BarChart3 className={`w-5 h-5 ${
+                    isConsumerGroup ? 'text-blue-600' : 'text-purple-600'
+                  }`} />
                 </div>
               </div>
               <div className="ml-4">
@@ -469,7 +477,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   {isConsumerGroup ? 'Consommation réseau' : 'Injection réseau'}
                 </p>
                 <p className="text-xl font-semibold text-neutral-900">
-                  {isConsumerGroup 
+                  {isConsumerGroup
                     ? `${(yearlyTotals.volume_complementaire / 1000).toFixed(2)} MWh`
                     : `${(yearlyTotals.injection_complementaire / 1000).toFixed(2)} MWh`
                   }
