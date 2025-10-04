@@ -185,7 +185,7 @@ export default function HomePage() {
                   </button>
                   <button
                     onClick={() => window.location.href = '/admin'}
-                    className="bg-white hover:bg-brand-gold/10 text-brand-gold border border-brand-gold/30 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                    className="bg-white hover:bg-blue-50 text-blue-600 border border-blue-300 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                   >
                     <FileText className="w-4 h-4" />
                     {t('about.cta.joinButton')}
