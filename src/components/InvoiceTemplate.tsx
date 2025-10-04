@@ -1158,13 +1158,42 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 <div className="space-y-2 text-sm text-brand-teal">
                   <div className="flex justify-between">
                     <span>Énergie partagée :</span>
-                    <span className="font-medium">{(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh</span>
+                    <span className="font-medium">
+                      {(() => {
+                        // Pour les groupes, calculer depuis le tableau des participants
+                        if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                          const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+                          const total = groupParticipants.reduce((sum, member) => {
+                            const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+                            const memberTotal = individualMonthlyData.reduce((acc, month) => acc + month.volume_partage, 0);
+                            return sum + memberTotal;
+                          }, 0);
+                          return (total / 1000).toFixed(3);
+                        }
+                        // Pour les participants individuels, utiliser les totaux existants
+                        return (invoiceData.totals.volume_partage / 1000).toFixed(3);
+                      })()} MWh
+                    </span>
                   </div>
                   <div className="flex justify-between border-t border-teal-200 pt-2 mt-2">
                     <span>Énergie réseau (achat au fournisseur) :</span>
-                    <span className="font-medium text-brand-teal">{(invoiceData.totals.volume_complementaire / 1000).toFixed(3)} MWh</span>
+                    <span className="font-medium text-brand-teal">
+                      {(() => {
+                        // Pour les groupes, calculer depuis le tableau des participants
+                        if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                          const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+                          const total = groupParticipants.reduce((sum, member) => {
+                            const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+                            const memberTotal = individualMonthlyData.reduce((acc, month) => acc + month.volume_complementaire, 0);
+                            return sum + memberTotal;
+                          }, 0);
+                          return (total / 1000).toFixed(3);
+                        }
+                        return (invoiceData.totals.volume_complementaire / 1000).toFixed(3);
+                      })()} MWh
+                    </span>
                   </div>
-                  <div className="text-xs text-brand-teal italic mt-2 p-2 bg-brand-teal rounded">
+                  <div className="text-xs text-neutral-600 italic mt-2">
                     * Énergie réseau : indicatif, non facturée par Sun Is Up
                   </div>
                 </div>
@@ -1176,15 +1205,62 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                 <div className="space-y-2 text-sm text-amber-800">
                   <div className="flex justify-between">
                     <span>Injection partagée :</span>
-                    <span className="font-medium">{((invoiceData.totals.injection_partagee || 0) / 1000).toFixed(3)} MWh</span>
+                    <span className="font-medium">
+                      {(() => {
+                        // Pour les groupes, calculer depuis le tableau des participants
+                        if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                          const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+                          const total = groupParticipants.reduce((sum, member) => {
+                            const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+                            const memberTotal = individualMonthlyData.reduce((acc, month) => acc + month.injection_partagee, 0);
+                            return sum + memberTotal;
+                          }, 0);
+                          return (total / 1000).toFixed(3);
+                        }
+                        return ((invoiceData.totals.injection_partagee || 0) / 1000).toFixed(3);
+                      })()} MWh
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Injection réseau :</span>
-                    <span className="font-medium">{((invoiceData.totals.injection_complementaire || 0) / 1000).toFixed(3)} MWh</span>
+                    <span className="font-medium">
+                      {(() => {
+                        // Pour les groupes, calculer depuis le tableau des participants
+                        if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                          const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+                          const total = groupParticipants.reduce((sum, member) => {
+                            const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+                            const memberTotal = individualMonthlyData.reduce((acc, month) => acc + month.injection_complementaire, 0);
+                            return sum + memberTotal;
+                          }, 0);
+                          return (total / 1000).toFixed(3);
+                        }
+                        return ((invoiceData.totals.injection_complementaire || 0) / 1000).toFixed(3);
+                      })()} MWh
+                    </span>
                   </div>
                   <div className="flex justify-between border-t border-amber-300 pt-2 mt-2 font-semibold text-amber-900 bg-amber-100 p-2 rounded">
                     <span>Total injection :</span>
-                    <span>{(((invoiceData.totals.injection_partagee || 0) + (invoiceData.totals.injection_complementaire || 0)) / 1000).toFixed(3)} MWh</span>
+                    <span>
+                      {(() => {
+                        // Pour les groupes, calculer depuis le tableau des participants
+                        if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                          const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+                          const totalPartagee = groupParticipants.reduce((sum, member) => {
+                            const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+                            const memberTotal = individualMonthlyData.reduce((acc, month) => acc + month.injection_partagee, 0);
+                            return sum + memberTotal;
+                          }, 0);
+                          const totalComplementaire = groupParticipants.reduce((sum, member) => {
+                            const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+                            const memberTotal = individualMonthlyData.reduce((acc, month) => acc + month.injection_complementaire, 0);
+                            return sum + memberTotal;
+                          }, 0);
+                          return ((totalPartagee + totalComplementaire) / 1000).toFixed(3);
+                        }
+                        return (((invoiceData.totals.injection_partagee || 0) + (invoiceData.totals.injection_complementaire || 0)) / 1000).toFixed(3);
+                      })()} MWh
+                    </span>
                   </div>
                 </div>
               </div>
