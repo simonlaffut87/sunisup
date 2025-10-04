@@ -547,10 +547,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="month" stroke="#6B7280" />
                   <YAxis stroke="#6B7280" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      borderRadius: '8px',
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      borderRadius: '8px', 
                       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                       border: '1px solid #e5e7eb'
                     }}
@@ -559,10 +559,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                       name
                     ]}
                   />
-                  <Bar dataKey="volume_partage" fill="#10B981" />
-                  <Bar dataKey="volume_complementaire" fill="#3B82F6" />
-                  <Bar dataKey="injection_partagee" fill="#F59E0B" />
-                  <Bar dataKey="injection_complementaire" fill="#8B5CF6" />
+                  <Legend />
+                  <Bar dataKey="volume_partage" fill="#10B981" name="Consommation Partagée" />
+                  <Bar dataKey="volume_complementaire" fill="#3B82F6" name="Consommation Réseau" />
+                  <Bar dataKey="injection_partagee" fill="#F59E0B" name="Injection Partagée" />
+                  <Bar dataKey="injection_complementaire" fill="#8B5CF6" name="Injection Réseau" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
