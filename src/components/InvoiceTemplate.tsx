@@ -670,88 +670,104 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     }
   };
 
-  const handleDownload = async () => {
-    try {
-      setSaving(true);
+  const handleDownload = async (e?: React.MouseEvent) => {
+    // Empêcher la propagation de l'événement
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
 
-      const debug: string[] = [];
-      debug.push(`🔍 Participant principal: ${participant.name}`);
-      debug.push(`👥 Groupe: ${participant.groupe || 'Aucun groupe'}`);
+    // Si déjà en cours de téléchargement, ignorer
+    if (saving) {
+      return;
+    }
 
-      // Générer le PDF
-      const invoiceContent = document.getElementById('invoice-content');
-      if (!invoiceContent) {
-        debug.push('❌ Contenu de la facture introuvable');
-        toast.error('Impossible de trouver le contenu de la facture');
-        setSaving(false);
-        setDebugInfo(debug);
-        return;
-      }
+    setSaving(true);
 
-      // Masquer temporairement les boutons pour la capture
-      const buttons = document.querySelectorAll('.no-print');
-      buttons.forEach(btn => (btn as HTMLElement).style.display = 'none');
-
+    // Utiliser setTimeout pour éviter les problèmes de synchronisation
+    setTimeout(async () => {
       try {
-        // Générer le canvas à partir du contenu HTML
-        const canvas = await html2canvas(invoiceContent, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          width: invoiceContent.scrollWidth,
-          height: invoiceContent.scrollHeight
+        // Trouver l'élément de la facture
+        const invoiceElement = document.getElementById('invoice-content');
+
+        if (!invoiceElement) {
+          toast.error('Contenu de la facture introuvable');
+          setSaving(false);
+          return;
+        }
+
+        // Masquer temporairement les boutons
+        const buttonsToHide = invoiceElement.querySelectorAll('.no-print');
+        buttonsToHide.forEach((btn) => {
+          (btn as HTMLElement).style.visibility = 'hidden';
         });
 
-        // Restaurer l'affichage des boutons
-        buttons.forEach(btn => (btn as HTMLElement).style.display = '');
+        // Attendre un peu pour que le DOM se mette à jour
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Capturer l'élément en image
+        const canvas = await html2canvas(invoiceElement, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          windowWidth: invoiceElement.scrollWidth,
+          windowHeight: invoiceElement.scrollHeight
+        });
+
+        // Restaurer les boutons
+        buttonsToHide.forEach((btn) => {
+          (btn as HTMLElement).style.visibility = 'visible';
+        });
 
         // Créer le PDF
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
 
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 295; // A4 height in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+        const imgX = (pdfWidth - imgWidth * ratio) / 2;
+        const imgY = 0;
 
-        // Ajouter la première page
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        debug.push(`📄 Génération du PDF en cours...`);
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
 
-        // Ajouter des pages supplémentaires si nécessaire
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
+        // Générer le nom du fichier
+        const participantName = isGroupInvoice
+          ? `Groupe_${participant.groupe}`
+          : invoiceData.participant.name;
+        const cleanName = participantName.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const periodStr = invoiceData.period.startMonth !== invoiceData.period.endMonth
+          ? `${invoiceData.period.startMonth}-${invoiceData.period.endMonth}`
+          : invoiceData.period.startMonth;
+        const fileName = `Facture_${cleanName}_${periodStr}.pdf`;
 
         // Télécharger le PDF
-        const fileName = `Facture_${invoiceData.participant.name.replace(/[^a-zA-Z0-9]/g, '_')}_${invoiceData.period.startMonth}${invoiceData.period.startMonth !== invoiceData.period.endMonth ? '_' + invoiceData.period.endMonth : ''}.pdf`;
         pdf.save(fileName);
 
-        debug.push(`✅ Facture téléchargée avec succès`);
-        setDebugInfo(debug);
-        toast.success('Facture PDF téléchargée avec succès');
-        setSaving(false);
+        toast.success('Facture téléchargée avec succès');
       } catch (error) {
-        // Restaurer l'affichage des boutons en cas d'erreur
-        buttons.forEach(btn => (btn as HTMLElement).style.display = '');
-        debug.push(`❌ Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
-        setDebugInfo(debug);
-        console.error('Erreur génération PDF:', error);
-        toast.error('Erreur lors de la génération du PDF');
+        console.error('Erreur lors de la génération du PDF:', error);
+        toast.error('Erreur lors de la génération du PDF. Veuillez réessayer.');
+
+        // Restaurer les boutons en cas d'erreur
+        const invoiceElement = document.getElementById('invoice-content');
+        if (invoiceElement) {
+          const buttonsToHide = invoiceElement.querySelectorAll('.no-print');
+          buttonsToHide.forEach((btn) => {
+            (btn as HTMLElement).style.visibility = 'visible';
+          });
+        }
+      } finally {
         setSaving(false);
       }
-
-    } catch (error) {
-      console.error('Erreur téléchargement:', error);
-      toast.error('Erreur lors du téléchargement de la facture');
-      setSaving(false);
-    }
+    }, 50);
   };
 
   const handleSaveInvoice = async () => {
