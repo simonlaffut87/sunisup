@@ -1447,7 +1447,19 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       <div>
                         <div className="font-medium text-neutral-900">Énergie partagée</div>
                         <div className="text-xs text-neutral-600">
-                          {(invoiceData.totals.volume_partage / 1000).toFixed(3)} MWh × {invoiceData.participant.shared_energy_price}€/MWh HTVA
+                          {(() => {
+                            // Pour les groupes, calculer depuis le tableau des participants
+                            if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                              const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+                              const total = groupParticipants.reduce((sum, member) => {
+                                const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+                                const memberTotal = individualMonthlyData.reduce((acc, month) => acc + month.volume_partage, 0);
+                                return sum + memberTotal;
+                              }, 0);
+                              return (total / 1000).toFixed(3);
+                            }
+                            return (invoiceData.totals.volume_partage / 1000).toFixed(3);
+                          })()} MWh × {invoiceData.participant.shared_energy_price}€/MWh HTVA
                         </div>
                       </div>
                     </td>
@@ -1508,7 +1520,19 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                       <div>
                         <div className="font-medium text-neutral-900">Revenus injection</div>
                         <div className="text-xs text-neutral-600">
-                          {(((invoiceData.totals.injection_partagee || 0) + (invoiceData.totals.injection_complementaire || 0)) / 1000).toFixed(3)} MWh × {invoiceData.participant.purchase_rate || 70}€/MWh
+                          {(() => {
+                            // Pour les groupes, calculer depuis le tableau des participants - INJECTION PARTAGÉE UNIQUEMENT
+                            if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                              const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+                              const totalInjectionPartagee = groupParticipants.reduce((sum, member) => {
+                                const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+                                const memberTotal = individualMonthlyData.reduce((acc, month) => acc + month.injection_partagee, 0);
+                                return sum + memberTotal;
+                              }, 0);
+                              return (totalInjectionPartagee / 1000).toFixed(3);
+                            }
+                            return ((invoiceData.totals.injection_partagee || 0) / 1000).toFixed(3);
+                          })()} MWh × {invoiceData.participant.purchase_rate || 70}€/MWh
                         </div>
                       </div>
                     </td>
