@@ -489,8 +489,8 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-brand-teal rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-brand-teal" />
+                <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-teal-600" />
                 </div>
               </div>
               <div className="ml-4">
@@ -498,7 +498,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   {isConsumerGroup ? '% Consommation partagée' : '% Injection partagée'}
                 </p>
                 <p className="text-xl font-semibold text-neutral-900">
-                  {isConsumerGroup 
+                  {isConsumerGroup
                     ? `${consumptionSharedPercentage.toFixed(1)}%`
                     : `${injectionSharedPercentage.toFixed(1)}%`
                   }
