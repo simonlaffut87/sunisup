@@ -97,13 +97,13 @@ export default function AboutPage() {
             </div>
 
             {/* Simon - Right side */}
-            <div className="bg-white rounded-lg shadow-md p-8 border border-amber-100 hover:border-brand-gold/30 hover:shadow-lg transition-all duration-300">
+            <div className="bg-white rounded-lg shadow-md p-8 border border-brand-gold/20 hover:border-brand-gold/30 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-brand-gold/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Zap className="w-10 h-10 text-amber-600" />
+                  <Zap className="w-10 h-10 text-brand-gold" />
                 </div>
                 <h3 className="text-2xl font-semibold text-neutral-800 mb-2 font-sans">{t('about.whoAreWe.simon.title')}</h3>
-                <p className="text-amber-600 font-medium text-base font-sans">{t('about.whoAreWe.simon.role')}</p>
+                <p className="text-brand-gold font-medium text-base font-sans">{t('about.whoAreWe.simon.role')}</p>
               </div>
               
               <div className="space-y-6">
@@ -161,7 +161,7 @@ export default function AboutPage() {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center">
                     <div className="w-16 h-16 bg-brand-gold/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Zap className="w-8 h-8 text-amber-600" />
+                      <Zap className="w-8 h-8 text-brand-gold" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-800 mb-2 font-sans">1300</h3>
                     <p className="text-neutral-600 text-sm font-medium font-sans">{t('about.mission.stats.availableEnergy')}</p>
@@ -211,84 +211,84 @@ export default function AboutPage() {
             <div className="flex animate-scroll-infinite space-x-8" style={{ width: 'calc(200%)' }}>
               {/* Premier set de logos */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/carrefour.png" alt="Carrefour" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               
               {/* Deuxième set de logos (duplication pour boucle infinie) */}
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/brugel2.png" alt="Brugel" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/carrefour.png" alt="Carrefour" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Enerinvest.png" alt="Enerinvest" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Ouzerie.png" alt="Ouzerie" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Prehaut.png" alt="Préhaut" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Stephenson.png" alt="Stephenson" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/Sun4school.png" alt="Sun4School" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
               <div className="flex items-center justify-center min-w-0 shrink-0 px-8">
-                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-amber-100">
+                <div className="bg-brand-gold/10 p-3 rounded-lg shadow-sm border border-brand-gold/20">
                   <img src="/images/sibelga2.png" alt="Sibelga" className="h-32 w-32 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
