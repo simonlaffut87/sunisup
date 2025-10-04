@@ -1103,9 +1103,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                             </td>
                             <td className="px-4 py-3">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                groupParticipant.type === 'producer' 
-                                  ? 'bg-amber-100 text-amber-800' 
-                                  : 'bg-brand-teal text-brand-teal'
+                                groupParticipant.type === 'producer'
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-teal-100 text-teal-800'
                               }`}>
                                 {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                               </span>

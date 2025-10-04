@@ -56,7 +56,7 @@ export default function AdminPage() {
               </div>
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-                  <span className="bg-brand-teal text-brand-teal font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
+                  <span className="bg-teal-100 text-teal-800 font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
                     Étape 1
                   </span>
                   <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 font-sans">{t('howToJoin.steps.documents.title')}</h3>
@@ -83,7 +83,7 @@ export default function AdminPage() {
               </div>
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-                  <span className="bg-brand-teal text-brand-teal font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
+                  <span className="bg-teal-100 text-teal-800 font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
                     Étape 2
                   </span>
                   <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 font-sans">{t('howToJoin.steps.membership.title')}</h3>
@@ -110,7 +110,7 @@ export default function AdminPage() {
               </div>
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-                  <span className="bg-brand-teal text-brand-teal font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
+                  <span className="bg-teal-100 text-teal-800 font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-full font-sans text-sm sm:text-base">
                     Étape 3
                   </span>
                   <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 font-sans">{t('howToJoin.steps.financial.title')}</h3>

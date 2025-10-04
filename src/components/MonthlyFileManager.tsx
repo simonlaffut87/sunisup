@@ -375,14 +375,14 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
     switch (status) {
       case 'processed':
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-brand-teal text-brand-teal">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800">
             <CheckCircle className="w-3 h-3 mr-1" />
             Traité
           </span>
         );
       case 'uploaded':
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-brand-teal text-brand-teal">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800">
             <Calendar className="w-3 h-3 mr-1" />
             En attente
           </span>
@@ -872,9 +872,9 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            participant.type === 'producer' 
-                              ? 'bg-amber-100 text-amber-800' 
-                              : 'bg-brand-teal text-brand-teal'
+                            participant.type === 'producer'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-teal-100 text-teal-800'
                           }`}>
                             {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                           </span>

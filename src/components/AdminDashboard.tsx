@@ -731,7 +731,7 @@ export function AdminDashboard() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-brand-teal text-brand-teal">
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800">
                             {groupTypeDisplay}
                           </span>
                         </td>
@@ -785,7 +785,7 @@ export function AdminDashboard() {
                                 </div>
                                 {participant.ean_code && (
                                   <div className="ml-2">
-                                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-brand-teal text-brand-teal">
+                                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-teal-100 text-teal-800">
                                       <Database className="w-3 h-3 mr-1" />
                                       Prêt import
                                     </span>
@@ -795,9 +795,9 @@ export function AdminDashboard() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                participant.type === 'producer' 
-                                  ? 'bg-amber-100 text-amber-800' 
-                                  : 'bg-brand-teal text-brand-teal'
+                                participant.type === 'producer'
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-teal-100 text-teal-800'
                               }`}>
                                 {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                               </span>
@@ -884,7 +884,7 @@ export function AdminDashboard() {
                             <div className="text-sm font-medium text-neutral-900">{participant.name}</div>
                             {participant.ean_code && (
                               <div className="ml-2">
-                                <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-brand-teal text-brand-teal">
+                                <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-teal-100 text-teal-800">
                                   <Database className="w-3 h-3 mr-1" />
                                   Prêt import
                                 </span>
@@ -894,9 +894,9 @@ export function AdminDashboard() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            participant.type === 'producer' 
-                              ? 'bg-amber-100 text-amber-800' 
-                              : 'bg-brand-teal text-brand-teal'
+                            participant.type === 'producer'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-teal-100 text-teal-800'
                           }`}>
                             {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                           </span>

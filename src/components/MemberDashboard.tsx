@@ -659,9 +659,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            groupParticipant.type === 'producer' 
-                              ? 'bg-amber-100 text-amber-800' 
-                              : 'bg-brand-teal text-brand-teal'
+                            groupParticipant.type === 'producer'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-teal-100 text-teal-800'
                           }`}>
                             {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                           </span>
