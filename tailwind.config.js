@@ -7,10 +7,10 @@ export default {
         brand: {
           teal: '#1D8181',
           gold: '#F8BD3B',
-          flame: '#D75D2D',
+          flame: '#F8BD3B',
           'teal-light': '#2A9D9D',
           'gold-light': '#F9CA5E',
-          'flame-light': '#E87A50',
+          'flame-light': '#F9CA5E',
         },
       },
       fontFamily: {
