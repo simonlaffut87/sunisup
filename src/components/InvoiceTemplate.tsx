@@ -1322,12 +1322,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             
             {/* Vérification des données billing */}
             {Object.keys(invoiceData.billingData).length === 0 ? (
-              <div className="bg-brand-flame border border-brand-flame rounded-lg p-4 mb-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center">
-                  <span className="font-medium text-brand-flame">Aucune donnée de coûts réseau trouvée</span>
+                  <span className="font-medium text-amber-800">Aucune donnée de coûts réseau trouvée</span>
                 </div>
-                <p className="text-sm text-brand-flame mt-2">
-                  Les coûts réseau n'ont pas été importés pour cette période. 
+                <p className="text-sm text-amber-700 mt-2">
+                  Les coûts réseau n'ont pas été importés pour cette période.
                   Assurez-vous d'importer un fichier Excel contenant les colonnes de coûts réseau.
                 </p>
               </div>
