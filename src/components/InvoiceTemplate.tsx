@@ -670,7 +670,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     }
   };
 
-  const handleDownload = async (e?: React.MouseEvent) => {
+  const handleDownload = (e?: React.MouseEvent) => {
     // Empêcher la propagation de l'événement
     if (e) {
       e.preventDefault();
@@ -679,95 +679,118 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
     // Si déjà en cours de téléchargement, ignorer
     if (saving) {
+      console.log('Téléchargement déjà en cours');
       return;
     }
 
+    console.log('Démarrage du téléchargement PDF');
     setSaving(true);
 
-    // Utiliser setTimeout pour éviter les problèmes de synchronisation
-    setTimeout(async () => {
-      try {
-        // Trouver l'élément de la facture
-        const invoiceElement = document.getElementById('invoice-content');
+    // Délai pour permettre à React de mettre à jour l'UI
+    requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
+        let buttonsToHide: NodeListOf<Element> | null = null;
 
-        if (!invoiceElement) {
-          toast.error('Contenu de la facture introuvable');
-          setSaving(false);
-          return;
-        }
+        try {
+          // Trouver l'élément de la facture
+          const invoiceElement = document.getElementById('invoice-content');
 
-        // Masquer temporairement les boutons
-        const buttonsToHide = invoiceElement.querySelectorAll('.no-print');
-        buttonsToHide.forEach((btn) => {
-          (btn as HTMLElement).style.visibility = 'hidden';
-        });
+          if (!invoiceElement) {
+            console.error('Element invoice-content non trouvé');
+            toast.error('Contenu de la facture introuvable');
+            setSaving(false);
+            return;
+          }
 
-        // Attendre un peu pour que le DOM se mette à jour
-        await new Promise(resolve => setTimeout(resolve, 100));
+          console.log('Element trouvé, masquage des boutons');
 
-        // Capturer l'élément en image
-        const canvas = await html2canvas(invoiceElement, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-          windowWidth: invoiceElement.scrollWidth,
-          windowHeight: invoiceElement.scrollHeight
-        });
-
-        // Restaurer les boutons
-        buttonsToHide.forEach((btn) => {
-          (btn as HTMLElement).style.visibility = 'visible';
-        });
-
-        // Créer le PDF
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4'
-        });
-
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 0;
-
-        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-
-        // Générer le nom du fichier
-        const participantName = isGroupInvoice
-          ? `Groupe_${participant.groupe}`
-          : invoiceData.participant.name;
-        const cleanName = participantName.replace(/[^a-zA-Z0-9_-]/g, '_');
-        const periodStr = invoiceData.period.startMonth !== invoiceData.period.endMonth
-          ? `${invoiceData.period.startMonth}-${invoiceData.period.endMonth}`
-          : invoiceData.period.startMonth;
-        const fileName = `Facture_${cleanName}_${periodStr}.pdf`;
-
-        // Télécharger le PDF
-        pdf.save(fileName);
-
-        toast.success('Facture téléchargée avec succès');
-      } catch (error) {
-        console.error('Erreur lors de la génération du PDF:', error);
-        toast.error('Erreur lors de la génération du PDF. Veuillez réessayer.');
-
-        // Restaurer les boutons en cas d'erreur
-        const invoiceElement = document.getElementById('invoice-content');
-        if (invoiceElement) {
-          const buttonsToHide = invoiceElement.querySelectorAll('.no-print');
+          // Masquer temporairement les boutons
+          buttonsToHide = invoiceElement.querySelectorAll('.no-print');
           buttonsToHide.forEach((btn) => {
-            (btn as HTMLElement).style.visibility = 'visible';
+            (btn as HTMLElement).style.visibility = 'hidden';
           });
+
+          // Attendre que le DOM se mette à jour
+          await new Promise(resolve => setTimeout(resolve, 150));
+
+          console.log('Génération du canvas');
+
+          // Capturer l'élément en image
+          const canvas = await html2canvas(invoiceElement, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+          });
+
+          console.log('Canvas généré, création du PDF');
+
+          // Restaurer les boutons
+          if (buttonsToHide) {
+            buttonsToHide.forEach((btn) => {
+              (btn as HTMLElement).style.visibility = 'visible';
+            });
+          }
+
+          // Créer le PDF avec les bonnes dimensions
+          const imgData = canvas.toDataURL('image/png', 1.0);
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4',
+            compress: true
+          });
+
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+
+          // Calculer les dimensions pour s'adapter à la page
+          const widthRatio = pageWidth / canvas.width;
+          const heightRatio = pageHeight / canvas.height;
+          const ratio = Math.min(widthRatio, heightRatio);
+
+          const canvasWidth = canvas.width * ratio;
+          const canvasHeight = canvas.height * ratio;
+
+          // Centrer l'image
+          const marginX = (pageWidth - canvasWidth) / 2;
+          const marginY = 0;
+
+          pdf.addImage(imgData, 'PNG', marginX, marginY, canvasWidth, canvasHeight);
+
+          // Générer le nom du fichier
+          const participantName = isGroupInvoice
+            ? `Groupe_${participant.groupe}`
+            : invoiceData.participant.name;
+          const cleanName = participantName.replace(/[^a-zA-Z0-9_-]/g, '_');
+          const periodStr = invoiceData.period.startMonth !== invoiceData.period.endMonth
+            ? `${invoiceData.period.startMonth}-${invoiceData.period.endMonth}`
+            : invoiceData.period.startMonth;
+          const fileName = `Facture_${cleanName}_${periodStr}.pdf`;
+
+          console.log('Sauvegarde du PDF:', fileName);
+
+          // Télécharger le PDF
+          pdf.save(fileName);
+
+          console.log('PDF téléchargé avec succès');
+          toast.success('Facture téléchargée avec succès');
+
+        } catch (error) {
+          console.error('Erreur lors de la génération du PDF:', error);
+          toast.error('Erreur lors de la génération du PDF');
+
+          // Restaurer les boutons en cas d'erreur
+          if (buttonsToHide) {
+            buttonsToHide.forEach((btn) => {
+              (btn as HTMLElement).style.visibility = 'visible';
+            });
+          }
+        } finally {
+          setSaving(false);
         }
-      } finally {
-        setSaving(false);
-      }
-    }, 50);
+      });
+    });
   };
 
   const handleSaveInvoice = async () => {
