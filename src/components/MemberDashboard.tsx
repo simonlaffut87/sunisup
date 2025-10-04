@@ -660,8 +660,9 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     } else {
                       // Données d'un mois spécifique
                       const monthData = individualMonthlyData.find(m => {
-                        const monthNum = new Date(m.month).getMonth() + 1;
-                        return monthNum.toString().padStart(2, '0') === selectedMonth;
+                        // m.monthKey est au format "YYYY-MM" (ex: "2025-07")
+                        const monthNum = m.monthKey.split('-')[1]; // Extraire "07" de "2025-07"
+                        return monthNum === selectedMonth;
                       });
                       displayData = monthData || {
                         volume_partage: 0,
