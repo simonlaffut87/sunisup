@@ -361,17 +361,17 @@ export default function HomePage() {
                 {/* Flèches pointant vers les 4 services */}
                 <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 300">
                   <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7"
                      refX="9" refY="3.5" orient="auto">
                       <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
                     </marker>
                   </defs>
-                  
+
                   {/* Flèches du centre vers les 4 services en croix */}
-                  <line x1="150" y1="130" x2="150" y2="70" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowhead)" />
-                  <line x1="170" y1="150" x2="230" y2="150" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowhead)" />
-                  <line x1="150" y1="170" x2="150" y2="230" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowhead)" />
-                  <line x1="130" y1="150" x2="70" y2="150" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="150" y1="130" x2="150" y2="88" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="170" y1="150" x2="212" y2="150" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="150" y1="170" x2="150" y2="212" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowhead)" />
+                  <line x1="130" y1="150" x2="88" y2="150" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowhead)" />
                 </svg>
               </div>
             </div>
