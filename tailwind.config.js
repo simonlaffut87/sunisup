@@ -6,10 +6,10 @@ export default {
       colors: {
         brand: {
           teal: '#1D8181',
-          gold: '#BD9B4B',
+          gold: '#F8BD3B',
           flame: '#D75D2D',
           'teal-light': '#2A9D9D',
-          'gold-light': '#D4B366',
+          'gold-light': '#F9CA5E',
           'flame-light': '#E87A50',
         },
       },
