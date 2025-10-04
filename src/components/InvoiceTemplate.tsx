@@ -86,7 +86,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
   useEffect(() => {
     const convertLogoToBase64 = async () => {
       try {
-        const response = await fetch('/images/logo.svg');
+        const response = await fetch('/images/logo-v2.png');
         const blob = await response.blob();
         const reader = new FileReader();
         reader.onload = () => {
@@ -995,7 +995,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <div>
               <div className="flex items-center space-x-4 mb-4">
                 <img 
-                  src={logoBase64 || '/images/logo.svg'} 
+                  src={logoBase64 || '/images/logo-v2.png'} 
                   alt="Sun Is Up Logo" 
                   className="h-20 w-20 flex-shrink-0 rounded-lg flex items-center justify-center"
                   style={{ objectFit: 'contain' }}
