@@ -803,40 +803,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         }
       };
 
-      // Traiter les données mensuelles pour chaque participant du groupe
-      // Utiliser la même logique que MemberDashboard
-      const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
-
-      const processedGroupMembers = groupParticipants?.map(member => {
-        console.log(`📊 Traitement des données pour: ${member.name} (${member.ean_code})`);
-
-        // Utiliser la même fonction que le dashboard
-        const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
-
-        // Calculer les totaux pour la période
-        const memberTotals = individualMonthlyData.reduce((totals, month) => ({
-          volume_partage: totals.volume_partage + month.volume_partage,
-          volume_complementaire: totals.volume_complementaire + month.volume_complementaire,
-          injection_partagee: totals.injection_partagee + month.injection_partagee,
-          injection_complementaire: totals.injection_complementaire + month.injection_complementaire
-        }), {
-          volume_partage: 0,
-          volume_complementaire: 0,
-          injection_partagee: 0,
-          injection_complementaire: 0
-        });
-
-        console.log(`✅ Totaux calculés pour ${member.name}:`, memberTotals);
-
-        return {
-          ...member,
-          calculatedTotals: memberTotals,
-          monthlyDataArray: individualMonthlyData // Garder pour debug
-        };
-      });
-
-      console.log('📊 Participants du groupe avec données calculées:', processedGroupMembers);
-      setGroupParticipants(processedGroupMembers);
+      // Pas besoin de pré-calculer les totaux, ils seront calculés à la volée dans le tableau
+      // comme dans le MemberDashboard
+      console.log('✅ Données du groupe prêtes pour affichage');
 
       // Sauvegarder en base
       const { error: updateError } = await supabase
@@ -1077,42 +1046,82 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-neutral-900 mb-4">Détail énergétique</h3>
             
-            {/* Affichage détaillé pour les groupes */}
-            {isGroupInvoice && groupParticipants && (
+            {/* Affichage détaillé pour les groupes - MÊME LOGIQUE QUE LE DASHBOARD */}
+            {isGroupInvoice && groupParticipants && groupParticipants.length > 0 && (
               <div className="mb-6">
                 <h4 className="text-md font-semibold text-neutral-800 mb-3">
                   Détail par participant ({groupParticipants.length} membres)
                 </h4>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full border border-neutral-300 rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-white">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Participant</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Type</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">Cons. Partagée</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">Cons. Réseau</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">Inj. Partagée</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">Inj. Réseau</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                          Participant
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                          Type
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                          Cons. Partagée
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                          Cons. Réseau
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                          Inj. Partagée
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                          Inj. Réseau
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {groupParticipants.map((groupParticipant: any, index: number) => {
-                        const memberTotals = groupParticipant.calculatedTotals || {
+                      {groupParticipants.map((groupParticipant: any) => {
+                        // EXACTEMENT LA MÊME LOGIQUE QUE LE DASHBOARD
+                        // Extraire l'année de la période de facturation
+                        const invoiceYear = selectedPeriod.startMonth.split('-')[0];
+
+                        // Calculer les données individuelles pour ce participant
+                        const individualMonthlyData = processIndividualMonthlyData(
+                          groupParticipant,
+                          generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth)
+                        );
+
+                        // Calculer displayData basé sur la période
+                        // Si période = 1 mois, afficher ce mois
+                        // Si période > 1 mois, faire la somme (équivalent à 'total')
+                        const displayData = individualMonthlyData.reduce((totals, month) => ({
+                          volume_partage: totals.volume_partage + month.volume_partage,
+                          volume_complementaire: totals.volume_complementaire + month.volume_complementaire,
+                          injection_partagee: totals.injection_partagee + month.injection_partagee,
+                          injection_complementaire: totals.injection_complementaire + month.injection_complementaire
+                        }), {
                           volume_partage: 0,
                           volume_complementaire: 0,
                           injection_partagee: 0,
                           injection_complementaire: 0
-                        };
-                        
+                        });
+
                         return (
-                          <tr key={index} className="hover:bg-white">
-                            <td className="px-4 py-3">
-                              <div>
-                                <div className="text-sm font-medium text-neutral-900">{groupParticipant.name}</div>
-                                <div className="text-xs text-neutral-500">{groupParticipant.ean_code}</div>
+                          <tr key={groupParticipant.id} className="hover:bg-white">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="ml-4">
+                                  <div className="flex items-center space-x-2">
+                                    <div className="text-sm font-medium text-neutral-900">
+                                      {groupParticipant.name}
+                                    </div>
+                                  </div>
+                                  {groupParticipant.ean_code && (
+                                    <div className="text-xs text-neutral-500 font-mono">
+                                      {groupParticipant.ean_code}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                 groupParticipant.type === 'producer'
                                   ? 'bg-amber-100 text-amber-800'
@@ -1121,47 +1130,21 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                                 {groupParticipant.type === 'producer' ? 'Producteur' : 'Consommateur'}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-sm text-right">
-                              {(memberTotals.volume_partage / 1000).toFixed(3)} MWh
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                              {(displayData.volume_partage / 1000).toFixed(2)} MWh
                             </td>
-                            <td className="px-4 py-3 text-sm text-right">
-                              {(memberTotals.volume_complementaire / 1000).toFixed(3)} MWh
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                              {(displayData.volume_complementaire / 1000).toFixed(2)} MWh
                             </td>
-                            <td className="px-4 py-3 text-sm text-right">
-                              {(memberTotals.injection_partagee / 1000).toFixed(3)} MWh
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                              {(displayData.injection_partagee / 1000).toFixed(2)} MWh
                             </td>
-                            <td className="px-4 py-3 text-sm text-right">
-                              {(memberTotals.injection_complementaire / 1000).toFixed(3)} MWh
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                              {(displayData.injection_complementaire / 1000).toFixed(2)} MWh
                             </td>
                           </tr>
                         );
                       })}
-                      {/* Ligne de total */}
-                      <tr className="bg-brand-gold/10 border-t-2 border-brand-gold/30 font-semibold">
-                        <td className="px-4 py-3 text-sm font-bold text-neutral-900" colSpan={2}>
-                          TOTAL GROUPE
-                        </td>
-                        <td className="px-4 py-4 text-sm text-right font-bold text-brand-teal">
-                          {(groupParticipants.reduce((sum, member) => 
-                            sum + ((member.calculatedTotals?.volume_partage || 0) / 1000), 0
-                          )).toFixed(3)} MWh
-                        </td>
-                        <td className="px-4 py-4 text-sm text-right font-bold text-brand-teal">
-                          {(groupParticipants.reduce((sum, member) => 
-                            sum + ((member.calculatedTotals?.volume_complementaire || 0) / 1000), 0
-                          )).toFixed(3)} MWh
-                        </td>
-                        <td className="px-4 py-4 text-sm text-right font-bold text-amber-600">
-                          {(groupParticipants.reduce((sum, member) => 
-                            sum + ((member.calculatedTotals?.injection_partagee || 0) / 1000), 0
-                          )).toFixed(3)} MWh
-                        </td>
-                        <td className="px-4 py-4 text-sm text-right font-bold text-amber-600">
-                          {(groupParticipants.reduce((sum, member) => 
-                            sum + ((member.calculatedTotals?.injection_complementaire || 0) / 1000), 0
-                          )).toFixed(3)} MWh
-                        </td>
-                      </tr>
                     </tbody>
                   </table>
                 </div>
