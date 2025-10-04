@@ -531,11 +531,11 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           {chartData && chartData.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-brand-teal rounded mr-2"></div>
+                <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: '#10B981' }}></div>
                 <span className="text-sm text-neutral-700">Consommation Partagée</span>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-teal-500 rounded mr-2"></div>
+                <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: '#3B82F6' }}></div>
                 <span className="text-sm text-neutral-700">Consommation Réseau</span>
               </div>
             </div>
@@ -630,11 +630,11 @@ export function MonthlyFileManager({ onImportSuccess }: MonthlyFileManagerProps)
           {chartData && chartData.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-brand-gold/100 rounded mr-2"></div>
+                <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: '#F59E0B' }}></div>
                 <span className="text-sm text-neutral-700">Injection Partagée</span>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-brand-teal rounded mr-2"></div>
+                <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: '#8B5CF6' }}></div>
                 <span className="text-sm text-neutral-700">Injection Réseau</span>
               </div>
             </div>
