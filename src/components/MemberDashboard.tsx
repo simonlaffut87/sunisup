@@ -43,6 +43,7 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   const [groupParticipants, setGroupParticipants] = useState<any[]>([]);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState<string>('total');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -587,6 +588,30 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                   Données individuelles pour l'année {selectedYear}
                 </p>
               </div>
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-neutral-700">
+                  Période:
+                </label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+                >
+                  <option value="total">Total annuel</option>
+                  <option value="01">Janvier</option>
+                  <option value="02">Février</option>
+                  <option value="03">Mars</option>
+                  <option value="04">Avril</option>
+                  <option value="05">Mai</option>
+                  <option value="06">Juin</option>
+                  <option value="07">Juillet</option>
+                  <option value="08">Août</option>
+                  <option value="09">Septembre</option>
+                  <option value="10">Octobre</option>
+                  <option value="11">Novembre</option>
+                  <option value="12">Décembre</option>
+                </select>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -615,9 +640,13 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {groupParticipants.map((groupParticipant) => {
-                    // Calculer les totaux individuels pour ce participant
-                    const individualTotals = processIndividualMonthlyData(groupParticipant, selectedYear)
-                      .reduce((totals, month) => ({
+                    // Calculer les données individuelles pour ce participant
+                    const individualMonthlyData = processIndividualMonthlyData(groupParticipant, selectedYear);
+
+                    let displayData;
+                    if (selectedMonth === 'total') {
+                      // Total annuel
+                      displayData = individualMonthlyData.reduce((totals, month) => ({
                         volume_partage: totals.volume_partage + month.volume_partage,
                         volume_complementaire: totals.volume_complementaire + month.volume_complementaire,
                         injection_partagee: totals.injection_partagee + month.injection_partagee,
@@ -628,6 +657,19 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                         injection_partagee: 0,
                         injection_complementaire: 0
                       });
+                    } else {
+                      // Données d'un mois spécifique
+                      const monthData = individualMonthlyData.find(m => {
+                        const monthNum = new Date(m.month).getMonth() + 1;
+                        return monthNum.toString().padStart(2, '0') === selectedMonth;
+                      });
+                      displayData = monthData || {
+                        volume_partage: 0,
+                        volume_complementaire: 0,
+                        injection_partagee: 0,
+                        injection_complementaire: 0
+                      };
+                    }
 
                     const isCurrentUser = groupParticipant.email === user.email;
 
@@ -675,16 +717,16 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-                          {(individualTotals.volume_partage / 1000).toFixed(2)} MWh
+                          {(displayData.volume_partage / 1000).toFixed(2)} MWh
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-                          {(individualTotals.volume_complementaire / 1000).toFixed(2)} MWh
+                          {(displayData.volume_complementaire / 1000).toFixed(2)} MWh
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-                          {(individualTotals.injection_partagee / 1000).toFixed(2)} MWh
+                          {(displayData.injection_partagee / 1000).toFixed(2)} MWh
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-                          {(individualTotals.injection_complementaire / 1000).toFixed(2)} MWh
+                          {(displayData.injection_complementaire / 1000).toFixed(2)} MWh
                         </td>
                       </tr>
                     );
