@@ -116,6 +116,38 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     }
   }, [isOpen, participant, selectedPeriod]);
 
+  const processIndividualMonthlyData = (participant: any, months: string[]) => {
+    if (!participant.monthly_data) {
+      return [];
+    }
+
+    let monthlyData;
+    try {
+      if (typeof participant.monthly_data === 'string') {
+        monthlyData = JSON.parse(participant.monthly_data);
+      } else {
+        monthlyData = participant.monthly_data;
+      }
+    } catch (error) {
+      console.warn('⚠️ Erreur parsing monthly_data:', error);
+      return [];
+    }
+
+    const monthlyDataArray = Object.entries(monthlyData)
+      .filter(([month]) => months.includes(month))
+      .map(([month, data]: [string, any]) => ({
+        month: format(new Date(month + '-01'), 'MMM yyyy', { locale: fr }),
+        monthKey: month,
+        volume_partage: Number(data.volume_partage || 0),
+        volume_complementaire: Number(data.volume_complementaire || 0),
+        injection_partagee: Number(data.injection_partagee || 0),
+        injection_complementaire: Number(data.injection_complementaire || 0),
+      }))
+      .sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+
+    return monthlyDataArray;
+  };
+
   const loadInvoiceData = async () => {
     try {
       setLoading(true);
@@ -772,58 +804,37 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       };
 
       // Traiter les données mensuelles pour chaque participant du groupe
+      // Utiliser la même logique que MemberDashboard
+      const periodMonths = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+
       const processedGroupMembers = groupParticipants?.map(member => {
         console.log(`📊 Traitement des données pour: ${member.name} (${member.ean_code})`);
-        
-        let memberMonthlyData = {};
-        if (member.monthly_data) {
-          try {
-            if (typeof member.monthly_data === 'string') {
-              memberMonthlyData = JSON.parse(member.monthly_data);
-            } else {
-              memberMonthlyData = member.monthly_data;
-            }
-          } catch (error) {
-            console.warn(`Erreur parsing monthly_data pour ${member.name}:`, error);
-            memberMonthlyData = {};
-          }
-        }
-        
-        console.log(`📅 Données mensuelles pour ${member.name}:`, memberMonthlyData);
-        
-        // Calculer les totaux pour la période sélectionnée
-        let memberTotals = {
+
+        // Utiliser la même fonction que le dashboard
+        const individualMonthlyData = processIndividualMonthlyData(member, periodMonths);
+
+        // Calculer les totaux pour la période
+        const memberTotals = individualMonthlyData.reduce((totals, month) => ({
+          volume_partage: totals.volume_partage + month.volume_partage,
+          volume_complementaire: totals.volume_complementaire + month.volume_complementaire,
+          injection_partagee: totals.injection_partagee + month.injection_partagee,
+          injection_complementaire: totals.injection_complementaire + month.injection_complementaire
+        }), {
           volume_partage: 0,
           volume_complementaire: 0,
           injection_partagee: 0,
           injection_complementaire: 0
-        };
-        
-        // Parcourir la période sélectionnée
-        const startDate = new Date(selectedPeriod.startMonth + '-01');
-        const endDate = new Date(selectedPeriod.endMonth + '-01');
-        let currentDate = new Date(startDate);
-        
-        while (currentDate <= endDate) {
-          const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-          const monthData = memberMonthlyData[monthKey];
-          
-          if (monthData) {
-            memberTotals.volume_partage += Number(monthData.volume_partage || 0);
-            memberTotals.volume_complementaire += Number(monthData.volume_complementaire || 0);
-            memberTotals.injection_partagee += Number(monthData.injection_partagee || 0);
-            memberTotals.injection_complementaire += Number(monthData.injection_complementaire || 0);
-          }
-          
-          currentDate.setMonth(currentDate.getMonth() + 1);
-        }
-        
+        });
+
+        console.log(`✅ Totaux calculés pour ${member.name}:`, memberTotals);
+
         return {
           ...member,
-          calculatedTotals: memberTotals
+          calculatedTotals: memberTotals,
+          monthlyDataArray: individualMonthlyData // Garder pour debug
         };
       });
-      
+
       console.log('📊 Participants du groupe avec données calculées:', processedGroupMembers);
       setGroupParticipants(processedGroupMembers);
 
