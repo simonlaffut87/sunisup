@@ -981,7 +981,14 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   </span>
                 </div>
                 <div className="text-neutral-600">
-                  Facture N° {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}
+                  Facture N° {(() => {
+                    // Pour les groupes, utiliser les 5 derniers chiffres du premier participant
+                    if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                      const firstParticipantEAN = groupParticipants[0].ean_code;
+                      return firstParticipantEAN ? firstParticipantEAN.slice(-5) : '00000';
+                    }
+                    return invoiceData.participant.ean_code?.slice(-6) || '000000';
+                  })()}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}
                 </div>
               </div>
             </div>
@@ -1006,8 +1013,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <div>
                 <div className="space-y-2">
                   <div><strong className="text-neutral-900">Nom :</strong> {isGroupInvoice ? `Groupe ${participant.groupe}` : invoiceData.participant.name}</div>
-                  <div><strong className="text-neutral-900">Adresse :</strong> {isGroupInvoice ? 
-                    `Groupe ${participant.groupe}\n${groupParticipants.map(p => `• ${p.name} - ${p.address}`).join('\n')}` :
+                  <div><strong className="text-neutral-900">Adresse :</strong> {isGroupInvoice ?
+                    'Adresses multiples' :
                     invoiceData.participant.address
                   }</div>
                   {invoiceData.participant.email && (
@@ -1565,7 +1572,14 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             <div className="text-sm text-neutral-700 space-y-1">
               <p>• Paiement à 30 jours, soit au plus tard le {format(addDays(new Date(), 30), 'dd/MM/yyyy', { locale: fr })}</p>
               <p>• Virement bancaire : BE96 0020 1192 6005</p>
-              <p>• Communication : {invoiceData.participant.ean_code?.slice(-6) || '000000'}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
+              <p>• Communication : {(() => {
+                // Pour les groupes, utiliser les 5 derniers chiffres du premier participant
+                if (isGroupInvoice && groupParticipants && groupParticipants.length > 0) {
+                  const firstParticipantEAN = groupParticipants[0].ean_code;
+                  return firstParticipantEAN ? firstParticipantEAN.slice(-5) : '00000';
+                }
+                return invoiceData.participant.ean_code?.slice(-6) || '000000';
+              })()}-{format(parseISO(invoiceData.period.startDate), 'MM-yy')}</p>
             </div>
           </div>
         </div>
