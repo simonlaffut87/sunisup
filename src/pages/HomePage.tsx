@@ -260,10 +260,10 @@ export default function HomePage() {
               </div>
 
               {/* Service 4: Optimisation situation énergétique */}
-              <div className="bg-white rounded-lg p-8 border border-orange-100 hover:border-orange-200 transition-all duration-200 hover:shadow-md">
+              <div className="bg-white rounded-lg p-8 border border-amber-100 hover:border-brand-gold/30 transition-all duration-200 hover:shadow-md">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 bg-brand-flame/10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Sun className="w-6 h-6 text-brand-flame" />
+                  <div className="w-12 h-12 bg-brand-gold/10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <Sun className="w-6 h-6 text-amber-600" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-neutral-800 mb-1 font-sans">{t('home.services.optimization.title')}</h3>
@@ -276,7 +276,7 @@ export default function HomePage() {
                 <div className="space-y-3 mb-6">
                   {t('home.services.optimization.features', { returnObjects: true }).map((feature: string, index: number) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <CheckCircle className="w-4 h-4 text-brand-flame mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                       <span className="text-neutral-600 text-sm font-sans">{feature}</span>
                     </div>
                   ))}
@@ -284,7 +284,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setShowContactModal(true)}
-                  className="w-full bg-brand-flame/10 hover:bg-brand-flame/10 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
+                  className="w-full bg-brand-gold hover:bg-brand-gold-light text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 font-sans"
                 >
                   {t('home.services.optimization.button')}
                   <ArrowRight className="w-4 h-4" />
