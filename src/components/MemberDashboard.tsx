@@ -559,10 +559,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                       name
                     ]}
                   />
-                  <Bar dataKey="volume_partage" fill="#10B981" name="Consommation Partagée" />
-                  <Bar dataKey="volume_complementaire" fill="#3B82F6" name="Consommation Réseau" />
-                  <Bar dataKey="injection_partagee" fill="#F59E0B" name="Injection Partagée" />
-                  <Bar dataKey="injection_complementaire" fill="#8B5CF6" name="Injection Réseau" />
+                  <Bar dataKey="volume_partage" fill="#10B981" />
+                  <Bar dataKey="volume_complementaire" fill="#3B82F6" />
+                  <Bar dataKey="injection_partagee" fill="#F59E0B" />
+                  <Bar dataKey="injection_complementaire" fill="#8B5CF6" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
