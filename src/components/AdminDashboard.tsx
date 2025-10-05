@@ -32,6 +32,9 @@ export function AdminDashboard() {
   });
   const [showBulkPeriodSelection, setShowBulkPeriodSelection] = useState(false);
   const [bulkDownloading, setBulkDownloading] = useState(false);
+  const [showBulkDownloadModal, setShowBulkDownloadModal] = useState(false);
+  const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
+  const [bulkPeriod, setBulkPeriod] = useState({ startMonth: '', endMonth: '' });
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState<'name' | 'type' | 'entry_date'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -374,27 +377,34 @@ export function AdminDashboard() {
   };
 
   const handleBulkDownload = async () => {
-    if (!selectedPeriod.startMonth || !selectedPeriod.endMonth) {
+    if (!bulkPeriod.startMonth || !bulkPeriod.endMonth) {
       toast.error('Veuillez sélectionner une période valide');
       return;
     }
-    if (selectedPeriod.startMonth > selectedPeriod.endMonth) {
+    if (bulkPeriod.startMonth > bulkPeriod.endMonth) {
       toast.error('Le mois de début doit être antérieur ou égal au mois de fin');
+      return;
+    }
+    if (selectedParticipants.size === 0) {
+      toast.error('Veuillez sélectionner au moins un participant');
       return;
     }
 
     setBulkDownloading(true);
-    setShowBulkPeriodSelection(false);
+    setShowBulkDownloadModal(false);
 
     try {
       const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
 
+      // Filter selected participants
+      const participantsToProcess = participants.filter(p => selectedParticipants.has(p.id));
+
       // Group participants by groupe
       const groupedParticipants = new Map<string, Participant[]>();
       const individualParticipants: Participant[] = [];
 
-      participants.forEach(p => {
+      participantsToProcess.forEach(p => {
         if (p.groupe) {
           if (!groupedParticipants.has(p.groupe)) {
             groupedParticipants.set(p.groupe, []);
@@ -408,9 +418,9 @@ export function AdminDashboard() {
       // Generate PDFs for all participants
       const allParticipantsToProcess: Participant[] = [];
 
-      // Add group representatives
+      // Add group representatives (only one per group)
       groupedParticipants.forEach((group) => {
-        allParticipantsToProcess.push(group[0]); // Use first participant as representative
+        allParticipantsToProcess.push(group[0]);
       });
 
       // Add individual participants
@@ -423,13 +433,13 @@ export function AdminDashboard() {
 
       for (const participant of allParticipantsToProcess) {
         try {
-          const pdfBlob = await generateInvoicePDF(participant, selectedPeriod);
+          const pdfBlob = await generateInvoicePDF(participant, bulkPeriod);
 
           if (pdfBlob) {
             const isGroup = participant.groupe && groupedParticipants.has(participant.groupe);
             const fileName = isGroup
-              ? `Facture_Groupe_${participant.groupe}_${selectedPeriod.startMonth}-${selectedPeriod.endMonth}.pdf`
-              : `Facture_${participant.name.replace(/[^a-zA-Z0-9_-]/g, '_')}_${selectedPeriod.startMonth}-${selectedPeriod.endMonth}.pdf`;
+              ? `Facture_Groupe_${participant.groupe}_${bulkPeriod.startMonth}-${bulkPeriod.endMonth}.pdf`
+              : `Facture_${participant.name.replace(/[^a-zA-Z0-9_-]/g, '_')}_${bulkPeriod.startMonth}-${bulkPeriod.endMonth}.pdf`;
 
             zip.file(fileName, pdfBlob);
           }
@@ -443,7 +453,7 @@ export function AdminDashboard() {
       const url = URL.createObjectURL(zipBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Factures_${selectedPeriod.startMonth}-${selectedPeriod.endMonth}.zip`;
+      link.download = `Factures_${bulkPeriod.startMonth}-${bulkPeriod.endMonth}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -451,12 +461,33 @@ export function AdminDashboard() {
 
       toast.dismiss();
       toast.success(`${allParticipantsToProcess.length} factures téléchargées avec succès`);
+
+      // Reset selection
+      setSelectedParticipants(new Set());
     } catch (error) {
       console.error('Erreur lors du téléchargement groupé:', error);
       toast.dismiss();
       toast.error('Erreur lors de la génération des factures');
     } finally {
       setBulkDownloading(false);
+    }
+  };
+
+  const toggleParticipantSelection = (participantId: string) => {
+    const newSelection = new Set(selectedParticipants);
+    if (newSelection.has(participantId)) {
+      newSelection.delete(participantId);
+    } else {
+      newSelection.add(participantId);
+    }
+    setSelectedParticipants(newSelection);
+  };
+
+  const selectAllParticipants = () => {
+    if (selectedParticipants.size === participants.length) {
+      setSelectedParticipants(new Set());
+    } else {
+      setSelectedParticipants(new Set(participants.map(p => p.id)));
     }
   };
 
@@ -727,13 +758,22 @@ export function AdminDashboard() {
                   </select>
                 </div>
                 
-                <button
-                  onClick={handleAdd}
-                  className="inline-flex items-center px-4 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ajouter un participant
-                </button>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => setShowBulkDownloadModal(true)}
+                    className="inline-flex items-center px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/80 transition-colors"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Télécharger factures
+                  </button>
+                  <button
+                    onClick={handleAdd}
+                    className="inline-flex items-center px-4 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Ajouter un participant
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1136,32 +1176,20 @@ export function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center">
+              <div className="flex justify-end space-x-3">
                 <button
-                  onClick={() => {
-                    setShowPeriodSelection(false);
-                    setShowBulkPeriodSelection(true);
-                  }}
-                  className="px-4 py-2 text-brand-teal hover:text-brand-teal/80 transition-colors flex items-center space-x-2 border border-brand-teal rounded-lg"
+                  onClick={() => setShowPeriodSelection(false)}
+                  className="px-4 py-2 text-neutral-700 hover:text-neutral-900 transition-colors"
                 >
-                  <Download className="w-4 h-4" />
-                  <span>Toutes les factures</span>
+                  Annuler
                 </button>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={() => setShowPeriodSelection(false)}
-                    className="px-4 py-2 text-neutral-700 hover:text-neutral-900 transition-colors"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    onClick={handlePeriodConfirm}
-                    className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors flex items-center space-x-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>Générer la facture</span>
-                  </button>
-                </div>
+                <button
+                  onClick={handlePeriodConfirm}
+                  className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors flex items-center space-x-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Générer la facture</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1169,76 +1197,147 @@ export function AdminDashboard() {
         </>
       )}
 
-      {/* Modal de sélection de période pour téléchargement groupé */}
-      {showBulkPeriodSelection && (
+      {/* Modal de téléchargement groupé des factures */}
+      {showBulkDownloadModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-neutral-200">
+              <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-xl font-bold text-neutral-900 flex items-center space-x-2">
                     <Download className="w-6 h-6 text-brand-teal" />
-                    <span>Télécharger toutes les factures</span>
+                    <span>Télécharger les factures</span>
                   </h3>
+                  <p className="text-sm text-neutral-600 mt-1">
+                    Sélectionnez les participants et la période de facturation
+                  </p>
                 </div>
                 <button
-                  onClick={() => setShowBulkPeriodSelection(false)}
+                  onClick={() => {
+                    setShowBulkDownloadModal(false);
+                    setSelectedParticipants(new Set());
+                  }}
                   className="text-neutral-500 hover:text-neutral-700 transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
+            </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                  <p className="text-sm text-brand-teal">
-                    Génère un fichier ZIP contenant une facture PDF pour chaque participant et groupe pour la période sélectionnée.
-                  </p>
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-6">
+                {/* Participant selection */}
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <label className="block text-sm font-medium text-neutral-700">
+                      Participants ({selectedParticipants.size} sélectionné{selectedParticipants.size > 1 ? 's' : ''})
+                    </label>
+                    <button
+                      onClick={selectAllParticipants}
+                      className="text-sm text-brand-teal hover:text-brand-teal/80 font-medium"
+                    >
+                      {selectedParticipants.size === participants.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                    </button>
+                  </div>
+                  <div className="border border-neutral-300 rounded-lg max-h-64 overflow-y-auto">
+                    {sortedParticipants.map((participant) => {
+                      const isInGroup = participant.groupe && groupedParticipants.has(participant.groupe);
+                      const group = isInGroup ? groupedParticipants.get(participant.groupe)! : null;
+                      const isFirstInGroup = group && group[0].id === participant.id;
+
+                      // Only show first participant in group or individual participants
+                      if (isInGroup && !isFirstInGroup) return null;
+
+                      return (
+                        <label
+                          key={participant.id}
+                          className="flex items-center p-3 hover:bg-neutral-50 cursor-pointer border-b border-neutral-200 last:border-b-0"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedParticipants.has(participant.id)}
+                            onChange={() => toggleParticipantSelection(participant.id)}
+                            className="w-4 h-4 text-brand-teal border-neutral-300 rounded focus:ring-brand-teal"
+                          />
+                          <div className="ml-3 flex-1">
+                            <div className="flex items-center space-x-2">
+                              {isInGroup && <Users className="w-4 h-4 text-brand-teal" />}
+                              <span className="font-medium text-neutral-900">
+                                {isInGroup ? `Groupe ${participant.groupe}` : participant.name}
+                              </span>
+                              <span className={`px-2 py-0.5 text-xs rounded-full ${
+                                participant.type === 'producer'
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-teal-100 text-teal-800'
+                              }`}>
+                                {participant.type === 'producer' ? 'Producteur' : 'Consommateur'}
+                              </span>
+                            </div>
+                            {isInGroup && (
+                              <div className="text-sm text-neutral-600 mt-1">
+                                {group!.length} membre{group!.length > 1 ? 's' : ''}
+                              </div>
+                            )}
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4">
+
+                {/* Period selection */}
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Mois de début
                     </label>
                     <input
                       type="month"
-                      value={selectedPeriod.startMonth}
-                      onChange={(e) => setSelectedPeriod(prev => ({ ...prev, startMonth: e.target.value }))}
+                      value={bulkPeriod.startMonth}
+                      onChange={(e) => setBulkPeriod(prev => ({ ...prev, startMonth: e.target.value }))}
                       className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Mois de fin
                     </label>
                     <input
                       type="month"
-                      value={selectedPeriod.endMonth}
-                      onChange={(e) => setSelectedPeriod(prev => ({ ...prev, endMonth: e.target.value }))}
+                      value={bulkPeriod.endMonth}
+                      onChange={(e) => setBulkPeriod(prev => ({ ...prev, endMonth: e.target.value }))}
                       className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     />
                   </div>
                 </div>
-              </div>
 
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => setShowBulkPeriodSelection(false)}
-                  className="px-4 py-2 text-neutral-700 hover:text-neutral-900 transition-colors"
-                  disabled={bulkDownloading}
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={handleBulkDownload}
-                  disabled={bulkDownloading}
-                  className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>{bulkDownloading ? 'Génération...' : 'Télécharger tout'}</span>
-                </button>
+                <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                  <p className="text-sm text-brand-teal">
+                    Un fichier ZIP sera généré contenant une facture PDF pour chaque participant ou groupe sélectionné.
+                  </p>
+                </div>
               </div>
+            </div>
+
+            <div className="p-6 border-t border-neutral-200 flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowBulkDownloadModal(false);
+                  setSelectedParticipants(new Set());
+                }}
+                className="px-4 py-2 text-neutral-700 hover:text-neutral-900 transition-colors"
+                disabled={bulkDownloading}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleBulkDownload}
+                disabled={bulkDownloading || selectedParticipants.size === 0}
+                className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                <span>{bulkDownloading ? 'Génération...' : 'Télécharger'}</span>
+              </button>
             </div>
           </div>
         </div>
