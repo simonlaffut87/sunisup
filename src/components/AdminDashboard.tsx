@@ -558,7 +558,7 @@ export function AdminDashboard() {
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-flame/10 hover:bg-brand-flame/10 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="inline-flex items-center px-4 py-2 border border-brand-flame text-sm font-medium rounded-md shadow-sm text-brand-flame bg-white hover:bg-brand-flame hover:text-white disabled:bg-gray-400 disabled:text-white disabled:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-flame transition-colors"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
@@ -748,7 +748,7 @@ export function AdminDashboard() {
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-flame/10 hover:bg-brand-flame/10 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="inline-flex items-center px-4 py-2 border border-brand-flame text-sm font-medium rounded-md shadow-sm text-brand-flame bg-white hover:bg-brand-flame hover:text-white disabled:bg-gray-400 disabled:text-white disabled:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-flame transition-colors"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
