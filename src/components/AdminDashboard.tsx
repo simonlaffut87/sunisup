@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { MemberDashboard } from './MemberDashboard';
 import { toast } from 'react-hot-toast';
-import { Users, Plus, FileEdit as Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail, Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye, FileText, X } from 'lucide-react';
+import { Users, Plus, FileEdit as Edit, Trash2, ArrowLeft, LogOut, RefreshCw, Calendar, Mail, Hash, Euro, MapPin, User, Upload, Database, FileSpreadsheet, Eye, FileText, X, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database as DB } from '../types/supabase';
@@ -30,6 +30,8 @@ export function AdminDashboard() {
     startMonth: '',
     endMonth: ''
   });
+  const [showBulkPeriodSelection, setShowBulkPeriodSelection] = useState(false);
+  const [bulkDownloading, setBulkDownloading] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState<'name' | 'type' | 'entry_date'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -366,9 +368,96 @@ export function AdminDashboard() {
       toast.error('Le mois de début doit être antérieur ou égal au mois de fin');
       return;
     }
-    
+
     setShowPeriodSelection(false);
     setShowInvoice(true);
+  };
+
+  const handleBulkDownload = async () => {
+    if (!selectedPeriod.startMonth || !selectedPeriod.endMonth) {
+      toast.error('Veuillez sélectionner une période valide');
+      return;
+    }
+    if (selectedPeriod.startMonth > selectedPeriod.endMonth) {
+      toast.error('Le mois de début doit être antérieur ou égal au mois de fin');
+      return;
+    }
+
+    setBulkDownloading(true);
+    setShowBulkPeriodSelection(false);
+
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+
+      // Group participants by groupe
+      const groupedParticipants = new Map<string, Participant[]>();
+      const individualParticipants: Participant[] = [];
+
+      participants.forEach(p => {
+        if (p.groupe) {
+          if (!groupedParticipants.has(p.groupe)) {
+            groupedParticipants.set(p.groupe, []);
+          }
+          groupedParticipants.get(p.groupe)!.push(p);
+        } else {
+          individualParticipants.push(p);
+        }
+      });
+
+      // Generate PDFs for all participants
+      const allParticipantsToProcess: Participant[] = [];
+
+      // Add group representatives
+      groupedParticipants.forEach((group) => {
+        allParticipantsToProcess.push(group[0]); // Use first participant as representative
+      });
+
+      // Add individual participants
+      allParticipantsToProcess.push(...individualParticipants);
+
+      toast.loading(`Génération de ${allParticipantsToProcess.length} factures...`);
+
+      // Import the invoice generation logic
+      const { generateInvoicePDF } = await import('./InvoiceTemplate');
+
+      for (const participant of allParticipantsToProcess) {
+        try {
+          const pdfBlob = await generateInvoicePDF(participant, selectedPeriod);
+
+          if (pdfBlob) {
+            const isGroup = participant.groupe && groupedParticipants.has(participant.groupe);
+            const fileName = isGroup
+              ? `Facture_Groupe_${participant.groupe}_${selectedPeriod.startMonth}-${selectedPeriod.endMonth}.pdf`
+              : `Facture_${participant.name.replace(/[^a-zA-Z0-9_-]/g, '_')}_${selectedPeriod.startMonth}-${selectedPeriod.endMonth}.pdf`;
+
+            zip.file(fileName, pdfBlob);
+          }
+        } catch (error) {
+          console.error(`Erreur lors de la génération de la facture pour ${participant.name}:`, error);
+        }
+      }
+
+      // Generate and download the zip file
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Factures_${selectedPeriod.startMonth}-${selectedPeriod.endMonth}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.dismiss();
+      toast.success(`${allParticipantsToProcess.length} factures téléchargées avec succès`);
+    } catch (error) {
+      console.error('Erreur lors du téléchargement groupé:', error);
+      toast.dismiss();
+      toast.error('Erreur lors de la génération des factures');
+    } finally {
+      setBulkDownloading(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -1047,25 +1136,112 @@ export function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-3">
+              <div className="flex justify-between items-center">
                 <button
-                  onClick={() => setShowPeriodSelection(false)}
-                  className="px-4 py-2 text-neutral-700 hover:text-neutral-900 transition-colors"
+                  onClick={() => {
+                    setShowPeriodSelection(false);
+                    setShowBulkPeriodSelection(true);
+                  }}
+                  className="px-4 py-2 text-brand-teal hover:text-brand-teal/80 transition-colors flex items-center space-x-2 border border-brand-teal rounded-lg"
                 >
-                  Annuler
+                  <Download className="w-4 h-4" />
+                  <span>Toutes les factures</span>
                 </button>
-                <button
-                  onClick={handlePeriodConfirm}
-                  className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors flex items-center space-x-2"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Générer la facture</span>
-                </button>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setShowPeriodSelection(false)}
+                    className="px-4 py-2 text-neutral-700 hover:text-neutral-900 transition-colors"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={handlePeriodConfirm}
+                    className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors flex items-center space-x-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Générer la facture</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
         </>
+      )}
+
+      {/* Modal de sélection de période pour téléchargement groupé */}
+      {showBulkPeriodSelection && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-neutral-900 flex items-center space-x-2">
+                    <Download className="w-6 h-6 text-brand-teal" />
+                    <span>Télécharger toutes les factures</span>
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowBulkPeriodSelection(false)}
+                  className="text-neutral-500 hover:text-neutral-700 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                  <p className="text-sm text-brand-teal">
+                    Génère un fichier ZIP contenant une facture PDF pour chaque participant et groupe pour la période sélectionnée.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Mois de début
+                    </label>
+                    <input
+                      type="month"
+                      value={selectedPeriod.startMonth}
+                      onChange={(e) => setSelectedPeriod(prev => ({ ...prev, startMonth: e.target.value }))}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Mois de fin
+                    </label>
+                    <input
+                      type="month"
+                      value={selectedPeriod.endMonth}
+                      onChange={(e) => setSelectedPeriod(prev => ({ ...prev, endMonth: e.target.value }))}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowBulkPeriodSelection(false)}
+                  className="px-4 py-2 text-neutral-700 hover:text-neutral-900 transition-colors"
+                  disabled={bulkDownloading}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleBulkDownload}
+                  disabled={bulkDownloading}
+                  className="px-6 py-2 bg-brand-gold/100 text-white rounded-lg hover:bg-brand-gold transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>{bulkDownloading ? 'Génération...' : 'Télécharger tout'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {showInvoice && selectedParticipantForInvoice && (

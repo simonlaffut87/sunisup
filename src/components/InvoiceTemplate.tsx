@@ -1629,3 +1629,295 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     </div>
   );
 }
+
+// Export function to generate PDF programmatically without rendering the component
+export async function generateInvoicePDF(
+  participant: Participant,
+  selectedPeriod: { startMonth: string; endMonth: string }
+): Promise<Blob | null> {
+  try {
+    // Create a hidden container for rendering
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '1200px';
+    document.body.appendChild(container);
+
+    // Load participant data from database
+    const { data: participantData, error: participantError } = await supabase
+      .from('participants')
+      .select('*')
+      .eq('id', participant.id)
+      .single();
+
+    if (participantError || !participantData) {
+      throw new Error('Unable to load participant data');
+    }
+
+    // Check if participant is part of a group
+    let allParticipants = [participantData];
+    let isGroupInvoice = false;
+
+    if (participantData.groupe) {
+      const { data: groupData, error: groupError } = await supabase
+        .from('participants')
+        .select('*')
+        .eq('groupe', participantData.groupe);
+
+      if (!groupError && groupData && groupData.length > 1) {
+        allParticipants = groupData;
+        isGroupInvoice = true;
+      }
+    }
+
+    // Parse monthly data
+    let monthlyData: { [month: string]: MonthlyData } = {};
+    if (participantData.monthly_data) {
+      try {
+        monthlyData = typeof participantData.monthly_data === 'string'
+          ? JSON.parse(participantData.monthly_data)
+          : participantData.monthly_data;
+      } catch (error) {
+        console.warn('Error parsing monthly_data:', error);
+      }
+    }
+
+    // Parse billing data
+    let billingData: { [month: string]: BillingData } = {};
+    if (participantData.billing_data) {
+      try {
+        billingData = typeof participantData.billing_data === 'string'
+          ? JSON.parse(participantData.billing_data)
+          : participantData.billing_data;
+      } catch (error) {
+        console.warn('Error parsing billing_data:', error);
+      }
+    }
+
+    // Generate months in period
+    const months = generateMonthsInPeriod(selectedPeriod.startMonth, selectedPeriod.endMonth);
+
+    // Calculate totals
+    const totals = {
+      volume_partage: 0,
+      injection_partagee: 0,
+      injection_complementaire: 0,
+      networkCosts: {
+        utilisationReseau: 0,
+        surcharges: 0,
+        tarifCapacitaire: 0,
+        tarifMesure: 0,
+        tarifOSP: 0,
+        transportELIA: 0,
+        redevanceVoirie: 0,
+        totalFraisReseau: 0
+      }
+    };
+
+    // Aggregate data
+    months.forEach(month => {
+      if (monthlyData[month]) {
+        totals.volume_partage += monthlyData[month].volume_partage || 0;
+        totals.injection_partagee += monthlyData[month].injection_partagee || 0;
+        totals.injection_complementaire += monthlyData[month].injection_complementaire || 0;
+      }
+
+      if (billingData[month]) {
+        const costs = billingData[month].networkCosts;
+        totals.networkCosts.utilisationReseau += costs.utilisationReseau || 0;
+        totals.networkCosts.surcharges += costs.surcharges || 0;
+        totals.networkCosts.tarifCapacitaire += costs.tarifCapacitaire || 0;
+        totals.networkCosts.tarifMesure += costs.tarifMesure || 0;
+        totals.networkCosts.tarifOSP += costs.tarifOSP || 0;
+        totals.networkCosts.transportELIA += costs.transportELIA || 0;
+        totals.networkCosts.redevanceVoirie += costs.redevanceVoirie || 0;
+        totals.networkCosts.totalFraisReseau += costs.totalFraisReseau || 0;
+      }
+    });
+
+    // Calculate invoice amounts
+    const vatRate = 0.21;
+    const energyPricePerKWh = 0.10;
+    const injectionPricePerKWh = 0.06;
+
+    const energySharedCostHTVA = (totals.volume_partage / 1000) * energyPricePerKWh;
+    const energySharedCostTVAC = energySharedCostHTVA * (1 + vatRate);
+    const networkCostTotal = totals.networkCosts.totalFraisReseau;
+    const networkCostTVAC = networkCostTotal * (1 + vatRate);
+    const totalCostTVAC = energySharedCostTVAC + networkCostTVAC;
+    const injectionRevenue = ((totals.injection_partagee + totals.injection_complementaire) / 1000) * injectionPricePerKWh;
+    const netAmount = totalCostTVAC - injectionRevenue;
+
+    const invoiceData = {
+      participant: participantData,
+      period: {
+        startMonth: selectedPeriod.startMonth,
+        endMonth: selectedPeriod.endMonth,
+        startDate: `${selectedPeriod.startMonth}-01`,
+        endDate: `${selectedPeriod.endMonth}-01`
+      },
+      monthlyData,
+      billingData,
+      totals,
+      calculations: {
+        energySharedCostHTVA,
+        energySharedCostTVAC,
+        networkCostTotal,
+        networkCostTVAC,
+        totalCostTVAC,
+        injectionRevenue,
+        netAmount,
+        vatRate
+      }
+    };
+
+    // Render invoice HTML
+    container.innerHTML = `
+      <div id="invoice-content-temp" style="background: white; padding: 40px; font-family: system-ui, -apple-system, sans-serif;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+          <div>
+            <h1 style="font-size: 24px; font-weight: bold; color: #1a1a1a; margin-bottom: 8px;">
+              ${isGroupInvoice ? `Facture Groupe ${participantData.groupe}` : `Facture ${participantData.name}`}
+            </h1>
+            <p style="color: #666; font-size: 14px;">
+              Période: ${format(parseISO(invoiceData.period.startDate), 'MMMM yyyy', { locale: fr })}
+              ${invoiceData.period.startMonth !== invoiceData.period.endMonth
+                ? ` - ${format(parseISO(invoiceData.period.endDate), 'MMMM yyyy', { locale: fr })}`
+                : ''}
+            </p>
+          </div>
+        </div>
+
+        <div style="background: #f5f5f5; border: 2px solid #e5e5e5; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div>
+              <p style="font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px;">CLIENT</p>
+              <p style="font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">${participantData.name}</p>
+              <p style="font-size: 14px; color: #666;">${participantData.address || ''}</p>
+            </div>
+            <div>
+              <p style="font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px;">CODE EAN</p>
+              <p style="font-family: monospace; color: #1a1a1a;">${participantData.ean_code || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: 16px;">Récapitulatif de la facture</h3>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 32px;">
+          <thead>
+            <tr style="background: #14b8a6; color: white;">
+              <th style="padding: 12px 16px; text-align: left; border: 1px solid #d4d4d4;">Description</th>
+              <th style="padding: 12px 16px; text-align: center; border: 1px solid #d4d4d4;">Quantité</th>
+              <th style="padding: 12px 16px; text-align: right; border: 1px solid #d4d4d4;">Prix unitaire</th>
+              <th style="padding: 12px 16px; text-align: right; border: 1px solid #d4d4d4;">Montant</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 12px 16px; border: 1px solid #d4d4d4;">Énergie partagée</td>
+              <td style="padding: 12px 16px; text-align: center; border: 1px solid #d4d4d4;">
+                ${(totals.volume_partage / 1000).toFixed(2)} MWh
+              </td>
+              <td style="padding: 12px 16px; text-align: right; border: 1px solid #d4d4d4;">${energyPricePerKWh} €/kWh</td>
+              <td style="padding: 12px 16px; text-align: right; border: 1px solid #d4d4d4;">
+                ${energySharedCostTVAC.toFixed(2)} €
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 12px 16px; border: 1px solid #d4d4d4;">Frais réseau</td>
+              <td style="padding: 12px 16px; text-align: center; border: 1px solid #d4d4d4;">-</td>
+              <td style="padding: 12px 16px; text-align: right; border: 1px solid #d4d4d4;">-</td>
+              <td style="padding: 12px 16px; text-align: right; border: 1px solid #d4d4d4;">
+                ${networkCostTVAC.toFixed(2)} €
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 12px 16px; border: 1px solid #d4d4d4;">Revenus injection</td>
+              <td style="padding: 12px 16px; text-align: center; border: 1px solid #d4d4d4;">
+                ${((totals.injection_partagee + totals.injection_complementaire) / 1000).toFixed(2)} MWh
+              </td>
+              <td style="padding: 12px 16px; text-align: right; border: 1px solid #d4d4d4;">
+                ${injectionPricePerKWh} €/kWh
+              </td>
+              <td style="padding: 12px 16px; text-align: right; border: 1px solid #d4d4d4; color: #14b8a6;">
+                -${injectionRevenue.toFixed(2)} €
+              </td>
+            </tr>
+            <tr style="background: #fef3c7; border-top: 2px solid #f59e0b;">
+              <td style="padding: 12px 16px; font-size: 18px; font-weight: bold; color: #78350f; border: 1px solid #d4d4d4;">
+                ${netAmount < 0 ? 'MONTANT NET À RECEVOIR' : 'MONTANT NET À PAYER'}
+              </td>
+              <td style="padding: 12px 16px; text-align: center; font-size: 18px; font-weight: bold; color: #78350f; border: 1px solid #d4d4d4;">-</td>
+              <td style="padding: 12px 16px; text-align: right; font-size: 18px; font-weight: bold; color: #78350f; border: 1px solid #d4d4d4;">-</td>
+              <td style="padding: 12px 16px; text-align: right; font-size: 18px; font-weight: bold; color: #78350f; border: 1px solid #d4d4d4;">
+                ${Math.abs(netAmount).toFixed(2)} €
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // Wait for rendering
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Generate canvas
+    const invoiceElement = container.querySelector('#invoice-content-temp') as HTMLElement;
+    if (!invoiceElement) {
+      throw new Error('Invoice element not found');
+    }
+
+    const canvas = await html2canvas(invoiceElement, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    });
+
+    // Create PDF
+    const imgData = canvas.toDataURL('image/png', 1.0);
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const widthRatio = pageWidth / canvas.width;
+    const heightRatio = pageHeight / canvas.height;
+    const ratio = Math.min(widthRatio, heightRatio);
+    const canvasWidth = canvas.width * ratio;
+    const canvasHeight = canvas.height * ratio;
+    const marginX = (pageWidth - canvasWidth) / 2;
+
+    pdf.addImage(imgData, 'PNG', marginX, 0, canvasWidth, canvasHeight);
+
+    // Clean up
+    document.body.removeChild(container);
+
+    // Return PDF as blob
+    return pdf.output('blob');
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    return null;
+  }
+}
+
+function generateMonthsInPeriod(startMonth: string, endMonth: string): string[] {
+  const months: string[] = [];
+  const start = parseISO(`${startMonth}-01`);
+  const end = parseISO(`${endMonth}-01`);
+
+  let current = start;
+  while (current <= end) {
+    months.push(format(current, 'yyyy-MM'));
+    current = addDays(current, 32);
+    current = parseISO(format(current, 'yyyy-MM') + '-01');
+  }
+
+  return months;
+}
