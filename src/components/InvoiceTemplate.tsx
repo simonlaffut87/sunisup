@@ -571,15 +571,40 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
     // Revenus d'injection
     const injectionRevenue = (injectionPartageeInMWh + injectionComplementaireInMWh) * sharedEnergyPrice;
 
-    // Frais d'adhésion annuels (60.50€ TTC) - seulement pour la première facture de l'année
-    const currentYear = new Date().getFullYear();
-    const isFirstInvoiceOfYear = true; // Pour 2025, c'est la première facture
-    const membershipFeeHTVA = isFirstInvoiceOfYear ? 60.50 / 1.21 : 0; // 50.00€ HTVA
-    const membershipFeeTVAC = isFirstInvoiceOfYear ? 60.50 : 0; // 60.50€ TVAC
-    
+    // Frais d'adhésion annuels (60.50€ TTC) - seulement une fois par an au mois d'anniversaire
+    let isAnniversaryInvoice = false;
+
+    if (invoiceData.participant.entry_date) {
+      // Parse entry date (format: YYYY-MM-DD)
+      const entryDate = parseISO(invoiceData.participant.entry_date);
+      const entryMonth = format(entryDate, 'yyyy-MM');
+
+      // Check if the anniversary month is in the invoice period
+      const monthsInPeriod = generateMonthsInPeriod(
+        invoiceData.period.startMonth,
+        invoiceData.period.endMonth
+      );
+
+      // For each year since entry, check if anniversary month is in period
+      const currentYear = new Date().getFullYear();
+      const entryYear = entryDate.getFullYear();
+
+      for (let year = entryYear; year <= currentYear; year++) {
+        const anniversaryMonth = format(new Date(year, entryDate.getMonth()), 'yyyy-MM');
+        if (monthsInPeriod.includes(anniversaryMonth)) {
+          isAnniversaryInvoice = true;
+          break;
+        }
+      }
+    }
+
+    const membershipFeeHTVA = isAnniversaryInvoice ? 60.50 / 1.21 : 0; // 50.00€ HTVA
+    const membershipFeeTVAC = isAnniversaryInvoice ? 60.50 : 0; // 60.50€ TVAC
+
     console.log('💰 Frais d\'adhésion:', {
-      isFirstInvoiceOfYear,
-      currentYear,
+      entry_date: invoiceData.participant.entry_date,
+      isAnniversaryInvoice,
+      invoicePeriod: `${invoiceData.period.startMonth} à ${invoiceData.period.endMonth}`,
       membershipFeeHTVA: `${membershipFeeHTVA.toFixed(2)}€`,
       membershipFeeTVAC: `${membershipFeeTVAC}€`
     });
@@ -594,7 +619,7 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
       networkCostTVAC: Math.round(networkCostTVAC * 100) / 100,
       membershipFeeHTVA: Math.round(membershipFeeHTVA * 100) / 100,
       membershipFeeTVAC: Math.round(membershipFeeTVAC * 100) / 100,
-      isFirstInvoiceOfYear,
+      isFirstInvoiceOfYear: isAnniversaryInvoice,
       totalCostTVAC: Math.round(totalCostTVAC * 100) / 100,
       injectionRevenue: Math.round(injectionRevenue * 100) / 100,
       netAmount: Math.round(netAmount * 100) / 100,
