@@ -676,6 +676,46 @@ export function AdminDashboard() {
     );
   }
 
+  // Group participants by groupe for display
+  const groupedParticipants = new Map<string, Participant[]>();
+  participants.forEach(p => {
+    if (p.groupe) {
+      if (!groupedParticipants.has(p.groupe)) {
+        groupedParticipants.set(p.groupe, []);
+      }
+      groupedParticipants.get(p.groupe)!.push(p);
+    }
+  });
+
+  // Sort participants
+  const sortedParticipants = [...participants].sort((a, b) => {
+    const [field, order] = sortBy.includes('-') ? sortBy.split('-') : [sortBy, sortOrder];
+
+    let aValue: any;
+    let bValue: any;
+
+    switch (field) {
+      case 'name':
+        aValue = a.name?.toLowerCase() || '';
+        bValue = b.name?.toLowerCase() || '';
+        break;
+      case 'type':
+        aValue = a.type || '';
+        bValue = b.type || '';
+        break;
+      case 'entry_date':
+        aValue = a.entry_date || '';
+        bValue = b.entry_date || '';
+        break;
+      default:
+        return 0;
+    }
+
+    if (aValue < bValue) return order === 'asc' ? -1 : 1;
+    if (aValue > bValue) return order === 'asc' ? 1 : -1;
+    return 0;
+  });
+
   return (
     <>
       <div className="min-h-screen bg-white">
