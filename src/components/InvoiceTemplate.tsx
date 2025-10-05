@@ -80,6 +80,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadStatus, setDownloadStatus] = useState<string>('');
   const [logoBase64, setLogoBase64] = useState<string>('');
 
   // Convert logo to base64 for PDF compatibility
@@ -709,6 +711,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
     console.log('Démarrage du téléchargement PDF');
     setSaving(true);
+    setDownloadProgress(0);
+    setDownloadStatus('Préparation...');
 
     // Délai pour permettre à React de mettre à jour l'UI
     requestAnimationFrame(() => {
@@ -716,6 +720,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
         let buttonsToHide: NodeListOf<Element> | null = null;
 
         try {
+          setDownloadProgress(10);
+          setDownloadStatus('Préparation du document...');
+
           // Trouver l'élément de la facture
           const invoiceElement = document.getElementById('invoice-content');
 
@@ -723,10 +730,14 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
             console.error('Element invoice-content non trouvé');
             toast.error('Contenu de la facture introuvable');
             setSaving(false);
+            setDownloadProgress(0);
+            setDownloadStatus('');
             return;
           }
 
           console.log('Element trouvé, masquage des boutons');
+          setDownloadProgress(20);
+          setDownloadStatus('Optimisation de la mise en page...');
 
           // Masquer temporairement les boutons
           buttonsToHide = invoiceElement.querySelectorAll('.no-print');
@@ -738,6 +749,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           await new Promise(resolve => setTimeout(resolve, 150));
 
           console.log('Génération du canvas');
+          setDownloadProgress(40);
+          setDownloadStatus('Capture du document...');
 
           // Capturer l'élément en image
           const canvas = await html2canvas(invoiceElement, {
@@ -748,6 +761,8 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           });
 
           console.log('Canvas généré, création du PDF');
+          setDownloadProgress(70);
+          setDownloadStatus('Génération du PDF...');
 
           // Restaurer les boutons
           if (buttonsToHide) {
@@ -782,6 +797,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
 
           pdf.addImage(imgData, 'PNG', marginX, marginY, canvasWidth, canvasHeight);
 
+          setDownloadProgress(90);
+          setDownloadStatus('Finalisation...');
+
           // Générer le nom du fichier
           const participantName = isGroupInvoice
             ? `Groupe_${participant.groupe}`
@@ -797,8 +815,18 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
           // Télécharger le PDF
           pdf.save(fileName);
 
+          setDownloadProgress(100);
+          setDownloadStatus('Téléchargement terminé !');
+
           console.log('PDF téléchargé avec succès');
           toast.success('Facture téléchargée avec succès');
+
+          // Réinitialiser après un court délai
+          setTimeout(() => {
+            setDownloadProgress(0);
+            setDownloadStatus('');
+            setSaving(false);
+          }, 2000);
 
         } catch (error) {
           console.error('Erreur lors de la génération du PDF:', error);
@@ -810,7 +838,9 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               (btn as HTMLElement).style.visibility = 'visible';
             });
           }
-        } finally {
+
+          setDownloadProgress(0);
+          setDownloadStatus('');
           setSaving(false);
         }
       });
@@ -958,32 +988,33 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={handlePrint}
-              disabled={saving}
-              className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal-light transition-colors flex items-center space-x-2"
-            >
-              <Printer className="w-4 h-4" />
-              <span>Imprimer</span>
-            </button>
-            <button
-              onClick={handleDownload}
-              disabled={saving}
-              className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? (
-                <>
-                  <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin" />
-                  <span>Génération...</span>
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4" />
-                  <span>Télécharger PDF</span>
-                </>
-              )}
-            </button>
+          <div className="flex flex-col items-end space-y-3">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handlePrint}
+                disabled={saving}
+                className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal-light transition-colors flex items-center space-x-2"
+              >
+                <Printer className="w-4 h-4" />
+                <span>Imprimer</span>
+              </button>
+              <button
+                onClick={handleDownload}
+                disabled={saving}
+                className="px-4 py-2 bg-brand-teal text-white rounded-lg hover:bg-brand-teal transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <>
+                    <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin" />
+                    <span>Génération...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>Télécharger PDF</span>
+                  </>
+                )}
+              </button>
             <button
               onClick={handleSaveInvoice}
               disabled={saving}
@@ -1008,6 +1039,23 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
               <X className="w-6 h-6" />
             </button>
           </div>
+
+          {/* Barre de progression */}
+          {saving && downloadProgress > 0 && (
+            <div className="w-full max-w-md mt-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-medium text-brand-teal">{downloadStatus}</span>
+                <span className="text-sm font-medium text-brand-teal">{downloadProgress}%</span>
+              </div>
+              <div className="w-full bg-neutral-200 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className="bg-brand-teal h-2.5 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${downloadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
         </div>
 
         {/* Debug Info - Visible seulement en développement */}
