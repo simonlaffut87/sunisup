@@ -1595,12 +1595,12 @@ export function InvoiceTemplate({ isOpen, onClose, participant, selectedPeriod }
                   </tr>
                   <tr className="bg-amber-100 border-t-2 border-amber-400">
                     <td className="px-4 py-3 text-lg font-bold text-amber-900 border-r border-neutral-300">
-                      MONTANT NET À PAYER
+                      {invoiceData.calculations.netAmount < 0 ? 'MONTANT NET À RECEVOIR' : 'MONTANT NET À PAYER'}
                     </td>
                     <td className="px-4 py-3 text-center text-lg font-bold text-amber-900 border-r border-neutral-300">-</td>
                     <td className="px-4 py-3 text-right text-lg font-bold text-amber-900 border-r border-neutral-300">-</td>
                     <td className="px-4 py-3 text-right text-lg font-bold text-amber-900">
-                      {invoiceData.calculations.netAmount.toFixed(2)} €
+                      {Math.abs(invoiceData.calculations.netAmount).toFixed(2)} €
                     </td>
                   </tr>
                 </tbody>
