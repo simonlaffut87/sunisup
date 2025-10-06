@@ -23,7 +23,7 @@ import {
   addMonths,
 } from "date-fns";
 import { motion } from "framer-motion";
-import { CalendarDays, Users, Settings, Plus, Trash2, Edit2, X } from "lucide-react";
+import { CalendarDays, Users, Settings, Plus, Trash2, FileEdit as Edit2, X } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import toast from "react-hot-toast";
 
