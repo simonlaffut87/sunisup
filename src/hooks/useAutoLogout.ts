@@ -7,17 +7,17 @@ interface UseAutoLogoutProps {
   isLoggedIn: boolean;
 }
 
-export function useAutoLogout({ 
-  onLogout, 
-  timeoutMinutes = 15, 
-  isLoggedIn 
+export function useAutoLogout({
+  onLogout,
+  timeoutMinutes = 60,
+  isLoggedIn
 }: UseAutoLogoutProps) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
 
-  const TIMEOUT_MS = timeoutMinutes * 60 * 1000; // 15 minutes en millisecondes
-  const WARNING_MS = TIMEOUT_MS - (2 * 60 * 1000); // Avertissement 2 minutes avant
+  const TIMEOUT_MS = timeoutMinutes * 60 * 1000; // 60 minutes en millisecondes
+  const WARNING_MS = TIMEOUT_MS - (5 * 60 * 1000); // Avertissement 5 minutes avant
 
   // Fonction pour réinitialiser le timer
   const resetTimer = useCallback(() => {
@@ -33,13 +33,13 @@ export function useAutoLogout({
       clearTimeout(warningTimeoutRef.current);
     }
 
-    // Timer d'avertissement (2 minutes avant déconnexion)
+    // Timer d'avertissement (5 minutes avant déconnexion)
     warningTimeoutRef.current = setTimeout(() => {
       if (!isLoggedIn) return;
-      
+
       const shouldLogout = confirm(
         '⚠️ Session d\'inactivité détectée\n\n' +
-        'Vous serez automatiquement déconnecté dans 2 minutes pour des raisons de sécurité.\n\n' +
+        'Vous serez automatiquement déconnecté dans 5 minutes pour des raisons de sécurité.\n\n' +
         'Cliquez sur "OK" pour rester connecté ou "Annuler" pour vous déconnecter maintenant.'
       );
 
@@ -73,7 +73,7 @@ export function useAutoLogout({
       }
 
       // Afficher un message informatif
-      alert('🔒 Déconnexion automatique\n\nVous avez été déconnecté automatiquement après 15 minutes d\'inactivité pour protéger votre compte.');
+      alert('🔒 Déconnexion automatique\n\nVous avez été déconnecté automatiquement après 60 minutes d\'inactivité pour protéger votre compte.');
 
       // Déconnexion complète
       await supabase.auth.signOut({ scope: 'global' });
