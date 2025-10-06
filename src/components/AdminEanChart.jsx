@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfYear, endOfYear, addMinutes, addDays, addMonths } from "date-fns";
 
 function parseDate(dateStr) {
   if (!dateStr) return null;
@@ -13,9 +14,11 @@ export default function AdminEanChart({ csvUrl }) {
   const [data, setData] = useState([]);
   const [eans, setEans] = useState([]);
   const [selectedEAN, setSelectedEAN] = useState("");
-  const [granularity, setGranularity] = useState("quarter"); // quarter | day | month
+  const [granularity, setGranularity] = useState("day"); // day | week | year
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
+  // Parse CSV
   useEffect(() => {
     if (!csvUrl) return;
     setLoading(true);
@@ -45,39 +48,64 @@ export default function AdminEanChart({ csvUrl }) {
     });
   }, [csvUrl]);
 
-  const aggregate = (arr, keyFn, valueFn) => {
-    const map = new Map();
-    for (const item of arr) {
-      const key = keyFn(item);
-      const value = valueFn(item);
-      map.set(key, (map.get(key) || 0) + value);
+  // Filtrer par EAN et date selon la granularité
+  const filterData = () => {
+    let filtered = data.filter((d) => d.ean === selectedEAN);
+    let start, end;
+
+    if (granularity === "day") {
+      start = startOfDay(selectedDate);
+      end = endOfDay(selectedDate);
+    } else if (granularity === "week") {
+      start = startOfWeek(selectedDate, { weekStartsOn: 1 }); // lundi
+      end = endOfWeek(selectedDate, { weekStartsOn: 1 });
+    } else if (granularity === "year") {
+      start = startOfYear(selectedDate);
+      end = endOfYear(selectedDate);
     }
-    return Array.from(map, ([key, value]) => ({ key, value }));
+
+    filtered = filtered.filter((d) => d.date >= start && d.date <= end);
+
+    // Agréger selon granularité
+    const grouped = [];
+    if (granularity === "day") {
+      // Par quart d'heure
+      let current = start;
+      while (current <= end) {
+        const next = addMinutes(current, 15);
+        const volume = filtered
+          .filter((d) => d.date >= current && d.date < next)
+          .reduce((sum, d) => sum + d.volume, 0);
+        grouped.push({ name: format(current, "HH:mm"), volume });
+        current = next;
+      }
+    } else if (granularity === "week") {
+      // Par jour
+      let current = start;
+      while (current <= end) {
+        const volume = filtered
+          .filter((d) => d.date >= current && d.date < addDays(current, 1))
+          .reduce((sum, d) => sum + d.volume, 0);
+        grouped.push({ name: format(current, "EEE dd/MM"), volume });
+        current = addDays(current, 1);
+      }
+    } else if (granularity === "year") {
+      // Par mois
+      let current = start;
+      while (current <= end) {
+        const next = addMonths(current, 1);
+        const volume = filtered
+          .filter((d) => d.date >= current && d.date < next)
+          .reduce((sum, d) => sum + d.volume, 0);
+        grouped.push({ name: format(current, "MMM yyyy"), volume });
+        current = next;
+      }
+    }
+
+    return grouped;
   };
 
-  const filtered = data.filter((d) => d.ean === selectedEAN);
-  let grouped = [];
-
-  if (granularity === "quarter") {
-    grouped = filtered;
-  } else if (granularity === "day") {
-    grouped = aggregate(
-      filtered,
-      (d) => d.date.toISOString().slice(0, 10),
-      (d) => d.volume
-    );
-  } else if (granularity === "month") {
-    grouped = aggregate(
-      filtered,
-      (d) => d.date.toISOString().slice(0, 7),
-      (d) => d.volume
-    );
-  }
-
-  const chartData = grouped.map((d) => ({
-    name: d.key || d.date?.toLocaleString(),
-    volume: d.value ?? d.volume,
-  }));
+  const chartData = filterData();
 
   return (
     <div className="mt-10 bg-white p-6 rounded-xl border border-neutral-300 shadow-lg">
@@ -112,10 +140,20 @@ export default function AdminEanChart({ csvUrl }) {
                 onChange={(e) => setGranularity(e.target.value)}
                 className="border rounded-md px-2 py-1"
               >
-                <option value="quarter">Quarts d’heure</option>
                 <option value="day">Journalier</option>
-                <option value="month">Mensuel</option>
+                <option value="week">Hebdomadaire</option>
+                <option value="year">Annuel</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Date</label>
+              <input
+                type="date"
+                value={format(selectedDate, "yyyy-MM-dd")}
+                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                className="border rounded-md px-2 py-1"
+              />
             </div>
           </div>
 
@@ -126,13 +164,7 @@ export default function AdminEanChart({ csvUrl }) {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="volume"
-                  stroke="#10B981"
-                  dot={false}
-                  name="Volume (kWh)"
-                />
+                <Line type="monotone" dataKey="volume" stroke="#10B981" dot={false} name="Volume (kWh)" />
               </LineChart>
             </ResponsiveContainer>
           </div>
