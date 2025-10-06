@@ -192,7 +192,8 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
           .toLowerCase()
           .normalize('NFD')
           .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
-          .replace(/[€&]/g, '') // Enlever € et &
+          .replace(/[€&().>]/g, '') // Enlever €, &, parenthèses, point, >
+          .replace(/-/g, ' ') // Remplacer tirets par espaces
           .replace(/\s+/g, ' ') // Normaliser les espaces
           .trim();
       };
