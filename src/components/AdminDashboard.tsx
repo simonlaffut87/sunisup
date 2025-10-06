@@ -37,6 +37,7 @@ export function AdminDashboard() {
   const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
   const [bulkPeriod, setBulkPeriod] = useState({ startMonth: '', endMonth: '' });
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [csvUrl, setCsvUrl] = useState("");
   const [sortBy, setSortBy] = useState<'name' | 'type' | 'entry_date'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [connectionStatus, setConnectionStatus] = useState<{
