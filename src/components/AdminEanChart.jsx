@@ -1,75 +1,143 @@
-import React, { useMemo } from 'react';
-import { Line } from 'react-chartjs-2';
-import { format, startOfWeek, startOfMonth } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import React, { useState, useEffect } from "react";
+import Papa from "papaparse";
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-interface AdminEanChartProps {
-  csvUrl: string;
-  granularity?: 'day' | 'week' | 'month';
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  const [day, month, year] = dateStr.split(" ")[0].split("/");
+  const time = dateStr.split(" ")[1] || "00:00";
+  return new Date(`${year}-${month}-${day}T${time}`);
 }
 
-interface Row {
-  startDate: string;
-  endDate: string;
-  volume: string;
-}
+export default function AdminEanChart({ csvUrl }) {
+  const [data, setData] = useState([]);
+  const [eans, setEans] = useState([]);
+  const [selectedEAN, setSelectedEAN] = useState("");
+  const [granularity, setGranularity] = useState("quarter"); // quarter | day | month
+  const [loading, setLoading] = useState(false);
 
-export default function AdminEanChart({ csvUrl, granularity = 'day' }: AdminEanChartProps) {
-  const [dataRows, setDataRows] = React.useState<Row[]>([]);
-
-  React.useEffect(() => {
-    fetch(csvUrl)
-      .then(res => res.text())
-      .then(text => {
-        const lines = text.split('\n').slice(1); // skip header
-        const rows: Row[] = lines.map(line => {
-          const [startDate, endDate,, , , , , volume] = line.split('\t'); // Google Sheet TSV
-          return { startDate, endDate, volume };
-        });
-        setDataRows(rows);
-      });
+  useEffect(() => {
+    if (!csvUrl) return;
+    setLoading(true);
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const rows = result.data
+          .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
+          .map((r) => ({
+            date: parseDate(r["Date Début"]),
+            ean: r["EAN"],
+            type: r["Type de volume"],
+            volume: parseFloat(r["Volume (kWh)"]) || 0,
+          }));
+        setData(rows);
+        const uniqueEans = [...new Set(rows.map((r) => r.ean))];
+        setEans(uniqueEans);
+        setSelectedEAN(uniqueEans[0] || "");
+        setLoading(false);
+      },
+      error: (err) => {
+        console.error("Erreur parsing CSV:", err);
+        setLoading(false);
+      },
+    });
   }, [csvUrl]);
 
-  const chartData = useMemo(() => {
-    const grouped: Record<string, number> = {};
+  const aggregate = (arr, keyFn, valueFn) => {
+    const map = new Map();
+    for (const item of arr) {
+      const key = keyFn(item);
+      const value = valueFn(item);
+      map.set(key, (map.get(key) || 0) + value);
+    }
+    return Array.from(map, ([key, value]) => ({ key, value }));
+  };
 
-    dataRows.forEach(row => {
-      if (!row.startDate) return;
+  const filtered = data.filter((d) => d.ean === selectedEAN);
+  let grouped = [];
 
-      // Parsing date dd/MM/yyyy HH:mm
-      const [day, month, yearAndTime] = row.startDate.split('/');
-      if (!day || !month || !yearAndTime) return;
-      const [year, time] = yearAndTime.split(' ');
-      const parsedDate = new Date(Number(year), Number(month) - 1, Number(day), Number(time.split(':')[0]), Number(time.split(':')[1]));
-      if (isNaN(parsedDate.getTime())) return;
+  if (granularity === "quarter") {
+    grouped = filtered;
+  } else if (granularity === "day") {
+    grouped = aggregate(
+      filtered,
+      (d) => d.date.toISOString().slice(0, 10),
+      (d) => d.volume
+    );
+  } else if (granularity === "month") {
+    grouped = aggregate(
+      filtered,
+      (d) => d.date.toISOString().slice(0, 7),
+      (d) => d.volume
+    );
+  }
 
-      let key: string;
-      if (granularity === 'month') key = format(startOfMonth(parsedDate), 'yyyy-MM');
-      else if (granularity === 'week') key = format(startOfWeek(parsedDate, { locale: fr }), 'yyyy-ww');
-      else key = format(parsedDate, 'yyyy-MM-dd');
+  const chartData = grouped.map((d) => ({
+    name: d.key || d.date?.toLocaleString(),
+    volume: d.value ?? d.volume,
+  }));
 
-      // Extraire seulement le nombre du volume
-      const vol = parseFloat(row.volume.replace(/\D/g, '')) || 0;
+  return (
+    <div className="mt-10 bg-white p-6 rounded-xl border border-neutral-300 shadow-lg">
+      <h3 className="text-xl font-semibold mb-4">📈 Volumes partagés et réseau</h3>
 
-      grouped[key] = (grouped[key] || 0) + vol;
-    });
+      {!csvUrl ? (
+        <p className="text-neutral-500 italic">Aucun fichier sélectionné</p>
+      ) : loading ? (
+        <p className="text-neutral-500 italic">Chargement des données...</p>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">EAN</label>
+              <select
+                value={selectedEAN}
+                onChange={(e) => setSelectedEAN(e.target.value)}
+                className="border rounded-md px-2 py-1"
+              >
+                {eans.map((e) => (
+                  <option key={e} value={e}>
+                    {e}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-    const labels = Object.keys(grouped).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-    const values = labels.map(label => grouped[label]);
+            <div>
+              <label className="block text-sm font-medium mb-1">Granularité</label>
+              <select
+                value={granularity}
+                onChange={(e) => setGranularity(e.target.value)}
+                className="border rounded-md px-2 py-1"
+              >
+                <option value="quarter">Quarts d’heure</option>
+                <option value="day">Journalier</option>
+                <option value="month">Mensuel</option>
+              </select>
+            </div>
+          </div>
 
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Volume (kWh)',
-          data: values,
-          borderColor: '#F59E0B',
-          backgroundColor: 'rgba(245,158,11,0.3)',
-          tension: 0.3,
-        },
-      ],
-    };
-  }, [dataRows, granularity]);
-
-  return <Line data={chartData} />;
+          <div className="w-full h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="volume"
+                  stroke="#10B981"
+                  dot={false}
+                  name="Volume (kWh)"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
