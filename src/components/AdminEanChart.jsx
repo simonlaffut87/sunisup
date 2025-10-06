@@ -24,6 +24,7 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { CalendarDays, Users } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 // 🔹 Couleurs par type (professionnelles)
 const typeColors = {
@@ -31,13 +32,6 @@ const typeColors = {
   "Consommation Réseau": "#3B82F6", // bleu
   "Injection Réseau": "#FB923C", // orange
   "Injection Partagée": "#EAB308", // jaune
-};
-
-// 🔹 Exemple : EAN → Nom (à personnaliser)
-const eanToName = {
-  "541448911000009785": "Participant A",
-  "541448911000009786": "Participant B",
-  "541448911000009787": "Participant C",
 };
 
 // 🔹 Parse la date (format Google Sheet)
@@ -56,6 +50,7 @@ export default function AdminEanChart({ csvUrl }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [periodWindow, setPeriodWindow] = useState("current"); // previous | current | next
   const [loading, setLoading] = useState(false);
+  const [eanToName, setEanToName] = useState({});
   const [selectedTypes, setSelectedTypes] = useState([
     "Consommation Partagée",
     "Consommation Réseau",
@@ -63,9 +58,33 @@ export default function AdminEanChart({ csvUrl }) {
     "Injection Partagée",
   ]);
 
+  // 📥 Chargement des participants depuis Supabase
+  useEffect(() => {
+    const loadParticipants = async () => {
+      const { data: participantData, error } = await supabase
+        .from('participants')
+        .select('ean_code, name');
+
+      if (error) {
+        console.error('Erreur chargement participants:', error);
+        return;
+      }
+
+      const mapping = {};
+      participantData?.forEach(p => {
+        if (p.ean_code && p.name) {
+          mapping[p.ean_code] = p.name;
+        }
+      });
+      setEanToName(mapping);
+    };
+
+    loadParticipants();
+  }, []);
+
   // 📥 Chargement CSV
   useEffect(() => {
-    if (!csvUrl) return;
+    if (!csvUrl || Object.keys(eanToName).length === 0) return;
     setLoading(true);
     Papa.parse(csvUrl, {
       download: true,
@@ -82,7 +101,7 @@ export default function AdminEanChart({ csvUrl }) {
             volume: parseFloat(r["Volume (kWh)"]) || 0,
           }));
         const uniqueNames = [...new Set(rows.map((r) => r.name))];
-        setParticipants(["Tous", ...uniqueNames]);
+        setParticipants(["Tous", ...uniqueNames.sort()]);
         setData(rows);
         setLoading(false);
       },
@@ -91,7 +110,7 @@ export default function AdminEanChart({ csvUrl }) {
         setLoading(false);
       },
     });
-  }, [csvUrl]);
+  }, [csvUrl, eanToName]);
 
   // 🕰️ Gestion de la période glissante
   const shiftDate = (baseDate, direction) => {
