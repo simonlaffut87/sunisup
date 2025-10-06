@@ -186,26 +186,37 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       const headers: string[] = jsonData[0] as string[];
       setDebugLogs(prev => [...prev, `📋 TOTAL HEADERS: ${headers.length}`]);
 
-      // Log chaque header avec son index
+      // Fonction helper pour normaliser les headers (enlever accents, espaces multiples, caractères spéciaux)
+      const normalizeHeader = (h: string): string => {
+        return h
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
+          .replace(/[€&]/g, '') // Enlever € et &
+          .replace(/\s+/g, ' ') // Normaliser les espaces
+          .trim();
+      };
+
+      // Log chaque header avec son index et sa version normalisée
       headers.forEach((h, idx) => {
-        if (h) setDebugLogs(prev => [...prev, `  [${idx}] "${h}"`]);
+        if (h) setDebugLogs(prev => [...prev, `  [${idx}] "${h}" → normalized: "${normalizeHeader(h)}"`]);
       });
 
       const colIndexes = {
-        dateDebut: headers.findIndex(h => h && h.includes('Date Début')),
+        dateDebut: headers.findIndex(h => h && normalizeHeader(h).includes('date debut')),
         ean: headers.findIndex(h => h && h.toLowerCase() === 'ean'),
-        volumePartage: headers.findIndex(h => h && h.includes('Consommation Partagée')),
-        volumeReseau: headers.findIndex(h => h && h.includes('Consommation Réseau')),
-        injectionPartagee: headers.findIndex(h => h && h.includes('Injection Partagée')),
-        injectionReseau: headers.findIndex(h => h && h.includes('Injection Réseau')),
-        utilisationReseau: headers.findIndex(h => h && h.includes('Utilisation du réseau')),
-        surcharges: headers.findIndex(h => h && h.includes('Surcharges')),
-        tarifCapacitaire: headers.findIndex(h => h && h.includes('Tarif capac')),
-        tarifMesure: headers.findIndex(h => h && h.includes('Tarif mesure')),
-        tarifOSP: headers.findIndex(h => h && h.includes('Tarif OSP')),
-        transportELIA: headers.findIndex(h => h && h.includes('Transport') && h.includes('ELIA')),
-        redevanceVoirie: headers.findIndex(h => h && h.includes('Redevance de voirie')),
-        totalFraisReseau: headers.findIndex(h => h && h.includes('Total Frais de réseau'))
+        volumePartage: headers.findIndex(h => h && normalizeHeader(h).includes('consommation partagee')),
+        volumeReseau: headers.findIndex(h => h && normalizeHeader(h).includes('consommation reseau')),
+        injectionPartagee: headers.findIndex(h => h && normalizeHeader(h).includes('injection partagee')),
+        injectionReseau: headers.findIndex(h => h && normalizeHeader(h).includes('injection reseau')),
+        utilisationReseau: headers.findIndex(h => h && normalizeHeader(h).includes('utilisation du reseau')),
+        surcharges: headers.findIndex(h => h && normalizeHeader(h).includes('surcharges') && normalizeHeader(h).includes('htva')),
+        tarifCapacitaire: headers.findIndex(h => h && normalizeHeader(h).includes('tarif capac')),
+        tarifMesure: headers.findIndex(h => h && normalizeHeader(h).includes('tarif mesure') && normalizeHeader(h).includes('comptage')),
+        tarifOSP: headers.findIndex(h => h && normalizeHeader(h).includes('tarif osp')),
+        transportELIA: headers.findIndex(h => h && normalizeHeader(h).includes('transport') && normalizeHeader(h).includes('elia')),
+        redevanceVoirie: headers.findIndex(h => h && normalizeHeader(h).includes('redevance') && normalizeHeader(h).includes('voirie')),
+        totalFraisReseau: headers.findIndex(h => h && normalizeHeader(h).includes('total frais') && normalizeHeader(h).includes('reseau'))
       };
 
       setDebugLogs(prev => [...prev, `\n🔍 INDICES DES COLONNES:`]);
