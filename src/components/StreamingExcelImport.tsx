@@ -136,13 +136,13 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
     event.preventDefault();
   };
 
-  const processFile = async () => {  
+  const processFile = async () => {
     if (!file) return;
 
-    console.log('🚀 DÉBUT LECTURE MINIMALE');
-    setState(prev => ({ 
-      ...prev, 
-      status: 'reading', 
+    console.log('🚀 DÉBUT TRAITEMENT COMPLET');
+    setState(prev => ({
+      ...prev,
+      status: 'reading',
       progress: 0,
       errors: [],
       warnings: [],
@@ -151,14 +151,13 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       errorRows: 0,
       totalRows: 0
     }));
-    setDebugLogs(['🚀 DÉBUT LECTURE MINIMALE']);
+    setDebugLogs(['🚀 DÉBUT TRAITEMENT COMPLET AVEC FRAIS RÉSEAUX']);
 
     try {
-      // LECTURE ULTRA-SIMPLE - JUSTE LIRE LE FICHIER
+      // ÉTAPE 1: Lecture du fichier
       setDebugLogs(prev => [...prev, '📖 Lecture du fichier...']);
-      setState(prev => ({ ...prev, progress: 20 }));
-      
-      // Lire comme ArrayBuffer
+      setState(prev => ({ ...prev, progress: 10 }));
+
       const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -171,50 +170,231 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         reader.onerror = () => reject(new Error('Erreur FileReader'));
         reader.readAsArrayBuffer(file);
       });
-      
+
       setDebugLogs(prev => [...prev, `✅ Buffer lu: ${buffer.byteLength} bytes`]);
-      setState(prev => ({ ...prev, progress: 50 }));
-      
-      // Import XLSX
+
+      // ÉTAPE 2: Import XLSX et lecture workbook
       const XLSX = await import('xlsx');
-      setDebugLogs(prev => [...prev, '✅ XLSX importé']);
-      
-      // Lecture workbook
       const workbook = XLSX.read(buffer, { type: 'buffer' });
-      setDebugLogs(prev => [...prev, `✅ Workbook: ${workbook.SheetNames.length} feuille(s)`]);
-      
-      // Première feuille
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      
+      const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
       setDebugLogs(prev => [...prev, `✅ ${jsonData.length} lignes extraites`]);
-      setDebugLogs(prev => [...prev, `📋 HEADERS: ${JSON.stringify(jsonData[0])}`]);
-      
-      // Montrer les 3 premières lignes
-      for (let i = 1; i <= Math.min(3, jsonData.length - 1); i++) {
-        setDebugLogs(prev => [...prev, `📋 LIGNE ${i}: ${JSON.stringify(jsonData[i])}`]);
+      setState(prev => ({ ...prev, progress: 20, totalRows: jsonData.length - 1 }));
+
+      // ÉTAPE 3: Identifier les colonnes
+      const headers: string[] = jsonData[0] as string[];
+      setDebugLogs(prev => [...prev, `📋 Headers trouvés: ${headers.join(', ')}`]);
+
+      const colIndexes = {
+        dateDebut: headers.findIndex(h => h && h.includes('Date Début')),
+        ean: headers.findIndex(h => h && h.toLowerCase() === 'ean'),
+        volumePartage: headers.findIndex(h => h && h.includes('Consommation Partagée')),
+        volumeReseau: headers.findIndex(h => h && h.includes('Consommation Réseau')),
+        injectionPartagee: headers.findIndex(h => h && h.includes('Injection Partagée')),
+        injectionReseau: headers.findIndex(h => h && h.includes('Injection Réseau')),
+        utilisationReseau: headers.findIndex(h => h && h.includes('Utilisation du réseau')),
+        surcharges: headers.findIndex(h => h && h.includes('Surcharges')),
+        tarifCapacitaire: headers.findIndex(h => h && h.includes('Tarif capac')),
+        tarifMesure: headers.findIndex(h => h && h.includes('Tarif mesure')),
+        tarifOSP: headers.findIndex(h => h && h.includes('Tarif OSP')),
+        transportELIA: headers.findIndex(h => h && h.includes('Transport') && h.includes('ELIA')),
+        redevanceVoirie: headers.findIndex(h => h && h.includes('Redevance de voirie')),
+        totalFraisReseau: headers.findIndex(h => h && h.includes('Total Frais de réseau'))
+      };
+
+      setDebugLogs(prev => [...prev, `✅ Colonnes identifiées: EAN=${colIndexes.ean}, UtilisationRéseau=${colIndexes.utilisationReseau}, TotalFrais=${colIndexes.totalFraisReseau}`]);
+
+      // ÉTAPE 4: Récupérer tous les participants
+      setState(prev => ({ ...prev, progress: 30 }));
+      const { data: allParticipants, error: fetchError } = await supabase
+        .from('participants')
+        .select('id, ean_code, name');
+
+      if (fetchError) throw new Error(`Erreur récupération participants: ${fetchError.message}`);
+
+      const eanToParticipant = new Map();
+      allParticipants?.forEach(p => {
+        if (p.ean_code) eanToParticipant.set(p.ean_code, p);
+      });
+
+      setDebugLogs(prev => [...prev, `✅ ${eanToParticipant.size} participants chargés`]);
+
+      // ÉTAPE 5: Traiter les lignes et agréger par EAN
+      setState(prev => ({ ...prev, status: 'processing', progress: 40 }));
+
+      const participantData = new Map<string, any>();
+      let validRows = 0;
+      let errorRows = 0;
+      let month = '';
+
+      for (let i = 1; i < jsonData.length; i++) {
+        const row = jsonData[i];
+        const ean = row[colIndexes.ean]?.toString().trim();
+
+        if (!ean) {
+          errorRows++;
+          continue;
+        }
+
+        // Extraire le mois de la première ligne valide
+        if (!month && colIndexes.dateDebut >= 0 && row[colIndexes.dateDebut]) {
+          const dateStr = row[colIndexes.dateDebut].toString();
+          try {
+            const date = new Date(dateStr);
+            month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          } catch (e) {
+            // Si le format est "1-août-25", extraire manuellement
+            const match = dateStr.match(/(\d+)-(.*?)-(\d+)/);
+            if (match) {
+              const monthMap: any = {
+                'janvier': '01', 'février': '02', 'mars': '03', 'avril': '04',
+                'mai': '05', 'juin': '06', 'juillet': '07', 'août': '08',
+                'septembre': '09', 'octobre': '10', 'novembre': '11', 'décembre': '12',
+                'janv': '01', 'févr': '02', 'avr': '04', 'juil': '07',
+                'sept': '09', 'oct': '10', 'nov': '11', 'déc': '12'
+              };
+              const monthName = match[2].toLowerCase().replace('.', '');
+              const year = '20' + match[3];
+              month = `${year}-${monthMap[monthName] || '01'}`;
+            }
+          }
+        }
+
+        const participant = eanToParticipant.get(ean);
+        if (!participant) {
+          errorRows++;
+          continue;
+        }
+
+        validRows++;
+
+        // Agréger les données par EAN
+        if (!participantData.has(ean)) {
+          participantData.set(ean, {
+            id: participant.id,
+            name: participant.name,
+            volumePartage: 0,
+            volumeReseau: 0,
+            injectionPartagee: 0,
+            injectionReseau: 0,
+            networkCosts: {
+              utilisationReseau: 0,
+              surcharges: 0,
+              tarifCapacitaire: 0,
+              tarifMesure: 0,
+              tarifOSP: 0,
+              transportELIA: 0,
+              redevanceVoirie: 0,
+              totalFraisReseau: 0
+            }
+          });
+        }
+
+        const data = participantData.get(ean);
+
+        // Volumes
+        data.volumePartage += parseFloat(row[colIndexes.volumePartage] || 0) || 0;
+        data.volumeReseau += parseFloat(row[colIndexes.volumeReseau] || 0) || 0;
+        data.injectionPartagee += parseFloat(row[colIndexes.injectionPartagee] || 0) || 0;
+        data.injectionReseau += parseFloat(row[colIndexes.injectionReseau] || 0) || 0;
+
+        // Frais réseaux
+        data.networkCosts.utilisationReseau += parseFloat(row[colIndexes.utilisationReseau] || 0) || 0;
+        data.networkCosts.surcharges += parseFloat(row[colIndexes.surcharges] || 0) || 0;
+        data.networkCosts.tarifCapacitaire += parseFloat(row[colIndexes.tarifCapacitaire] || 0) || 0;
+        data.networkCosts.tarifMesure += parseFloat(row[colIndexes.tarifMesure] || 0) || 0;
+        data.networkCosts.tarifOSP += parseFloat(row[colIndexes.tarifOSP] || 0) || 0;
+        data.networkCosts.transportELIA += parseFloat(row[colIndexes.transportELIA] || 0) || 0;
+        data.networkCosts.redevanceVoirie += parseFloat(row[colIndexes.redevanceVoirie] || 0) || 0;
+        data.networkCosts.totalFraisReseau += parseFloat(row[colIndexes.totalFraisReseau] || 0) || 0;
+
+        if (i % 10 === 0) {
+          setState(prev => ({ ...prev, currentRow: i, progress: 40 + (i / jsonData.length) * 40 }));
+        }
       }
-      
+
+      setDebugLogs(prev => [...prev, `✅ ${participantData.size} participants trouvés avec données, ${errorRows} EANs ignorés`]);
+      setDebugLogs(prev => [...prev, `📅 Mois détecté: ${month}`]);
+
+      // ÉTAPE 6: Enregistrer dans Supabase
+      setState(prev => ({ ...prev, progress: 80 }));
+      setDebugLogs(prev => [...prev, '💾 Enregistrement dans Supabase...']);
+
+      let updatedCount = 0;
+      for (const [ean, data] of participantData.entries()) {
+        try {
+          // Récupérer les données existantes
+          const { data: existing } = await supabase
+            .from('participants')
+            .select('monthly_data, billing_data')
+            .eq('id', data.id)
+            .single();
+
+          const monthlyData = existing?.monthly_data || {};
+          const billingData = existing?.billing_data || {};
+
+          // Mettre à jour monthly_data
+          monthlyData[month] = {
+            volume_partage: data.volumePartage,
+            volume_complementaire: data.volumeReseau,
+            injection_partagee: data.injectionPartagee,
+            injection_complementaire: data.injectionReseau,
+            updated_at: new Date().toISOString()
+          };
+
+          // Mettre à jour billing_data avec les frais réseaux
+          billingData[month] = {
+            month: month,
+            networkCosts: data.networkCosts,
+            updated_at: new Date().toISOString()
+          };
+
+          // Sauvegarder
+          const { error: updateError } = await supabase
+            .from('participants')
+            .update({
+              monthly_data: monthlyData,
+              billing_data: billingData,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', data.id);
+
+          if (updateError) {
+            setDebugLogs(prev => [...prev, `❌ Erreur MAJ ${data.name}: ${updateError.message}`]);
+          } else {
+            updatedCount++;
+            setDebugLogs(prev => [...prev, `✅ ${data.name}: Frais=${data.networkCosts.totalFraisReseau.toFixed(2)}€`]);
+          }
+        } catch (error: any) {
+          setDebugLogs(prev => [...prev, `❌ Erreur ${data.name}: ${error.message}`]);
+        }
+      }
+
+      // ÉTAPE 7: Terminé
       setState(prev => ({
         ...prev,
         status: 'completed',
         progress: 100,
-        totalRows: jsonData.length - 1,
-        validRows: jsonData.length - 1
+        validRows,
+        errorRows,
+        participants: Object.fromEntries(participantData),
+        mesuresCount: updatedCount,
+        month
       }));
-      
-      setDebugLogs(prev => [...prev, '🎉 LECTURE TERMINÉE - REGARDEZ LES HEADERS ET LIGNES CI-DESSUS']);
-      toast.success('✅ Fichier lu ! Regardez les logs de debug ci-dessous');
-      
+
+      setDebugLogs(prev => [...prev, `🎉 TERMINÉ: ${updatedCount} participants mis à jour avec frais réseaux`]);
+      toast.success(`✅ Import terminé ! ${updatedCount} participants mis à jour`);
+
     } catch (error: any) {
       setDebugLogs(prev => [...prev, `❌ ERREUR: ${error.message}`]);
-      
+
       setState(prev => ({
         ...prev,
         status: 'error',
         errors: [error.message || 'Erreur inconnue']
       }));
-      
+
       toast.error(`❌ Erreur: ${error.message}`);
     }
   };
