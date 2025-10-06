@@ -23,9 +23,8 @@ import {
   addMonths,
 } from "date-fns";
 import { motion } from "framer-motion";
-import { CalendarDays, Users, Settings, Plus, Trash2, FileEdit as Edit2, X } from "lucide-react";
+import { CalendarDays, Users } from "lucide-react";
 import { supabase } from "../lib/supabase";
-import toast from "react-hot-toast";
 
 // 🔹 Couleurs par type (professionnelles)
 const typeColors = {
@@ -52,9 +51,6 @@ export default function AdminEanChart({ csvUrl }) {
   const [periodWindow, setPeriodWindow] = useState("current"); // previous | current | next
   const [loading, setLoading] = useState(false);
   const [eanToName, setEanToName] = useState({});
-  const [monthlyLinks, setMonthlyLinks] = useState([]);
-  const [showLinkManager, setShowLinkManager] = useState(false);
-  const [newCsvUrl, setNewCsvUrl] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([
     "Consommation Partagée",
     "Consommation Réseau",
@@ -86,72 +82,35 @@ export default function AdminEanChart({ csvUrl }) {
     loadParticipants();
   }, []);
 
-  // 📥 Chargement des liens mensuels depuis Supabase
+  // 📥 Chargement CSV
   useEffect(() => {
-    const loadMonthlyLinks = async () => {
-      const { data: links, error } = await supabase
-        .from('monthly_csv_links')
-        .select('*')
-        .order('year', { ascending: false })
-        .order('month_number', { ascending: false });
-
-      if (error) {
-        console.error('Erreur chargement liens mensuels:', error);
-        return;
-      }
-
-      setMonthlyLinks(links || []);
-    };
-
-    loadMonthlyLinks();
-  }, []);
-
-  // 📥 Chargement de tous les fichiers CSV mensuels
-  useEffect(() => {
-    if (monthlyLinks.length === 0 || Object.keys(eanToName).length === 0) return;
-
+    if (!csvUrl || Object.keys(eanToName).length === 0) return;
     setLoading(true);
-    let allRows = [];
-    let loadedCount = 0;
-
-    monthlyLinks.forEach((link) => {
-      Papa.parse(link.csv_url, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: (result) => {
-          const rows = result.data
-            .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
-            .map((r) => ({
-              date: parseDate(r["Date Début"]),
-              ean: r["EAN"],
-              name: eanToName[r["EAN"]] || r["EAN"],
-              type: r["Type de volume"].trim(),
-              volume: parseFloat(r["Volume (kWh)"]) || 0,
-              month: link.month_name,
-            }));
-
-          allRows = [...allRows, ...rows];
-          loadedCount++;
-
-          // Quand tous les fichiers sont chargés
-          if (loadedCount === monthlyLinks.length) {
-            const uniqueNames = [...new Set(allRows.map((r) => r.name))];
-            setParticipants(["Tous", ...uniqueNames.sort()]);
-            setData(allRows);
-            setLoading(false);
-          }
-        },
-        error: (err) => {
-          console.error(`Erreur parsing CSV ${link.month_name}:`, err);
-          loadedCount++;
-          if (loadedCount === monthlyLinks.length) {
-            setLoading(false);
-          }
-        },
-      });
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const rows = result.data
+          .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
+          .map((r) => ({
+            date: parseDate(r["Date Début"]),
+            ean: r["EAN"],
+            name: eanToName[r["EAN"]] || r["EAN"],
+            type: r["Type de volume"].trim(),
+            volume: parseFloat(r["Volume (kWh)"]) || 0,
+          }));
+        const uniqueNames = [...new Set(rows.map((r) => r.name))];
+        setParticipants(["Tous", ...uniqueNames.sort()]);
+        setData(rows);
+        setLoading(false);
+      },
+      error: (err) => {
+        console.error("Erreur parsing CSV:", err);
+        setLoading(false);
+      },
     });
-  }, [monthlyLinks, eanToName]);
+  }, [csvUrl, eanToName]);
 
   // 🕰️ Gestion de la période glissante
   const shiftDate = (baseDate, direction) => {
@@ -162,117 +121,6 @@ export default function AdminEanChart({ csvUrl }) {
   };
 
   const handlePeriodShift = (dir) => setSelectedDate(shiftDate(selectedDate, dir));
-
-  // 📝 Gestion des liens mensuels
-  const reloadMonthlyLinks = async () => {
-    const { data: links, error } = await supabase
-      .from('monthly_csv_links')
-      .select('*')
-      .order('year', { ascending: false })
-      .order('month_number', { ascending: false });
-
-    if (!error) {
-      setMonthlyLinks(links || []);
-    }
-  };
-
-  const extractMonthFromUrl = (url) => {
-    // Extraire le nom du fichier depuis l'URL
-    const fileName = url.split('/').pop().split('?')[0];
-
-    const monthNames = ["janvier", "février", "mars", "avril", "mai", "juin",
-                        "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-    const monthNamesEn = ["january", "february", "march", "april", "may", "june",
-                          "july", "august", "september", "october", "november", "december"];
-
-    // Chercher l'année (format 2024, 2025, etc.)
-    const yearMatch = fileName.match(/20\d{2}/);
-    if (!yearMatch) return null;
-
-    const year = parseInt(yearMatch[0]);
-
-    // Chercher le mois en français
-    let monthNumber = -1;
-    let monthName = "";
-
-    for (let i = 0; i < monthNames.length; i++) {
-      if (fileName.toLowerCase().includes(monthNames[i])) {
-        monthNumber = i + 1;
-        monthName = monthNames[i].charAt(0).toUpperCase() + monthNames[i].slice(1);
-        break;
-      }
-    }
-
-    // Si pas trouvé en français, chercher en anglais
-    if (monthNumber === -1) {
-      for (let i = 0; i < monthNamesEn.length; i++) {
-        if (fileName.toLowerCase().includes(monthNamesEn[i])) {
-          monthNumber = i + 1;
-          monthName = monthNames[i].charAt(0).toUpperCase() + monthNames[i].slice(1);
-          break;
-        }
-      }
-    }
-
-    if (monthNumber === -1) return null;
-
-    return {
-      year,
-      monthNumber,
-      monthName: `${monthName} ${year}`
-    };
-  };
-
-  const handleAddLink = async () => {
-    if (!newCsvUrl.trim()) {
-      toast.error("Veuillez entrer une URL");
-      return;
-    }
-
-    const extracted = extractMonthFromUrl(newCsvUrl);
-
-    if (!extracted) {
-      toast.error("Impossible de détecter le mois depuis le nom du fichier. Le fichier doit contenir le mois et l'année (ex: janvier2025.csv)");
-      return;
-    }
-
-    const { error } = await supabase
-      .from('monthly_csv_links')
-      .upsert({
-        month_name: extracted.monthName,
-        csv_url: newCsvUrl.trim(),
-        year: extracted.year,
-        month_number: extracted.monthNumber
-      }, {
-        onConflict: 'year,month_number'
-      });
-
-    if (error) {
-      toast.error("Erreur lors de l'ajout du lien");
-      console.error(error);
-    } else {
-      toast.success(`Lien ajouté pour ${extracted.monthName}`);
-      setNewCsvUrl("");
-      await reloadMonthlyLinks();
-    }
-  };
-
-  const handleDeleteLink = async (id, monthName) => {
-    if (!confirm(`Supprimer le lien de ${monthName} ?`)) return;
-
-    const { error } = await supabase
-      .from('monthly_csv_links')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      toast.error("Erreur lors de la suppression");
-      console.error(error);
-    } else {
-      toast.success(`Lien de ${monthName} supprimé`);
-      await reloadMonthlyLinks();
-    }
-  };
 
   // 🔍 Préparation des données pour le graph
   const getFilteredData = () => {
@@ -371,103 +219,18 @@ export default function AdminEanChart({ csvUrl }) {
           <Users className="w-6 h-6 text-green-600" />
           Tableau énergétique
         </h3>
-        <div className="flex items-center gap-4">
-          <div className="text-gray-500 text-sm">
-            Total affiché :{" "}
-            <span className="font-semibold text-green-600">
-              {totalVolume.toFixed(2)} kWh
-            </span>
-          </div>
-          <button
-            onClick={() => setShowLinkManager(!showLinkManager)}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <Settings className="w-4 h-4" />
-            Gérer les mois ({monthlyLinks.length})
-          </button>
+        <div className="text-gray-500 text-sm">
+          Total affiché :{" "}
+          <span className="font-semibold text-green-600">
+            {totalVolume.toFixed(2)} kWh
+          </span>
         </div>
       </motion.div>
 
-      {/* Gestionnaire de liens mensuels */}
-      {showLinkManager && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-lg">Fichiers CSV mensuels</h4>
-            <button
-              onClick={() => setShowLinkManager(false)}
-              className="p-1.5 hover:bg-gray-200 rounded-lg"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Formulaire d'ajout */}
-          <div className="mb-4 bg-white rounded-lg p-4 border border-gray-200">
-            <label className="block text-sm font-medium mb-2">
-              Ajouter un fichier CSV mensuel
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newCsvUrl}
-                onChange={(e) => setNewCsvUrl(e.target.value)}
-                placeholder="https://exemple.com/janvier2025.csv"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddLink();
-                }}
-              />
-              <button
-                onClick={handleAddLink}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Ajouter
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Le mois et l'année sont détectés automatiquement depuis le nom du fichier (ex: janvier2025.csv)
-            </p>
-          </div>
-
-          {/* Liste des fichiers */}
-          {monthlyLinks.length === 0 ? (
-            <p className="text-gray-500 italic">Aucun fichier mensuel enregistré</p>
-          ) : (
-            <div className="space-y-2">
-              {monthlyLinks.map((link) => (
-                <div
-                  key={link.id}
-                  className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900">{link.month_name}</div>
-                    <div className="text-sm text-gray-500 truncate">
-                      {link.csv_url}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteLink(link.id, link.month_name)}
-                    className="ml-3 p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors flex-shrink-0"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      )}
-
-      {loading ? (
+      {!csvUrl ? (
+        <p className="text-gray-500 italic">Aucun fichier sélectionné</p>
+      ) : loading ? (
         <p className="text-gray-500 italic">Chargement des données...</p>
-      ) : monthlyLinks.length === 0 ? (
-        <p className="text-gray-500 italic">Aucun fichier mensuel. Cliquez sur "Gérer les mois" pour ajouter des fichiers CSV.</p>
       ) : (
         <>
           {/* Sélecteurs */}
