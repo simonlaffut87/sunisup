@@ -90,10 +90,20 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
       
       // Trouver les colonnes importantes
       const eanIndex = headers.findIndex(h => h.toLowerCase().includes('ean'));
-      const registreIndex = headers.findIndex(h => {
-        const header = h.toLowerCase();
-        return header.includes('registre') || header.includes('register') || header.includes('compteur');
-      });
+
+      // PRIORITÉ 1: Chercher d'abord "Tarif" (TH, HI, LOW)
+      // PRIORITÉ 2: Sinon "Registre" ou "Register"
+      // PRIORITÉ 3: Sinon "Compteur" en dernier recours
+      let registreIndex = headers.findIndex(h => h.toLowerCase().includes('tarif'));
+      if (registreIndex === -1) {
+        registreIndex = headers.findIndex(h => {
+          const header = h.toLowerCase();
+          return header.includes('registre') || header.includes('register');
+        });
+      }
+      if (registreIndex === -1) {
+        registreIndex = headers.findIndex(h => h.toLowerCase().includes('compteur'));
+      }
       
       // Recherche plus flexible pour Volume Partagé
       const volumePartageIndex = headers.findIndex(h => {
@@ -407,7 +417,7 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
           }
           
           // NOUVEAU: Traitement des frais réseau (optionnel)
-          if (registre && (registre === 'HI' || registre === 'HIGH' || registre === 'TH')) {
+          if (registre && (registre === 'HI' || registre === 'HIGH' || registre === 'TH' || registre === 'LOW')) {
             // Traiter les frais réseau seulement si on a un registre valide
             const parseNetworkCost = (value: any) => {
               if (!value || value === '' || value === '-') return 0;
@@ -415,7 +425,9 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
               const parsed = parseFloat(cleaned);
               return isNaN(parsed) ? 0 : Math.abs(parsed);
             };
-            
+
+            addLog(`  💰 Lecture des frais réseau (Tarif: ${registre}):`);
+
             const networkCosts = {
               utilisationReseau: networkCostColumns.utilisationReseau >= 0 ? parseNetworkCost(row[networkCostColumns.utilisationReseau]) : 0,
               surcharges: networkCostColumns.surcharges >= 0 ? parseNetworkCost(row[networkCostColumns.surcharges]) : 0,
@@ -426,6 +438,15 @@ export function ManualDataImport({ isOpen, onClose, onSuccess }: ManualDataImpor
               redevanceVoirie: networkCostColumns.redevanceVoirie >= 0 ? parseNetworkCost(row[networkCostColumns.redevanceVoirie]) : 0,
               totalFraisReseau: networkCostColumns.totalFraisReseau >= 0 ? parseNetworkCost(row[networkCostColumns.totalFraisReseau]) : 0
             };
+
+            addLog(`    Utilisation Réseau: ${networkCosts.utilisationReseau}€`);
+            addLog(`    Surcharges: ${networkCosts.surcharges}€`);
+            addLog(`    Tarif Capacitaire: ${networkCosts.tarifCapacitaire}€`);
+            addLog(`    Tarif Mesure: ${networkCosts.tarifMesure}€`);
+            addLog(`    Tarif OSP: ${networkCosts.tarifOSP}€`);
+            addLog(`    Transport ELIA: ${networkCosts.transportELIA}€`);
+            addLog(`    Redevance Voirie: ${networkCosts.redevanceVoirie}€`);
+            addLog(`    TOTAL: ${networkCosts.totalFraisReseau}€`);
             
             // Additionner aux coûts existants
             Object.keys(networkCosts).forEach(key => {
