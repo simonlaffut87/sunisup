@@ -12,6 +12,7 @@ import { MonthlyFileManager } from './MonthlyFileManager';
 import { useAutoLogout } from '../hooks/useAutoLogout';
 import { InvoiceTemplate } from './InvoiceTemplate';
 import { isSupabaseConfigured } from '../lib/supabase';
+import AdminEanChart from './AdminEanChart';
 
 type Participant = DB['public']['Tables']['participants']['Row'];
 
