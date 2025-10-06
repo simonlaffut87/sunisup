@@ -184,7 +184,12 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
       // ÉTAPE 3: Identifier les colonnes
       const headers: string[] = jsonData[0] as string[];
-      setDebugLogs(prev => [...prev, `📋 Headers trouvés: ${headers.join(', ')}`]);
+      setDebugLogs(prev => [...prev, `📋 TOTAL HEADERS: ${headers.length}`]);
+
+      // Log chaque header avec son index
+      headers.forEach((h, idx) => {
+        if (h) setDebugLogs(prev => [...prev, `  [${idx}] "${h}"`]);
+      });
 
       const colIndexes = {
         dateDebut: headers.findIndex(h => h && h.includes('Date Début')),
@@ -203,7 +208,18 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         totalFraisReseau: headers.findIndex(h => h && h.includes('Total Frais de réseau'))
       };
 
-      setDebugLogs(prev => [...prev, `✅ Colonnes identifiées: EAN=${colIndexes.ean}, UtilisationRéseau=${colIndexes.utilisationReseau}, TotalFrais=${colIndexes.totalFraisReseau}`]);
+      setDebugLogs(prev => [...prev, `\n🔍 INDICES DES COLONNES:`]);
+      setDebugLogs(prev => [...prev, `  EAN: ${colIndexes.ean}`]);
+      setDebugLogs(prev => [...prev, `  Volume Partagé: ${colIndexes.volumePartage}`]);
+      setDebugLogs(prev => [...prev, `  Volume Réseau: ${colIndexes.volumeReseau}`]);
+      setDebugLogs(prev => [...prev, `  Utilisation Réseau: ${colIndexes.utilisationReseau}`]);
+      setDebugLogs(prev => [...prev, `  Surcharges: ${colIndexes.surcharges}`]);
+      setDebugLogs(prev => [...prev, `  Tarif Capacitaire: ${colIndexes.tarifCapacitaire}`]);
+      setDebugLogs(prev => [...prev, `  Tarif Mesure: ${colIndexes.tarifMesure}`]);
+      setDebugLogs(prev => [...prev, `  Tarif OSP: ${colIndexes.tarifOSP}`]);
+      setDebugLogs(prev => [...prev, `  Transport ELIA: ${colIndexes.transportELIA}`]);
+      setDebugLogs(prev => [...prev, `  Redevance Voirie: ${colIndexes.redevanceVoirie}`]);
+      setDebugLogs(prev => [...prev, `  Total Frais Réseau: ${colIndexes.totalFraisReseau}\n`]);
 
       // ÉTAPE 4: Récupérer tous les participants
       setState(prev => ({ ...prev, progress: 30 }));
@@ -299,7 +315,21 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         data.injectionPartagee += parseFloat(row[colIndexes.injectionPartagee] || 0) || 0;
         data.injectionReseau += parseFloat(row[colIndexes.injectionReseau] || 0) || 0;
 
-        // Frais réseaux
+        // Frais réseaux - Log pour la première ligne de ce participant
+        const isFirstLineForParticipant = validRows === 1;
+        if (isFirstLineForParticipant) {
+          setDebugLogs(prev => [...prev, `\n📊 PREMIÈRE LIGNE pour ${participant.name} (EAN: ${ean}):`]);
+          setDebugLogs(prev => [...prev, `  Valeurs brutes dans le fichier:`]);
+          setDebugLogs(prev => [...prev, `    Utilisation Réseau [${colIndexes.utilisationReseau}]: "${row[colIndexes.utilisationReseau]}" → ${parseFloat(row[colIndexes.utilisationReseau] || 0) || 0}`]);
+          setDebugLogs(prev => [...prev, `    Surcharges [${colIndexes.surcharges}]: "${row[colIndexes.surcharges]}" → ${parseFloat(row[colIndexes.surcharges] || 0) || 0}`]);
+          setDebugLogs(prev => [...prev, `    Tarif Capacitaire [${colIndexes.tarifCapacitaire}]: "${row[colIndexes.tarifCapacitaire]}" → ${parseFloat(row[colIndexes.tarifCapacitaire] || 0) || 0}`]);
+          setDebugLogs(prev => [...prev, `    Tarif Mesure [${colIndexes.tarifMesure}]: "${row[colIndexes.tarifMesure]}" → ${parseFloat(row[colIndexes.tarifMesure] || 0) || 0}`]);
+          setDebugLogs(prev => [...prev, `    Tarif OSP [${colIndexes.tarifOSP}]: "${row[colIndexes.tarifOSP]}" → ${parseFloat(row[colIndexes.tarifOSP] || 0) || 0}`]);
+          setDebugLogs(prev => [...prev, `    Transport ELIA [${colIndexes.transportELIA}]: "${row[colIndexes.transportELIA]}" → ${parseFloat(row[colIndexes.transportELIA] || 0) || 0}`]);
+          setDebugLogs(prev => [...prev, `    Redevance Voirie [${colIndexes.redevanceVoirie}]: "${row[colIndexes.redevanceVoirie]}" → ${parseFloat(row[colIndexes.redevanceVoirie] || 0) || 0}`]);
+          setDebugLogs(prev => [...prev, `    Total Frais [${colIndexes.totalFraisReseau}]: "${row[colIndexes.totalFraisReseau]}" → ${parseFloat(row[colIndexes.totalFraisReseau] || 0) || 0}\n`]);
+        }
+
         data.networkCosts.utilisationReseau += parseFloat(row[colIndexes.utilisationReseau] || 0) || 0;
         data.networkCosts.surcharges += parseFloat(row[colIndexes.surcharges] || 0) || 0;
         data.networkCosts.tarifCapacitaire += parseFloat(row[colIndexes.tarifCapacitaire] || 0) || 0;
@@ -324,6 +354,19 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
       let updatedCount = 0;
       for (const [ean, data] of participantData.entries()) {
         try {
+          // Log avant enregistrement
+          setDebugLogs(prev => [...prev, `\n💾 ENREGISTREMENT ${data.name}:`]);
+          setDebugLogs(prev => [...prev, `  Volumes: Partagé=${data.volumePartage.toFixed(2)}, Réseau=${data.volumeReseau.toFixed(2)}`]);
+          setDebugLogs(prev => [...prev, `  Frais Réseaux CALCULÉS:`]);
+          setDebugLogs(prev => [...prev, `    utilisationReseau: ${data.networkCosts.utilisationReseau.toFixed(2)}€`]);
+          setDebugLogs(prev => [...prev, `    surcharges: ${data.networkCosts.surcharges.toFixed(2)}€`]);
+          setDebugLogs(prev => [...prev, `    tarifCapacitaire: ${data.networkCosts.tarifCapacitaire.toFixed(2)}€`]);
+          setDebugLogs(prev => [...prev, `    tarifMesure: ${data.networkCosts.tarifMesure.toFixed(2)}€`]);
+          setDebugLogs(prev => [...prev, `    tarifOSP: ${data.networkCosts.tarifOSP.toFixed(2)}€`]);
+          setDebugLogs(prev => [...prev, `    transportELIA: ${data.networkCosts.transportELIA.toFixed(2)}€`]);
+          setDebugLogs(prev => [...prev, `    redevanceVoirie: ${data.networkCosts.redevanceVoirie.toFixed(2)}€`]);
+          setDebugLogs(prev => [...prev, `    TOTAL: ${data.networkCosts.totalFraisReseau.toFixed(2)}€`]);
+
           // Récupérer les données existantes
           const { data: existing } = await supabase
             .from('participants')
@@ -350,6 +393,8 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
             updated_at: new Date().toISOString()
           };
 
+          setDebugLogs(prev => [...prev, `  📤 Envoi à Supabase pour mois: ${month}`]);
+
           // Sauvegarder
           const { error: updateError } = await supabase
             .from('participants')
@@ -364,7 +409,7 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
             setDebugLogs(prev => [...prev, `❌ Erreur MAJ ${data.name}: ${updateError.message}`]);
           } else {
             updatedCount++;
-            setDebugLogs(prev => [...prev, `✅ ${data.name}: Frais=${data.networkCosts.totalFraisReseau.toFixed(2)}€`]);
+            setDebugLogs(prev => [...prev, `✅ ${data.name}: ENREGISTRÉ avec ${data.networkCosts.totalFraisReseau.toFixed(2)}€ de frais\n`]);
           }
         } catch (error: any) {
           setDebugLogs(prev => [...prev, `❌ Erreur ${data.name}: ${error.message}`]);
