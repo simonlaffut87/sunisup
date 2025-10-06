@@ -309,35 +309,43 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
 
         const data = participantData.get(ean);
 
+        // Fonction helper pour parser les nombres européens (virgule comme séparateur décimal)
+        const parseEuropeanNumber = (value: any): number => {
+          if (value === null || value === undefined || value === '') return 0;
+          const strValue = String(value).trim().replace(',', '.');
+          const parsed = parseFloat(strValue);
+          return isNaN(parsed) ? 0 : parsed;
+        };
+
         // Volumes
-        data.volumePartage += parseFloat(row[colIndexes.volumePartage] || 0) || 0;
-        data.volumeReseau += parseFloat(row[colIndexes.volumeReseau] || 0) || 0;
-        data.injectionPartagee += parseFloat(row[colIndexes.injectionPartagee] || 0) || 0;
-        data.injectionReseau += parseFloat(row[colIndexes.injectionReseau] || 0) || 0;
+        data.volumePartage += parseEuropeanNumber(row[colIndexes.volumePartage]);
+        data.volumeReseau += parseEuropeanNumber(row[colIndexes.volumeReseau]);
+        data.injectionPartagee += parseEuropeanNumber(row[colIndexes.injectionPartagee]);
+        data.injectionReseau += parseEuropeanNumber(row[colIndexes.injectionReseau]);
 
         // Frais réseaux - Log pour la première ligne de ce participant
         const isFirstLineForParticipant = validRows === 1;
         if (isFirstLineForParticipant) {
           setDebugLogs(prev => [...prev, `\n📊 PREMIÈRE LIGNE pour ${participant.name} (EAN: ${ean}):`]);
           setDebugLogs(prev => [...prev, `  Valeurs brutes dans le fichier:`]);
-          setDebugLogs(prev => [...prev, `    Utilisation Réseau [${colIndexes.utilisationReseau}]: "${row[colIndexes.utilisationReseau]}" → ${parseFloat(row[colIndexes.utilisationReseau] || 0) || 0}`]);
-          setDebugLogs(prev => [...prev, `    Surcharges [${colIndexes.surcharges}]: "${row[colIndexes.surcharges]}" → ${parseFloat(row[colIndexes.surcharges] || 0) || 0}`]);
-          setDebugLogs(prev => [...prev, `    Tarif Capacitaire [${colIndexes.tarifCapacitaire}]: "${row[colIndexes.tarifCapacitaire]}" → ${parseFloat(row[colIndexes.tarifCapacitaire] || 0) || 0}`]);
-          setDebugLogs(prev => [...prev, `    Tarif Mesure [${colIndexes.tarifMesure}]: "${row[colIndexes.tarifMesure]}" → ${parseFloat(row[colIndexes.tarifMesure] || 0) || 0}`]);
-          setDebugLogs(prev => [...prev, `    Tarif OSP [${colIndexes.tarifOSP}]: "${row[colIndexes.tarifOSP]}" → ${parseFloat(row[colIndexes.tarifOSP] || 0) || 0}`]);
-          setDebugLogs(prev => [...prev, `    Transport ELIA [${colIndexes.transportELIA}]: "${row[colIndexes.transportELIA]}" → ${parseFloat(row[colIndexes.transportELIA] || 0) || 0}`]);
-          setDebugLogs(prev => [...prev, `    Redevance Voirie [${colIndexes.redevanceVoirie}]: "${row[colIndexes.redevanceVoirie]}" → ${parseFloat(row[colIndexes.redevanceVoirie] || 0) || 0}`]);
-          setDebugLogs(prev => [...prev, `    Total Frais [${colIndexes.totalFraisReseau}]: "${row[colIndexes.totalFraisReseau]}" → ${parseFloat(row[colIndexes.totalFraisReseau] || 0) || 0}\n`]);
+          setDebugLogs(prev => [...prev, `    Utilisation Réseau [${colIndexes.utilisationReseau}]: "${row[colIndexes.utilisationReseau]}" → ${parseEuropeanNumber(row[colIndexes.utilisationReseau])}`]);
+          setDebugLogs(prev => [...prev, `    Surcharges [${colIndexes.surcharges}]: "${row[colIndexes.surcharges]}" → ${parseEuropeanNumber(row[colIndexes.surcharges])}`]);
+          setDebugLogs(prev => [...prev, `    Tarif Capacitaire [${colIndexes.tarifCapacitaire}]: "${row[colIndexes.tarifCapacitaire]}" → ${parseEuropeanNumber(row[colIndexes.tarifCapacitaire])}`]);
+          setDebugLogs(prev => [...prev, `    Tarif Mesure [${colIndexes.tarifMesure}]: "${row[colIndexes.tarifMesure]}" → ${parseEuropeanNumber(row[colIndexes.tarifMesure])}`]);
+          setDebugLogs(prev => [...prev, `    Tarif OSP [${colIndexes.tarifOSP}]: "${row[colIndexes.tarifOSP]}" → ${parseEuropeanNumber(row[colIndexes.tarifOSP])}`]);
+          setDebugLogs(prev => [...prev, `    Transport ELIA [${colIndexes.transportELIA}]: "${row[colIndexes.transportELIA]}" → ${parseEuropeanNumber(row[colIndexes.transportELIA])}`]);
+          setDebugLogs(prev => [...prev, `    Redevance Voirie [${colIndexes.redevanceVoirie}]: "${row[colIndexes.redevanceVoirie]}" → ${parseEuropeanNumber(row[colIndexes.redevanceVoirie])}`]);
+          setDebugLogs(prev => [...prev, `    Total Frais [${colIndexes.totalFraisReseau}]: "${row[colIndexes.totalFraisReseau]}" → ${parseEuropeanNumber(row[colIndexes.totalFraisReseau])}\n`]);
         }
 
-        data.networkCosts.utilisationReseau += parseFloat(row[colIndexes.utilisationReseau] || 0) || 0;
-        data.networkCosts.surcharges += parseFloat(row[colIndexes.surcharges] || 0) || 0;
-        data.networkCosts.tarifCapacitaire += parseFloat(row[colIndexes.tarifCapacitaire] || 0) || 0;
-        data.networkCosts.tarifMesure += parseFloat(row[colIndexes.tarifMesure] || 0) || 0;
-        data.networkCosts.tarifOSP += parseFloat(row[colIndexes.tarifOSP] || 0) || 0;
-        data.networkCosts.transportELIA += parseFloat(row[colIndexes.transportELIA] || 0) || 0;
-        data.networkCosts.redevanceVoirie += parseFloat(row[colIndexes.redevanceVoirie] || 0) || 0;
-        data.networkCosts.totalFraisReseau += parseFloat(row[colIndexes.totalFraisReseau] || 0) || 0;
+        data.networkCosts.utilisationReseau += parseEuropeanNumber(row[colIndexes.utilisationReseau]);
+        data.networkCosts.surcharges += parseEuropeanNumber(row[colIndexes.surcharges]);
+        data.networkCosts.tarifCapacitaire += parseEuropeanNumber(row[colIndexes.tarifCapacitaire]);
+        data.networkCosts.tarifMesure += parseEuropeanNumber(row[colIndexes.tarifMesure]);
+        data.networkCosts.tarifOSP += parseEuropeanNumber(row[colIndexes.tarifOSP]);
+        data.networkCosts.transportELIA += parseEuropeanNumber(row[colIndexes.transportELIA]);
+        data.networkCosts.redevanceVoirie += parseEuropeanNumber(row[colIndexes.redevanceVoirie]);
+        data.networkCosts.totalFraisReseau += parseEuropeanNumber(row[colIndexes.totalFraisReseau]);
 
         if (i % 10 === 0) {
           setState(prev => ({ ...prev, currentRow: i, progress: 40 + (i / jsonData.length) * 40 }));
