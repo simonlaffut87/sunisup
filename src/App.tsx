@@ -259,7 +259,7 @@ function App() {
               </div>
 
               <div>
-                <h4 className="text-lg font-semibold text-brand-gold mb-4 font-sans">{t('footer.contact')}</h4>
+                <h4 className="text-lg font-semibold text-brand-teal mb-4 font-sans">{t('footer.contact')}</h4>
                 <div className="space-y-2 text-neutral-200">
                   <p className="font-sans">📧 info@sunisup.be</p>
                   <p className="font-sans">📞 +32 471 31 71 48</p>
@@ -268,10 +268,10 @@ function App() {
               </div>
 
               <div>
-                <h4 className="text-lg font-semibold text-brand-gold mb-4 font-sans">{t('footer.followUs')}</h4>
+                <h4 className="text-lg font-semibold text-brand-teal mb-4 font-sans">{t('footer.followUs')}</h4>
                 <div className="flex space-x-4">
                   <a href="https://www.linkedin.com/company/sun-is-up" target="_blank" rel="noopener noreferrer"
-                     className="text-neutral-200 hover:text-brand-gold transition-colors">
+                     className="text-neutral-200 hover:text-brand-teal transition-colors">
                     LinkedIn
                   </a>
                 </div>
