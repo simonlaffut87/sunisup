@@ -783,12 +783,22 @@ function convertGoogleSheetUrl(url: string) {
           <div className="p-4 bg-gray-50 rounded-xl shadow-sm mb-6">
             <label className="block mb-2 font-medium">Google Sheet (CSV) URL</label>
             <input
-              type="text"
-              value={csvUrl}
-              onChange={(e) => setCsvUrl(e.target.value)}
-              placeholder="Collez ici l’URL export CSV du Google Sheet"
-              className="border rounded-md p-2 w-full"
-            />
+            type="text"
+            value={csvUrl}
+            onChange={(e) => {
+              const input = e.target.value.trim();
+              const converted = convertGoogleSheetUrl(input);
+              setCsvUrl(converted);
+            }}
+            placeholder="Collez ici le lien Google Sheet (édition ou CSV)"
+            className="border rounded-md p-2 w-full"
+          />
+          {csvUrl && (
+            <p className="text-sm text-green-600 mt-1">
+              ✅ Lien CSV détecté automatiquement
+            </p>
+          )}
+
             <p className="text-sm text-gray-500 mt-1">
               Exemple : https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...
             </p>
