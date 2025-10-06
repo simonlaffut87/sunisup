@@ -209,28 +209,68 @@ export function StreamingExcelImport({ isOpen, onClose, onSuccess }: StreamingEx
         volumeReseau: headers.findIndex(h => h && normalizeHeader(h).includes('consommation reseau')),
         injectionPartagee: headers.findIndex(h => h && normalizeHeader(h).includes('injection partagee')),
         injectionReseau: headers.findIndex(h => h && normalizeHeader(h).includes('injection reseau')),
-        utilisationReseau: headers.findIndex(h => h && normalizeHeader(h).includes('utilisation du reseau')),
-        surcharges: headers.findIndex(h => h && normalizeHeader(h).includes('surcharges') && normalizeHeader(h).includes('htva')),
-        tarifCapacitaire: headers.findIndex(h => h && normalizeHeader(h).includes('tarif capac')),
-        tarifMesure: headers.findIndex(h => h && normalizeHeader(h).includes('tarif mesure') && normalizeHeader(h).includes('comptage')),
-        tarifOSP: headers.findIndex(h => h && normalizeHeader(h).includes('tarif osp')),
-        transportELIA: headers.findIndex(h => h && normalizeHeader(h).includes('transport') && normalizeHeader(h).includes('elia')),
-        redevanceVoirie: headers.findIndex(h => h && normalizeHeader(h).includes('redevance') && normalizeHeader(h).includes('voirie')),
-        totalFraisReseau: headers.findIndex(h => h && normalizeHeader(h).includes('total frais') && normalizeHeader(h).includes('reseau'))
+        utilisationReseau: headers.findIndex(h => {
+          const norm = normalizeHeader(h);
+          return norm.includes('utilisation') && norm.includes('reseau') && norm.includes('htva');
+        }),
+        surcharges: headers.findIndex(h => {
+          const norm = normalizeHeader(h);
+          return norm.includes('surcharges') && norm.includes('htva');
+        }),
+        tarifCapacitaire: headers.findIndex(h => {
+          const norm = normalizeHeader(h);
+          return norm.includes('tarif capac') && norm.includes('htva');
+        }),
+        tarifMesure: headers.findIndex(h => {
+          const norm = normalizeHeader(h);
+          return norm.includes('tarif mesure') && norm.includes('comptage') && norm.includes('htva');
+        }),
+        tarifOSP: headers.findIndex(h => {
+          const norm = normalizeHeader(h);
+          return norm.includes('tarif osp') && norm.includes('htva');
+        }),
+        transportELIA: headers.findIndex(h => {
+          const norm = normalizeHeader(h);
+          return norm.includes('transport') && norm.includes('elia') && norm.includes('htva');
+        }),
+        redevanceVoirie: headers.findIndex(h => {
+          const norm = normalizeHeader(h);
+          return norm.includes('redevance') && norm.includes('voirie') && norm.includes('htva');
+        }),
+        totalFraisReseau: headers.findIndex(h => {
+          const norm = normalizeHeader(h);
+          return norm.includes('total frais') && norm.includes('reseau') && norm.includes('htva');
+        })
       };
 
-      setDebugLogs(prev => [...prev, `\n🔍 INDICES DES COLONNES:`]);
-      setDebugLogs(prev => [...prev, `  EAN: ${colIndexes.ean}`]);
-      setDebugLogs(prev => [...prev, `  Volume Partagé: ${colIndexes.volumePartage}`]);
-      setDebugLogs(prev => [...prev, `  Volume Réseau: ${colIndexes.volumeReseau}`]);
-      setDebugLogs(prev => [...prev, `  Utilisation Réseau: ${colIndexes.utilisationReseau}`]);
-      setDebugLogs(prev => [...prev, `  Surcharges: ${colIndexes.surcharges}`]);
-      setDebugLogs(prev => [...prev, `  Tarif Capacitaire: ${colIndexes.tarifCapacitaire}`]);
-      setDebugLogs(prev => [...prev, `  Tarif Mesure: ${colIndexes.tarifMesure}`]);
-      setDebugLogs(prev => [...prev, `  Tarif OSP: ${colIndexes.tarifOSP}`]);
-      setDebugLogs(prev => [...prev, `  Transport ELIA: ${colIndexes.transportELIA}`]);
-      setDebugLogs(prev => [...prev, `  Redevance Voirie: ${colIndexes.redevanceVoirie}`]);
-      setDebugLogs(prev => [...prev, `  Total Frais Réseau: ${colIndexes.totalFraisReseau}\n`]);
+      setDebugLogs(prev => [...prev, `\n🔍 INDICES DES COLONNES TROUVÉS:`]);
+      setDebugLogs(prev => [...prev, `  EAN: ${colIndexes.ean} ${colIndexes.ean >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Volume Partagé: ${colIndexes.volumePartage} ${colIndexes.volumePartage >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Volume Réseau: ${colIndexes.volumeReseau} ${colIndexes.volumeReseau >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Utilisation Réseau: ${colIndexes.utilisationReseau} ${colIndexes.utilisationReseau >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Surcharges: ${colIndexes.surcharges} ${colIndexes.surcharges >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Tarif Capacitaire: ${colIndexes.tarifCapacitaire} ${colIndexes.tarifCapacitaire >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Tarif Mesure: ${colIndexes.tarifMesure} ${colIndexes.tarifMesure >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Tarif OSP: ${colIndexes.tarifOSP} ${colIndexes.tarifOSP >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Transport ELIA: ${colIndexes.transportELIA} ${colIndexes.transportELIA >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Redevance Voirie: ${colIndexes.redevanceVoirie} ${colIndexes.redevanceVoirie >= 0 ? '✅' : '❌'}`]);
+      setDebugLogs(prev => [...prev, `  Total Frais Réseau: ${colIndexes.totalFraisReseau} ${colIndexes.totalFraisReseau >= 0 ? '✅' : '❌'}\n`]);
+
+      // Alerter si des colonnes critiques sont manquantes
+      const missingCols = [];
+      if (colIndexes.utilisationReseau === -1) missingCols.push('Utilisation Réseau');
+      if (colIndexes.surcharges === -1) missingCols.push('Surcharges');
+      if (colIndexes.tarifCapacitaire === -1) missingCols.push('Tarif Capacitaire');
+      if (colIndexes.tarifMesure === -1) missingCols.push('Tarif Mesure');
+      if (colIndexes.tarifOSP === -1) missingCols.push('Tarif OSP');
+      if (colIndexes.transportELIA === -1) missingCols.push('Transport ELIA');
+      if (colIndexes.redevanceVoirie === -1) missingCols.push('Redevance Voirie');
+      if (colIndexes.totalFraisReseau === -1) missingCols.push('Total Frais Réseau');
+
+      if (missingCols.length > 0) {
+        setDebugLogs(prev => [...prev, `⚠️ ATTENTION: Colonnes manquantes: ${missingCols.join(', ')}`]);
+        setDebugLogs(prev => [...prev, `   Les frais réseaux seront à 0 pour ces colonnes!\n`]);
+      }
 
       // ÉTAPE 4: Récupérer tous les participants
       setState(prev => ({ ...prev, progress: 30 }));
