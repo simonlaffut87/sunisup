@@ -763,6 +763,25 @@ export function AdminDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Section Import de données mensuelles */}
         <MonthlyFileManager onImportSuccess={handleRefreshData} />
+        {/* === Graphique des volumes partagés === */}
+        <div className="mt-10">
+          <div className="p-4 bg-gray-50 rounded-xl shadow-sm mb-6">
+            <label className="block mb-2 font-medium">Google Sheet (CSV) URL</label>
+            <input
+              type="text"
+              value={csvUrl}
+              onChange={(e) => setCsvUrl(e.target.value)}
+              placeholder="Collez ici l’URL export CSV du Google Sheet"
+              className="border rounded-md p-2 w-full"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Exemple : https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...
+            </p>
+          </div>
+        
+          {/* Composant du graphique */}
+          {csvUrl && <AdminEanChart csvUrl={csvUrl} />}
+        </div>
 
 
         {/* Participants Table */}
