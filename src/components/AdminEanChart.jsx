@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Label } from "recharts";
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfYear, endOfYear, addMinutes, addDays, addMonths } from "date-fns";
+
+// Mapping EAN → Nom (à adapter avec vos données)
+const eanToName = {
+  "541448911000009785": "Participant A",
+  "541448911000009786": "Participant B",
+  "541448911000009787": "Participant C",
+  // ajoutez tous les EAN ici
+};
 
 function parseDate(dateStr) {
   if (!dateStr) return null;
@@ -12,13 +20,12 @@ function parseDate(dateStr) {
 
 export default function AdminEanChart({ csvUrl }) {
   const [data, setData] = useState([]);
-  const [eans, setEans] = useState([]);
-  const [selectedEAN, setSelectedEAN] = useState("");
+  const [participants, setParticipants] = useState([]);
+  const [selectedParticipant, setSelectedParticipant] = useState("");
   const [granularity, setGranularity] = useState("day"); // day | week | year
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
-  // Parse CSV
   useEffect(() => {
     if (!csvUrl) return;
     setLoading(true);
@@ -32,13 +39,15 @@ export default function AdminEanChart({ csvUrl }) {
           .map((r) => ({
             date: parseDate(r["Date Début"]),
             ean: r["EAN"],
+            name: eanToName[r["EAN"]] || r["EAN"],
             type: r["Type de volume"],
             volume: parseFloat(r["Volume (kWh)"]) || 0,
           }));
         setData(rows);
-        const uniqueEans = [...new Set(rows.map((r) => r.ean))];
-        setEans(uniqueEans);
-        setSelectedEAN(uniqueEans[0] || "");
+
+        const uniqueNames = [...new Set(rows.map((r) => r.name))];
+        setParticipants(["Tous", ...uniqueNames]);
+        setSelectedParticipant("Tous");
         setLoading(false);
       },
       error: (err) => {
@@ -48,16 +57,18 @@ export default function AdminEanChart({ csvUrl }) {
     });
   }, [csvUrl]);
 
-  // Filtrer par EAN et date selon la granularité
   const filterData = () => {
-    let filtered = data.filter((d) => d.ean === selectedEAN);
+    let filtered = selectedParticipant === "Tous" 
+      ? data 
+      : data.filter((d) => d.name === selectedParticipant);
+
     let start, end;
 
     if (granularity === "day") {
       start = startOfDay(selectedDate);
       end = endOfDay(selectedDate);
     } else if (granularity === "week") {
-      start = startOfWeek(selectedDate, { weekStartsOn: 1 }); // lundi
+      start = startOfWeek(selectedDate, { weekStartsOn: 1 });
       end = endOfWeek(selectedDate, { weekStartsOn: 1 });
     } else if (granularity === "year") {
       start = startOfYear(selectedDate);
@@ -66,10 +77,8 @@ export default function AdminEanChart({ csvUrl }) {
 
     filtered = filtered.filter((d) => d.date >= start && d.date <= end);
 
-    // Agréger selon granularité
     const grouped = [];
     if (granularity === "day") {
-      // Par quart d'heure
       let current = start;
       while (current <= end) {
         const next = addMinutes(current, 15);
@@ -80,7 +89,6 @@ export default function AdminEanChart({ csvUrl }) {
         current = next;
       }
     } else if (granularity === "week") {
-      // Par jour
       let current = start;
       while (current <= end) {
         const volume = filtered
@@ -90,7 +98,6 @@ export default function AdminEanChart({ csvUrl }) {
         current = addDays(current, 1);
       }
     } else if (granularity === "year") {
-      // Par mois
       let current = start;
       while (current <= end) {
         const next = addMonths(current, 1);
@@ -106,6 +113,7 @@ export default function AdminEanChart({ csvUrl }) {
   };
 
   const chartData = filterData();
+  const totalVolume = chartData.reduce((sum, d) => sum + d.volume, 0);
 
   return (
     <div className="mt-10 bg-white p-6 rounded-xl border border-neutral-300 shadow-lg">
@@ -119,16 +127,14 @@ export default function AdminEanChart({ csvUrl }) {
         <>
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium mb-1">EAN</label>
+              <label className="block text-sm font-medium mb-1">Participant</label>
               <select
-                value={selectedEAN}
-                onChange={(e) => setSelectedEAN(e.target.value)}
+                value={selectedParticipant}
+                onChange={(e) => setSelectedParticipant(e.target.value)}
                 className="border rounded-md px-2 py-1"
               >
-                {eans.map((e) => (
-                  <option key={e} value={e}>
-                    {e}
-                  </option>
+                {participants.map((p) => (
+                  <option key={p} value={p}>{p}</option>
                 ))}
               </select>
             </div>
@@ -157,11 +163,13 @@ export default function AdminEanChart({ csvUrl }) {
             </div>
           </div>
 
-          <div className="w-full h-96">
+          <div className="w-full h-96 relative">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis />
+                <YAxis>
+                  <Label value={`Volume total: ${totalVolume.toFixed(2)} kWh`} position="top" offset={20} />
+                </YAxis>
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="volume" stroke="#10B981" dot={false} name="Volume (kWh)" />
