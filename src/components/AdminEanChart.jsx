@@ -18,23 +18,25 @@ import {
   endOfWeek,
   startOfMonth,
   endOfMonth,
-  addMinutes,
+  startOfYear,
+  endOfYear,
   addDays,
   addMonths,
+  addYears,
 } from "date-fns";
 import { motion } from "framer-motion";
 import { CalendarDays, Users } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-// Couleurs par type
+// 🔹 Couleurs par type (professionnelles)
 const typeColors = {
-  "Consommation Partagée": "#22C55E",
-  "Consommation Réseau": "#3B82F6",
-  "Injection Réseau": "#FB923C",
-  "Injection Partagée": "#EAB308",
+  "Consommation Partagée": "#22C55E", // vert
+  "Consommation Réseau": "#3B82F6", // bleu
+  "Injection Réseau": "#FB923C", // orange
+  "Injection Partagée": "#EAB308", // jaune
 };
 
-// Parse la date (format Google Sheet)
+// 🔹 Parse la date (format Google Sheet)
 function parseDate(dateStr) {
   if (!dateStr) return null;
   const [day, month, year] = dateStr.split(" ")[0].split("/");
@@ -56,8 +58,9 @@ export default function AdminEanChart({ csvUrl }) {
     "Injection Réseau",
     "Injection Partagée",
   ]);
+  const [uploadedCsvs, setUploadedCsvs] = useState([]);
 
-  // Chargement participants depuis Supabase
+  // 📥 Chargement des participants depuis Supabase
   useEffect(() => {
     const loadParticipants = async () => {
       const { data: participantData, error } = await supabase
@@ -76,19 +79,20 @@ export default function AdminEanChart({ csvUrl }) {
     loadParticipants();
   }, []);
 
-  // Chargement CSV
+  // 📥 Chargement CSV et mémorisation des URLs
   useEffect(() => {
     if (!csvUrl || Object.keys(eanToName).length === 0) return;
     setLoading(true);
+
+    if (!uploadedCsvs.includes(csvUrl)) setUploadedCsvs((prev) => [...prev, csvUrl]);
+
     Papa.parse(csvUrl, {
       download: true,
       header: true,
       skipEmptyLines: true,
       complete: (result) => {
         const rows = result.data
-          .filter(
-            (r) => r["Date Début"] && r["EAN"] && r["Type de volume"]
-          )
+          .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
           .map((r) => ({
             date: parseDate(r["Date Début"]),
             ean: r["EAN"],
@@ -96,9 +100,15 @@ export default function AdminEanChart({ csvUrl }) {
             type: r["Type de volume"].trim(),
             volume: parseFloat(r["Volume (kWh)"]) || 0,
           }));
-        const uniqueNames = [...new Set(rows.map((r) => r.name))];
-        setParticipants(["Tous", ...uniqueNames.sort()]);
-        setData(rows);
+
+        setParticipants((prev) => {
+          const uniqueNames = [
+            ...new Set([...prev.filter((p) => p !== "Tous"), ...rows.map((r) => r.name)]),
+          ];
+          return ["Tous", ...uniqueNames.sort()];
+        });
+
+        setData((prev) => [...prev, ...rows]);
         setLoading(false);
       },
       error: (err) => {
@@ -108,73 +118,48 @@ export default function AdminEanChart({ csvUrl }) {
     });
   }, [csvUrl, eanToName]);
 
-  // Gestion de la période glissante
+  // 🕰️ Gestion de la période glissante
   const shiftDate = (baseDate, direction) => {
     if (granularity === "day") return addDays(baseDate, direction);
     if (granularity === "week") return addDays(baseDate, 7 * direction);
     if (granularity === "month") return addMonths(baseDate, direction);
+    if (granularity === "year") return addYears(baseDate, direction);
     return baseDate;
   };
   const handlePeriodShift = (dir) => setSelectedDate(shiftDate(selectedDate, dir));
 
-  // Préparation des données pour le graph
+  // 🔍 Préparation des données pour le graph
   const getFilteredData = () => {
     let filtered = selectedParticipants.includes("Tous")
       ? data
       : data.filter((d) => selectedParticipants.includes(d.name));
     filtered = filtered.filter((d) => selectedTypes.includes(d.type));
 
-    // Définir la période à afficher
-    let start, end;
-    if (granularity === "day") {
-      start = startOfDay(selectedDate);
-      end = endOfDay(selectedDate);
-    } else if (granularity === "week") {
-      start = startOfWeek(selectedDate, { weekStartsOn: 1 });
-      end = endOfWeek(selectedDate, { weekStartsOn: 1 });
-    } else if (granularity === "month") {
-      start = startOfMonth(selectedDate);
-      end = endOfMonth(selectedDate);
-    }
+    const grouped = {};
+    filtered.forEach((d) => {
+      let key;
+      if (granularity === "day") key = format(d.date, "yyyy-MM-dd HH:mm");
+      if (granularity === "week") key = format(startOfWeek(d.date, { weekStartsOn: 1 }), "yyyy-'W'WW");
+      if (granularity === "month") key = format(d.date, "yyyy-MM");
+      if (granularity === "year") key = format(d.date, "yyyy");
 
-    filtered = filtered.filter((d) => d.date >= start && d.date <= end);
+      grouped[key] = grouped[key] || {};
+      selectedTypes.forEach((type) => {
+        grouped[key][type] = (grouped[key][type] || 0) + (d.type === type ? d.volume : 0);
+      });
+    });
 
-    // Grouper les données par période
-    const grouped = [];
-    let current = start;
-    while (current <= end) {
-      let next;
-      let label;
-      if (granularity === "day") {
-        next = addMinutes(current, 15);
-        label = format(current, "HH:mm");
-      } else if (granularity === "week") {
-        next = addDays(current, 7);
-        label = format(current, "EEE dd/MM");
-      } else if (granularity === "month") {
-        next = addMonths(current, 1);
-        label = format(current, "MMM yyyy");
-      }
-      const obj = { name: label };
-      for (const type of selectedTypes) {
-        obj[type] = filtered
-          .filter((d) => d.type === type && d.date >= current && d.date < next)
-          .reduce((sum, d) => sum + d.volume, 0);
-      }
-      grouped.push(obj);
-      current = next;
-    }
-    return grouped;
+    return Object.entries(grouped).map(([name, values]) => ({ name, ...values }));
   };
 
   const chartData = getFilteredData();
+
   const totalVolume = chartData.reduce(
-    (sum, d) =>
-      sum +
-      selectedTypes.reduce((t, type) => t + (d[type] || 0), 0),
+    (sum, d) => sum + selectedTypes.reduce((t, type) => t + (d[type] || 0), 0),
     0
   );
 
+  // Tooltip personnalisé avec 2 décimales
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload || !payload.length) return null;
     return (
@@ -182,14 +167,9 @@ export default function AdminEanChart({ csvUrl }) {
         <p className="font-semibold text-gray-900 mb-2">{label}</p>
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 text-sm">
-            <div
-              className="w-3 h-3 rounded"
-              style={{ backgroundColor: entry.color }}
-            />
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: entry.color }} />
             <span className="text-gray-700">{entry.name}:</span>
-            <span className="font-semibold text-gray-900">
-              {entry.value.toFixed(2)} kWh
-            </span>
+            <span className="font-semibold text-gray-900">{entry.value.toFixed(2)} kWh</span>
           </div>
         ))}
       </div>
@@ -198,6 +178,7 @@ export default function AdminEanChart({ csvUrl }) {
 
   return (
     <div className="mt-10 bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -208,11 +189,21 @@ export default function AdminEanChart({ csvUrl }) {
         </h3>
         <div className="text-gray-500 text-sm">
           Total affiché:{" "}
-          <span className="font-semibold text-green-600">
-            {totalVolume.toFixed(2)} kWh
-          </span>
+          <span className="font-semibold text-green-600">{totalVolume.toFixed(2)} kWh</span>
         </div>
       </motion.div>
+
+      {/* URLs uploadées */}
+      {uploadedCsvs.length > 0 && (
+        <div className="mb-6">
+          <h4 className="font-medium mb-2">CSV importés:</h4>
+          <ul className="list-disc list-inside text-sm text-gray-600">
+            {uploadedCsvs.map((url, idx) => (
+              <li key={idx}>{url}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {!csvUrl ? (
         <p className="text-gray-500 italic">Aucun fichier sélectionné</p>
@@ -229,11 +220,9 @@ export default function AdminEanChart({ csvUrl }) {
                 multiple
                 value={selectedParticipants}
                 onChange={(e) =>
-                  setSelectedParticipants(
-                    Array.from(e.target.selectedOptions, (opt) => opt.value)
-                  )
+                  setSelectedParticipants(Array.from(e.target.selectedOptions, (opt) => opt.value))
                 }
-                className="border rounded-md px-2 py-1 h-24 w-48"
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
               >
                 {participants.map((p) => (
                   <option key={p} value={p}>
@@ -243,105 +232,78 @@ export default function AdminEanChart({ csvUrl }) {
               </select>
             </div>
 
-            {/* Granularité */}
+            {/* Granularity */}
             <div>
-              <label className="block text-sm font-medium mb-1">Granularité</label>
+              <label className="block text-sm font-medium mb-1">Période</label>
               <select
                 value={granularity}
                 onChange={(e) => setGranularity(e.target.value)}
-                className="border rounded-md px-2 py-1"
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
               >
-                <option value="day">Jour (quart d’heure)</option>
+                <option value="day">Jour</option>
                 <option value="week">Semaine</option>
                 <option value="month">Mois</option>
+                <option value="year">Année</option>
               </select>
             </div>
 
-            {/* Date */}
-            <div>
-              <label className="block text-sm font-medium mb-1 flex items-center gap-1">
-                <CalendarDays className="w-4 h-4" /> Date de référence
-              </label>
-              <input
-                type="date"
-                value={format(selectedDate, "yyyy-MM-dd")}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                className="border rounded-md px-2 py-1"
-              />
-            </div>
-
-            {/* Période glissante */}
-            <div className="flex gap-2 items-end">
-              <button
-                onClick={() => handlePeriodShift(-1)}
-                className="px-3 py-1 border rounded-md hover:bg-gray-100"
-              >
-                ⬅️
-              </button>
-              <button
-                onClick={() => handlePeriodShift(1)}
-                className="px-3 py-1 border rounded-md hover:bg-gray-100"
-              >
-                ➡️
-              </button>
-            </div>
-
-            {/* Types de données */}
+            {/* Types */}
             <div>
               <label className="block text-sm font-medium mb-1">Types</label>
-              <div className="flex flex-wrap gap-3">
+              <select
+                multiple
+                value={selectedTypes}
+                onChange={(e) =>
+                  setSelectedTypes(Array.from(e.target.selectedOptions, (opt) => opt.value))
+                }
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+              >
                 {Object.keys(typeColors).map((type) => (
-                  <label key={type} className="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      checked={selectedTypes.includes(type)}
-                      onChange={() =>
-                        setSelectedTypes((prev) =>
-                          prev.includes(type)
-                            ? prev.filter((t) => t !== type)
-                            : [...prev, type]
-                        )
-                      }
-                    />
-                    <span
-                      className="px-2 py-0.5 rounded text-xs font-medium"
-                      style={{ backgroundColor: typeColors[type], color: "#fff" }}
-                    >
-                      {type}
-                    </span>
-                  </label>
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
-              </div>
+              </select>
+            </div>
+
+            {/* Date navigation */}
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                onClick={() => handlePeriodShift(-1)}
+                className="px-2 py-1 border rounded text-gray-600 hover:bg-gray-100"
+              >
+                &lt;
+              </button>
+              <span className="text-gray-700 text-sm">{format(selectedDate, "dd/MM/yyyy")}</span>
+              <button
+                onClick={() => handlePeriodShift(1)}
+                className="px-2 py-1 border rounded text-gray-600 hover:bg-gray-100"
+              >
+                &gt;
+              </button>
             </div>
           </div>
 
-          {/* Graph */}
-          <div className="w-full h-[450px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={chartData}
-                margin={{ top: 20, right: 40, left: 0, bottom: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                {selectedTypes.map((type) => (
-                  <Area
-                    key={type}
-                    type="monotone"
-                    dataKey={type}
-                    stackId="1"
-                    stroke={typeColors[type]}
-                    fill={typeColors[type]}
-                    fillOpacity={0.8}
-                    name={type}
-                  />
-                ))}
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Graphique */}
+          <ResponsiveContainer width="100%" height={400}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              {selectedTypes.map((type) => (
+                <Area
+                  key={type}
+                  type="monotone"
+                  dataKey={type}
+                  stackId="1"
+                  stroke={typeColors[type]}
+                  fill={typeColors[type]}
+                />
+              ))}
+            </AreaChart>
+          </ResponsiveContainer>
         </>
       )}
     </div>
