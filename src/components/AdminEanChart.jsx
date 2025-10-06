@@ -184,6 +184,29 @@ export default function AdminEanChart({ csvUrl }) {
     0
   );
 
+  // Tooltip personnalisé avec 2 décimales
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload || !payload.length) return null;
+
+    return (
+      <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-3">
+        <p className="font-semibold text-gray-900 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2 text-sm">
+            <div
+              className="w-3 h-3 rounded"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-gray-700">{entry.name}:</span>
+            <span className="font-semibold text-gray-900">
+              {entry.value.toFixed(2)} kWh
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // 🧠 UI PRO
   return (
     <div className="mt-10 bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
@@ -312,7 +335,7 @@ export default function AdminEanChart({ csvUrl }) {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                 <YAxis />
-                <Tooltip />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 {selectedTypes.map((type) => (
                   <Area
