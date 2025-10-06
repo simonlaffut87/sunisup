@@ -53,6 +53,21 @@ export function AdminDashboard() {
     canAccessParticipants: false,
     errorDetails: null
   });
+// Fonction pour convertir automatiquement un lien Google Sheet en lien CSV
+function convertGoogleSheetUrl(url: string) {
+  if (!url) return "";
+  try {
+    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)\/.*[?&]gid=([0-9]+)/);
+    if (match) {
+      const fileId = match[1];
+      const gid = match[2];
+      return `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv&gid=${gid}`;
+    }
+    return url; // Si ce n'est pas un lien Google Sheet classique
+  } catch {
+    return url;
+  }
+}
 
   useEffect(() => {
     verifyAdminConnection();
