@@ -10,12 +10,6 @@ import {
 } from "recharts";
 import { parseISO, format } from "date-fns";
 
-const typeColors = {
-  "Consommation Partagée": "#4caf50", // vert
-  "Consommation Réseau": "#2196f3", // bleu
-  "Injection Réseau": "#ff9800", // orange
-};
-
 const AdminEanChart = () => {
   const [urls, setUrls] = useState(() => {
     const saved = localStorage.getItem("eanUrls");
@@ -30,7 +24,6 @@ const AdminEanChart = () => {
       fetch(urlObj.url)
         .then((res) => res.json())
         .then((json) => {
-          // Ajouter l'URL avec son nom
           const processed = json.map((d) => ({
             ...d,
             date: parseISO(d.date),
@@ -41,7 +34,6 @@ const AdminEanChart = () => {
     });
   }, [urls]);
 
-  // Ajouter une nouvelle URL
   const handleAddUrl = () => {
     if (!newUrl) return;
     fetch(newUrl)
@@ -70,10 +62,9 @@ const AdminEanChart = () => {
 
   // Préparer les données pour le graphique
   const getChartData = () => {
-    // Grouper par date (ici, 15min) et calculer conso totale
     const grouped = {};
     data.forEach((d) => {
-      const key = format(d.date, "yyyy-MM-dd HH:mm"); // regroupement 15min approximatif
+      const key = format(d.date, "yyyy-MM-dd HH:mm");
       if (!grouped[key]) grouped[key] = {};
       if (d.type === "Consommation Partagée") grouped[key]["Consommation Partagée"] = d.volume;
       if (d.type === "Consommation Réseau") grouped[key]["Consommation Réseau"] = d.volume;
@@ -136,8 +127,8 @@ const AdminEanChart = () => {
         <Area
           type="monotone"
           dataKey="Consommation Partagée"
-          stroke={typeColors["Consommation Partagée"]}
-          fill={typeColors["Consommation Partagée"]}
+          stroke="#4caf50"
+          fill="#4caf50"
           fillOpacity={0.4}
           name="Consommation Partagée"
         />
@@ -146,8 +137,8 @@ const AdminEanChart = () => {
         <Area
           type="monotone"
           dataKey="Consommation Totale"
-          stroke={typeColors["Consommation Réseau"]}
-          fill={typeColors["Consommation Réseau"]}
+          stroke="#2196f3"
+          fill="#2196f3"
           fillOpacity={0.6}
           name="Consommation Totale"
         />
@@ -156,7 +147,7 @@ const AdminEanChart = () => {
         <Area
           type="monotone"
           dataKey="Injection Réseau"
-          stroke={typeColors["Injection Réseau"]}
+          stroke="#ff9800"
           fill="none"
           strokeDasharray="5 5"
           name="Injection Réseau"
