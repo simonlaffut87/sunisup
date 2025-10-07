@@ -30,9 +30,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  Line,
-  ComposedChart
+  ResponsiveContainer
 } from 'recharts';
 
 interface MemberDashboardProps {
@@ -341,7 +339,12 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
   console.log('📊 TOTAUX ANNUELS CALCULÉS:', yearlyTotals);
 
   const totalConsumption = yearlyTotals.volume_partage + yearlyTotals.volume_complementaire;
+  const totalInjection = yearlyTotals.injection_partagee + yearlyTotals.injection_complementaire;
+  const injectionSharedPercentage = totalInjection > 0 ? (yearlyTotals.injection_partagee / totalInjection) * 100 : 0;
   const consumptionSharedPercentage = totalConsumption > 0 ? (yearlyTotals.volume_partage / totalConsumption) * 100 : 0;
+  
+  // Déterminer si le groupe est composé principalement de consommateurs
+  const isConsumerGroup = groupParticipants.filter(p => p.type === 'consumer').length > groupParticipants.filter(p => p.type === 'producer').length;
 
   if (loading) {
     return (
@@ -437,16 +440,23 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-100">
-                  <Zap className="w-5 h-5 text-blue-600" />
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  isConsumerGroup ? 'bg-emerald-100' : 'bg-amber-100'
+                }`}>
+                  <Zap className={`w-5 h-5 ${
+                    isConsumerGroup ? 'text-emerald-600' : 'text-amber-600'
+                  }`} />
                 </div>
               </div>
               <div className="ml-4">
                 <p className="text-xs font-medium text-neutral-500">
-                  Consommation Totale
+                  {isConsumerGroup ? 'Consommation partagée' : 'Injection partagée'}
                 </p>
                 <p className="text-xl font-semibold text-neutral-900">
-                  {(totalConsumption / 1000).toFixed(2)} MWh
+                  {isConsumerGroup
+                    ? `${(yearlyTotals.volume_partage / 1000).toFixed(2)} MWh`
+                    : `${(yearlyTotals.injection_partagee / 1000).toFixed(2)} MWh`
+                  }
                 </p>
               </div>
             </div>
@@ -455,16 +465,23 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-emerald-100">
-                  <BarChart3 className="w-5 h-5 text-emerald-600" />
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  isConsumerGroup ? 'bg-blue-100' : 'bg-purple-100'
+                }`}>
+                  <BarChart3 className={`w-5 h-5 ${
+                    isConsumerGroup ? 'text-blue-600' : 'text-purple-600'
+                  }`} />
                 </div>
               </div>
               <div className="ml-4">
                 <p className="text-xs font-medium text-neutral-500">
-                  Consommation Partagée
+                  {isConsumerGroup ? 'Consommation réseau' : 'Injection réseau'}
                 </p>
                 <p className="text-xl font-semibold text-neutral-900">
-                  {(yearlyTotals.volume_partage / 1000).toFixed(2)} MWh
+                  {isConsumerGroup
+                    ? `${(yearlyTotals.volume_complementaire / 1000).toFixed(2)} MWh`
+                    : `${(yearlyTotals.injection_complementaire / 1000).toFixed(2)} MWh`
+                  }
                 </p>
               </div>
             </div>
@@ -473,16 +490,19 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           <div className="bg-white rounded-xl shadow-sm border border-neutral-300 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-orange-600" />
+                <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-teal-600" />
                 </div>
               </div>
               <div className="ml-4">
                 <p className="text-xs font-medium text-neutral-500">
-                  Injection Réseau
+                  {isConsumerGroup ? '% Consommation partagée' : '% Injection partagée'}
                 </p>
                 <p className="text-xl font-semibold text-neutral-900">
-                  {(yearlyTotals.injection_complementaire / 1000).toFixed(2)} MWh
+                  {isConsumerGroup
+                    ? `${consumptionSharedPercentage.toFixed(1)}%`
+                    : `${injectionSharedPercentage.toFixed(1)}%`
+                  }
                 </p>
               </div>
             </div>
@@ -523,13 +543,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           {monthlyData.length > 0 ? (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={monthlyData.map(item => ({
-                  ...item,
-                  consommation_totale: item.volume_partage + item.volume_complementaire
-                }))}>
+                <BarChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="month" stroke="#6B7280" />
-                  <YAxis stroke="#6B7280" label={{ value: 'kWh', angle: -90, position: 'insideLeft' }} />
+                  <YAxis stroke="#6B7280" />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'white',
@@ -543,18 +560,11 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     ]}
                   />
                   <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Bar dataKey="consommation_totale" fill="#3B82F6" name="Consommation Totale" />
                   <Bar dataKey="volume_partage" fill="#10B981" name="Consommation Partagée" />
-                  <Line
-                    type="monotone"
-                    dataKey="injection_complementaire"
-                    stroke="#F97316"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    name="Injection Réseau"
-                    dot={{ fill: '#F97316', r: 4 }}
-                  />
-                </ComposedChart>
+                  <Bar dataKey="volume_complementaire" fill="#3B82F6" name="Consommation Réseau" />
+                  <Bar dataKey="injection_partagee" fill="#F59E0B" name="Injection Partagée" />
+                  <Bar dataKey="injection_complementaire" fill="#8B5CF6" name="Injection Réseau" />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
