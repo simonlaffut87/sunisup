@@ -24,20 +24,27 @@ import { motion } from "framer-motion";
 import { CalendarDays, Users } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-// 🔹 Couleurs par type (professionnelles)
+// 🔹 Couleurs par type
 const typeColors = {
-  "Consommation Partagée": "#22C55E", // vert
-  "Consommation Réseau": "#3B82F6", // bleu
-  "Injection Réseau": "#FB923C", // orange
-  "Injection Partagée": "#EAB308", // jaune
+  "Consommation Partagée": "#22C55E",
+  "Consommation Réseau": "#3B82F6",
+  "Injection Réseau": "#FB923C",
+  "Injection Partagée": "#EAB308",
 };
 
-// 🔹 Parse la date (format Google Sheet)
+// 🔹 Parse la date (sécurisé)
 function parseDate(dateStr) {
   if (!dateStr) return null;
-  const [day, month, year] = dateStr.split(" ")[0].split("/");
-  const time = dateStr.split(" ")[1] || "00:00";
-  return new Date(`${year}-${month}-${day}T${time}`);
+  try {
+    const [datePart, timePart] = dateStr.trim().split(" ");
+    const [day, month, year] = datePart.split("/");
+    const time = timePart || "00:00";
+    const parsed = new Date(`${year}-${month}-${day}T${time}`);
+    if (isNaN(parsed.getTime())) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 export default function AdminEanChart({ csvUrl }) {
@@ -59,19 +66,17 @@ export default function AdminEanChart({ csvUrl }) {
   useEffect(() => {
     const loadParticipants = async () => {
       const { data: participantData, error } = await supabase
-        .from('participants')
-        .select('ean_code, name');
+        .from("participants")
+        .select("ean_code, name");
 
       if (error) {
-        console.error('Erreur chargement participants:', error);
+        console.error("Erreur chargement participants:", error);
         return;
       }
 
       const mapping = {};
-      participantData?.forEach(p => {
-        if (p.ean_code && p.name) {
-          mapping[p.ean_code] = p.name;
-        }
+      participantData?.forEach((p) => {
+        if (p.ean_code && p.name) mapping[p.ean_code] = p.name;
       });
       setEanToName(mapping);
     };
@@ -79,37 +84,45 @@ export default function AdminEanChart({ csvUrl }) {
     loadParticipants();
   }, []);
 
-  // 📥 Chargement CSV
+  // 📥 Chargement du CSV
   useEffect(() => {
     if (!csvUrl || Object.keys(eanToName).length === 0) return;
     setLoading(true);
+
     Papa.parse(csvUrl, {
       download: true,
       header: true,
       skipEmptyLines: true,
       complete: (result) => {
-        const rows = result.data
-          .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
-          .map((r) => ({
-            date: parseDate(r["Date Début"]),
-            ean: r["EAN"],
-            name: eanToName[r["EAN"]] || r["EAN"],
-            type: r["Type de volume"].trim(),
-            volume: parseFloat(r["Volume (kWh)"]) || 0,
-          }));
-        const uniqueNames = [...new Set(rows.map((r) => r.name))];
-        setParticipants(["Tous", ...uniqueNames.sort()]);
-        setData(rows);
-        setLoading(false);
+        try {
+          const rows = result.data
+            .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
+            .map((r) => ({
+              date: parseDate(r["Date Début"]),
+              ean: r["EAN"],
+              name: eanToName[r["EAN"]] || r["EAN"],
+              type: r["Type de volume"].trim(),
+              volume: parseFloat(r["Volume (kWh)"]) || 0,
+            }))
+            .filter((r) => r.date && !isNaN(r.volume));
+
+          const uniqueNames = [...new Set(rows.map((r) => r.name))];
+          setParticipants(["Tous", ...uniqueNames.sort()]);
+          setData(rows);
+        } catch (err) {
+          console.error("Erreur parsing CSV:", err);
+        } finally {
+          setLoading(false);
+        }
       },
       error: (err) => {
-        console.error("Erreur parsing CSV:", err);
+        console.error("Erreur PapaParse:", err);
         setLoading(false);
       },
     });
   }, [csvUrl, eanToName]);
 
-  // 🕰️ Gestion de la période glissante
+  // 🕰️ Navigation temporelle
   const shiftDate = (baseDate, direction) => {
     if (granularity === "day") return addDays(baseDate, direction);
     if (granularity === "week") return addDays(baseDate, 7 * direction);
@@ -119,14 +132,16 @@ export default function AdminEanChart({ csvUrl }) {
 
   const handlePeriodShift = (dir) => setSelectedDate(shiftDate(selectedDate, dir));
 
-  // 🔍 Préparation des données pour le graph
+  // 🔍 Préparation des données du graphique
   const getFilteredData = () => {
+    if (!data.length) return [];
+
     let filtered =
       selectedParticipants.includes("Tous")
         ? data
         : data.filter((d) => selectedParticipants.includes(d.name));
 
-    filtered = filtered.filter((d) => selectedTypes.includes(d.type));
+    filtered = filtered.filter((d) => d.date && selectedTypes.includes(d.type));
 
     let start, end;
     if (granularity === "day") {
@@ -136,9 +151,9 @@ export default function AdminEanChart({ csvUrl }) {
       start = startOfWeek(selectedDate, { weekStartsOn: 1 });
       end = endOfWeek(selectedDate, { weekStartsOn: 1 });
     } else if (granularity === "month") {
-      // Affichage annuel
-      start = new Date(selectedDate.getFullYear(), 0, 1); // 1er janvier
-      end = new Date(selectedDate.getFullYear(), 11, 31, 23, 59, 59); // 31 décembre
+      // 📅 Affichage annuel
+      start = new Date(selectedDate.getFullYear(), 0, 1);
+      end = new Date(selectedDate.getFullYear(), 11, 31, 23, 59, 59);
     }
 
     const grouped = [];
@@ -148,11 +163,15 @@ export default function AdminEanChart({ csvUrl }) {
         const monthStart = new Date(start.getFullYear(), m, 1);
         const monthEnd = new Date(start.getFullYear(), m + 1, 0, 23, 59, 59);
         const obj = { name: format(monthStart, "MMM") };
+
         for (const type of selectedTypes) {
           obj[type] = filtered
-            .filter(d => d.type === type && d.date >= monthStart && d.date <= monthEnd)
+            .filter(
+              (d) => d.type === type && d.date >= monthStart && d.date <= monthEnd
+            )
             .reduce((sum, d) => sum + d.volume, 0);
         }
+
         grouped.push(obj);
       }
     } else {
@@ -170,10 +189,13 @@ export default function AdminEanChart({ csvUrl }) {
           granularity === "day"
             ? format(current, "HH:mm")
             : format(current, "EEE dd/MM");
+
         const obj = { name: label };
         for (const type of selectedTypes) {
           obj[type] = filtered
-            .filter((d) => d.type === type && d.date >= current && d.date < next)
+            .filter(
+              (d) => d.type === type && d.date >= current && d.date < next
+            )
             .reduce((sum, d) => sum + d.volume, 0);
         }
         grouped.push(obj);
@@ -185,16 +207,14 @@ export default function AdminEanChart({ csvUrl }) {
   };
 
   const chartData = getFilteredData();
-
   const totalVolume = chartData.reduce(
     (sum, d) => sum + selectedTypes.reduce((t, type) => t + (d[type] || 0), 0),
     0
   );
 
-  // Tooltip personnalisé avec 2 décimales
+  // Tooltip personnalisé
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload || !payload.length) return null;
-
     return (
       <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-3">
         <p className="font-semibold text-gray-900 mb-2">{label}</p>
@@ -214,7 +234,7 @@ export default function AdminEanChart({ csvUrl }) {
     );
   };
 
-  // 🧠 UI PRO
+  // 🧠 UI
   return (
     <div className="mt-10 bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
       <motion.div
@@ -240,7 +260,7 @@ export default function AdminEanChart({ csvUrl }) {
         <p className="text-gray-500 italic">Chargement des données...</p>
       ) : (
         <>
-          {/* Sélecteurs */}
+          {/* Filtres */}
           <div className="flex flex-wrap items-center gap-4 mb-6">
             {/* Participants */}
             <div>
@@ -290,7 +310,7 @@ export default function AdminEanChart({ csvUrl }) {
               />
             </div>
 
-            {/* Période glissante */}
+            {/* Navigation temporelle */}
             <div className="flex gap-2 items-end">
               <button
                 onClick={() => handlePeriodShift(-1)}
@@ -308,25 +328,32 @@ export default function AdminEanChart({ csvUrl }) {
           </div>
 
           {/* Graphique */}
-          <ResponsiveContainer width="100%" height={400}>
-            <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              {selectedTypes.map((type) => (
-                <Area
-                  key={type}
-                  type="monotone"
-                  dataKey={type}
-                  stackId="1"
-                  stroke={typeColors[type]}
-                  fill={typeColors[type]}
-                />
-              ))}
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="w-full h-[450px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={chartData}
+                margin={{ top: 20, right: 40, left: 0, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                {selectedTypes.map((type) => (
+                  <Area
+                    key={type}
+                    type="monotone"
+                    dataKey={type}
+                    stackId="1"
+                    stroke={typeColors[type]}
+                    fill={typeColors[type]}
+                    fillOpacity={0.8}
+                    name={type}
+                  />
+                ))}
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </>
       )}
     </div>
