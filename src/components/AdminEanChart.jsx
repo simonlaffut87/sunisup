@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import {
   ResponsiveContainer,
-  ComposedChart,
+  AreaChart,
   Area,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -15,266 +14,345 @@ import {
   format,
   startOfDay,
   endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
   addMinutes,
-  isValid,
+  addDays,
+  addMonths,
 } from "date-fns";
 import { motion } from "framer-motion";
-import { Save, Trash2, Link, CalendarDays } from "lucide-react";
+import { CalendarDays, Users } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
-// 🕒 Parse robuste de la date "01/07/2025 00:15"
+// 🔹 Couleurs par type (professionnelles)
+const typeColors = {
+  "Consommation Partagée": "#22C55E", // vert
+  "Consommation Réseau": "#3B82F6", // bleu
+  "Injection Réseau": "#FB923C", // orange
+  "Injection Partagée": "#EAB308", // jaune
+};
+
+// 🔹 Parse la date (format Google Sheet)
 function parseDate(dateStr) {
   if (!dateStr) return null;
-  try {
-    const [d, h] = dateStr.split(" ");
-    const [day, month, year] = d.split("/");
-    const [hour, minute] = (h || "00:00").split(":");
-    const date = new Date(year, month - 1, day, hour, minute);
-    return isValid(date) ? date : null;
-  } catch {
-    return null;
-  }
+  const [day, month, year] = dateStr.split(" ")[0].split("/");
+  const time = dateStr.split(" ")[1] || "00:00";
+  return new Date(`${year}-${month}-${day}T${time}`);
 }
 
-export default function AdminEanChart() {
-  const [urls, setUrls] = useState(() => {
-    const saved = localStorage.getItem("csvUrls");
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [newUrl, setNewUrl] = useState("");
+export default function AdminEanChart({ csvUrl }) {
   const [data, setData] = useState([]);
-  const [eans, setEans] = useState([]);
-  const [selectedEans, setSelectedEans] = useState([]);
+  const [participants, setParticipants] = useState([]);
+  const [selectedParticipants, setSelectedParticipants] = useState(["Tous"]);
+  const [granularity, setGranularity] = useState("day");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [periodWindow, setPeriodWindow] = useState("current"); // previous | current | next
   const [loading, setLoading] = useState(false);
+  const [eanToName, setEanToName] = useState({});
+  const [selectedTypes, setSelectedTypes] = useState([
+    "Consommation Partagée",
+    "Consommation Réseau",
+    "Injection Réseau",
+    "Injection Partagée",
+  ]);
 
-  // Sauvegarde des URLs
+  // 📥 Chargement des participants depuis Supabase
   useEffect(() => {
-    localStorage.setItem("csvUrls", JSON.stringify(urls));
-  }, [urls]);
+    const loadParticipants = async () => {
+      const { data: participantData, error } = await supabase
+        .from('participants')
+        .select('ean_code, name');
 
-  // Chargement et parsing CSV
-  useEffect(() => {
-    if (urls.length === 0) return;
-    setLoading(true);
+      if (error) {
+        console.error('Erreur chargement participants:', error);
+        return;
+      }
 
-    Promise.all(
-      urls.map(
-        (url) =>
-          new Promise((resolve) => {
-            Papa.parse(url, {
-              download: true,
-              header: true,
-              skipEmptyLines: true,
-              complete: (result) => {
-                const rows = result.data
-                  .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
-                  .map((r) => ({
-                    date: parseDate(r["Date Début"]),
-                    ean: r["EAN"].trim(),
-                    type: r["Type de volume"].trim(),
-                    volume: parseFloat(r["Volume (kWh)"]) || 0,
-                  }))
-                  .filter((r) => r.date);
-                resolve(rows);
-              },
-              error: () => resolve([]),
-            });
-          })
-      )
-    ).then((results) => {
-      const merged = results.flat();
-      setData(merged);
-      const uniqueEans = [...new Set(merged.map((r) => r.ean))];
-      setEans(uniqueEans);
-      if (selectedEans.length === 0) setSelectedEans(uniqueEans);
-      setLoading(false);
-    });
-  }, [urls]);
-
-  // Agrégation des données (15 min)
-  const chartData = useMemo(() => {
-    if (data.length === 0) return [];
-
-    const start = startOfDay(selectedDate);
-    const end = endOfDay(selectedDate);
-
-    const steps = [];
-    for (let t = start; t <= end; t = addMinutes(t, 15)) {
-      const selectedData = data.filter(
-        (r) =>
-          r.date >= t &&
-          r.date < addMinutes(t, 15) &&
-          selectedEans.includes(r.ean)
-      );
-
-      const consoPartagee = selectedData
-        .filter((d) => d.type === "Consommation partagée")
-        .reduce((sum, d) => sum + d.volume, 0);
-      const consoReseau = selectedData
-        .filter((d) => d.type === "Consommation réseau")
-        .reduce((sum, d) => sum + d.volume, 0);
-      const injectReseau = selectedData
-        .filter((d) => d.type === "Injection Réseau")
-        .reduce((sum, d) => sum + d.volume, 0);
-
-      steps.push({
-        time: format(t, "HH:mm"),
-        consoPartagee,
-        consoTotale: consoPartagee + consoReseau,
-        injectionReseau: injectReseau,
+      const mapping = {};
+      participantData?.forEach(p => {
+        if (p.ean_code && p.name) {
+          mapping[p.ean_code] = p.name;
+        }
       });
+      setEanToName(mapping);
+    };
+
+    loadParticipants();
+  }, []);
+
+  // 📥 Chargement CSV
+  useEffect(() => {
+    if (!csvUrl || Object.keys(eanToName).length === 0) return;
+    setLoading(true);
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const rows = result.data
+          .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
+          .map((r) => ({
+            date: parseDate(r["Date Début"]),
+            ean: r["EAN"],
+            name: eanToName[r["EAN"]] || r["EAN"],
+            type: r["Type de volume"].trim(),
+            volume: parseFloat(r["Volume (kWh)"]) || 0,
+          }));
+        const uniqueNames = [...new Set(rows.map((r) => r.name))];
+        setParticipants(["Tous", ...uniqueNames.sort()]);
+        setData(rows);
+        setLoading(false);
+      },
+      error: (err) => {
+        console.error("Erreur parsing CSV:", err);
+        setLoading(false);
+      },
+    });
+  }, [csvUrl, eanToName]);
+
+  // 🕰️ Gestion de la période glissante
+  const shiftDate = (baseDate, direction) => {
+    if (granularity === "day") return addDays(baseDate, direction);
+    if (granularity === "week") return addDays(baseDate, 7 * direction);
+    if (granularity === "month") return addMonths(baseDate, direction);
+    return baseDate;
+  };
+
+  const handlePeriodShift = (dir) => setSelectedDate(shiftDate(selectedDate, dir));
+
+  // 🔍 Préparation des données pour le graph
+  const getFilteredData = () => {
+    let filtered =
+      selectedParticipants.includes("Tous")
+        ? data
+        : data.filter((d) => selectedParticipants.includes(d.name));
+
+    filtered = filtered.filter((d) => selectedTypes.includes(d.type));
+
+    let start, end;
+    if (granularity === "day") {
+      start = startOfDay(selectedDate);
+      end = endOfDay(selectedDate);
+    } else if (granularity === "week") {
+      start = startOfWeek(selectedDate, { weekStartsOn: 1 });
+      end = endOfWeek(selectedDate, { weekStartsOn: 1 });
+    } else if (granularity === "month") {
+      start = startOfMonth(selectedDate);
+      end = endOfMonth(selectedDate);
     }
 
-    return steps;
-  }, [data, selectedDate, selectedEans]);
+    filtered = filtered.filter((d) => d.date >= start && d.date <= end);
 
-  const totalConso = chartData.reduce((s, d) => s + d.consoTotale, 0);
-  const totalInject = chartData.reduce((s, d) => s + d.injectionReseau, 0);
+    const grouped = [];
+    let current = start;
+    const step =
+      granularity === "day"
+        ? 15
+        : granularity === "week"
+        ? 24 * 60
+        : 24 * 60 * 30; // approximatif mois
 
+    while (current <= end) {
+      const next = addMinutes(current, step);
+      const label =
+        granularity === "day"
+          ? format(current, "HH:mm")
+          : granularity === "week"
+          ? format(current, "EEE dd/MM")
+          : format(current, "MMM");
+
+      const obj = { name: label };
+
+      for (const type of selectedTypes) {
+        obj[type] = filtered
+          .filter((d) => d.type === type && d.date >= current && d.date < next)
+          .reduce((sum, d) => sum + d.volume, 0);
+      }
+      grouped.push(obj);
+      current = next;
+    }
+
+    return grouped;
+  };
+
+  const chartData = getFilteredData();
+
+  const totalVolume = chartData.reduce(
+    (sum, d) => sum + selectedTypes.reduce((t, type) => t + (d[type] || 0), 0),
+    0
+  );
+
+  // Tooltip personnalisé avec 2 décimales
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload || !payload.length) return null;
+
+    return (
+      <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-3">
+        <p className="font-semibold text-gray-900 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2 text-sm">
+            <div
+              className="w-3 h-3 rounded"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-gray-700">{entry.name}:</span>
+            <span className="font-semibold text-gray-900">
+              {entry.value.toFixed(2)} kWh
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // 🧠 UI PRO
   return (
-    <div className="bg-white mt-10 p-6 rounded-2xl shadow-lg border border-gray-200">
+    <div className="mt-10 bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
       <motion.div
-        initial={{ opacity: 0, y: -5 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between mb-6"
       >
         <h3 className="text-2xl font-semibold flex items-center gap-2">
-          <Link className="w-6 h-6 text-blue-600" />
-          Suivi Énergétique
+          <Users className="w-6 h-6 text-green-600" />
+          Tableau énergétique
         </h3>
-        <div className="text-sm text-gray-600">
-          🔵 <strong>{totalConso.toFixed(2)} kWh</strong> consommés • 🟠{" "}
-          <strong>{totalInject.toFixed(2)} kWh</strong> injectés
+        <div className="text-gray-500 text-sm">
+          Total affiché :{" "}
+          <span className="font-semibold text-green-600">
+            {totalVolume.toFixed(2)} kWh
+          </span>
         </div>
       </motion.div>
 
-      {/* Ajout URL */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <input
-            type="text"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-            placeholder="Collez ici l’URL CSV exportée"
-            className="border rounded-md p-2 w-full"
-          />
-        </div>
-        <button
-          onClick={() => {
-            if (newUrl && !urls.includes(newUrl)) {
-              setUrls([...urls, newUrl]);
-              setNewUrl("");
-            }
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-        >
-          <Save className="w-4 h-4" /> Ajouter
-        </button>
-      </div>
-
-      {/* Liste URLs */}
-      {urls.length > 0 && (
-        <div className="mb-8">
-          <table className="w-full text-sm border border-gray-200 rounded-lg">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 text-left">Lien</th>
-                <th className="p-2 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {urls.map((u, idx) => (
-                <tr key={idx} className="border-t">
-                  <td className="p-2 truncate text-blue-600">{u}</td>
-                  <td className="p-2 text-right">
-                    <button
-                      onClick={() => setUrls(urls.filter((x) => x !== u))}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4 inline" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Filtres */}
-      <div className="flex flex-wrap gap-4 mb-6 items-center">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="w-5 h-5 text-gray-600" />
-          <input
-            type="date"
-            value={format(selectedDate, "yyyy-MM-dd")}
-            onChange={(e) => setSelectedDate(new Date(e.target.value))}
-            className="border rounded-md p-2"
-          />
-        </div>
-
-        {eans.length > 0 && (
-          <select
-            multiple
-            value={selectedEans}
-            onChange={(e) =>
-              setSelectedEans(
-                Array.from(e.target.selectedOptions, (opt) => opt.value)
-              )
-            }
-            className="border rounded-md p-2 min-w-[250px]"
-          >
-            <option value="ALL" onClick={() => setSelectedEans(eans)}>
-              Tous les EANs
-            </option>
-            {eans.map((ean) => (
-              <option key={ean} value={ean}>
-                {ean}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
-
-      {/* Graph */}
-      {loading ? (
+      {!csvUrl ? (
+        <p className="text-gray-500 italic">Aucun fichier sélectionné</p>
+      ) : loading ? (
         <p className="text-gray-500 italic">Chargement des données...</p>
       ) : (
-        <div className="w-full h-[450px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tick={{ fontSize: 10 }} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="consoPartagee"
-                stroke="#16A34A"
-                fill="#16A34A"
-                fillOpacity={0.25}
-                name="Consommation partagée"
+        <>
+          {/* Sélecteurs */}
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            {/* Participants */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Participants</label>
+              <select
+                multiple
+                value={selectedParticipants}
+                onChange={(e) =>
+                  setSelectedParticipants(
+                    Array.from(e.target.selectedOptions, (opt) => opt.value)
+                  )
+                }
+                className="border rounded-md px-2 py-1 h-24 w-48"
+              >
+                {participants.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Granularité */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Granularité</label>
+              <select
+                value={granularity}
+                onChange={(e) => setGranularity(e.target.value)}
+                className="border rounded-md px-2 py-1"
+              >
+                <option value="day">Jour (quart d’heure)</option>
+                <option value="week">Semaine</option>
+                <option value="month">Mois</option>
+              </select>
+            </div>
+
+            {/* Date */}
+            <div>
+              <label className="block text-sm font-medium mb-1 flex items-center gap-1">
+                <CalendarDays className="w-4 h-4" /> Date de référence
+              </label>
+              <input
+                type="date"
+                value={format(selectedDate, "yyyy-MM-dd")}
+                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                className="border rounded-md px-2 py-1"
               />
-              <Line
-                type="monotone"
-                dataKey="consoTotale"
-                stroke="#2563EB"
-                strokeWidth={2}
-                dot={false}
-                name="Consommation totale"
-              />
-              <Line
-                type="monotone"
-                dataKey="injectionReseau"
-                stroke="#FB923C"
-                strokeWidth={2}
-                dot={false}
-                name="Injection réseau"
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
+            </div>
+
+            {/* Période glissante */}
+            <div className="flex gap-2 items-end">
+              <button
+                onClick={() => handlePeriodShift(-1)}
+                className="px-3 py-1 border rounded-md hover:bg-gray-100"
+              >
+                ⬅️
+              </button>
+              <button
+                onClick={() => handlePeriodShift(1)}
+                className="px-3 py-1 border rounded-md hover:bg-gray-100"
+              >
+                ➡️
+              </button>
+            </div>
+
+            {/* Types de données */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Types</label>
+              <div className="flex flex-wrap gap-3">
+                {Object.keys(typeColors).map((type) => (
+                  <label key={type} className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={selectedTypes.includes(type)}
+                      onChange={() =>
+                        setSelectedTypes((prev) =>
+                          prev.includes(type)
+                            ? prev.filter((t) => t !== type)
+                            : [...prev, type]
+                        )
+                      }
+                    />
+                    <span
+                      className="px-2 py-0.5 rounded text-xs font-medium"
+                      style={{ backgroundColor: typeColors[type], color: "#fff" }}
+                    >
+                      {type}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Graph */}
+          <div className="w-full h-[450px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 20, right: 40, left: 0, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                {selectedTypes.map((type) => (
+                  <Area
+                    key={type}
+                    type="monotone"
+                    dataKey={type}
+                    stackId="1"
+                    stroke={typeColors[type]}
+                    fill={typeColors[type]}
+                    fillOpacity={0.8}
+                    name={type}
+                  />
+                ))}
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </>
       )}
     </div>
   );
