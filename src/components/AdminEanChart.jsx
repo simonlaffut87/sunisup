@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Papa from "papaparse";
 import {
   ResponsiveContainer,
@@ -16,20 +16,23 @@ import {
   startOfDay,
   endOfDay,
   addMinutes,
-  addDays,
-  parse,
   isValid,
 } from "date-fns";
 import { motion } from "framer-motion";
 import { Save, Trash2, Link, CalendarDays } from "lucide-react";
 
-// 🔹 Parse la date depuis ton Google Sheet
+// 🕒 Parse robuste de la date "01/07/2025 00:15"
 function parseDate(dateStr) {
   if (!dateStr) return null;
-  const [day, month, year] = dateStr.split(" ")[0].split("/");
-  const time = dateStr.split(" ")[1] || "00:00";
-  const d = new Date(`${year}-${month}-${day}T${time}`);
-  return isValid(d) ? d : null;
+  try {
+    const [d, h] = dateStr.split(" ");
+    const [day, month, year] = d.split("/");
+    const [hour, minute] = (h || "00:00").split(":");
+    const date = new Date(year, month - 1, day, hour, minute);
+    return isValid(date) ? date : null;
+  } catch {
+    return null;
+  }
 }
 
 export default function AdminEanChart() {
@@ -39,20 +42,20 @@ export default function AdminEanChart() {
   });
   const [newUrl, setNewUrl] = useState("");
   const [data, setData] = useState([]);
+  const [eans, setEans] = useState([]);
+  const [selectedEans, setSelectedEans] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
-  // 🔄 Sauvegarde automatique dans localStorage
+  // Sauvegarde des URLs
   useEffect(() => {
     localStorage.setItem("csvUrls", JSON.stringify(urls));
   }, [urls]);
 
-  // 📥 Chargement des CSV combinés
+  // Chargement et parsing CSV
   useEffect(() => {
     if (urls.length === 0) return;
-
     setLoading(true);
-    const allRows = [];
 
     Promise.all(
       urls.map(
@@ -64,9 +67,10 @@ export default function AdminEanChart() {
               skipEmptyLines: true,
               complete: (result) => {
                 const rows = result.data
-                  .filter((r) => r["Date Début"] && r["Type de volume"])
+                  .filter((r) => r["Date Début"] && r["EAN"] && r["Type de volume"])
                   .map((r) => ({
                     date: parseDate(r["Date Début"]),
+                    ean: r["EAN"].trim(),
                     type: r["Type de volume"].trim(),
                     volume: parseFloat(r["Volume (kWh)"]) || 0,
                   }))
@@ -80,52 +84,53 @@ export default function AdminEanChart() {
     ).then((results) => {
       const merged = results.flat();
       setData(merged);
+      const uniqueEans = [...new Set(merged.map((r) => r.ean))];
+      setEans(uniqueEans);
+      if (selectedEans.length === 0) setSelectedEans(uniqueEans);
       setLoading(false);
     });
   }, [urls]);
 
-  // 🧮 Agrégation par quart d’heure sur la journée
-  const aggregateData = () => {
+  // Agrégation des données (15 min)
+  const chartData = useMemo(() => {
     if (data.length === 0) return [];
 
     const start = startOfDay(selectedDate);
     const end = endOfDay(selectedDate);
-    const step = 15; // minutes
 
-    const aggregated = [];
-    let current = start;
-    while (current <= end) {
-      const next = addMinutes(current, step);
-      const slotData = data.filter((d) => d.date >= current && d.date < next);
+    const steps = [];
+    for (let t = start; t <= end; t = addMinutes(t, 15)) {
+      const selectedData = data.filter(
+        (r) =>
+          r.date >= t &&
+          r.date < addMinutes(t, 15) &&
+          selectedEans.includes(r.ean)
+      );
 
-      const consoPartagee = slotData
+      const consoPartagee = selectedData
         .filter((d) => d.type === "Consommation partagée")
-        .reduce((s, d) => s + d.volume, 0);
-      const consoReseau = slotData
+        .reduce((sum, d) => sum + d.volume, 0);
+      const consoReseau = selectedData
         .filter((d) => d.type === "Consommation réseau")
-        .reduce((s, d) => s + d.volume, 0);
-      const injectionReseau = slotData
+        .reduce((sum, d) => sum + d.volume, 0);
+      const injectReseau = selectedData
         .filter((d) => d.type === "Injection Réseau")
-        .reduce((s, d) => s + d.volume, 0);
+        .reduce((sum, d) => sum + d.volume, 0);
 
-      aggregated.push({
-        time: format(current, "HH:mm"),
+      steps.push({
+        time: format(t, "HH:mm"),
         consoPartagee,
         consoTotale: consoPartagee + consoReseau,
-        injectionReseau,
+        injectionReseau: injectReseau,
       });
-      current = next;
     }
 
-    return aggregated;
-  };
-
-  const chartData = aggregateData();
+    return steps;
+  }, [data, selectedDate, selectedEans]);
 
   const totalConso = chartData.reduce((s, d) => s + d.consoTotale, 0);
   const totalInject = chartData.reduce((s, d) => s + d.injectionReseau, 0);
 
-  // 🧠 UI
   return (
     <div className="bg-white mt-10 p-6 rounded-2xl shadow-lg border border-gray-200">
       <motion.div
@@ -135,7 +140,7 @@ export default function AdminEanChart() {
       >
         <h3 className="text-2xl font-semibold flex items-center gap-2">
           <Link className="w-6 h-6 text-blue-600" />
-          Suivi Énergétique Combiné
+          Suivi Énergétique
         </h3>
         <div className="text-sm text-gray-600">
           🔵 <strong>{totalConso.toFixed(2)} kWh</strong> consommés • 🟠{" "}
@@ -143,17 +148,14 @@ export default function AdminEanChart() {
         </div>
       </motion.div>
 
-      {/* Zone d’import et tableau des URLs */}
+      {/* Ajout URL */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">
-            Ajouter une URL Google Sheet
-          </label>
           <input
             type="text"
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
-            placeholder="Collez ici le lien CSV exporté"
+            placeholder="Collez ici l’URL CSV exportée"
             className="border rounded-md p-2 w-full"
           />
         </div>
@@ -166,15 +168,13 @@ export default function AdminEanChart() {
           }}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
         >
-          <Save className="w-4 h-4" /> Sauvegarder
+          <Save className="w-4 h-4" /> Ajouter
         </button>
       </div>
 
+      {/* Liste URLs */}
       {urls.length > 0 && (
         <div className="mb-8">
-          <h4 className="text-sm font-semibold mb-2 text-gray-700">
-            URLs enregistrées ({urls.length})
-          </h4>
           <table className="w-full text-sm border border-gray-200 rounded-lg">
             <thead className="bg-gray-100">
               <tr>
@@ -201,18 +201,42 @@ export default function AdminEanChart() {
         </div>
       )}
 
-      {/* Sélecteur de date */}
-      <div className="flex items-center gap-3 mb-6">
-        <CalendarDays className="w-5 h-5 text-gray-600" />
-        <input
-          type="date"
-          value={format(selectedDate, "yyyy-MM-dd")}
-          onChange={(e) => setSelectedDate(new Date(e.target.value))}
-          className="border rounded-md p-2"
-        />
+      {/* Filtres */}
+      <div className="flex flex-wrap gap-4 mb-6 items-center">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="w-5 h-5 text-gray-600" />
+          <input
+            type="date"
+            value={format(selectedDate, "yyyy-MM-dd")}
+            onChange={(e) => setSelectedDate(new Date(e.target.value))}
+            className="border rounded-md p-2"
+          />
+        </div>
+
+        {eans.length > 0 && (
+          <select
+            multiple
+            value={selectedEans}
+            onChange={(e) =>
+              setSelectedEans(
+                Array.from(e.target.selectedOptions, (opt) => opt.value)
+              )
+            }
+            className="border rounded-md p-2 min-w-[250px]"
+          >
+            <option value="ALL" onClick={() => setSelectedEans(eans)}>
+              Tous les EANs
+            </option>
+            {eans.map((ean) => (
+              <option key={ean} value={ean}>
+                {ean}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
-      {/* Graphique principal */}
+      {/* Graph */}
       {loading ? (
         <p className="text-gray-500 italic">Chargement des données...</p>
       ) : (
@@ -224,16 +248,14 @@ export default function AdminEanChart() {
               <YAxis />
               <Tooltip />
               <Legend />
-              {/* Conso partagée (fond vert translucide) */}
               <Area
                 type="monotone"
                 dataKey="consoPartagee"
                 stroke="#16A34A"
                 fill="#16A34A"
-                fillOpacity={0.3}
+                fillOpacity={0.25}
                 name="Consommation partagée"
               />
-              {/* Conso totale (bleu) */}
               <Line
                 type="monotone"
                 dataKey="consoTotale"
@@ -242,7 +264,6 @@ export default function AdminEanChart() {
                 dot={false}
                 name="Consommation totale"
               />
-              {/* Injection réseau (orange) */}
               <Line
                 type="monotone"
                 dataKey="injectionReseau"
