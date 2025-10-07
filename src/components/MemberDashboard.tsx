@@ -30,7 +30,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Line,
+  ComposedChart
 } from 'recharts';
 
 interface MemberDashboardProps {
@@ -521,10 +523,10 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
           {monthlyData.length > 0 ? (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData.map(item => ({
+                <ComposedChart data={monthlyData.map(item => ({
                   ...item,
                   consommation_totale: item.volume_partage + item.volume_complementaire
-                }))} barGap={-20}>
+                }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="month" stroke="#6B7280" />
                   <YAxis stroke="#6B7280" label={{ value: 'kWh', angle: -90, position: 'insideLeft' }} />
@@ -541,10 +543,18 @@ export function MemberDashboard({ user, onLogout }: MemberDashboardProps) {
                     ]}
                   />
                   <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Bar dataKey="volume_partage" fill="#10B981" name="Consommation Partagée" fillOpacity={0.7} />
-                  <Bar dataKey="injection_complementaire" fill="#F97316" name="Injection Réseau" fillOpacity={0.7} />
                   <Bar dataKey="consommation_totale" fill="#3B82F6" name="Consommation Totale" />
-                </BarChart>
+                  <Bar dataKey="volume_partage" fill="#10B981" name="Consommation Partagée" />
+                  <Line
+                    type="monotone"
+                    dataKey="injection_complementaire"
+                    stroke="#F97316"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    name="Injection Réseau"
+                    dot={{ fill: '#F97316', r: 4 }}
+                  />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           ) : (
