@@ -61,16 +61,16 @@ export function EnergyCharts({ totalProduction, totalConsumption }: EnergyCharts
       {
         label: 'Production (kWh)',
         data: monthlyProduction,
-        backgroundColor: 'rgba(251, 191, 36, 0.8)',
-        borderColor: 'rgb(251, 191, 36)',
+        backgroundColor: 'rgba(248, 189, 61, 0.8)',
+        borderColor: 'rgb(248, 189, 61)',
         borderWidth: 2,
         borderRadius: 4,
       },
       {
         label: 'Consommation (kWh)',
         data: monthlyConsumption,
-        backgroundColor: 'rgba(217, 119, 6, 0.8)',
-        borderColor: 'rgb(217, 119, 6)',
+        backgroundColor: 'rgba(65, 208, 166, 0.8)',
+        borderColor: 'rgb(65, 208, 166)',
         borderWidth: 2,
         borderRadius: 4,
       }
@@ -83,11 +83,11 @@ export function EnergyCharts({ totalProduction, totalConsumption }: EnergyCharts
       {
         label: 'Prix par kWh (€)',
         data: energyPrices.providers.map(p => p.price),
-        backgroundColor: energyPrices.providers.map(p => 
-          p.name === 'Sun Is Up CE' ? 'rgba(251, 191, 36, 0.8)' : 'rgba(217, 119, 6, 0.5)'
+        backgroundColor: energyPrices.providers.map(p =>
+          p.name === 'Sun Is Up CE' ? 'rgba(248, 189, 61, 0.8)' : 'rgba(65, 208, 166, 0.5)'
         ),
-        borderColor: energyPrices.providers.map(p => 
-          p.name === 'Sun Is Up CE' ? 'rgb(251, 191, 36)' : 'rgb(217, 119, 6)'
+        borderColor: energyPrices.providers.map(p =>
+          p.name === 'Sun Is Up CE' ? 'rgb(248, 189, 61)' : 'rgb(65, 208, 166)'
         ),
         borderWidth: 2,
         borderRadius: 4,
@@ -183,13 +183,13 @@ export function EnergyCharts({ totalProduction, totalConsumption }: EnergyCharts
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-amber-100">
+      <div className="bg-white rounded-xl shadow-lg p-6 border border-brand-mint/20">
         <div style={{ height: '400px' }}>
           <Bar options={productionConsumptionOptions} data={productionConsumptionData} />
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-amber-100">
+      <div className="bg-white rounded-xl shadow-lg p-6 border border-brand-mint/20">
         <div style={{ height: '400px' }}>
           <Bar options={priceComparisonOptions} data={priceComparisonData} />
         </div>

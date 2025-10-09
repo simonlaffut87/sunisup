@@ -5,11 +5,19 @@ export default {
     extend: {
       colors: {
         brand: {
-          teal: '#1D8181',
-          gold: '#F8BD3B',
-          flame: '#F8BD3B',
-          'teal-light': '#2A9D9D',
+          indigo: '#5E1DE0',
+          purple: '#755CA2',
+          mint: '#41D0A6',
+          gold: '#F8BD3D',
+          coral: '#FF7D84',
+          teal: '#41D0A6',
+          flame: '#F8BD3D',
+          'indigo-light': '#7E45E8',
+          'purple-light': '#8F7BB5',
+          'mint-light': '#5EDCB8',
           'gold-light': '#F9CA5E',
+          'coral-light': '#FF99A0',
+          'teal-light': '#5EDCB8',
           'flame-light': '#F9CA5E',
         },
       },
