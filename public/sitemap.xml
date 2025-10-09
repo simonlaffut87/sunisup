@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://sunisup.be/</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="fr-BE" href="https://sunisup.be/" />
@@ -26,7 +26,7 @@
   </url>
   <url>
     <loc>https://sunisup.be/about</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="fr-BE" href="https://sunisup.be/about" />
@@ -38,7 +38,7 @@
   </url>
   <url>
     <loc>https://sunisup.be/simulation</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="fr-BE" href="https://sunisup.be/simulation" />
@@ -50,7 +50,7 @@
   </url>
   <url>
     <loc>https://sunisup.be/admin</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="fr-BE" href="https://sunisup.be/admin" />
@@ -60,10 +60,10 @@
     <xhtml:link rel="alternate" hreflang="nl" href="https://sunisup.be/admin" />
     <xhtml:link rel="alternate" hreflang="en" href="https://sunisup.be/admin" />
   </url>
-</urlset>
   <url>
     <loc>https://sunisup.be/reset-password</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+</urlset>
