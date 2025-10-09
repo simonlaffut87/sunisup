@@ -187,7 +187,7 @@ function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
               <Link to="/" className="flex items-center space-x-3 relative top-2">
-                <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-24 h-24" />
+                <img src="/images/logo-v2.png" alt="Sun Is Up" className="w-24 h-24 object-contain" />
               </Link>
 
               <div className="hidden md:flex items-center space-x-8">
